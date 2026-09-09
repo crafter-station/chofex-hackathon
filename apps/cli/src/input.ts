@@ -10,7 +10,7 @@ import { Effect, Schema } from "effect";
 import { Prompt } from "effect/unstable/cli";
 import type * as PromptModule from "effect/unstable/cli/Prompt";
 
-import { type CliError, cliError } from "./errors.js";
+import { CliError, cliError } from "./errors.js";
 
 const requiredText = (message: string): Prompt.Prompt<string> =>
   Prompt.text({
@@ -141,42 +141,84 @@ const teamPreferencePrompt = Prompt.select({
   ],
 });
 
-const applicationConsentPrompts = Prompt.all({
-  codeOfConductAccepted: Prompt.confirm({
-    message: "Do you accept the code of conduct?",
-  }),
-  privacyPolicyAccepted: Prompt.confirm({
-    message: "Do you accept the privacy policy?",
-  }),
-  mediaConsent: Prompt.confirm({
-    message: "Do you consent to appearing in event media?",
-  }),
+export const publicDocumentUrl = (baseUrl: string, path: string): string =>
+  `${baseUrl.replace(/\/$/, "")}${path}`;
+
+const requiredAgreement = Effect.fn("requiredAgreement")(function* (
+  name: string,
+  url: string,
+) {
+  const accepted = yield* Prompt.run(
+    Prompt.confirm({
+      message: `Do you accept the ${name}? Read it at ${url}`,
+    }),
+  );
+  if (accepted) return true as const;
+
+  const nextStep = yield* Prompt.run(
+    Prompt.select({
+      message: `You must accept the ${name} to register. What would you like to do?`,
+      choices: [
+        {
+          title: "I accept and want to continue",
+          value: "accept" as const,
+        },
+        { title: "Cancel registration", value: "cancel" as const },
+      ],
+    }),
+  );
+  if (nextStep === "accept") return true as const;
+
+  return yield* cliError(
+    "REGISTRATION_CANCELLED",
+    "Registration cancelled. Your answers were not submitted.",
+  );
 });
 
-const interactiveApplication = Effect.gen(function* () {
-  const details = yield* Prompt.run(applicationDetailsPrompts);
-  const teamPreference = yield* Prompt.run(teamPreferencePrompt);
-  let teamName: string | undefined;
-  if (teamPreference === "have_team") {
-    teamName = yield* Prompt.run(requiredText("Team name"));
-  }
-  const consents = yield* Prompt.run(applicationConsentPrompts);
-  return { ...details, teamPreference, teamName, ...consents };
-}).pipe(
-  Effect.map((input) => {
-    const normalized = withoutEmptyStrings(input);
-    if (input.graduationYear !== "") {
-      normalized.graduationYear = Number(input.graduationYear);
+const interactiveApplication = (publicBaseUrl: string) =>
+  Effect.gen(function* () {
+    const details = yield* Prompt.run(applicationDetailsPrompts);
+    const teamPreference = yield* Prompt.run(teamPreferencePrompt);
+    let teamName: string | undefined;
+    if (teamPreference === "have_team") {
+      teamName = yield* Prompt.run(requiredText("Team name"));
     }
-    if (input.githubUrl !== "") {
-      normalized.githubUrl = `github.com/${input.githubUrl}`;
-    }
-    if (input.linkedInUrl !== "") {
-      normalized.linkedInUrl = `linkedin.com/in/${input.linkedInUrl}`;
-    }
-    return normalized;
-  }),
-);
+    const codeOfConductAccepted = yield* requiredAgreement(
+      "Terms and Code of Conduct",
+      publicDocumentUrl(publicBaseUrl, "/terms"),
+    );
+    const privacyPolicyAccepted = yield* requiredAgreement(
+      "Privacy Policy",
+      publicDocumentUrl(publicBaseUrl, "/privacy"),
+    );
+    const mediaConsent = yield* Prompt.run(
+      Prompt.confirm({
+        message: "Do you consent to appearing in event media? (optional)",
+      }),
+    );
+    return {
+      ...details,
+      teamPreference,
+      teamName,
+      codeOfConductAccepted,
+      privacyPolicyAccepted,
+      mediaConsent,
+    };
+  }).pipe(
+    Effect.map((input) => {
+      const normalized = withoutEmptyStrings(input);
+      if (input.graduationYear !== "") {
+        normalized.graduationYear = Number(input.graduationYear);
+      }
+      if (input.githubUrl !== "") {
+        normalized.githubUrl = `github.com/${input.githubUrl}`;
+      }
+      if (input.linkedInUrl !== "") {
+        normalized.linkedInUrl = `linkedin.com/in/${input.linkedInUrl}`;
+      }
+      return normalized;
+    }),
+  );
 
 const shirtSizePrompt = (
   participationMode: "in_person" | "remote",
@@ -223,16 +265,18 @@ const inputOrInteractive = (
     );
   }
   return interactive.pipe(
-    Effect.mapError(() =>
-      cliError("PROMPT_CANCELLED", "Interactive input was cancelled"),
-    ),
+    Effect.mapError((error) => {
+      if (error instanceof CliError) return error;
+      return cliError("PROMPT_CANCELLED", "Interactive input was cancelled");
+    }),
   );
 };
 
 export const applicationInput = (
-  path?: string,
+  path: string | undefined,
+  publicBaseUrl: string,
 ): Effect.Effect<ApplicationInput, CliError, PromptModule.Environment> =>
-  inputOrInteractive(path, interactiveApplication).pipe(
+  inputOrInteractive(path, interactiveApplication(publicBaseUrl)).pipe(
     Effect.flatMap((input) => decode(ApplicationInput, input)),
     Effect.flatMap((input) =>
       validateSemantics(input, applicationSemanticRequirements(input)),

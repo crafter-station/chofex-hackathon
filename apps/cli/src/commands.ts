@@ -52,7 +52,10 @@ const registerCommand = Command.make(
     const options = yield* root;
     const operation = Effect.gen(function* () {
       const token = Option.getOrUndefined(options.token);
-      const body = yield* applicationInput(Option.getOrUndefined(input));
+      const body = yield* applicationInput(
+        Option.getOrUndefined(input),
+        options.apiUrl,
+      );
       return yield* register({ apiUrl: options.apiUrl, token }, body);
     });
     yield* execute(options.output, operation, createdText);
