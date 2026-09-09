@@ -83,6 +83,7 @@ describe("CLI JSON mode", () => {
           data: {
             authenticated: true,
             userId: "user_123",
+            email: "ada@example.com",
             tokenType: "oauth_token",
           },
         });
@@ -110,7 +111,7 @@ describe("CLI JSON mode", () => {
 
       expect(human.exitCode).toBe(0);
       expect(human.stdout.trim()).toBe(
-        "Authenticated as user_123 (oauth_token).",
+        "Authenticated as ada@example.com (user_123, oauth_token).",
       );
       expect(json.exitCode).toBe(0);
       expect(JSON.parse(json.stdout)).toMatchObject({
@@ -118,6 +119,7 @@ describe("CLI JSON mode", () => {
         data: {
           authenticated: true,
           userId: "user_123",
+          email: "ada@example.com",
           tokenType: "oauth_token",
         },
       });

@@ -30,11 +30,13 @@ describe("registration contract", () => {
       Schema.decodeUnknownSync(CurrentUserSchema)({
         authenticated: true,
         userId: "user_123",
+        email: "ada@example.com",
         tokenType: "oauth_token",
       }),
     ).toEqual({
       authenticated: true,
       userId: "user_123",
+      email: "ada@example.com",
       tokenType: "oauth_token",
     });
   });

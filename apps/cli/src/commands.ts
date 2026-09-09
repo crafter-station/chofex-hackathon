@@ -201,7 +201,8 @@ const whoamiCommand = Command.make(
     yield* execute(
       options.output,
       operation,
-      (result) => `Authenticated as ${result.userId} (${result.tokenType}).`,
+      (result) =>
+        `Authenticated as ${result.email} (${result.userId}, ${result.tokenType}).`,
     );
   }),
 ).pipe(Command.withDescription("Verify the current Clerk authentication"));

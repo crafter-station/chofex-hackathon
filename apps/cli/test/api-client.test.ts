@@ -48,6 +48,7 @@ describe("registration API client", () => {
         data: {
           authenticated: true,
           userId: "user_123",
+          email: "ada@example.com",
           tokenType: "oauth_token",
         },
       });
@@ -66,6 +67,7 @@ describe("registration API client", () => {
     expect(response.data).toEqual({
       authenticated: true,
       userId: "user_123",
+      email: "ada@example.com",
       tokenType: "oauth_token",
     });
   });

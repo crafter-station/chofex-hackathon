@@ -266,6 +266,7 @@ export type ApiResponse<A> = ApiSuccess<A> | ApiFailure;
 export const CurrentUserSchema = Schema.Struct({
   authenticated: Schema.Literal(true),
   userId: Schema.String,
+  email: Schema.String,
   tokenType: Schema.Literals(["oauth_token", "session_token"]),
 });
 
