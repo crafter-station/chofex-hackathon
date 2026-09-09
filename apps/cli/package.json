@@ -15,7 +15,7 @@
   "bugs": {
     "url": "https://github.com/cuevaio/chofex-hack-cli/issues"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   "keywords": ["chofex", "hackathon", "cli"],
   "engines": {
     "node": ">=20"
