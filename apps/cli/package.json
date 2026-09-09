@@ -1,32 +1,46 @@
 {
-  "name": "@chofex/cli",
+  "name": "chofex-cli",
   "version": "0.1.0",
+  "description": "Command-line client for the Chofex Hackathon",
   "type": "module",
-  "private": true,
   "bin": {
     "chofex": "./dist/index.js"
   },
-  "exports": {
-    ".": "./src/index.ts"
+  "files": ["dist"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cuevaio/chofex-hack-cli.git"
+  },
+  "homepage": "https://github.com/cuevaio/chofex-hack-cli#readme",
+  "bugs": {
+    "url": "https://github.com/cuevaio/chofex-hack-cli/issues"
+  },
+  "license": "UNLICENSED",
+  "keywords": ["chofex", "hackathon", "cli"],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && bun build src/index.ts --target=node --outfile=dist/index.js",
     "dev": "bun src/index.ts",
     "lint": "biome lint --error-on-warnings .",
     "format": "biome format --write .",
     "check-types": "tsc --noEmit",
-    "test": "bun test"
-  },
-  "dependencies": {
-    "@effect/platform-node": "4.0.0-rc.112",
-    "@repo/registration-contract": "*",
-    "effect": "4.0.0-rc.112"
+    "test": "bun test",
+    "prepack": "bun run build"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
+    "@effect/platform-node": "4.0.0-rc.112",
+    "@repo/registration-contract": "*",
     "@repo/typescript-config": "*",
     "@types/bun": "^1.3.14",
     "@types/node": "26.4.1",
+    "effect": "4.0.0-rc.112",
     "typescript": "7.0.2"
   }
 }

@@ -3,11 +3,15 @@
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import { Console, Effect } from "effect";
 import { Command } from "effect/unstable/cli";
+import { readFileSync } from "node:fs";
 
 import { command } from "./commands.js";
 import { printJson } from "./output.js";
 
-const cliVersion = "0.1.0";
+const packageMetadata = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+) as { version: string };
+const cliVersion = packageMetadata.version;
 const arguments_ = process.argv.slice(2);
 
 const jsonOutputRequested = (arguments_: ReadonlyArray<string>): boolean => {
