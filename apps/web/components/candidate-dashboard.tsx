@@ -1196,7 +1196,7 @@ export const AdminAccessDenied = () => (
       <h1 className="mt-5 text-xl font-semibold">Admin access required</h1>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
         This workspace contains private participant information. Ask an
-        organizer to grant application reviewer access to your Clerk account.
+        organizer to add the admin role to your Clerk account.
       </p>
       <ButtonLink
         className="mt-2"

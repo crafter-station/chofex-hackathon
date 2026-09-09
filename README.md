@@ -3,6 +3,20 @@
 Participant registration API and Effect v4 CLI. The CLI supports guided input
 for people and stable JSON input/output for agents.
 
+## Agent skill
+
+Install the Chofex Hackathon skill in a supported coding agent with
+[skills.sh](https://skills.sh):
+
+```sh
+npx skills add https://github.com/crafter-station/chofex-hackathon --skill chofex-hackathon
+```
+
+The skill teaches an agent the complete application and post-acceptance flow,
+including the boundaries that keep authentication, personal answers, consent,
+and final submission approval with the participant. It lives at
+[`skills/chofex-hackathon/SKILL.md`](skills/chofex-hackathon/SKILL.md).
+
 ## Setup
 
 ```sh

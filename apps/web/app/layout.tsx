@@ -17,8 +17,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "shadcn/ui Monorepo",
-  description: "A shared shadcn/ui package with light and dark themes.",
+  title: "Chofex Hackathon",
+  description:
+    "Apply to the Chofex Hackathon in Lima with help from your coding agent.",
 };
 
 export default function RootLayout({

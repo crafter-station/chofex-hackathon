@@ -1,5 +1,6 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 
+import { grantsApplicationReviewAccess } from "@/lib/admin/roles";
 import { HttpError } from "@/lib/registration/http";
 
 export interface AdminIdentity {
@@ -24,9 +25,13 @@ export const getAdminIdentity = async (): Promise<AdminIdentity | null> => {
 
   const clerk = await clerkClient();
   const user = await clerk.users.getUser(authentication.userId);
-  const publicRole = user.publicMetadata.role;
-  const privateRole = user.privateMetadata.role;
-  if (publicRole === "admin" || privateRole === "admin") {
+  const publicMetadataAllowsAccess = grantsApplicationReviewAccess(
+    user.publicMetadata,
+  );
+  const privateMetadataAllowsAccess = grantsApplicationReviewAccess(
+    user.privateMetadata,
+  );
+  if (publicMetadataAllowsAccess || privateMetadataAllowsAccess) {
     return { clerkUserId: authentication.userId };
   }
   return null;
