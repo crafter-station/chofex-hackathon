@@ -7,6 +7,11 @@ export interface AuthenticatedParticipant {
   readonly tokenType: "oauth_token" | "session_token";
 }
 
+export interface AuthenticatedParticipantProfile
+  extends AuthenticatedParticipant {
+  readonly email: string;
+}
+
 interface ClerkAuthenticationState {
   readonly isAuthenticated: boolean;
   readonly toAuth: () => {
@@ -92,6 +97,28 @@ export const requireAuthenticatedParticipant = async (
     );
   }
   return authentication;
+};
+
+export const requireAuthenticatedParticipantProfile = async (
+  request: Request,
+): Promise<AuthenticatedParticipantProfile> => {
+  const authentication = await requireAuthenticatedParticipant(request);
+  const clerk = await clerkClient();
+  const user = await clerk.users.getUser(authentication.clerkUserId);
+  const emailAddress = user.emailAddresses.find(
+    (candidate) => candidate.id === user.primaryEmailAddressId,
+  );
+  if (!emailAddress) {
+    throw new HttpError(
+      422,
+      "PRIMARY_EMAIL_REQUIRED",
+      "The authenticated Clerk user does not have a primary email address",
+    );
+  }
+  return {
+    ...authentication,
+    email: emailAddress.emailAddress.trim().toLowerCase(),
+  };
 };
 
 export const requireParticipantUserId = async (

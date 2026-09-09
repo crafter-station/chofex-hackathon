@@ -15,7 +15,11 @@ const normalizedString = (normalize: (value: string) => string) =>
     }),
   );
 
-const url = Schema.String.pipe(
+const url = normalizedString((value) => {
+  const trimmed = value.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}).pipe(
   Schema.check(
     Schema.isPattern(/^https?:\/\/[^\s]+$/i, {
       message: "Must be an http or https URL",
@@ -35,6 +39,8 @@ export const RegistrationStatus = Schema.Literals([
 ]);
 
 export const ParticipationMode = Schema.Literals(["in_person", "remote"]);
+export const hackathonCountryCode = "PE" as const;
+export const hackathonParticipationMode = "in_person" as const;
 export const ExperienceLevel = Schema.Literals([
   "beginner",
   "intermediate",
@@ -59,24 +65,8 @@ export const ShirtSize = Schema.Literals([
 export const ApplicationInput = Schema.Struct({
   firstName: nonBlank(100),
   lastName: nonBlank(100),
-  email: normalizedString((value) => value.trim().toLowerCase()).pipe(
-    Schema.check(
-      Schema.isPattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, {
-        message: "Must be a valid email address",
-      }),
-      Schema.isMaxLength(320),
-    ),
-  ),
   pronouns: optionalText(50),
-  countryCode: normalizedString((value) => value.trim().toUpperCase()).pipe(
-    Schema.check(
-      Schema.isPattern(/^[A-Z]{2}$/, {
-        message: "Must be a two-letter ISO country code",
-      }),
-    ),
-  ),
   city: nonBlank(120),
-  participationMode: ParticipationMode,
   organization: optionalText(200),
   role: optionalText(120),
   fieldOfStudy: optionalText(160),
@@ -125,10 +115,7 @@ export type AcceptedDetailsInput = typeof AcceptedDetailsInput.Type;
 export const initialRequiredFields = [
   "firstName",
   "lastName",
-  "email",
-  "countryCode",
   "city",
-  "participationMode",
   "experienceLevel",
   "skills",
   "bio",

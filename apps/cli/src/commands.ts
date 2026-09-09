@@ -210,10 +210,7 @@ const whoamiCommand = Command.make(
 const applicationTemplate = {
   firstName: "Ada",
   lastName: "Lovelace",
-  email: "ada@example.com",
-  countryCode: "GB",
-  city: "London",
-  participationMode: "in_person",
+  city: "Lima",
   experienceLevel: "advanced",
   skills: ["TypeScript", "AI"],
   bio: "What I hope to build and contribute.",

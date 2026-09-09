@@ -1,10 +1,11 @@
-import type {
-  ApiSuccess,
-  CreatedRegistration,
-  RegistrationRequirements,
-  RegistrationResult,
+import {
+  RequirementSchema,
+  type ApiSuccess,
+  type CreatedRegistration,
+  type RegistrationRequirements,
+  type RegistrationResult,
 } from "@repo/registration-contract";
-import { Console, Effect } from "effect";
+import { Console, Effect, Result, Schema } from "effect";
 
 import { type CliError, exitCodeFor } from "./errors.js";
 
@@ -14,6 +15,29 @@ export const printJson = (value: unknown): Effect.Effect<void> =>
   Effect.sync(() => {
     process.stdout.write(`${JSON.stringify(value)}\n`);
   });
+
+const humanErrorDetails = (details: unknown): string => {
+  if (details === undefined) return "";
+
+  if (typeof details === "object" && details !== null && "issues" in details) {
+    const issues = details.issues;
+    if (Array.isArray(issues)) {
+      const decoded = Schema.decodeUnknownResult(Schema.Array(RequirementSchema))(
+        issues,
+      );
+      if (Result.isSuccess(decoded) && decoded.success.length > 0) {
+        const lines = decoded.success.map(
+          (issue) => `  - ${issue.field}: ${issue.reason}`,
+        );
+        return `\nDetails:\n${lines.join("\n")}`;
+      }
+    }
+    if (typeof issues === "string") return `\nDetails:\n${issues}`;
+  }
+
+  if (typeof details === "string") return `\nDetails:\n${details}`;
+  return `\nDetails:\n${JSON.stringify(details, null, 2)}`;
+};
 
 export const execute = <A, R>(
   mode: OutputMode,
@@ -40,8 +64,9 @@ export const execute = <A, R>(
           },
         });
       }
+      const details = humanErrorDetails(error.details);
       return Console.error(
-        `Error [${error.code}]: ${error.message}\nRequest ID: ${error.requestId}`,
+        `Error [${error.code}]: ${error.message}${details}\nRequest ID: ${error.requestId}`,
       );
     }),
   );

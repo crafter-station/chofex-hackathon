@@ -54,6 +54,9 @@ chofex confirm
 
 A rejected application remains in history. Running `chofex register` again
 creates a new application instead of overwriting the rejected submission.
+Registration is for the on-site event in Lima: the API uses the participant's
+primary Clerk email, records Peru as the country, and only asks for their city
+of residence in Peru.
 
 For agents and scripts, print an input template and request JSON output:
 

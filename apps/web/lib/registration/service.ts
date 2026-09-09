@@ -6,6 +6,8 @@ import {
   ApplicationInput,
   acceptedDetailsSemanticRequirements,
   applicationSemanticRequirements,
+  hackathonCountryCode,
+  hackathonParticipationMode,
   type CreatedRegistration,
   type RegistrationRequirements,
   type RegistrationResult,
@@ -19,6 +21,11 @@ import { encryptSensitiveValue } from "./sensitive";
 
 type ApplicationRecord = typeof applications.$inferSelect;
 type AcceptanceDetailsRecord = typeof acceptanceDetails.$inferSelect;
+
+interface RegistrationIdentity {
+  readonly clerkUserId: string;
+  readonly email: string;
+}
 
 const optional = <A>(value: A | null | undefined): A | undefined =>
   value ?? undefined;
@@ -252,12 +259,12 @@ const participantFor = async (clerkUserId: string): Promise<string> => {
 };
 
 export const createRegistration = async (
-  clerkUserId: string,
+  identity: RegistrationIdentity,
   rawInput: unknown,
 ): Promise<CreatedRegistration> => {
   const input = parseInput(ApplicationInput, rawInput);
   assertNoRequirements(applicationSemanticRequirements(input));
-  const participantId = await participantFor(clerkUserId);
+  const participantId = await participantFor(identity.clerkUserId);
   const now = new Date();
 
   try {
@@ -268,11 +275,11 @@ export const createRegistration = async (
         status: "submitted",
         firstName: input.firstName,
         lastName: input.lastName,
-        email: input.email,
+        email: identity.email,
         pronouns: optional(input.pronouns),
-        countryCode: input.countryCode,
+        countryCode: hackathonCountryCode,
         city: input.city,
-        participationMode: input.participationMode,
+        participationMode: hackathonParticipationMode,
         organization: optional(input.organization),
         role: optional(input.role),
         fieldOfStudy: optional(input.fieldOfStudy),

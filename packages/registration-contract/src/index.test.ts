@@ -12,10 +12,7 @@ import {
 const application = {
   firstName: " Ada ",
   lastName: "Lovelace",
-  email: "ADA@EXAMPLE.COM",
-  countryCode: "gb",
-  city: "London",
-  participationMode: "in_person",
+  city: "Lima",
   experienceLevel: "advanced",
   skills: ["TypeScript"],
   bio: "I build analytical engines.",
@@ -41,11 +38,30 @@ describe("registration contract", () => {
     });
   });
 
-  test("normalizes identity fields", () => {
-    const decoded = Schema.decodeUnknownSync(ApplicationInput)(application);
+  test("accepts only applicant-provided fields for the on-site Peru event", () => {
+    const decoded = Schema.decodeUnknownSync(ApplicationInput)({
+      ...application,
+      githubUrl: "github.com/cuevaio",
+    });
     expect(decoded.firstName).toBe("Ada");
-    expect(decoded.email).toBe("ada@example.com");
-    expect(decoded.countryCode).toBe("GB");
+    expect(decoded.city).toBe("Lima");
+    expect(decoded.githubUrl).toBe("https://github.com/cuevaio");
+    expect(decoded).not.toHaveProperty("email");
+    expect(decoded).not.toHaveProperty("countryCode");
+    expect(decoded).not.toHaveProperty("participationMode");
+  });
+
+  test("rejects identity and event constants supplied by clients", () => {
+    expect(() =>
+      Schema.decodeUnknownSync(ApplicationInput, {
+        onExcessProperty: "error",
+      })({
+        ...application,
+        email: "other@example.com",
+        countryCode: "US",
+        participationMode: "remote",
+      }),
+    ).toThrow();
   });
 
   test("requires a team name for existing teams", () => {
@@ -59,6 +75,16 @@ describe("registration contract", () => {
         reason: "Required when you already have a team",
       },
     ]);
+  });
+
+  test("does not require a team name without an existing team", () => {
+    for (const teamPreference of ["looking_for_team", "solo"] as const) {
+      const decoded = Schema.decodeUnknownSync(ApplicationInput)({
+        ...application,
+        teamPreference,
+      });
+      expect(applicationSemanticRequirements(decoded)).toEqual([]);
+    }
   });
 
   test("requires shirt size only for in-person attendance", () => {

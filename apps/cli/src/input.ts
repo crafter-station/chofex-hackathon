@@ -86,20 +86,11 @@ const validateSemantics = <A>(
   );
 };
 
-const promptForApplication = Prompt.all({
+const applicationDetailsPrompts = Prompt.all({
   firstName: requiredText("First name"),
   lastName: requiredText("Last name"),
-  email: requiredText("Email"),
   pronouns: optionalText("Pronouns (optional)"),
-  countryCode: requiredText("Two-letter country code"),
-  city: requiredText("City"),
-  participationMode: Prompt.select({
-    message: "Participation mode",
-    choices: [
-      { title: "In person", value: "in_person" as const },
-      { title: "Remote", value: "remote" as const },
-    ],
-  }),
+  city: requiredText("City of residence in Peru"),
   organization: optionalText("Organization (optional)"),
   role: optionalText("Role (optional)"),
   fieldOfStudy: optionalText("Field of study (optional)"),
@@ -117,15 +108,18 @@ const promptForApplication = Prompt.all({
   githubUrl: optionalText("GitHub URL (optional)"),
   linkedInUrl: optionalText("LinkedIn URL (optional)"),
   portfolioUrl: optionalText("Portfolio URL (optional)"),
-  teamPreference: Prompt.select({
-    message: "Team preference",
-    choices: [
-      { title: "I have a team", value: "have_team" as const },
-      { title: "I am looking for a team", value: "looking_for_team" as const },
-      { title: "I will participate solo", value: "solo" as const },
-    ],
-  }),
-  teamName: optionalText("Team name (required if you have a team)"),
+});
+
+const teamPreferencePrompt = Prompt.select({
+  message: "Team preference",
+  choices: [
+    { title: "I have a team", value: "have_team" as const },
+    { title: "I am looking for a team", value: "looking_for_team" as const },
+    { title: "I will participate solo", value: "solo" as const },
+  ],
+});
+
+const applicationConsentPrompts = Prompt.all({
   codeOfConductAccepted: Prompt.confirm({
     message: "Do you accept the code of conduct?",
   }),
@@ -137,7 +131,16 @@ const promptForApplication = Prompt.all({
   }),
 });
 
-const interactiveApplication = Prompt.run(promptForApplication).pipe(
+const interactiveApplication = Effect.gen(function* () {
+  const details = yield* Prompt.run(applicationDetailsPrompts);
+  const teamPreference = yield* Prompt.run(teamPreferencePrompt);
+  let teamName: string | undefined;
+  if (teamPreference === "have_team") {
+    teamName = yield* Prompt.run(requiredText("Team name"));
+  }
+  const consents = yield* Prompt.run(applicationConsentPrompts);
+  return { ...details, teamPreference, teamName, ...consents };
+}).pipe(
   Effect.map((input) => {
     const normalized = withoutEmptyStrings(input);
     if (input.graduationYear !== "") {
