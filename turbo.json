@@ -10,7 +10,9 @@
         "DATABASE_URL",
         "CLERK_*",
         "NEXT_PUBLIC_CLERK_*",
-        "PARTICIPANT_DATA_ENCRYPTION_KEY"
+        "PARTICIPANT_DATA_ENCRYPTION_KEY",
+        "ADMIN_CLERK_USER_IDS",
+        "RESEND_*"
       ]
     },
     "lint": {

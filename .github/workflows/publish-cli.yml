@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -13,6 +12,8 @@ jobs:
   publish:
     name: Publish chofex-cli
     runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: 0.1.${{ github.run_number }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
@@ -32,8 +33,6 @@ jobs:
         run: bun --filter chofex-cli check-types
 
       - name: Set release version
-        env:
-          RELEASE_VERSION: 0.1.${{ github.run_number }}
         run: |
           node -e 'const fs = require("node:fs"); const path = "apps/cli/package.json"; const pkg = JSON.parse(fs.readFileSync(path, "utf8")); pkg.version = process.env.RELEASE_VERSION; fs.writeFileSync(path, `${JSON.stringify(pkg, null, 2)}\n`);'
 
@@ -41,12 +40,22 @@ jobs:
         run: bun --filter chofex-cli build
 
       - name: Smoke test executable
-        env:
-          RELEASE_VERSION: 0.1.${{ github.run_number }}
         run: test "$(node apps/cli/dist/index.js --version)" = "chofex v${RELEASE_VERSION}"
 
       - name: Publish to npm
         working-directory: apps/cli
         env:
           NPM_CONFIG_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-        run: bun publish --access public --tag latest --tolerate-republish
+        run: bun publish --access public --tag history --tolerate-republish
+
+      - name: Promote current main release
+        env:
+          NPM_CONFIG_FORCE: "true"
+          NPM_CONFIG_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+        run: |
+          latest_main_sha="$(git ls-remote origin refs/heads/main | cut -f1)"
+          if [[ "$latest_main_sha" != "$GITHUB_SHA" ]]; then
+            echo "A newer main commit exists; leaving this version on the history tag."
+            exit 0
+          fi
+          npm dist-tag add "chofex-cli@${RELEASE_VERSION}" latest

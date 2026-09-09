@@ -18,11 +18,18 @@ so `PARTICIPANT_DATA_ENCRYPTION_KEY` is required for attendance confirmation.
 
 ## CLI authentication
 
+Install the latest CLI globally so the `chofex` command is available:
+
+```sh
+npm install --global chofex-cli@latest
+chofex whoami
+```
+
 The CLI signs in through the same Clerk instance as the web app using OAuth
 authorization code flow with PKCE:
 
 ```sh
-bun run --filter @chofex/cli dev -- login
+bun run --filter chofex-cli dev -- login
 ```
 
 Access and refresh tokens are stored in the operating-system credential store:
