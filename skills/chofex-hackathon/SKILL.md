@@ -8,6 +8,32 @@ description: Apply to the Chofex Hackathon for a human with the Chofex CLI, chec
 Use the Chofex CLI to act on the participant's behalf while keeping identity,
 consent, and final submission decisions with the participant.
 
+## Pace
+
+Move quickly and proactively. Run routine, non-destructive setup, schema, status,
+and requirements commands without asking permission or narrating each command.
+Batch participant questions into the fewest practical turns. Pause only for:
+
+- browser authentication;
+- confirmation that the authenticated email belongs to the participant;
+- application answers that are missing or genuinely ambiguous;
+- the participant's own consent decisions;
+- final submission approval; and
+- private accepted-participant details.
+
+Mechanical formatting is not personal-data invention. Normalize obvious handles
+and domains, show the result in the final application summary, and let the
+participant correct it before submission:
+
+- GitHub `cuevaio` or `@cuevaio` becomes `https://github.com/cuevaio`.
+- LinkedIn `cuevaio` or `@cuevaio` becomes
+  `https://linkedin.com/in/cuevaio`.
+- A profile URL or bare domain missing a scheme gets `https://`.
+- Comma-separated skills become a trimmed array of skills.
+
+Ask a follow-up only when the input is malformed or has more than one plausible
+meaning. Preserve participant-provided wording and casing for personal answers.
+
 ## Command setup
 
 1. Check for the CLI with `chofex --version`.
@@ -71,10 +97,12 @@ chmod 600 "$application_file"
 chofex schema --stage application > "$application_file"
 ```
 
-Interview the participant for every field in the template. Also offer these
-optional fields when absent from the example: pronouns, organization, role,
-field of study, graduation year, GitHub URL, LinkedIn URL, portfolio URL, and
-team name. Explain these rules while collecting answers:
+Collect every field in the template in one compact batch when practical. In the
+same batch, offer these optional fields when absent from the example: pronouns,
+organization, role, field of study, graduation year, GitHub, LinkedIn,
+portfolio, and team name. Accept profile usernames and bare domains using the
+normalization rules above. Ask only for fields the participant has not already
+answered. Explain these rules while collecting answers:
 
 - Registration is for the in-person event in Lima, Peru. The application uses
   the authenticated account's primary email and records Peru as the country.
@@ -85,6 +113,10 @@ team name. Explain these rules while collecting answers:
 - `codeOfConductAccepted` and `privacyPolicyAccepted` must each be the
   participant's explicit `true`; an agent cannot consent for them.
 - `mediaConsent` is optional and must reflect the participant's choice.
+
+Treat the fresh schema and this documented optional-field list as authoritative.
+Inspect CLI source only if the CLI returns a validation error that they cannot
+resolve.
 
 Before requesting required consent, give the participant these links:
 
@@ -106,7 +138,8 @@ chofex --output json register --input "$application_file"
 ```
 
 Delete the temporary file after the CLI has read it. Report success only when
-the envelope has `ok: true`; include the resulting status and next steps.
+the envelope has `ok: true`. Then proactively read status and requirements,
+deduplicate repeated state, and give one concise result with next steps.
 
 ## Next steps
 
