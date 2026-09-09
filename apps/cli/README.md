@@ -19,10 +19,16 @@ chofex requirements
 
 For agent or script input, `chofex schema --stage application` and
 `chofex schema --stage acceptance` print complete templates containing every
-accepted JSON key. Local validation errors include `acceptedFields` in JSON
-mode. The `status` response already includes both the registration and its
-requirements; use `requirements` only when requirements-only human output is
-preferred.
+accepted JSON key. Validate a completed input file locally before submitting it:
+
+```sh
+chofex --output json validate --stage application --input application.json
+```
+
+Validation does not contact the API, and a successful result does not echo input
+values. Local validation errors include `acceptedFields` in JSON mode. The
+`status` response already includes both the registration and its requirements;
+use `requirements` only when requirements-only human output is preferred.
 
 Run `chofex login` to authenticate. For automation, provide an OAuth access
 token with `CHOFEX_TOKEN`.

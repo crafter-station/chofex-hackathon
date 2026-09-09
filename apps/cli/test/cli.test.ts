@@ -70,6 +70,14 @@ describe("CLI JSON mode", () => {
     expect(help.stdout).toContain("Verify the current Clerk authentication");
   });
 
+  test("advertises local input validation", async () => {
+    const help = await runCli("--help");
+
+    expect(help.exitCode).toBe(0);
+    expect(help.stdout).toContain("validate");
+    expect(help.stdout).toContain("Validate input without submitting it");
+  });
+
   test("prints every accepted application input field", async () => {
     const result = await runCli("schema");
 
@@ -96,25 +104,89 @@ describe("CLI JSON mode", () => {
     );
   });
 
+  test("validates an application without contacting the API", async () => {
+    const inputPath = `${cliDirectory}.valid-application-${crypto.randomUUID()}.json`;
+
+    try {
+      await Bun.write(
+        inputPath,
+        JSON.stringify({
+          firstName: "Anthony",
+          lastName: "Cueva",
+          city: "Lima",
+          experienceLevel: "advanced",
+          skills: ["React"],
+          bio: "I build things.",
+          teamPreference: "solo",
+          codeOfConductAccepted: true,
+          privacyPolicyAccepted: true,
+        }),
+      );
+      const result = await runCli(
+        "--output",
+        "json",
+        "validate",
+        "--stage",
+        "application",
+        "--input",
+        inputPath,
+      );
+
+      expect(result.exitCode).toBe(0);
+      expect(JSON.parse(result.stdout)).toMatchObject({
+        version: 1,
+        ok: true,
+        data: {
+          valid: true,
+          stage: "application",
+        },
+      });
+    } finally {
+      await unlink(inputPath).catch(() => undefined);
+    }
+  });
+
+  test("validates attendance details without echoing private input", async () => {
+    const inputPath = `${cliDirectory}.valid-attendance-${crypto.randomUUID()}.json`;
+    const nationalIdNumber = "private-passport-number";
+
+    try {
+      await Bun.write(
+        inputPath,
+        JSON.stringify({
+          phone: "+51 999 999 999",
+          dateOfBirth: "1990-01-01",
+          nationalIdNumber,
+          shirtSize: "m",
+          emergencyContactName: "Grace Hopper",
+          emergencyContactPhone: "+1 555 0100",
+        }),
+      );
+      const result = await runCli(
+        "--output",
+        "json",
+        "validate",
+        "--stage",
+        "acceptance",
+        "--input",
+        inputPath,
+      );
+
+      expect(result.exitCode).toBe(0);
+      expect(JSON.parse(result.stdout)).toMatchObject({
+        ok: true,
+        data: {
+          valid: true,
+          stage: "acceptance",
+        },
+      });
+      expect(result.stdout).not.toContain(nationalIdNumber);
+    } finally {
+      await unlink(inputPath).catch(() => undefined);
+    }
+  });
+
   test("returns accepted field names for invalid input", async () => {
-    const server = Bun.serve({
-      port: 0,
-      fetch() {
-        return Response.json(
-          {
-            version: 1,
-            ok: false,
-            requestId: "request-no-registration",
-            error: {
-              code: "REGISTRATION_NOT_FOUND",
-              message: "Registration not found",
-              retryable: false,
-            },
-          },
-          { status: 404 },
-        );
-      },
-    });
     const inputPath = `${cliDirectory}.invalid-application-${crypto.randomUUID()}.json`;
 
     try {
@@ -133,15 +205,12 @@ describe("CLI JSON mode", () => {
           privacyPolicyAccepted: true,
         }),
       );
-      const apiUrl = server.url.toString().replace(/\/$/, "");
       const result = await runCli(
-        "--api-url",
-        apiUrl,
-        "--token",
-        "oauth-token",
         "--output",
         "json",
-        "register",
+        "validate",
+        "--stage",
+        "application",
         "--input",
         inputPath,
       );
@@ -162,7 +231,6 @@ describe("CLI JSON mode", () => {
       });
     } finally {
       await unlink(inputPath).catch(() => undefined);
-      server.stop(true);
     }
   });
 

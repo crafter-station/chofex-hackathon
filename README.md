@@ -82,14 +82,17 @@ Registration is for the on-site event in Lima: the API uses the participant's
 primary Clerk email, records Peru as the country, and only asks for their city
 of residence in Peru.
 
-For agents and scripts, print an input template and request JSON output:
+For agents and scripts, inspect the templates, save completed answers in separate
+JSON files, validate them locally, and request JSON output:
 
 ```sh
-chofex schema --stage application > application.json
+chofex schema --stage application > application-template.json
+chofex --output json validate --stage application --input application.json
 chofex --output json register --input application.json
 chofex --output json status
 
-chofex schema --stage acceptance > attendance.json
+chofex schema --stage acceptance > attendance-template.json
+chofex --output json validate --stage acceptance --input attendance.json
 chofex --output json confirm --input attendance.json
 ```
 

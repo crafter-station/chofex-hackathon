@@ -55,14 +55,8 @@ and casing for personal answers.
    responses are versioned envelopes with `ok`, `requestId`, and either `data`
    or `error`.
 
-If the participant supplied an application-site URL, pass it as the global
-`--api-url` value. The global flags belong before the subcommand:
-
-```sh
-chofex --api-url https://example.com --output json status
-```
-
-Use one consistent command prefix and API URL for the whole session.
+Use one consistent command prefix for the whole session. The CLI already targets
+the Hack the Andes service, so use the default URL.
 
 ## Authenticate the participant
 
@@ -93,25 +87,30 @@ If one exists, report its status and follow **Next steps**. Create a new
 application only when there is no application or the response says a rejected
 participant may apply again. A rejected application remains in history.
 
-Create a mode-600 temporary file outside the project, and get a fresh input
-template instead of relying on a memorized schema. On a POSIX system:
+Get a fresh input template instead of relying on a memorized schema:
 
 ```sh
-application_file="$(mktemp)"
-chmod 600 "$application_file"
-chofex schema --stage application > "$application_file"
+chofex schema --stage application
 ```
 
-The template contains every supported JSON key. Copy those keys exactly; for
-example, use `githubUrl`, `linkedInUrl`, and `portfolioUrl`.
+The output is an example shape, not an application draft. It contains every
+supported JSON key. Copy those keys exactly; for example, use `githubUrl`,
+`linkedInUrl`, and `portfolioUrl`. Never save or submit the example values.
 
 Collect every field in one compact batch when practical. Accept a natural,
 unlabeled reply and map it using context; numbered formatting is optional. For
 open-ended fields, ask directly in chat or use an input whose selectable choices
 are actual answers such as “Omit.” A placeholder choice such as “Enter all
 answers” is not an answer and must not be offered. Ask only for fields the
-participant has not already answered. Explain these rules while collecting
-answers:
+participant has not already answered. Group the questionnaire so the participant
+can scan and answer it naturally:
+
+- required profile: name, city, experience, skills, and bio;
+- optional profile: pronouns, organization, role, education, and profile URLs;
+- team preference and team name when applicable; and
+- required agreements and optional media consent.
+
+Explain these rules while collecting answers:
 
 - Registration is for the in-person event in Lima, Peru. The application uses
   the authenticated account's primary email and records Peru as the country.
@@ -132,15 +131,43 @@ Before requesting required consent, give the participant these links:
 - `https://andes.crafter.run/terms`
 - `https://andes.crafter.run/privacy`
 
+Ask for the Terms / Code of Conduct and Privacy Policy decisions by name. “Yes
+to both” is explicit consent when it directly answers a prompt naming both
+documents. Keep media consent separate: never derive it from accepting the
+required documents, “agree to all,” or “omit all.” Keep optional-profile
+omissions separate from consent questions, and clarify any answer whose target
+is ambiguous rather than relying on the final submission approval to resolve it.
+
 If they do not accept either required document, do not discard the answers
 already collected. Ask whether they want to cancel registration or read the
 document and explicitly accept it. Continue from the consent step if they
 accept; do not submit if they cancel.
 
-Write only participant-provided answers to the temporary file. Omit unanswered
-optional fields rather than guessing. Show a readable summary, including every
-consent, and ask: **Submit this application now?** Run the submission only after
-an explicit yes given at this point.
+Once every answer and consent choice is settled, create exactly one mode-600
+temporary application file outside the project. On a POSIX system:
+
+```sh
+application_file="$(mktemp)"
+chmod 600 "$application_file"
+printf '%s\n' "$application_file"
+```
+
+Record the exact printed path and reuse it for every later operation. When shell
+state does not persist between commands, use that literal path; never guess,
+shorten, or replace it. One application uses one payload file, one recorded path,
+and one cleanup.
+
+Write only participant-provided answers to that file and omit unanswered optional
+fields. Validate it locally before asking for submission approval:
+
+```sh
+chofex --output json validate --stage application --input "$application_file"
+```
+
+Resolve validation errors before continuing. Then show a readable summary of
+the exact validated payload, state every low-risk interpretation or
+normalization, include every consent, and ask: **Submit this application now?**
+Run the submission only after an explicit yes given at this point.
 
 ```sh
 chofex --output json register --input "$application_file"
@@ -198,8 +225,10 @@ fresh template with `chofex schema --stage acceptance`, collect every required
 value without guessing, store it in a mode-600 temporary file outside the
 project, and avoid printing its contents. `dateOfBirth` uses `YYYY-MM-DD` and
 must be a real date in the past. Shirt size is required for this in-person
-event. Obtain a fresh **Submit these private attendance details now?** approval,
-then run:
+event. Validate the file with
+`chofex --output json validate --stage acceptance --input /path/to/private-attendance.json`;
+the success response does not echo its contents. Resolve validation errors, then
+obtain a fresh **Submit these private attendance details now?** approval and run:
 
 ```sh
 chofex --output json confirm --input /path/to/private-attendance.json
@@ -211,11 +240,12 @@ attendance confirmation is done.
 
 ## Failures
 
-On `ok: false`, report `error.code`, `error.message`, and `requestId`. Correct
-mechanical validation errors directly when the displayed application does not
-change; involve the participant when an answer or consent must change. Retry an
-unchanged failed request only when `retryable` is true. A corrected validation
-request is a new submission attempt and follows the final-approval rule. For
-authentication failures, return to **Authenticate the participant**. Preserve
-the request ID for support instead of claiming success or bypassing a failed
-state.
+On `ok: false`, report `error.code`, `error.message`, and `requestId`. Resolve
+local validation failures before showing the final summary. Correct mechanical
+issues directly when the participant's answers do not change; involve them when
+an answer or consent must change. Any payload change after final approval
+invalidates that approval: show the updated summary and ask again. Retry an
+unchanged failed request only when `retryable` is true and after fresh submission
+approval. For authentication failures, return to **Authenticate the
+participant**. Preserve the request ID for support instead of claiming success
+or bypassing a failed state.

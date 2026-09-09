@@ -23,6 +23,10 @@ const inputFlag = Flag.string("input").pipe(
   Flag.withDescription("Read JSON from a file, or use - for stdin"),
 );
 
+const stageFlag = Flag.choice("stage", ["application", "acceptance"]).pipe(
+  Flag.withDefault("application"),
+);
+
 const root = Command.make("chofex").pipe(
   Command.withSharedFlags({
     apiUrl: Flag.string("api-url").pipe(
@@ -235,6 +239,46 @@ const whoamiCommand = Command.make(
   }),
 ).pipe(Command.withDescription("Verify the current Clerk authentication"));
 
+const inputValidation = (
+  stage: "application" | "acceptance",
+  path: string | undefined,
+) => {
+  if (stage === "application") {
+    return applicationInput(path, config.publicSiteUrl).pipe(Effect.asVoid);
+  }
+  return acceptedDetailsInput(path, "in_person").pipe(Effect.asVoid);
+};
+
+const validateCommand = Command.make(
+  "validate",
+  { input: inputFlag, stage: stageFlag },
+  Effect.fn("validateCommand")(function* ({ input, stage }) {
+    const options = yield* root;
+    const operation = inputValidation(stage, Option.getOrUndefined(input)).pipe(
+      Effect.map(() => ({
+        version: 1 as const,
+        ok: true as const,
+        requestId: crypto.randomUUID(),
+        data: { valid: true as const, stage },
+      })),
+    );
+    yield* execute(
+      options.output,
+      operation,
+      (result) => `${result.stage} input is valid.`,
+    );
+  }),
+).pipe(
+  Command.withDescription("Validate input without submitting it"),
+  Command.withExamples([
+    {
+      command:
+        "chofex --output json validate --stage application --input application.json",
+      description: "Validate an application file locally",
+    },
+  ]),
+);
+
 const applicationTemplate = {
   firstName: "Ada",
   lastName: "Lovelace",
@@ -276,11 +320,7 @@ const templateFor = (stage: "application" | "acceptance") => {
 
 const schemaCommand = Command.make(
   "schema",
-  {
-    stage: Flag.choice("stage", ["application", "acceptance"]).pipe(
-      Flag.withDefault("application"),
-    ),
-  },
+  { stage: stageFlag },
   Effect.fn("schemaCommand")(function* ({ stage }) {
     yield* printJson(templateFor(stage));
   }),
@@ -299,6 +339,7 @@ export const command = root.pipe(
     loginCommand,
     logoutCommand,
     whoamiCommand,
+    validateCommand,
     registerCommand,
     statusCommand,
     requirementsCommand,
