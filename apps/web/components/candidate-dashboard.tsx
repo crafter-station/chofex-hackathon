@@ -1,7 +1,10 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
+import { Badge } from "@chofex/ui/components/badge";
 import { Button } from "@chofex/ui/components/button";
+import { Card, CardContent, CardHeader } from "@chofex/ui/components/card";
+import { Checkbox } from "@chofex/ui/components/checkbox";
 import {
   keepPreviousData,
   useMutation,
@@ -16,6 +19,8 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@chofex/ui/components/drawer";
+import { Input } from "@chofex/ui/components/input";
+import { Textarea } from "@chofex/ui/components/textarea";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -34,7 +39,6 @@ import {
   XIcon,
 } from "lucide-react";
 import {
-  type CSSProperties,
   type FormEvent,
   useEffect,
   useMemo,
@@ -67,50 +71,37 @@ interface CandidateDashboardProps {
 
 interface StatusStyle {
   readonly label: string;
-  readonly className: string;
-  readonly dotClassName: string;
+  readonly variant: "default" | "secondary" | "destructive" | "outline";
 }
 
 const statusStyles: Record<CandidateStatus, StatusStyle> = {
   draft: {
     label: "Draft",
-    className:
-      "bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300",
-    dotClassName: "bg-stone-400",
+    variant: "secondary",
   },
   submitted: {
     label: "Submitted",
-    className:
-      "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
-    dotClassName: "bg-amber-500",
+    variant: "outline",
   },
   under_review: {
     label: "In review",
-    className:
-      "bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300",
-    dotClassName: "bg-violet-500",
+    variant: "secondary",
   },
   waitlisted: {
     label: "Waitlisted",
-    className: "bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300",
-    dotClassName: "bg-sky-500",
+    variant: "outline",
   },
   accepted: {
     label: "Accepted",
-    className:
-      "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
-    dotClassName: "bg-emerald-500",
+    variant: "default",
   },
   rejected: {
     label: "Declined",
-    className: "bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300",
-    dotClassName: "bg-rose-500",
+    variant: "destructive",
   },
   withdrawn: {
     label: "Withdrawn",
-    className:
-      "bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-400",
-    dotClassName: "bg-stone-400",
+    variant: "secondary",
   },
 };
 
@@ -136,19 +127,6 @@ const displayName = (candidate: Candidate): string =>
 
 const initials = (candidate: Candidate): string =>
   `${candidate.firstName.charAt(0)}${candidate.lastName.charAt(0)}`.toUpperCase();
-
-const avatarHue = (candidate: Candidate): number => {
-  let value = 0;
-  for (const character of candidate.id) {
-    value = (value * 31 + character.charCodeAt(0)) % 360;
-  }
-  return value;
-};
-
-const avatarStyle = (candidate: Candidate): CSSProperties => ({
-  background: `linear-gradient(145deg, hsl(${avatarHue(candidate)} 78% 93%), hsl(${(avatarHue(candidate) + 34) % 360} 68% 82%))`,
-  color: `hsl(${avatarHue(candidate)} 48% 32%)`,
-});
 
 const formatDate = (value: string): string =>
   new Intl.DateTimeFormat("en-US", {
@@ -196,12 +174,10 @@ const safeUrl = (value: string | undefined): string | undefined => {
 const StatusBadge = ({ status }: { readonly status: CandidateStatus }) => {
   const style = statusStyles[status];
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${style.className}`}
-    >
-      <span className={`size-1.5 rounded-full ${style.dotClassName}`} />
+    <Badge variant={style.variant}>
+      <span className="size-1.5 rounded-full bg-current opacity-60" />
       {style.label}
-    </span>
+    </Badge>
   );
 };
 
@@ -238,16 +214,15 @@ const CandidateLink = ({
   const safeHref = safeUrl(href);
   if (!safeHref) return null;
   return (
-    <a
-      href={safeHref}
-      target="_blank"
-      rel="noreferrer"
-      className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-muted"
+    <Button
+      variant="outline"
+      size="sm"
+      render={<a href={safeHref} target="_blank" rel="noreferrer" />}
     >
       {icon}
       {label}
-      <ExternalLinkIcon className="size-3 text-muted-foreground" />
-    </a>
+      <ExternalLinkIcon className="text-muted-foreground" />
+    </Button>
   );
 };
 
@@ -358,9 +333,9 @@ const CandidateDrawer = ({
   const skillTags = candidate.skills.length > 0 && (
     <span className="flex flex-wrap gap-1.5">
       {candidate.skills.map((skill) => (
-        <span key={skill} className="rounded-md bg-muted px-2 py-0.5 text-xs">
+        <Badge key={skill} variant="secondary">
           {skill}
-        </span>
+        </Badge>
       ))}
     </span>
   );
@@ -373,20 +348,18 @@ const CandidateDrawer = ({
       }}
       swipeDirection="right"
     >
-      <DrawerContent
-        className="shadow-2xl sm:rounded-l-2xl"
-        style={
-          {
-            "--drawer-content-width": "min(42rem, calc(100vw - 1rem))",
-          } as CSSProperties
-        }
-      >
+      <DrawerContent size="wide" className="shadow-2xl sm:rounded-l-2xl">
         <DrawerHeader className="border-b bg-background/95 p-4 backdrop-blur-xl">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <DrawerClose
-                className="grid size-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                aria-label="Close candidate details"
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Close candidate details"
+                  />
+                }
               >
                 <XIcon className="size-4" />
               </DrawerClose>
@@ -425,10 +398,7 @@ const CandidateDrawer = ({
         <div className="min-h-0 flex-1 overflow-y-auto bg-muted/20">
           <section className="border-b bg-background px-5 py-6 sm:px-7">
             <div className="flex items-start gap-4">
-              <div
-                className="grid size-14 shrink-0 place-items-center rounded-2xl text-sm font-semibold shadow-sm ring-1 ring-black/5"
-                style={avatarStyle(candidate)}
-              >
+              <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-muted text-sm font-semibold text-muted-foreground">
                 {initials(candidate)}
               </div>
               <div className="min-w-0 flex-1">
@@ -470,18 +440,20 @@ const CandidateDrawer = ({
 
           {showDecisionPanel && (
             <section className="border-b bg-background px-5 py-5 sm:px-7">
-              <div className="overflow-hidden rounded-xl border border-amber-200/70 bg-amber-50/50 dark:border-amber-900 dark:bg-amber-950/30">
-                <div className="border-b border-amber-200/70 px-4 py-3 text-sm font-medium text-amber-900 dark:border-amber-900 dark:text-amber-200">
+              <Card size="sm" className="gap-0 py-0">
+                <CardHeader className="border-b py-3 text-sm font-medium">
                   {decisionPanelMessage}
-                </div>
-                <div className="space-y-3 bg-background/80 p-4">
-                  <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
-                    <input
-                      type="checkbox"
+                </CardHeader>
+                <CardContent className="space-y-3 py-4">
+                  <label
+                    htmlFor="notify-candidate"
+                    className="flex cursor-pointer items-center gap-2 text-sm font-medium"
+                  >
+                    <Checkbox
+                      id="notify-candidate"
                       checked={notify}
-                      onChange={(event) => setNotify(event.target.checked)}
+                      onCheckedChange={setNotify}
                       disabled={Boolean(failedDecision)}
-                      className="size-4 rounded border-input accent-foreground"
                     />
                     Notify candidate by email
                   </label>
@@ -492,7 +464,7 @@ const CandidateDrawer = ({
                     >
                       Optional message
                     </label>
-                    <textarea
+                    <Textarea
                       id="candidate-message"
                       value={message}
                       onChange={(event) => setMessage(event.target.value)}
@@ -500,7 +472,7 @@ const CandidateDrawer = ({
                       maxLength={2000}
                       rows={4}
                       placeholder="Add a personal note to the decision email…"
-                      className="w-full resize-none rounded-xl border bg-background px-3 py-2.5 text-sm outline-none transition-shadow placeholder:text-muted-foreground/60 focus:border-ring focus:ring-3 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="resize-none"
                     />
                     <div className="flex justify-between text-[11px] text-muted-foreground">
                       <span>
@@ -512,7 +484,6 @@ const CandidateDrawer = ({
                   {isReviewable && (
                     <div className="grid grid-cols-2 gap-2">
                       <Button
-                        className="bg-emerald-600 text-white hover:bg-emerald-700"
                         onClick={() => submitDecision("accepted")}
                         disabled={decisionMutation.isPending}
                       >
@@ -521,7 +492,6 @@ const CandidateDrawer = ({
                       </Button>
                       <Button
                         variant="destructive"
-                        className="bg-rose-600 text-white hover:bg-rose-700"
                         onClick={() => submitDecision("rejected")}
                         disabled={decisionMutation.isPending}
                       >
@@ -545,8 +515,8 @@ const CandidateDrawer = ({
                       {feedback}
                     </p>
                   )}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </section>
           )}
 
@@ -840,9 +810,8 @@ export function CandidateDashboard({
   );
 
   return (
-    <div className="relative min-h-svh overflow-hidden bg-background">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-[radial-gradient(circle_at_22%_0%,rgba(196,181,253,0.26),transparent_34%),radial-gradient(circle_at_64%_0%,rgba(167,243,208,0.23),transparent_33%),radial-gradient(circle_at_88%_4%,rgba(253,186,116,0.18),transparent_28%)]" />
-      <header className="relative border-b border-border/70 bg-background/65 backdrop-blur-xl">
+    <div className="min-h-svh overflow-hidden bg-background">
+      <header className="border-b bg-background">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="grid size-9 place-items-center rounded-xl bg-foreground text-background shadow-sm">
@@ -858,15 +827,15 @@ export function CandidateDashboard({
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden rounded-full border bg-background/70 px-3 py-1 text-xs text-muted-foreground sm:block">
+            <Badge variant="outline" className="hidden sm:inline-flex">
               Admin workspace
-            </span>
+            </Badge>
             <UserButton />
           </div>
         </div>
       </header>
 
-      <main className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
         <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
             <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
@@ -882,10 +851,10 @@ export function CandidateDashboard({
               response feel personal.
             </p>
           </div>
-          <div className="flex items-center gap-2 rounded-xl border bg-background/80 px-3 py-2 text-xs text-muted-foreground shadow-sm backdrop-blur">
+          <Badge variant="outline">
             <CalendarDaysIcon className="size-4" />
             On-site · Lima, Peru
-          </div>
+          </Badge>
         </section>
 
         <section className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -898,15 +867,13 @@ export function CandidateDashboard({
             label="Needs review"
             value={reviewCount}
             icon={
-              <span className="size-2 rounded-full bg-amber-400 shadow-[0_0_0_4px_rgba(251,191,36,0.12)]" />
+              <CircleUserRoundIcon className="size-4 text-muted-foreground" />
             }
           />
           <StatCard
             label="Accepted"
             value={currentData.counts.accepted}
-            icon={
-              <span className="size-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.12)]" />
-            }
+            icon={<CheckIcon className="size-4 text-muted-foreground" />}
           />
         </section>
 
@@ -917,43 +884,42 @@ export function CandidateDashboard({
               className="relative w-full lg:max-w-sm"
             >
               <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-              <input
+              <Input
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search name, email, or organization"
-                className="h-10 w-full rounded-xl border bg-background/85 pr-3 pl-9 text-sm shadow-sm outline-none backdrop-blur transition-shadow placeholder:text-muted-foreground/70 focus:border-ring focus:ring-3 focus:ring-ring/20"
+                className="h-10 pl-9"
               />
             </form>
-            <div className="flex gap-1 overflow-x-auto rounded-xl border bg-background/70 p-1 shadow-sm backdrop-blur">
+            <div className="flex gap-1 overflow-x-auto rounded-xl border bg-background p-1">
               {filterStatuses.map((filter) => {
                 const active = filter.value === filters.status;
-                let className =
-                  "shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors";
-                if (active) {
-                  className += " bg-foreground text-background shadow-sm";
-                } else {
-                  className +=
-                    " text-muted-foreground hover:bg-muted hover:text-foreground";
-                }
+                const variant = active ? "default" : "ghost";
                 return (
-                  <a
+                  <Button
                     key={filter.label}
-                    href={pageHref(1, filters.query, filter.value)}
-                    onClick={(event) =>
-                      navigateFromClick(event, {
-                        page: 1,
-                        query: filters.query,
-                        status: filter.value,
-                      })
+                    variant={variant}
+                    size="sm"
+                    className="shrink-0"
+                    render={
+                      <a
+                        href={pageHref(1, filters.query, filter.value)}
+                        onClick={(event) =>
+                          navigateFromClick(event, {
+                            page: 1,
+                            query: filters.query,
+                            status: filter.value,
+                          })
+                        }
+                      />
                     }
-                    className={className}
                   >
                     {filter.label}
                     <span className="ml-1.5 opacity-65">
                       {currentData.counts[filter.countKey]}
                     </span>
-                  </a>
+                  </Button>
                 );
               })}
             </div>
@@ -962,13 +928,13 @@ export function CandidateDashboard({
           {candidateQuery.isError && (
             <p
               role="alert"
-              className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-300"
+              className="mt-4 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive"
             >
               {candidateQuery.error.message}
             </p>
           )}
           <div
-            className="mt-4 overflow-hidden rounded-2xl border bg-card/90 shadow-sm backdrop-blur"
+            className="mt-4 overflow-hidden rounded-2xl border bg-card"
             aria-busy={candidateQuery.isFetching}
           >
             <div className="hidden grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_7rem] gap-4 border-b bg-muted/35 px-5 py-3 text-[11px] font-medium tracking-wide text-muted-foreground uppercase sm:grid">
@@ -1011,17 +977,22 @@ export function CandidateDashboard({
                 icon={<ArrowLeftIcon className="size-3.5" />}
               />
               {pageNumbers.map((page) => (
-                <a
+                <Button
                   key={page}
-                  href={pageHref(page, filters.query, filters.status)}
-                  onClick={(event) =>
-                    navigateFromClick(event, { ...filters, page })
+                  variant={page === currentData.page ? "default" : "outline"}
+                  size="icon"
+                  render={
+                    <a
+                      href={pageHref(page, filters.query, filters.status)}
+                      onClick={(event) =>
+                        navigateFromClick(event, { ...filters, page })
+                      }
+                    />
                   }
                   aria-current={page === currentData.page ? "page" : undefined}
-                  className="grid size-8 place-items-center rounded-lg border bg-background font-medium transition-colors hover:bg-muted aria-current:bg-foreground aria-current:text-background"
                 >
                   {page}
-                </a>
+                </Button>
               ))}
               <PaginationArrow
                 href={pageHref(
@@ -1094,13 +1065,15 @@ const StatCard = ({
   readonly value: number;
   readonly icon: React.ReactNode;
 }) => (
-  <div className="rounded-2xl border bg-card/80 p-4 shadow-sm backdrop-blur">
-    <div className="flex items-center justify-between">
+  <Card size="sm" className="gap-3">
+    <CardHeader className="flex-row items-center justify-between">
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
       {icon}
-    </div>
-    <p className="mt-3 text-2xl font-semibold tabular-nums">{value}</p>
-  </div>
+    </CardHeader>
+    <CardContent>
+      <p className="text-2xl font-semibold tabular-nums">{value}</p>
+    </CardContent>
+  </Card>
 );
 
 const EmptyCandidates = () => (
@@ -1126,17 +1099,15 @@ const CandidateRows = ({
 }) => (
   <div className="divide-y">
     {candidates.map((candidate) => (
-      <button
+      <Button
         type="button"
+        variant="ghost"
         key={candidate.id}
         onClick={() => onSelect(candidate.id)}
-        className="group grid w-full gap-3 px-4 py-4 text-left transition-colors hover:bg-muted/45 focus-visible:bg-muted/45 focus-visible:outline-none sm:grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_7rem] sm:items-center sm:gap-4 sm:px-5"
+        className="group grid h-auto w-full grid-cols-1 justify-start gap-3 rounded-none px-4 py-4 text-left whitespace-normal sm:grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_7rem] sm:items-center sm:gap-4 sm:px-5"
       >
         <span className="flex min-w-0 items-center gap-3">
-          <span
-            className="grid size-9 shrink-0 place-items-center rounded-xl text-[11px] font-semibold ring-1 ring-black/5"
-            style={avatarStyle(candidate)}
-          >
+          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-[11px] font-semibold text-muted-foreground">
             {initials(candidate)}
           </span>
           <span className="min-w-0">
@@ -1163,7 +1134,7 @@ const CandidateRows = ({
           {formatDate(candidate.submittedAt)}
           <ChevronRightIcon className="size-4 opacity-0 transition-opacity group-hover:opacity-100" />
         </span>
-      </button>
+      </Button>
     ))}
   </div>
 );
@@ -1181,20 +1152,20 @@ const PaginationArrow = ({
   readonly label: string;
   readonly icon: React.ReactNode;
 }) => (
-  <a
-    href={href}
-    onClick={onClick}
+  <Button
+    variant="outline"
+    size="icon"
+    render={<a href={href} onClick={onClick} />}
     aria-disabled={disabled}
     aria-label={label}
-    className="grid size-8 place-items-center rounded-lg border bg-background transition-colors hover:bg-muted aria-disabled:pointer-events-none aria-disabled:opacity-40"
   >
     {icon}
-  </a>
+  </Button>
 );
 
 export const AdminAccessDenied = () => (
   <main className="grid min-h-svh place-items-center bg-muted/30 px-6">
-    <div className="w-full max-w-md rounded-2xl border bg-card p-8 text-center shadow-sm">
+    <Card className="w-full max-w-md p-4 text-center">
       <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-muted">
         <ShieldAlertIcon className="size-5 text-muted-foreground" />
       </div>
@@ -1203,12 +1174,12 @@ export const AdminAccessDenied = () => (
         This workspace contains private participant information. Ask an
         organizer to grant application reviewer access to your Clerk account.
       </p>
-      <a
-        href="/sign-in?redirect_url=/admin/participants"
-        className="mt-6 inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
+      <Button
+        className="mt-2"
+        render={<a href="/sign-in?redirect_url=/admin/participants" />}
       >
         Use another account
-      </a>
-    </div>
+      </Button>
+    </Card>
   </main>
 );
