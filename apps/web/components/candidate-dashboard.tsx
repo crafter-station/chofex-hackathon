@@ -2,7 +2,11 @@
 
 import { UserButton } from "@clerk/nextjs";
 import { Badge } from "@chofex/ui/components/badge";
-import { Button } from "@chofex/ui/components/button";
+import {
+  Button,
+  ButtonLink,
+  buttonVariants,
+} from "@chofex/ui/components/button";
 import { Card, CardContent, CardHeader } from "@chofex/ui/components/card";
 import { Checkbox } from "@chofex/ui/components/checkbox";
 import {
@@ -19,7 +23,11 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@chofex/ui/components/drawer";
-import { Input } from "@chofex/ui/components/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@chofex/ui/components/input-group";
 import { Textarea } from "@chofex/ui/components/textarea";
 import {
   ArrowLeftIcon,
@@ -38,12 +46,7 @@ import {
   UsersIcon,
   XIcon,
 } from "lucide-react";
-import {
-  type FormEvent,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { type FormEvent, useEffect, useMemo, useState } from "react";
 
 import {
   type CandidateFilters,
@@ -71,37 +74,44 @@ interface CandidateDashboardProps {
 
 interface StatusStyle {
   readonly label: string;
-  readonly variant: "default" | "secondary" | "destructive" | "outline";
+  readonly variant:
+    | "statusDraft"
+    | "statusSubmitted"
+    | "statusUnderReview"
+    | "statusWaitlisted"
+    | "statusAccepted"
+    | "statusRejected"
+    | "statusWithdrawn";
 }
 
 const statusStyles: Record<CandidateStatus, StatusStyle> = {
   draft: {
     label: "Draft",
-    variant: "secondary",
+    variant: "statusDraft",
   },
   submitted: {
     label: "Submitted",
-    variant: "outline",
+    variant: "statusSubmitted",
   },
   under_review: {
     label: "In review",
-    variant: "secondary",
+    variant: "statusUnderReview",
   },
   waitlisted: {
     label: "Waitlisted",
-    variant: "outline",
+    variant: "statusWaitlisted",
   },
   accepted: {
     label: "Accepted",
-    variant: "default",
+    variant: "statusAccepted",
   },
   rejected: {
     label: "Declined",
-    variant: "destructive",
+    variant: "statusRejected",
   },
   withdrawn: {
     label: "Withdrawn",
-    variant: "secondary",
+    variant: "statusWithdrawn",
   },
 };
 
@@ -214,15 +224,17 @@ const CandidateLink = ({
   const safeHref = safeUrl(href);
   if (!safeHref) return null;
   return (
-    <Button
+    <ButtonLink
       variant="outline"
       size="sm"
-      render={<a href={safeHref} target="_blank" rel="noreferrer" />}
+      href={safeHref}
+      target="_blank"
+      rel="noreferrer"
     >
       {icon}
       {label}
       <ExternalLinkIcon className="text-muted-foreground" />
-    </Button>
+    </ButtonLink>
   );
 };
 
@@ -472,7 +484,7 @@ const CandidateDrawer = ({
                       maxLength={2000}
                       rows={4}
                       placeholder="Add a personal note to the decision email…"
-                      className="resize-none"
+                      resize="none"
                     />
                     <div className="flex justify-between text-[11px] text-muted-foreground">
                       <span>
@@ -830,7 +842,16 @@ export function CandidateDashboard({
             <Badge variant="outline" className="hidden sm:inline-flex">
               Admin workspace
             </Badge>
-            <UserButton />
+            <UserButton
+              appearance={{
+                elements: {
+                  userButtonTrigger: buttonVariants({
+                    variant: "ghost",
+                    size: "icon",
+                  }),
+                },
+              }}
+            />
           </div>
         </div>
       </header>
@@ -879,47 +900,43 @@ export function CandidateDashboard({
 
         <section className="mt-8">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <form
-              onSubmit={handleSearch}
-              className="relative w-full lg:max-w-sm"
-            >
-              <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search name, email, or organization"
-                className="h-10 pl-9"
-              />
+            <form onSubmit={handleSearch} className="w-full lg:max-w-sm">
+              <InputGroup>
+                <InputGroupAddon>
+                  <SearchIcon />
+                </InputGroupAddon>
+                <InputGroupInput
+                  type="search"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search name, email, or organization"
+                />
+              </InputGroup>
             </form>
             <div className="flex gap-1 overflow-x-auto rounded-xl border bg-background p-1">
               {filterStatuses.map((filter) => {
                 const active = filter.value === filters.status;
                 const variant = active ? "default" : "ghost";
                 return (
-                  <Button
+                  <ButtonLink
                     key={filter.label}
                     variant={variant}
                     size="sm"
                     className="shrink-0"
-                    render={
-                      <a
-                        href={pageHref(1, filters.query, filter.value)}
-                        onClick={(event) =>
-                          navigateFromClick(event, {
-                            page: 1,
-                            query: filters.query,
-                            status: filter.value,
-                          })
-                        }
-                      />
+                    href={pageHref(1, filters.query, filter.value)}
+                    onClick={(event) =>
+                      navigateFromClick(event, {
+                        page: 1,
+                        query: filters.query,
+                        status: filter.value,
+                      })
                     }
                   >
                     {filter.label}
                     <span className="ml-1.5 opacity-65">
                       {currentData.counts[filter.countKey]}
                     </span>
-                  </Button>
+                  </ButtonLink>
                 );
               })}
             </div>
@@ -977,22 +994,18 @@ export function CandidateDashboard({
                 icon={<ArrowLeftIcon className="size-3.5" />}
               />
               {pageNumbers.map((page) => (
-                <Button
+                <ButtonLink
                   key={page}
                   variant={page === currentData.page ? "default" : "outline"}
                   size="icon"
-                  render={
-                    <a
-                      href={pageHref(page, filters.query, filters.status)}
-                      onClick={(event) =>
-                        navigateFromClick(event, { ...filters, page })
-                      }
-                    />
+                  href={pageHref(page, filters.query, filters.status)}
+                  onClick={(event) =>
+                    navigateFromClick(event, { ...filters, page })
                   }
                   aria-current={page === currentData.page ? "page" : undefined}
                 >
                   {page}
-                </Button>
+                </ButtonLink>
               ))}
               <PaginationArrow
                 href={pageHref(
@@ -1066,7 +1079,7 @@ const StatCard = ({
   readonly icon: React.ReactNode;
 }) => (
   <Card size="sm" className="gap-3">
-    <CardHeader className="flex-row items-center justify-between">
+    <CardHeader className="flex flex-row items-center justify-between">
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
       {icon}
     </CardHeader>
@@ -1102,9 +1115,10 @@ const CandidateRows = ({
       <Button
         type="button"
         variant="ghost"
+        size="table-row"
         key={candidate.id}
         onClick={() => onSelect(candidate.id)}
-        className="group grid h-auto w-full grid-cols-1 justify-start gap-3 rounded-none px-4 py-4 text-left whitespace-normal sm:grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_7rem] sm:items-center sm:gap-4 sm:px-5"
+        className="group sm:grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_7rem]"
       >
         <span className="flex min-w-0 items-center gap-3">
           <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-[11px] font-semibold text-muted-foreground">
@@ -1151,17 +1165,27 @@ const PaginationArrow = ({
   readonly disabled: boolean;
   readonly label: string;
   readonly icon: React.ReactNode;
-}) => (
-  <Button
-    variant="outline"
-    size="icon"
-    render={<a href={href} onClick={onClick} />}
-    aria-disabled={disabled}
-    aria-label={label}
-  >
-    {icon}
-  </Button>
-);
+}) => {
+  if (disabled) {
+    return (
+      <Button variant="outline" size="icon" disabled aria-label={label}>
+        {icon}
+      </Button>
+    );
+  }
+
+  return (
+    <ButtonLink
+      variant="outline"
+      size="icon"
+      href={href}
+      onClick={onClick}
+      aria-label={label}
+    >
+      {icon}
+    </ButtonLink>
+  );
+};
 
 export const AdminAccessDenied = () => (
   <main className="grid min-h-svh place-items-center bg-muted/30 px-6">
@@ -1174,12 +1198,12 @@ export const AdminAccessDenied = () => (
         This workspace contains private participant information. Ask an
         organizer to grant application reviewer access to your Clerk account.
       </p>
-      <Button
+      <ButtonLink
         className="mt-2"
-        render={<a href="/sign-in?redirect_url=/admin/participants" />}
+        href="/sign-in?redirect_url=/admin/participants"
       >
         Use another account
-      </Button>
+      </ButtonLink>
     </Card>
   </main>
 );

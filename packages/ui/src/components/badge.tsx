@@ -8,16 +8,30 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        default: "bg-primary text-primary-foreground [a&]:hover:bg-primary/80",
         secondary:
-          "bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/80",
         destructive:
-          "bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
+          "bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a&]:hover:bg-destructive/20",
         outline:
-          "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground",
+          "border-border text-foreground [a&]:hover:bg-muted [a&]:hover:text-muted-foreground",
         ghost:
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
+        statusDraft:
+          "bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300",
+        statusSubmitted:
+          "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+        statusUnderReview:
+          "bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300",
+        statusWaitlisted:
+          "bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300",
+        statusAccepted:
+          "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+        statusRejected:
+          "bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300",
+        statusWithdrawn:
+          "bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-400",
       },
     },
     defaultVariants: {
