@@ -1,5 +1,26 @@
 # Turborepo starter
 
+## Chofex CLI authentication
+
+The CLI signs in through the same Clerk instance as the web app. Run the login
+command in a local interactive terminal and keep it open while the browser
+completes sign-in:
+
+```sh
+bun run --filter @chofex/cli dev -- login
+```
+
+The CLI uses OAuth authorization code flow with PKCE and stores access and
+refresh tokens in the operating-system credential store (Keychain on macOS,
+Secret Service on Linux, and Password Vault on Windows). Use `chofex logout` to
+revoke and delete those credentials. For automation, `CHOFEX_TOKEN` can supply
+an access token without storing it.
+
+The web API must set
+`CLERK_CLI_OAUTH_CLIENT_ID=1YfuXKgOXkdH094s`. Set
+`CLERK_AUTHORIZED_PARTIES` to a comma-separated list of additional trusted web
+origins when the API is served anywhere other than its own request origin.
+
 This Turborepo starter is maintained by the Turborepo core team.
 
 ## Using this example

@@ -1,0 +1,18 @@
+import { pgTable, uniqueIndex, uuid, varchar } from "drizzle-orm/pg-core";
+
+import { auditTimestamps } from "./common.js";
+
+export const participants = pgTable(
+  "participants",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    clerkUserId: varchar("clerk_user_id", { length: 255 }).notNull(),
+    ...auditTimestamps(),
+  },
+  (table) => [
+    uniqueIndex("participants_clerk_user_id_unique").on(table.clerkUserId),
+  ],
+);
+
+export type Participant = typeof participants.$inferSelect;
+export type NewParticipant = typeof participants.$inferInsert;
