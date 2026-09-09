@@ -3,7 +3,7 @@ const oauthIssuer =
   "https://close-newt-8265.clerk.accounts.dev";
 
 export const config = {
-  apiUrl: process.env.CHOFEX_API_URL ?? "http://localhost:3000",
+  apiUrl: process.env.CHOFEX_API_URL ?? "https://andes.crafter.run",
   publicSiteUrl:
     process.env.CHOFEX_PUBLIC_SITE_URL ?? "https://andes.crafter.run",
   oauthClientId: process.env.CHOFEX_OAUTH_CLIENT_ID ?? "1YfuXKgOXkdH094s",
