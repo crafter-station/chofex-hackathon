@@ -54,7 +54,7 @@ const registerCommand = Command.make(
       const token = Option.getOrUndefined(options.token);
       const body = yield* applicationInput(
         Option.getOrUndefined(input),
-        options.apiUrl,
+        config.publicSiteUrl,
       );
       return yield* register({ apiUrl: options.apiUrl, token }, body);
     });

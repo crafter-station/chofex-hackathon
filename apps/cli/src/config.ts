@@ -4,6 +4,8 @@ const oauthIssuer =
 
 export const config = {
   apiUrl: process.env.CHOFEX_API_URL ?? "http://localhost:3000",
+  publicSiteUrl:
+    process.env.CHOFEX_PUBLIC_SITE_URL ?? "https://andres.crafter.run",
   oauthClientId: process.env.CHOFEX_OAUTH_CLIENT_ID ?? "1YfuXKgOXkdH094s",
   authorizationUrl: `${oauthIssuer}/oauth/authorize`,
   tokenUrl: `${oauthIssuer}/oauth/token`,

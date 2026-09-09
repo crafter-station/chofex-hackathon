@@ -81,12 +81,15 @@ team name. Explain these rules while collecting answers:
   participant's explicit `true`; an agent cannot consent for them.
 - `mediaConsent` is optional and must reflect the participant's choice.
 
-Before requesting required consent, give the participant links to `/terms` and
-`/privacy` on the same application-site origin used for the API. If they do not
-accept either required document, do not discard the answers already collected.
-Ask whether they want to cancel registration or read the document and explicitly
-accept it. Continue from the consent step if they accept; do not submit if they
-cancel.
+Before requesting required consent, give the participant these links:
+
+- `https://andres.crafter.run/terms`
+- `https://andres.crafter.run/privacy`
+
+If they do not accept either required document, do not discard the answers
+already collected. Ask whether they want to cancel registration or read the
+document and explicitly accept it. Continue from the consent step if they
+accept; do not submit if they cancel.
 
 Write only participant-provided answers to the temporary file. Omit unanswered
 optional fields rather than guessing. Show a readable summary, including every
