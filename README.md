@@ -9,8 +9,11 @@ Install the Chofex Hackathon skill in a supported coding agent with
 [skills.sh](https://skills.sh):
 
 ```sh
-npx skills add https://github.com/crafter-station/chofex-hackathon --skill chofex-hackathon
+npx skills add https://github.com/crafter-station/chofex-hackathon --skill chofex-hackathon -g -y
 ```
+
+This installs the skill globally for agents that support global skills; the
+installer may skip agents that do not support global installation.
 
 The skill teaches an agent the complete application and post-acceptance flow,
 including the boundaries that keep authentication, personal answers, consent,
