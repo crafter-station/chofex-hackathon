@@ -13,8 +13,9 @@ consent, and final submission decisions with the participant.
 1. Check for the CLI with `chofex --version`.
 2. When working inside the Chofex repository and `chofex` is unavailable, use
    `bun run --filter chofex-cli dev --` in place of `chofex`.
-3. Otherwise, ask the participant to install the Chofex CLI, then resume only
-   after `chofex --version` succeeds.
+3. Otherwise, ask the participant to run
+   `npm install --global chofex-cli@latest`, then resume only after
+   `chofex --version` succeeds.
 4. Use `--output json` for every command the agent needs to interpret. JSON
    responses are versioned envelopes with `ok`, `requestId`, and either `data`
    or `error`.
