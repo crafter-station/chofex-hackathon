@@ -52,11 +52,36 @@ const registerCommand = Command.make(
     const options = yield* root;
     const operation = Effect.gen(function* () {
       const token = Option.getOrUndefined(options.token);
+      const client = { apiUrl: options.apiUrl, token };
+      const current = yield* getRegistration(client).pipe(
+        Effect.map(Option.some),
+        Effect.catch((error) => {
+          if (error.code === "REGISTRATION_NOT_FOUND") {
+            return Effect.succeed(Option.none());
+          }
+          return Effect.fail(error);
+        }),
+      );
+      if (Option.isSome(current)) {
+        const { status } = current.value.data.registration;
+        const isAwaitingApproval =
+          status === "submitted" ||
+          status === "under_review" ||
+          status === "waitlisted";
+        if (isAwaitingApproval) {
+          return yield* cliError(
+            "ACTIVE_APPLICATION_EXISTS",
+            "Already registered. Wait for approval.",
+            false,
+            { currentStatus: status },
+          );
+        }
+      }
       const body = yield* applicationInput(
         Option.getOrUndefined(input),
         config.publicSiteUrl,
       );
-      return yield* register({ apiUrl: options.apiUrl, token }, body);
+      return yield* register(client, body);
     });
     yield* execute(options.output, operation, createdText);
   }),

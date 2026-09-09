@@ -83,6 +83,21 @@ describe("CLI JSON mode", () => {
     const server = Bun.serve({
       port: 0,
       async fetch(request) {
+        if (request.method === "GET") {
+          return Response.json(
+            {
+              version: 1,
+              ok: false,
+              requestId: "request-no-registration",
+              error: {
+                code: "REGISTRATION_NOT_FOUND",
+                message: "Registration not found",
+                retryable: false,
+              },
+            },
+            { status: 404 },
+          );
+        }
         submittedBody = await request.json();
         return Response.json(
           {
@@ -173,6 +188,68 @@ describe("CLI JSON mode", () => {
     } finally {
       server.stop(true);
       await unlink(inputPath).catch(() => undefined);
+    }
+  });
+
+  test("stops before collecting input when an application awaits approval", async () => {
+    let postRequested = false;
+    const server = Bun.serve({
+      port: 0,
+      fetch(request) {
+        if (request.method === "POST") postRequested = true;
+        return Response.json({
+          version: 1,
+          ok: true,
+          requestId: "request-existing-registration",
+          data: {
+            registration: {
+              id: "registration-123",
+              status: "submitted",
+              firstName: "Anthony",
+              lastName: "Cueva",
+              email: "hi@cueva.io",
+              countryCode: "PE",
+              city: "Lima",
+              participationMode: "in_person",
+              experienceLevel: "advanced",
+              skills: ["React"],
+              bio: "I build things.",
+              teamPreference: "solo",
+              nationalIdProvided: false,
+              mediaConsent: true,
+              submittedAt: "2026-09-09T00:00:00.000Z",
+              createdAt: "2026-09-09T00:00:00.000Z",
+              updatedAt: "2026-09-09T00:00:00.000Z",
+            },
+            requirements: {
+              stage: "review",
+              canSubmitNewApplication: false,
+              canSubmitAcceptedDetails: false,
+              missing: [],
+            },
+          },
+        });
+      },
+    });
+
+    try {
+      const apiUrl = server.url.toString().replace(/\/$/, "");
+      const result = await runCli(
+        "--api-url",
+        apiUrl,
+        "--token",
+        "oauth-token",
+        "register",
+        "--input",
+        "does-not-exist.json",
+      );
+
+      expect(result.exitCode).toBe(2);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toContain("Already registered. Wait for approval.");
+      expect(postRequested).toBe(false);
+    } finally {
+      server.stop(true);
     }
   });
 
