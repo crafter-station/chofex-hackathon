@@ -24,6 +24,25 @@ const requiredText = (message: string): Prompt.Prompt<string> =>
 const optionalText = (message: string): Prompt.Prompt<string> =>
   Prompt.text({ message, default: "" });
 
+const optionalProfileUsername = (
+  message: string,
+  profilePrefix: string,
+): Prompt.Prompt<string> =>
+  Prompt.text({
+    message,
+    default: "",
+    theme: {
+      pointerSmall: profilePrefix,
+      ellipsis: profilePrefix,
+    },
+    validate: (value) => {
+      if (value === "" || /^[A-Za-z0-9._-]+$/.test(value)) {
+        return Effect.succeed(value);
+      }
+      return Effect.fail("Enter only your username");
+    },
+  });
+
 const withoutEmptyStrings = (
   input: Readonly<Record<string, unknown>>,
 ): Record<string, unknown> =>
@@ -105,8 +124,11 @@ const applicationDetailsPrompts = Prompt.all({
   }),
   skills: Prompt.list({ message: "Skills (comma-separated)", delimiter: "," }),
   bio: requiredText("Short bio"),
-  githubUrl: optionalText("GitHub URL (optional)"),
-  linkedInUrl: optionalText("LinkedIn URL (optional)"),
+  githubUrl: optionalProfileUsername("GitHub username (optional)", "github.com/"),
+  linkedInUrl: optionalProfileUsername(
+    "LinkedIn username (optional)",
+    "linkedin.com/in/",
+  ),
   portfolioUrl: optionalText("Portfolio URL (optional)"),
 });
 
@@ -145,6 +167,12 @@ const interactiveApplication = Effect.gen(function* () {
     const normalized = withoutEmptyStrings(input);
     if (input.graduationYear !== "") {
       normalized.graduationYear = Number(input.graduationYear);
+    }
+    if (input.githubUrl !== "") {
+      normalized.githubUrl = `github.com/${input.githubUrl}`;
+    }
+    if (input.linkedInUrl !== "") {
+      normalized.linkedInUrl = `linkedin.com/in/${input.linkedInUrl}`;
     }
     return normalized;
   }),
