@@ -1,5 +1,5 @@
 export const agentApplicationPrompt = (applicationUrl: string) =>
-  `Help me apply to the Chofex Hackathon in Lima using the Chofex CLI.
+  `Help me apply to Hack the Andes in Lima using the Chofex CLI.
 
 First install the Chofex Hackathon skill:
 npx skills add https://github.com/crafter-station/chofex-hackathon --skill chofex-hackathon -g -y

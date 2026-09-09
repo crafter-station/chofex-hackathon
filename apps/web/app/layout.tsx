@@ -17,9 +17,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Chofex Hackathon",
+  title: "Hack the Andes",
   description:
-    "Apply to the Chofex Hackathon in Lima with help from your coding agent.",
+    "Apply to Hack the Andes in Lima via the CLI or with help from your coding agent.",
 };
 
 export default function RootLayout({

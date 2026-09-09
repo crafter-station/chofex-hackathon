@@ -48,14 +48,23 @@ export function CopyAgentPrompt() {
   };
 
   return (
-    <div className="flex flex-col items-start gap-2">
-      <Button type="button" size="lg" onClick={copyPrompt}>
+    <div className="mt-6">
+      <blockquote className="mb-5 border-current/25 border-l pl-5 text-base leading-relaxed opacity-70">
+        “Help me apply to Hack the Andes using the Chofex CLI. Ask me for every
+        answer and get my approval before submitting.”
+      </blockquote>
+      <Button
+        type="button"
+        size="lg"
+        variant="outline"
+        className="h-11 border-white/20 bg-transparent px-4 text-[#f4f1e9] hover:bg-white/10 hover:text-[#f4f1e9] dark:border-black/20 dark:text-[#171713] dark:hover:bg-black/10 dark:hover:text-[#171713]"
+        onClick={copyPrompt}
+      >
         {iconForStatus(status)}
         {labelForStatus(status)}
       </Button>
-      <p className="text-sm text-muted-foreground" aria-live="polite">
-        Paste it into your coding agent. It will apply for you and pause for
-        your answers, login, and final approval.
+      <p className="mt-3 text-xs leading-relaxed opacity-50" aria-live="polite">
+        Paste it into your coding agent. You’ll handle login and final approval.
       </p>
     </div>
   );
