@@ -145,10 +145,12 @@ export const acceptedRequiredFields = [
   "emergencyContactPhone",
 ] as const;
 
-export interface Requirement {
-  readonly field: string;
-  readonly reason: string;
-}
+export const RequirementSchema = Schema.Struct({
+  field: Schema.String,
+  reason: Schema.String,
+});
+
+export type Requirement = typeof RequirementSchema.Type;
 
 export const applicationSemanticRequirements = (
   input: ApplicationInput,
@@ -186,88 +188,6 @@ export const acceptedDetailsSemanticRequirements = (
   }
   return requirements;
 };
-
-export interface RegistrationView {
-  readonly id: string;
-  readonly status: typeof RegistrationStatus.Type;
-  readonly firstName: string;
-  readonly lastName: string;
-  readonly email: string;
-  readonly phone?: string;
-  readonly dateOfBirth?: string;
-  readonly pronouns?: string;
-  readonly countryCode?: string;
-  readonly city?: string;
-  readonly participationMode: typeof ParticipationMode.Type;
-  readonly organization?: string;
-  readonly role?: string;
-  readonly fieldOfStudy?: string;
-  readonly graduationYear?: number;
-  readonly experienceLevel?: typeof ExperienceLevel.Type;
-  readonly skills: ReadonlyArray<string>;
-  readonly bio?: string;
-  readonly githubUrl?: string;
-  readonly linkedInUrl?: string;
-  readonly portfolioUrl?: string;
-  readonly teamPreference?: typeof TeamPreference.Type;
-  readonly teamName?: string;
-  readonly shirtSize?: typeof ShirtSize.Type;
-  readonly nationalIdProvided: boolean;
-  readonly dietaryRestrictions?: string;
-  readonly accessibilityNeeds?: string;
-  readonly emergencyContactName?: string;
-  readonly emergencyContactPhone?: string;
-  readonly mediaConsent: boolean;
-  readonly rejectionReason?: string;
-  readonly submittedAt: string;
-  readonly acceptanceDetailsCompletedAt?: string;
-  readonly createdAt: string;
-  readonly updatedAt: string;
-}
-
-export interface RegistrationRequirements {
-  readonly stage: "review" | "rejected" | "accepted" | "complete";
-  readonly canSubmitNewApplication: boolean;
-  readonly canSubmitAcceptedDetails: boolean;
-  readonly missing: ReadonlyArray<Requirement>;
-  readonly rejectionReason?: string;
-}
-
-export interface ApiSuccess<A> {
-  readonly version: 1;
-  readonly ok: true;
-  readonly requestId: string;
-  readonly data: A;
-}
-
-export interface ApiFailure {
-  readonly version: 1;
-  readonly ok: false;
-  readonly requestId: string;
-  readonly error: {
-    readonly code: string;
-    readonly message: string;
-    readonly retryable: boolean;
-    readonly details?: unknown;
-  };
-}
-
-export type ApiResponse<A> = ApiSuccess<A> | ApiFailure;
-
-export interface CreatedRegistration {
-  readonly registration: RegistrationView;
-  readonly requirements: RegistrationRequirements;
-}
-
-export interface RegistrationResult {
-  readonly registration: RegistrationView;
-  readonly requirements: RegistrationRequirements;
-}
-
-export const RequirementSchema = Schema.Struct({
-  field: Schema.String,
-  reason: Schema.String,
-});
 
 export const RegistrationViewSchema = Schema.Struct({
   id: Schema.String,
@@ -307,6 +227,8 @@ export const RegistrationViewSchema = Schema.Struct({
   updatedAt: Schema.String,
 });
 
+export type RegistrationView = typeof RegistrationViewSchema.Type;
+
 export const RegistrationRequirementsSchema = Schema.Struct({
   stage: Schema.Literals(["review", "rejected", "accepted", "complete"]),
   canSubmitNewApplication: Schema.Boolean,
@@ -315,12 +237,15 @@ export const RegistrationRequirementsSchema = Schema.Struct({
   rejectionReason: Schema.optional(Schema.String),
 });
 
-export const RegistrationResultSchema = Schema.Struct({
-  registration: RegistrationViewSchema,
-  requirements: RegistrationRequirementsSchema,
-});
+export type RegistrationRequirements =
+  typeof RegistrationRequirementsSchema.Type;
 
-export const CreatedRegistrationSchema = RegistrationResultSchema;
+export interface ApiSuccess<A> {
+  readonly version: 1;
+  readonly ok: true;
+  readonly requestId: string;
+  readonly data: A;
+}
 
 export const ApiFailureSchema = Schema.Struct({
   version: Schema.Literal(1),
@@ -333,6 +258,21 @@ export const ApiFailureSchema = Schema.Struct({
     details: Schema.optional(Schema.Unknown),
   }),
 });
+
+export type ApiFailure = typeof ApiFailureSchema.Type;
+
+export type ApiResponse<A> = ApiSuccess<A> | ApiFailure;
+
+export const RegistrationResultSchema = Schema.Struct({
+  registration: RegistrationViewSchema,
+  requirements: RegistrationRequirementsSchema,
+});
+
+export type RegistrationResult = typeof RegistrationResultSchema.Type;
+
+export const CreatedRegistrationSchema = RegistrationResultSchema;
+
+export type CreatedRegistration = typeof CreatedRegistrationSchema.Type;
 
 export const ApiSuccessSchema = <S extends Schema.Constraint>(data: S) =>
   Schema.Struct({
