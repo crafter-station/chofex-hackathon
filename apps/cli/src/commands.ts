@@ -164,16 +164,25 @@ const logoutCommand = Command.make(
     const operation = Effect.tryPromise({
       try: async () => {
         await oauthLogout();
+        const environmentTokenActive = Boolean(process.env.CHOFEX_TOKEN);
         return {
           version: 1 as const,
           ok: true as const,
           requestId: crypto.randomUUID(),
-          data: { authenticated: false as const },
+          data: {
+            storedCredentialsRemoved: true as const,
+            environmentTokenActive,
+          },
         };
       },
       catch: (error) => cliError("LOGOUT_FAILED", String(error)),
     });
-    yield* execute(options.output, operation, () => "Signed out successfully.");
+    yield* execute(options.output, operation, (result) => {
+      if (result.environmentTokenActive) {
+        return "Stored credentials removed. CHOFEX_TOKEN remains active; unset it to stop using that token.";
+      }
+      return "Signed out successfully.";
+    });
   }),
 ).pipe(Command.withDescription("Revoke and remove locally stored credentials"));
 
@@ -203,6 +212,11 @@ const acceptanceTemplate = {
   mediaConsent: false,
 };
 
+const templateFor = (stage: "application" | "acceptance") => {
+  if (stage === "application") return applicationTemplate;
+  return acceptanceTemplate;
+};
+
 const schemaCommand = Command.make(
   "schema",
   {
@@ -211,9 +225,7 @@ const schemaCommand = Command.make(
     ),
   },
   Effect.fn("schemaCommand")(function* ({ stage }) {
-    const template =
-      stage === "application" ? applicationTemplate : acceptanceTemplate;
-    yield* printJson(template);
+    yield* printJson(templateFor(stage));
   }),
 ).pipe(
   Command.withDescription("Print a machine-readable input template"),

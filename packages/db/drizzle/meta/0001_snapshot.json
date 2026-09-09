@@ -354,7 +354,7 @@
             }
           ],
           "isUnique": true,
-          "where": "\"applications\".\"status\" in ('draft', 'submitted', 'accepted')",
+          "where": "\"applications\".\"status\" in ('draft', 'submitted', 'under_review', 'waitlisted', 'accepted')",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -460,6 +460,8 @@
       "values": [
         "draft",
         "submitted",
+        "under_review",
+        "waitlisted",
         "accepted",
         "rejected",
         "withdrawn"

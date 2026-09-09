@@ -1,4 +1,4 @@
-import { Schema, SchemaGetter } from "effect";
+import { DateTime, Option, Schema, SchemaGetter } from "effect";
 
 const nonBlank = (maximum: number) =>
   Schema.Trim.pipe(
@@ -27,6 +27,8 @@ const url = Schema.String.pipe(
 export const RegistrationStatus = Schema.Literals([
   "draft",
   "submitted",
+  "under_review",
+  "waitlisted",
   "accepted",
   "rejected",
   "withdrawn",
@@ -171,11 +173,11 @@ export const acceptedDetailsSemanticRequirements = (
     });
   }
 
-  const birthDate = new Date(`${input.dateOfBirth}T00:00:00.000Z`);
+  const birthDate = DateTime.make(`${input.dateOfBirth}T00:00:00.000Z`);
   if (
-    Number.isNaN(birthDate.getTime()) ||
-    birthDate.toISOString().slice(0, 10) !== input.dateOfBirth ||
-    birthDate >= new Date()
+    Option.isNone(birthDate) ||
+    DateTime.formatIsoDateUtc(birthDate.value) !== input.dateOfBirth ||
+    !DateTime.isPastUnsafe(birthDate.value)
   ) {
     requirements.push({
       field: "dateOfBirth",

@@ -1,4 +1,4 @@
-CREATE TYPE "public"."application_status" AS ENUM('draft', 'submitted', 'accepted', 'rejected', 'withdrawn');--> statement-breakpoint
+CREATE TYPE "public"."application_status" AS ENUM('draft', 'submitted', 'under_review', 'waitlisted', 'accepted', 'rejected', 'withdrawn');--> statement-breakpoint
 CREATE TABLE "acceptance_details" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"application_id" uuid NOT NULL,
@@ -84,10 +84,7 @@ INSERT INTO "applications" (
 SELECT
 	r."id",
 	r."participant_id",
-	CASE
-		WHEN r."status" IN ('under_review', 'waitlisted') THEN 'submitted'
-		ELSE r."status"::text
-	END::"application_status",
+	r."status"::text::"application_status",
 	p."first_name",
 	p."last_name",
 	p."email",
@@ -151,7 +148,7 @@ DROP TABLE "registrations" CASCADE;--> statement-breakpoint
 ALTER TABLE "acceptance_details" ADD CONSTRAINT "acceptance_details_application_id_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."applications"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "applications" ADD CONSTRAINT "applications_participant_id_participants_id_fk" FOREIGN KEY ("participant_id") REFERENCES "public"."participants"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "acceptance_details_application_id_unique" ON "acceptance_details" USING btree ("application_id");--> statement-breakpoint
-CREATE UNIQUE INDEX "applications_one_active_per_participant" ON "applications" USING btree ("participant_id") WHERE "applications"."status" in ('draft', 'submitted', 'accepted');--> statement-breakpoint
+CREATE UNIQUE INDEX "applications_one_active_per_participant" ON "applications" USING btree ("participant_id") WHERE "applications"."status" in ('draft', 'submitted', 'under_review', 'waitlisted', 'accepted');--> statement-breakpoint
 CREATE INDEX "applications_status_index" ON "applications" USING btree ("status");--> statement-breakpoint
 ALTER TABLE "participants" DROP COLUMN "first_name";--> statement-breakpoint
 ALTER TABLE "participants" DROP COLUMN "last_name";--> statement-breakpoint

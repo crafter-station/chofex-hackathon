@@ -1,5 +1,7 @@
 import { clerkClient } from "@clerk/nextjs/server";
 
+import { HttpError } from "./registration/http";
+
 export interface AuthenticatedParticipant {
   readonly clerkUserId: string;
   readonly tokenType: "oauth_token" | "session_token";
@@ -76,4 +78,18 @@ export const authenticateParticipant = async (
     clientId,
     configuredOrigins,
   );
+};
+
+export const requireParticipantUserId = async (
+  request: Request,
+): Promise<string> => {
+  const authentication = await authenticateParticipant(request);
+  if (!authentication) {
+    throw new HttpError(
+      401,
+      "AUTHENTICATION_REQUIRED",
+      "Authentication failed",
+    );
+  }
+  return authentication.clerkUserId;
 };

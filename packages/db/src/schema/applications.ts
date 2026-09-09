@@ -66,7 +66,9 @@ export const applications = pgTable(
   (table) => [
     uniqueIndex("applications_one_active_per_participant")
       .on(table.participantId)
-      .where(sql`${table.status} in ('draft', 'submitted', 'accepted')`),
+      .where(
+        sql`${table.status} in ('draft', 'submitted', 'under_review', 'waitlisted', 'accepted')`,
+      ),
     index("applications_status_index").on(table.status),
   ],
 );

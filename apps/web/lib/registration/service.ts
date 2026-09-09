@@ -12,7 +12,7 @@ import {
   type RegistrationView,
   type Requirement,
 } from "@repo/registration-contract";
-import { Predicate, Schema } from "effect";
+import { DateTime, Predicate, Schema } from "effect";
 
 import { HttpError } from "./http";
 import { encryptSensitiveValue } from "./sensitive";
@@ -373,7 +373,9 @@ export const submitAcceptedDetails = async (
 
   const values = {
     phone: input.phone,
-    dateOfBirth: new Date(`${input.dateOfBirth}T00:00:00.000Z`),
+    dateOfBirth: DateTime.toDateUtc(
+      DateTime.makeUnsafe(`${input.dateOfBirth}T00:00:00.000Z`),
+    ),
     nationalIdNumber: encryptNationalId(input.nationalIdNumber),
     shirtSize: optional(input.shirtSize),
     dietaryRestrictions: optional(input.dietaryRestrictions),

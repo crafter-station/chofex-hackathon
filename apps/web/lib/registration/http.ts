@@ -18,6 +18,8 @@ const responseHeaders = {
   "content-type": "application/json; charset=utf-8",
 };
 
+const maximumBodyBytes = 65_536;
+
 const requestIdFor = (request: Request): string => {
   const supplied = request.headers.get("x-request-id");
   if (supplied && /^[A-Za-z0-9_-]{1,128}$/.test(supplied)) return supplied;
@@ -86,6 +88,34 @@ export const withApiHandler = async (
   }
 };
 
+const readLimitedBody = async (request: Request): Promise<string> => {
+  if (!request.body) return "";
+  const reader = request.body.getReader();
+  const decoder = new TextDecoder();
+  let contents = "";
+  let bytesRead = 0;
+
+  try {
+    while (true) {
+      const chunk = await reader.read();
+      if (chunk.done) break;
+      bytesRead += chunk.value.byteLength;
+      if (bytesRead > maximumBodyBytes) {
+        await reader.cancel().catch(() => undefined);
+        throw new HttpError(
+          413,
+          "PAYLOAD_TOO_LARGE",
+          "Request body exceeds 64 KiB",
+        );
+      }
+      contents += decoder.decode(chunk.value, { stream: true });
+    }
+    return contents + decoder.decode();
+  } finally {
+    reader.releaseLock();
+  }
+};
+
 export const readJson = async (request: Request): Promise<unknown> => {
   const contentType = request.headers.get("content-type") ?? "";
   if (!contentType.toLowerCase().includes("application/json")) {
@@ -96,7 +126,7 @@ export const readJson = async (request: Request): Promise<unknown> => {
     );
   }
   const contentLength = Number(request.headers.get("content-length") ?? "0");
-  if (contentLength > 65_536) {
+  if (contentLength > maximumBodyBytes) {
     throw new HttpError(
       413,
       "PAYLOAD_TOO_LARGE",
@@ -105,16 +135,10 @@ export const readJson = async (request: Request): Promise<unknown> => {
   }
   let contents: string;
   try {
-    contents = await request.text();
-  } catch {
+    contents = await readLimitedBody(request);
+  } catch (error) {
+    if (error instanceof HttpError) throw error;
     throw new HttpError(400, "INVALID_JSON", "Request body is not valid JSON");
-  }
-  if (new TextEncoder().encode(contents).byteLength > 65_536) {
-    throw new HttpError(
-      413,
-      "PAYLOAD_TOO_LARGE",
-      "Request body exceeds 64 KiB",
-    );
   }
   try {
     return JSON.parse(contents) as unknown;

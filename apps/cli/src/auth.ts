@@ -103,7 +103,7 @@ export const windowsCredentialScript = (
   return `${prefix}$p=[Console]::In.ReadToEnd().Trim();$v.Add((New-Object Windows.Security.Credentials.PasswordCredential('${keychainService}','${keychainAccount}',$p)));$saved=$v.Retrieve('${keychainService}','${keychainAccount}');$saved.RetrievePassword();if($saved.Password-ne$p){throw 'Credential verification failed'}`;
 };
 
-const command = async (
+const runCommand = async (
   executable: string,
   args: string[],
   input?: string,
@@ -137,7 +137,7 @@ const credentialStore = async (
 ): Promise<string> => {
   if (process.platform === "darwin") {
     if (action === "read") {
-      return command("security", [
+      return runCommand("security", [
         "find-generic-password",
         "-a",
         keychainAccount,
@@ -147,7 +147,7 @@ const credentialStore = async (
       ]);
     }
     if (action === "delete") {
-      return command("security", [
+      return runCommand("security", [
         "delete-generic-password",
         "-a",
         keychainAccount,
@@ -155,17 +155,17 @@ const credentialStore = async (
         keychainService,
       ]);
     }
-    return command("security", macOSCredentialSaveArgs(), `${value}\n`);
+    return runCommand("security", macOSCredentialSaveArgs(), `${value}\n`);
   }
   if (process.platform === "linux") {
     const attributes = ["service", keychainService, "account", keychainAccount];
     if (action === "read") {
-      return command("secret-tool", ["lookup", ...attributes]);
+      return runCommand("secret-tool", ["lookup", ...attributes]);
     }
     if (action === "delete") {
-      return command("secret-tool", ["clear", ...attributes]);
+      return runCommand("secret-tool", ["clear", ...attributes]);
     }
-    return command(
+    return runCommand(
       "secret-tool",
       ["store", "--label=Chofex CLI", ...attributes],
       `${value}\n`,
@@ -174,7 +174,7 @@ const credentialStore = async (
   if (process.platform === "win32") {
     let input: string | undefined;
     if (action === "save") input = `${value}\n`;
-    return command(
+    return runCommand(
       "powershell.exe",
       ["-NoProfile", "-Command", windowsCredentialScript(action)],
       input,

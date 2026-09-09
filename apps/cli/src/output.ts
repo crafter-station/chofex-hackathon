@@ -11,7 +11,9 @@ import { type CliError, exitCodeFor } from "./errors.js";
 export type OutputMode = "human" | "json";
 
 export const printJson = (value: unknown): Effect.Effect<void> =>
-  Console.log(JSON.stringify(value));
+  Effect.sync(() => {
+    process.stdout.write(`${JSON.stringify(value)}\n`);
+  });
 
 export const execute = <A, R>(
   mode: OutputMode,

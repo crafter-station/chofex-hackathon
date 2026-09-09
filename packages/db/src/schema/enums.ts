@@ -3,6 +3,8 @@ import { pgEnum } from "drizzle-orm/pg-core";
 export const applicationStatus = pgEnum("application_status", [
   "draft",
   "submitted",
+  "under_review",
+  "waitlisted",
   "accepted",
   "rejected",
   "withdrawn",
