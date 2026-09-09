@@ -1,6 +1,7 @@
 import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
 import { BlocksIcon, PackageCheckIcon, PaletteIcon } from "lucide-react";
 
+import { CopyAgentPrompt } from "@/components/copy-agent-prompt";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@chofex/ui/components/button";
 import {
@@ -51,12 +52,7 @@ export default function Home() {
               this Next.js app with system-aware light and dark themes.
             </p>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <Button size="lg">Start building</Button>
-            <Button size="lg" variant="outline">
-              Browse components
-            </Button>
-          </div>
+          <CopyAgentPrompt />
         </section>
 
         <section className="grid gap-4 md:grid-cols-2">
