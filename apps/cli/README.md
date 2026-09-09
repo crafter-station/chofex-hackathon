@@ -23,5 +23,5 @@ token with `CHOFEX_TOKEN`.
 Use `CHOFEX_API_URL` to override the API URL when running against a hosted or
 local Chofex instance.
 
-Registration links use `https://andres.crafter.run` by default. Local or preview
+Registration links use `https://andes.crafter.run` by default. Local or preview
 environments can override that origin with `CHOFEX_PUBLIC_SITE_URL`.

@@ -83,8 +83,8 @@ team name. Explain these rules while collecting answers:
 
 Before requesting required consent, give the participant these links:
 
-- `https://andres.crafter.run/terms`
-- `https://andres.crafter.run/privacy`
+- `https://andes.crafter.run/terms`
+- `https://andes.crafter.run/privacy`
 
 If they do not accept either required document, do not discard the answers
 already collected. Ask whether they want to cancel registration or read the
