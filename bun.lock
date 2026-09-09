@@ -35,15 +35,13 @@
       "dependencies": {
         "@clerk/nextjs": "^7.9.1",
         "@clerk/ui": "^1.32.2",
-        "@neondatabase/serverless": "^1.1.0",
+        "@repo/db": "*",
         "@repo/ui": "*",
-        "drizzle-orm": "^0.45.2",
         "lucide-react": "^1.43.0",
         "next": "16.3.4",
         "next-themes": "^0.4.6",
         "react": "19.2.8",
         "react-dom": "19.2.8",
-        "server-only": "^0.0.1",
       },
       "devDependencies": {
         "@repo/eslint-config": "*",
@@ -52,6 +50,22 @@
         "@types/node": "26.4.1",
         "@types/react": "19.2.18",
         "@types/react-dom": "19.2.5",
+        "eslint": "10.9.1",
+        "typescript": "7.0.2",
+      },
+    },
+    "packages/db": {
+      "name": "@repo/db",
+      "version": "0.0.0",
+      "dependencies": {
+        "@neondatabase/serverless": "^1.1.0",
+        "drizzle-orm": "^0.45.2",
+        "server-only": "^0.0.1",
+      },
+      "devDependencies": {
+        "@repo/eslint-config": "*",
+        "@repo/typescript-config": "*",
+        "@types/node": "26.4.1",
         "dotenv": "^17.4.2",
         "drizzle-kit": "^0.31.10",
         "eslint": "10.9.1",
@@ -435,6 +449,8 @@
     "@react-native/normalize-colors": ["@react-native/normalize-colors@0.87.1", "", {}, "sha512-8+AutemzX+a7cuKgTUyb7JUk3sFYgLyrSnlTLrL6LuW/LKDE+FYE8lJGWYhJPJcE51Ge1D8yRzxgQEdEFZtuIw=="],
 
     "@react-native/virtualized-lists": ["@react-native/virtualized-lists@0.87.1", "", { "dependencies": { "invariant": "^2.2.4", "nullthrows": "^1.1.1" }, "peerDependencies": { "@types/react": "^19.2.0", "react": "*", "react-native": "0.87.1" }, "optionalPeers": ["@types/react"] }, "sha512-qSZjeX3UJrDvyfjf7yc3E68rp1XnzE+5nu8ImklhkVC0+p/XiaHPb/KGkRqDdnQyWHN55BRYSsCMEwgVI6WRNQ=="],
+
+    "@repo/db": ["@repo/db@workspace:packages/db"],
 
     "@repo/eslint-config": ["@repo/eslint-config@workspace:packages/eslint-config"],
 
