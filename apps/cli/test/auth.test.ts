@@ -24,8 +24,8 @@ describe("CLI authentication", () => {
     expect(first.verifier).not.toBe(second.verifier);
   });
 
-  test("stores credentials in the Chofex macOS keychain entry", () => {
-    expect(macOSCredentialSaveArgs()).toEqual([
+  test("passes serialized credentials to the macOS keychain without prompting", () => {
+    expect(macOSCredentialSaveArgs("serialized-credential")).toEqual([
       "add-generic-password",
       "-U",
       "-a",
@@ -33,6 +33,7 @@ describe("CLI authentication", () => {
       "-s",
       "run.chofex.cli.oauth",
       "-w",
+      "serialized-credential",
     ]);
   });
 

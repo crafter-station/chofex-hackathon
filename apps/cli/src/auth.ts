@@ -29,7 +29,7 @@ export const createPkce = (): { verifier: string; challenge: string } => {
   return { verifier, challenge: pkceChallenge(verifier) };
 };
 
-export const macOSCredentialSaveArgs = (): string[] => [
+export const macOSCredentialSaveArgs = (value: string): string[] => [
   "add-generic-password",
   "-U",
   "-a",
@@ -37,6 +37,7 @@ export const macOSCredentialSaveArgs = (): string[] => [
   "-s",
   keychainService,
   "-w",
+  value,
 ];
 
 export const revocationToken = (credentials: Credentials): string =>
@@ -155,7 +156,7 @@ const credentialStore = async (
         keychainService,
       ]);
     }
-    return runCommand("security", macOSCredentialSaveArgs(), `${value}\n`);
+    return runCommand("security", macOSCredentialSaveArgs(value ?? ""));
   }
   if (process.platform === "linux") {
     const attributes = ["service", keychainService, "account", keychainAccount];
