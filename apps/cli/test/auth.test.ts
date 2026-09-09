@@ -8,6 +8,7 @@ import {
   macOSCredentialSaveArgs,
   pkceChallenge,
   revocationToken,
+  tokenEndpointError,
 } from "../src/auth.js";
 
 describe("CLI authentication", () => {
@@ -24,7 +25,7 @@ describe("CLI authentication", () => {
   });
 
   test("stores credentials in the Chofex macOS keychain entry", () => {
-    expect(macOSCredentialSaveArgs("serialized-credential")).toEqual([
+    expect(macOSCredentialSaveArgs()).toEqual([
       "add-generic-password",
       "-U",
       "-a",
@@ -32,7 +33,6 @@ describe("CLI authentication", () => {
       "-s",
       "run.chofex.cli.oauth",
       "-w",
-      "serialized-credential",
     ]);
   });
 
@@ -99,5 +99,14 @@ describe("CLI authentication", () => {
         fetchImpl,
       ),
     ).resolves.toBeUndefined();
+  });
+
+  test("makes a token-exchange client error actionable", () => {
+    expect(
+      tokenEndpointError(401, {
+        error: "invalid_client",
+        error_description: "The requested OAuth 2.0 Client does not exist.",
+      }).message,
+    ).toContain("Chofex OAuth client is unavailable");
   });
 });

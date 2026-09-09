@@ -1,11 +1,7 @@
 import { Effect, Option } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
 import { confirmAttendance, getRegistration, register } from "./api-client.js";
-import {
-  accessToken,
-  login as oauthLogin,
-  logout as oauthLogout,
-} from "./auth.js";
+import { login as oauthLogin, logout as oauthLogout } from "./auth.js";
 import { config } from "./config.js";
 import { cliError } from "./errors.js";
 import { acceptedDetailsInput, applicationInput } from "./input.js";
@@ -44,23 +40,13 @@ const root = Command.make("chofex").pipe(
   ),
 );
 
-const resolveToken = Effect.fn("resolveToken")(function* (
-  explicit: Option.Option<string>,
-) {
-  if (Option.isSome(explicit)) return explicit.value;
-  return yield* Effect.tryPromise({
-    try: () => accessToken(),
-    catch: (error) => cliError("AUTHENTICATION_REQUIRED", String(error), false),
-  });
-});
-
 const registerCommand = Command.make(
   "register",
   { input: inputFlag },
   Effect.fn("registerCommand")(function* ({ input }) {
     const options = yield* root;
     const operation = Effect.gen(function* () {
-      const token = yield* resolveToken(options.token);
+      const token = Option.getOrUndefined(options.token);
       const body = yield* applicationInput(Option.getOrUndefined(input));
       return yield* register({ apiUrl: options.apiUrl, token }, body);
     });
@@ -88,7 +74,7 @@ const statusCommand = Command.make(
   Effect.fn("statusCommand")(function* () {
     const options = yield* root;
     const operation = Effect.gen(function* () {
-      const token = yield* resolveToken(options.token);
+      const token = Option.getOrUndefined(options.token);
       return yield* getRegistration({ apiUrl: options.apiUrl, token });
     });
     yield* execute(options.output, operation, registrationText);
@@ -101,7 +87,7 @@ const requirementsCommand = Command.make(
   Effect.fn("requirementsCommand")(function* () {
     const options = yield* root;
     const operation = Effect.gen(function* () {
-      const token = yield* resolveToken(options.token);
+      const token = Option.getOrUndefined(options.token);
       return yield* getRegistration({ apiUrl: options.apiUrl, token });
     });
     yield* execute(options.output, operation, requirementsOnlyText);
@@ -114,7 +100,7 @@ const confirmCommand = Command.make(
   Effect.fn("confirmCommand")(function* ({ input }) {
     const options = yield* root;
     const operation = Effect.gen(function* () {
-      const token = yield* resolveToken(options.token);
+      const token = Option.getOrUndefined(options.token);
       const client = { apiUrl: options.apiUrl, token };
       const current = yield* getRegistration(client);
       if (!current.data.requirements.canSubmitAcceptedDetails) {

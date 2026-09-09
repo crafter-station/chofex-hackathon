@@ -95,4 +95,35 @@ describe("registration API authentication", () => {
       },
     ]);
   });
+
+  test("keeps browser sessions available without a CLI OAuth client", async () => {
+    const calls: unknown[] = [];
+    const clerk = {
+      async authenticateRequest(_request: Request, options: unknown) {
+        calls.push(options);
+        return {
+          isAuthenticated: true,
+          toAuth: () => ({
+            tokenType: "session_token" as const,
+            userId: "user_123",
+          }),
+        };
+      },
+    };
+
+    await expect(
+      authenticateUserWithClerk(request, clerk, undefined, [
+        "https://chofex.example",
+      ]),
+    ).resolves.toEqual({
+      clerkUserId: "user_123",
+      tokenType: "session_token",
+    });
+    expect(calls).toEqual([
+      {
+        acceptsToken: "session_token",
+        authorizedParties: ["https://chofex.example"],
+      },
+    ]);
+  });
 });

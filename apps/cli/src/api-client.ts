@@ -9,6 +9,7 @@ import {
 } from "@repo/registration-contract";
 import { Effect, Result, Schema } from "effect";
 
+import { accessToken } from "./auth.js";
 import { type CliError, cliError } from "./errors.js";
 
 export interface ApiClientOptions {
@@ -19,28 +20,38 @@ export interface ApiClientOptions {
 const endpoint = (apiUrl: string, path: string): string =>
   `${apiUrl.replace(/\/$/, "")}${path}`;
 
-const request = Effect.fn("apiRequest")(function* <A, R>(
+const resolveAccessToken = (
+  suppliedToken: string | undefined,
+  forceRefresh = false,
+): Effect.Effect<string, CliError> => {
+  if (suppliedToken) return Effect.succeed(suppliedToken);
+  return Effect.tryPromise({
+    try: () => accessToken(forceRefresh),
+    catch: (error) => cliError("AUTHENTICATION_REQUIRED", String(error), false),
+  });
+};
+
+const sendRequest = (
   options: ApiClientOptions,
   path: string,
   init: RequestInit,
-  decodeResponse: (input: unknown) => Effect.Effect<ApiSuccess<A>, unknown, R>,
-): Effect.fn.Return<ApiSuccess<A>, CliError, R> {
-  const headers = new Headers(init.headers);
-  headers.set("accept", "application/json");
-  headers.set("x-request-id", crypto.randomUUID());
-  if (init.body !== undefined) {
-    headers.set("content-type", "application/json");
-  }
-  if (options.token) {
-    headers.set("authorization", `Bearer ${options.token}`);
-  }
-  const response = yield* Effect.tryPromise({
-    try: () =>
-      fetch(endpoint(options.apiUrl, path), {
+  token: string,
+): Effect.Effect<Response, CliError> =>
+  Effect.tryPromise({
+    try: () => {
+      const headers = new Headers(init.headers);
+      headers.set("accept", "application/json");
+      headers.set("authorization", `Bearer ${token}`);
+      headers.set("x-request-id", crypto.randomUUID());
+      if (init.body !== undefined) {
+        headers.set("content-type", "application/json");
+      }
+      return fetch(endpoint(options.apiUrl, path), {
         ...init,
         headers,
         signal: AbortSignal.timeout(20_000),
-      }),
+      });
+    },
     catch: (error) =>
       cliError(
         "NETWORK_ERROR",
@@ -48,6 +59,20 @@ const request = Effect.fn("apiRequest")(function* <A, R>(
         true,
       ),
   });
+
+const request = Effect.fn("apiRequest")(function* <A, R>(
+  options: ApiClientOptions,
+  path: string,
+  init: RequestInit,
+  decodeResponse: (input: unknown) => Effect.Effect<ApiSuccess<A>, unknown, R>,
+): Effect.fn.Return<ApiSuccess<A>, CliError, R> {
+  const suppliedToken = options.token ?? process.env.CHOFEX_TOKEN;
+  let token = yield* resolveAccessToken(suppliedToken);
+  let response = yield* sendRequest(options, path, init, token);
+  if (response.status === 401 && !suppliedToken) {
+    token = yield* resolveAccessToken(undefined, true);
+    response = yield* sendRequest(options, path, init, token);
+  }
 
   const body = yield* Effect.tryPromise({
     try: () => response.json() as Promise<unknown>,

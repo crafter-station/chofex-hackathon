@@ -29,7 +29,7 @@ export const createPkce = (): { verifier: string; challenge: string } => {
   return { verifier, challenge: pkceChallenge(verifier) };
 };
 
-export const macOSCredentialSaveArgs = (value: string): string[] => [
+export const macOSCredentialSaveArgs = (): string[] => [
   "add-generic-password",
   "-U",
   "-a",
@@ -37,7 +37,6 @@ export const macOSCredentialSaveArgs = (value: string): string[] => [
   "-s",
   keychainService,
   "-w",
-  value,
 ];
 
 export const revocationToken = (credentials: Credentials): string =>
@@ -64,6 +63,7 @@ export const assertAuthorizationClient = async (
       response = await fetchImpl(url, {
         redirect: "manual",
         headers: { accept: "application/json, text/html" },
+        signal: AbortSignal.timeout(10_000),
       });
     } catch {
       return;
@@ -155,7 +155,7 @@ const credentialStore = async (
         keychainService,
       ]);
     }
-    return command("security", macOSCredentialSaveArgs(value ?? ""));
+    return command("security", macOSCredentialSaveArgs(), `${value}\n`);
   }
   if (process.platform === "linux") {
     const attributes = ["service", keychainService, "account", keychainAccount];
@@ -198,10 +198,16 @@ const saveCredentials = async (credentials: Credentials): Promise<void> => {
   await credentialStore("save", JSON.stringify(credentials));
 };
 
-const tokenEndpointError = (status: number, body: TokenResponse): Error => {
+export const tokenEndpointError = (
+  status: number,
+  body: TokenResponse,
+): Error => {
   let description = "";
   if (typeof body.error_description === "string") {
     description = body.error_description.replace(/[.\s]+$/, "");
+  }
+  if (body.error === "invalid_client") {
+    return invalidClientError(description);
   }
   const detail = description ? `: ${description}` : "";
   return new Error(`Clerk OAuth token endpoint returned ${status}${detail}`);
@@ -246,6 +252,7 @@ const tokenRequest = async (
       "content-type": "application/x-www-form-urlencoded",
     },
     body: new URLSearchParams(values),
+    signal: AbortSignal.timeout(20_000),
   });
   const body = (await response.json().catch(() => ({}))) as TokenResponse;
   if (!response.ok) throw tokenEndpointError(response.status, body);
@@ -305,7 +312,11 @@ export const browserCommand = (
 
 export const openBrowser = (url: string): void => {
   const [executable, args] = browserCommand(url);
-  spawn(executable, args, { detached: true, stdio: "ignore" }).unref();
+  const child = spawn(executable, args, { detached: true, stdio: "ignore" });
+  child.once("error", () => {
+    // The URL was already printed, so the user can open it manually.
+  });
+  child.unref();
 };
 
 export const assertInteractiveLogin = (
@@ -417,6 +428,7 @@ export const logout = async (): Promise<void> => {
           token: revocationToken(credentials),
           client_id: config.oauthClientId,
         }),
+        signal: AbortSignal.timeout(20_000),
       });
       if (!response.ok) {
         throw new Error(`Clerk OAuth revocation returned ${response.status}`);
@@ -429,10 +441,18 @@ export const logout = async (): Promise<void> => {
       revocationError = new Error("OAuth revocation failed");
     }
   }
-  try {
-    await credentialStore("delete");
-  } catch {
-    // A missing local credential means the CLI is already logged out locally.
+  let deletionError: Error | null = null;
+  if (credentials) {
+    try {
+      await credentialStore("delete");
+    } catch (error) {
+      if (error instanceof Error) {
+        deletionError = error;
+      } else {
+        deletionError = new Error("Could not delete local OAuth credentials");
+      }
+    }
   }
   if (revocationError) throw revocationError;
+  if (deletionError) throw deletionError;
 };

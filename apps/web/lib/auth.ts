@@ -27,22 +27,24 @@ interface ClerkRequestAuthenticator {
 export const authenticateUserWithClerk = async (
   request: Request,
   clerk: ClerkRequestAuthenticator,
-  cliOAuthClientId: string,
+  cliOAuthClientId: string | undefined,
   authorizedWebOrigins: ReadonlyArray<string>,
 ): Promise<AuthenticatedParticipant | null> => {
-  const oauthState = await clerk.authenticateRequest(request, {
-    acceptsToken: "oauth_token",
-  });
-  if (oauthState.isAuthenticated) {
-    const oauth = oauthState.toAuth();
-    if (
-      oauth.tokenType === "oauth_token" &&
-      oauth.clientId === cliOAuthClientId &&
-      oauth.userId
-    ) {
-      return { clerkUserId: oauth.userId, tokenType: "oauth_token" };
+  if (cliOAuthClientId) {
+    const oauthState = await clerk.authenticateRequest(request, {
+      acceptsToken: "oauth_token",
+    });
+    if (oauthState.isAuthenticated) {
+      const oauth = oauthState.toAuth();
+      if (
+        oauth.tokenType === "oauth_token" &&
+        oauth.clientId === cliOAuthClientId &&
+        oauth.userId
+      ) {
+        return { clerkUserId: oauth.userId, tokenType: "oauth_token" };
+      }
+      return null;
     }
-    return null;
   }
 
   const sessionState = await clerk.authenticateRequest(request, {
@@ -59,19 +61,19 @@ export const authenticateParticipant = async (
   request: Request,
 ): Promise<AuthenticatedParticipant | null> => {
   const clientId = process.env.CLERK_CLI_OAUTH_CLIENT_ID;
-  if (!clientId) {
-    throw new Error("CLERK_CLI_OAUTH_CLIENT_ID is not configured");
-  }
-  const requestOrigin = new URL(request.url).origin;
-  const configuredOrigins = (process.env.CLERK_AUTHORIZED_PARTIES ?? "")
+  const authorizedParties =
+    process.env.CLERK_AUTHORIZED_PARTIES ?? "http://localhost:3000";
+  const configuredOrigins = authorizedParties
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean);
-  const origins = [...new Set([requestOrigin, ...configuredOrigins])];
+  if (configuredOrigins.length === 0) {
+    configuredOrigins.push("http://localhost:3000");
+  }
   return authenticateUserWithClerk(
     request,
     (await clerkClient()) as ClerkRequestAuthenticator,
     clientId,
-    origins,
+    configuredOrigins,
   );
 };
