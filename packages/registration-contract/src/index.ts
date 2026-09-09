@@ -227,6 +227,90 @@ export const RegistrationRequirementsSchema = Schema.Struct({
 export type RegistrationRequirements =
   typeof RegistrationRequirementsSchema.Type;
 
+const addMissingRequirement = (
+  missing: Array<Requirement>,
+  field: string,
+  reason = "Required after acceptance",
+): void => {
+  missing.push({ field, reason });
+};
+
+const acceptedDetailsRequirementsFor = (
+  registration: RegistrationView,
+): ReadonlyArray<Requirement> => {
+  const missing: Array<Requirement> = [];
+
+  if (!registration.phone) addMissingRequirement(missing, "phone");
+  if (!registration.dateOfBirth) {
+    addMissingRequirement(missing, "dateOfBirth");
+  }
+  if (!registration.nationalIdProvided) {
+    addMissingRequirement(missing, "nationalIdNumber");
+  }
+  if (!registration.emergencyContactName) {
+    addMissingRequirement(missing, "emergencyContactName");
+  }
+  if (!registration.emergencyContactPhone) {
+    addMissingRequirement(missing, "emergencyContactPhone");
+  }
+  if (
+    registration.participationMode === "in_person" &&
+    !registration.shirtSize
+  ) {
+    addMissingRequirement(
+      missing,
+      "shirtSize",
+      "Required for in-person participants",
+    );
+  }
+
+  return missing;
+};
+
+export const applicationRequirementsFor = (
+  registration: RegistrationView,
+): RegistrationRequirements => {
+  switch (registration.status) {
+    case "rejected":
+      return {
+        stage: "rejected",
+        canSubmitNewApplication: true,
+        canSubmitAcceptedDetails: false,
+        missing: [],
+        rejectionReason: registration.rejectionReason,
+      };
+    case "withdrawn":
+      return {
+        stage: "review",
+        canSubmitNewApplication: true,
+        canSubmitAcceptedDetails: false,
+        missing: [],
+      };
+    case "accepted": {
+      const missing = acceptedDetailsRequirementsFor(registration);
+      const isComplete =
+        Boolean(registration.acceptanceDetailsCompletedAt) &&
+        missing.length === 0;
+      return {
+        stage: isComplete ? "complete" : "accepted",
+        canSubmitNewApplication: false,
+        canSubmitAcceptedDetails: true,
+        missing,
+      };
+    }
+    case "draft":
+    case "submitted":
+    case "under_review":
+    case "waitlisted":
+      return {
+        stage: "review",
+        canSubmitNewApplication: false,
+        canSubmitAcceptedDetails: false,
+        missing: [],
+      };
+  }
+};
+
 export interface ApiSuccess<A> {
   readonly version: 1;
   readonly ok: true;

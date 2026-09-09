@@ -5,14 +5,13 @@ import {
   AcceptedDetailsInput,
   ApplicationInput,
   acceptedDetailsSemanticRequirements,
+  applicationRequirementsFor,
   applicationSemanticRequirements,
+  type CreatedRegistration,
   hackathonCountryCode,
   hackathonParticipationMode,
-  type CreatedRegistration,
-  type RegistrationRequirements,
   type RegistrationResult,
   type RegistrationView,
-  type Requirement,
 } from "@repo/registration-contract";
 import { DateTime, Predicate, Schema } from "effect";
 
@@ -158,80 +157,15 @@ const toView = (
   updatedAt: instantString(details?.updatedAt ?? application.updatedAt),
 });
 
-const acceptedStageFor = (
-  view: RegistrationView,
-): RegistrationRequirements["stage"] => {
-  if (view.acceptanceDetailsCompletedAt) return "complete";
-  return "accepted";
-};
-
-const addMissingRequirement = (
-  missing: Array<Requirement>,
-  field: string,
-  reason = "Required after acceptance",
-): void => {
-  missing.push({ field, reason });
-};
-
-const acceptedMissingRequirements = (
-  view: RegistrationView,
-): ReadonlyArray<Requirement> => {
-  const missing: Array<Requirement> = [];
-
-  if (!view.phone) addMissingRequirement(missing, "phone");
-  if (!view.dateOfBirth) addMissingRequirement(missing, "dateOfBirth");
-  if (!view.nationalIdProvided) {
-    addMissingRequirement(missing, "nationalIdNumber");
-  }
-  if (!view.emergencyContactName) {
-    addMissingRequirement(missing, "emergencyContactName");
-  }
-  if (!view.emergencyContactPhone) {
-    addMissingRequirement(missing, "emergencyContactPhone");
-  }
-  if (view.participationMode === "in_person" && !view.shirtSize) {
-    addMissingRequirement(
-      missing,
-      "shirtSize",
-      "Required for in-person participants",
-    );
-  }
-
-  return missing;
-};
-
-const requirementsFor = (view: RegistrationView): RegistrationRequirements => {
-  if (view.status === "rejected") {
-    return {
-      stage: "rejected",
-      canSubmitNewApplication: true,
-      canSubmitAcceptedDetails: false,
-      missing: [],
-      rejectionReason: view.rejectionReason,
-    };
-  }
-  if (view.status === "accepted") {
-    return {
-      stage: acceptedStageFor(view),
-      canSubmitNewApplication: false,
-      canSubmitAcceptedDetails: true,
-      missing: acceptedMissingRequirements(view),
-    };
-  }
-  return {
-    stage: "review",
-    canSubmitNewApplication: false,
-    canSubmitAcceptedDetails: false,
-    missing: [],
-  };
-};
-
 const resultFor = (
   application: ApplicationRecord,
   details?: AcceptanceDetailsRecord,
 ): RegistrationResult => {
   const registration = toView(application, details);
-  return { registration, requirements: requirementsFor(registration) };
+  return {
+    registration,
+    requirements: applicationRequirementsFor(registration),
+  };
 };
 
 const participantFor = async (clerkUserId: string): Promise<string> => {

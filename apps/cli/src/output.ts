@@ -1,9 +1,8 @@
 import {
-  RequirementSchema,
   type ApiSuccess,
   type CreatedRegistration,
-  type RegistrationRequirements,
   type RegistrationResult,
+  RequirementSchema,
 } from "@repo/registration-contract";
 import { Console, Effect, Result, Schema } from "effect";
 
@@ -22,9 +21,9 @@ const humanErrorDetails = (details: unknown): string => {
   if (typeof details === "object" && details !== null && "issues" in details) {
     const issues = details.issues;
     if (Array.isArray(issues)) {
-      const decoded = Schema.decodeUnknownResult(Schema.Array(RequirementSchema))(
-        issues,
-      );
+      const decoded = Schema.decodeUnknownResult(
+        Schema.Array(RequirementSchema),
+      )(issues);
       if (Result.isSuccess(decoded) && decoded.success.length > 0) {
         const lines = decoded.success.map(
           (issue) => `  - ${issue.field}: ${issue.reason}`,
@@ -71,7 +70,11 @@ export const execute = <A, R>(
     }),
   );
 
-const requirementsText = (requirements: RegistrationRequirements): string => {
+const requirementsText = (result: RegistrationResult): string => {
+  const { registration, requirements } = result;
+  if (registration.status === "withdrawn") {
+    return "Application withdrawn. You may submit a new application.";
+  }
   if (requirements.stage === "complete") return "Attendance details: complete";
   if (requirements.stage === "review")
     return "No action needed while your application is reviewed.";
@@ -96,11 +99,11 @@ export const registrationText = (result: RegistrationResult): string =>
     `Registration: ${result.registration.id}`,
     `Participant: ${result.registration.firstName} ${result.registration.lastName}`,
     `Status: ${result.registration.status}`,
-    requirementsText(result.requirements),
+    requirementsText(result),
   ].join("\n");
 
 export const createdText = (result: CreatedRegistration): string =>
   ["Application submitted successfully.", registrationText(result)].join("\n");
 
 export const requirementsOnlyText = (result: RegistrationResult): string =>
-  requirementsText(result.requirements);
+  requirementsText(result);
