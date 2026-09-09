@@ -3,6 +3,12 @@
 import { UserButton } from "@clerk/nextjs";
 import { Button } from "@chofex/ui/components/button";
 import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import {
   Drawer,
   DrawerClose,
   DrawerContent,
@@ -27,7 +33,6 @@ import {
   UsersIcon,
   XIcon,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import {
   type CSSProperties,
   type FormEvent,
@@ -36,13 +41,22 @@ import {
   useState,
 } from "react";
 
+import {
+  type CandidateFilters,
+  candidateKeys,
+  candidateListOptions,
+  submitCandidateDecision,
+} from "@/lib/admin/candidate-queries";
 import type {
   Candidate,
   CandidateCounts,
   CandidatePage,
   CandidateStatus,
 } from "@/lib/admin/types";
-import { reviewableCandidateStatuses } from "@/lib/admin/types";
+import {
+  candidateStatuses,
+  reviewableCandidateStatuses,
+} from "@/lib/admin/types";
 
 interface CandidateDashboardProps {
   readonly data: CandidatePage;
@@ -237,21 +251,13 @@ const CandidateLink = ({
   );
 };
 
-interface DecisionResponse {
-  readonly ok: boolean;
-  readonly data?: {
-    readonly emailStatus: "not_requested" | "sent" | "failed";
-    readonly emailError?: string;
-  };
-  readonly error?: { readonly message?: string };
-}
-
 const CandidateDrawer = ({
   candidate,
   open,
   onOpenChange,
   onPrevious,
   onNext,
+  onCandidateUpdated,
   hasPrevious,
   hasNext,
 }: {
@@ -260,17 +266,22 @@ const CandidateDrawer = ({
   readonly onOpenChange: (open: boolean) => void;
   readonly onPrevious: () => void;
   readonly onNext: () => void;
+  readonly onCandidateUpdated: (
+    previousStatus: CandidateStatus,
+    candidate: Candidate,
+  ) => void;
   readonly hasPrevious: boolean;
   readonly hasNext: boolean;
 }) => {
-  const router = useRouter();
   const [message, setMessage] = useState("");
   const [notify, setNotify] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [feedback, setFeedback] = useState<string>();
-  const [failedDecision, setFailedDecision] = useState<
-    "accepted" | "rejected"
-  >();
+  const decisionMutation = useMutation({
+    mutationFn: submitCandidateDecision,
+    onSuccess: (result) => {
+      const previousStatus = candidate?.status ?? result.candidate.status;
+      onCandidateUpdated(previousStatus, result.candidate);
+    },
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -299,49 +310,32 @@ const CandidateDrawer = ({
 
   if (!candidate) return null;
 
-  const submitDecision = async (decision: "accepted" | "rejected") => {
-    setSaving(true);
-    setFeedback(undefined);
-    try {
-      const response = await fetch(
-        `/api/admin/applications/${candidate.id}/decision`,
-        {
-          method: "PATCH",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ decision, message, notify }),
-        },
-      );
-      const result = (await response.json()) as DecisionResponse;
-      if (!response.ok || !result.ok) {
-        throw new Error(
-          result.error?.message ?? "The decision could not be saved",
-        );
-      }
-      if (result.data?.emailStatus === "failed") {
-        setFailedDecision(decision);
-        setFeedback(
-          result.data.emailError ??
-            "Decision saved, but the notification email failed.",
-        );
-      } else if (result.data?.emailStatus === "sent") {
-        setFailedDecision(undefined);
-        setFeedback("Decision saved and email sent.");
-      } else {
-        setFailedDecision(undefined);
-        setFeedback("Decision saved.");
-      }
-      if (result.data?.emailStatus !== "failed") router.refresh();
-    } catch (error) {
-      const reason =
-        error instanceof Error ? error.message : "Please try again.";
-      setFeedback(reason);
-    } finally {
-      setSaving(false);
-    }
+  const submitDecision = (decision: "accepted" | "rejected") => {
+    decisionMutation.mutate({
+      candidateId: candidate.id,
+      decision,
+      message,
+      notify,
+    });
   };
 
-  const isReviewable =
-    reviewableStatuses.has(candidate.status) && !failedDecision;
+  let failedDecision: "accepted" | "rejected" | undefined;
+  if (decisionMutation.data?.emailStatus === "failed") {
+    failedDecision = decisionMutation.variables?.decision;
+  }
+  let feedback: string | undefined;
+  if (decisionMutation.isError) {
+    feedback = decisionMutation.error.message;
+  } else if (decisionMutation.data?.emailStatus === "failed") {
+    feedback =
+      decisionMutation.data.emailError ??
+      "Decision saved, but the notification email failed.";
+  } else if (decisionMutation.data?.emailStatus === "sent") {
+    feedback = "Decision saved and email sent.";
+  } else if (decisionMutation.data?.emailStatus === "not_requested") {
+    feedback = "Decision saved.";
+  }
+  const isReviewable = reviewableStatuses.has(candidate.status);
   const showDecisionPanel = isReviewable || Boolean(failedDecision);
   let decisionPanelMessage = "This application is ready for your decision.";
   if (!isReviewable) {
@@ -375,7 +369,6 @@ const CandidateDrawer = ({
     <Drawer
       open={open}
       onOpenChange={(isOpen) => {
-        if (!isOpen && failedDecision) router.refresh();
         onOpenChange(isOpen);
       }}
       swipeDirection="right"
@@ -521,7 +514,7 @@ const CandidateDrawer = ({
                       <Button
                         className="bg-emerald-600 text-white hover:bg-emerald-700"
                         onClick={() => submitDecision("accepted")}
-                        disabled={saving}
+                        disabled={decisionMutation.isPending}
                       >
                         <CheckIcon />
                         Admit
@@ -530,7 +523,7 @@ const CandidateDrawer = ({
                         variant="destructive"
                         className="bg-rose-600 text-white hover:bg-rose-700"
                         onClick={() => submitDecision("rejected")}
-                        disabled={saving}
+                        disabled={decisionMutation.isPending}
                       >
                         <XIcon />
                         Decline
@@ -541,7 +534,7 @@ const CandidateDrawer = ({
                     <Button
                       className="w-full"
                       onClick={() => submitDecision(failedDecision)}
-                      disabled={saving}
+                      disabled={decisionMutation.isPending}
                     >
                       <MailIcon />
                       Retry notification email
@@ -665,14 +658,30 @@ const visiblePages = (
   return Array.from({ length: end - start + 1 }, (_, index) => start + index);
 };
 
+const filtersFromUrl = (url: string): CandidateFilters => {
+  const parameters = new URL(url).searchParams;
+  const parsedPage = Number.parseInt(parameters.get("page") ?? "1", 10);
+  let page = 1;
+  if (Number.isFinite(parsedPage)) page = Math.max(1, parsedPage);
+  const query = parameters.get("q")?.trim().slice(0, 200) ?? "";
+  const requestedStatus = parameters.get("status");
+  const status = candidateStatuses.find((value) => value === requestedStatus);
+  return { page, query, status };
+};
+
 export function CandidateDashboard({
   data,
   initialQuery,
   initialStatus,
   initialSelection,
 }: CandidateDashboardProps) {
-  const router = useRouter();
+  const queryClient = useQueryClient();
   const [query, setQuery] = useState(initialQuery);
+  const [filters, setFilters] = useState<CandidateFilters>({
+    page: data.page,
+    query: initialQuery,
+    status: initialStatus,
+  });
   let initiallySelectedId: string | undefined;
   if (initialSelection === "first") {
     initiallySelectedId = data.candidates[0]?.id;
@@ -683,13 +692,79 @@ export function CandidateDashboard({
   const [selectedId, setSelectedId] = useState<string | undefined>(
     initiallySelectedId,
   );
-  const selectedIndex = data.candidates.findIndex(
+  const [pendingPageSelection, setPendingPageSelection] = useState<
+    "first" | "last"
+  >();
+  const isInitialList =
+    filters.page === data.page &&
+    filters.query === initialQuery &&
+    filters.status === initialStatus;
+  const candidateQuery = useQuery({
+    ...candidateListOptions(filters),
+    initialData: isInitialList ? data : undefined,
+    placeholderData: keepPreviousData,
+  });
+  const currentData = candidateQuery.data ?? data;
+  const selectedIndex = currentData.candidates.findIndex(
     (candidate) => candidate.id === selectedId,
   );
-  const selectedCandidate = data.candidates[selectedIndex];
+  const selectedCandidate = currentData.candidates[selectedIndex];
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const nextFilters = filtersFromUrl(window.location.href);
+      setFilters(nextFilters);
+      setQuery(nextFilters.query);
+      setSelectedId(undefined);
+      setPendingPageSelection(undefined);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  useEffect(() => {
+    if (!pendingPageSelection || candidateQuery.isPlaceholderData) return;
+    let candidate = currentData.candidates[0];
+    if (pendingPageSelection === "last") {
+      candidate = currentData.candidates.at(-1);
+    }
+    setSelectedId(candidate?.id);
+    setPendingPageSelection(undefined);
+  }, [candidateQuery.isPlaceholderData, currentData, pendingPageSelection]);
+
+  const navigateTo = (
+    nextFilters: CandidateFilters,
+    selection?: "first" | "last",
+  ) => {
+    window.history.pushState(
+      null,
+      "",
+      pageHref(nextFilters.page, nextFilters.query, nextFilters.status),
+    );
+    setFilters(nextFilters);
+    setPendingPageSelection(selection);
+    if (!selection) setSelectedId(undefined);
+  };
+
+  const navigateFromClick = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+    nextFilters: CandidateFilters,
+  ) => {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+    event.preventDefault();
+    navigateTo(nextFilters);
+  };
 
   const goToCandidate = (index: number) => {
-    const candidate = data.candidates[index];
+    const candidate = currentData.candidates[index];
     if (candidate) setSelectedId(candidate.id);
   };
 
@@ -698,39 +773,71 @@ export function CandidateDashboard({
       goToCandidate(selectedIndex - 1);
       return;
     }
-    if (data.page > 1) {
-      router.push(
-        pageHref(data.page - 1, initialQuery, initialStatus, "last"),
-      );
+    if (currentData.page > 1) {
+      navigateTo({ ...filters, page: currentData.page - 1 }, "last");
     }
   };
 
   const goToNextCandidate = () => {
-    if (selectedIndex < data.candidates.length - 1) {
+    if (selectedIndex < currentData.candidates.length - 1) {
       goToCandidate(selectedIndex + 1);
       return;
     }
-    if (data.page < data.totalPages) {
-      router.push(
-        pageHref(data.page + 1, initialQuery, initialStatus, "first"),
-      );
+    if (currentData.page < currentData.totalPages) {
+      navigateTo({ ...filters, page: currentData.page + 1 }, "first");
     }
   };
 
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    router.push(pageHref(1, query.trim(), initialStatus));
+    navigateTo({ page: 1, query: query.trim(), status: filters.status });
+  };
+
+  const handleCandidateUpdated = (
+    previousStatus: CandidateStatus,
+    updatedCandidate: Candidate,
+  ) => {
+    queryClient.setQueriesData<CandidatePage>(
+      { queryKey: candidateKeys.all },
+      (cachedPage) => {
+        if (!cachedPage) return cachedPage;
+        let counts = cachedPage.counts;
+        if (previousStatus !== updatedCandidate.status) {
+          counts = {
+            ...counts,
+            [previousStatus]: Math.max(0, counts[previousStatus] - 1),
+            [updatedCandidate.status]: counts[updatedCandidate.status] + 1,
+          };
+        }
+        const candidates = cachedPage.candidates.map((candidate) => {
+          if (candidate.id === updatedCandidate.id) return updatedCandidate;
+          return candidate;
+        });
+        return { ...cachedPage, candidates, counts };
+      },
+    );
+    void queryClient.invalidateQueries({
+      queryKey: candidateKeys.all,
+      refetchType: "none",
+    });
   };
 
   const pageNumbers = useMemo(
-    () => visiblePages(data.page, data.totalPages),
-    [data.page, data.totalPages],
+    () => visiblePages(currentData.page, currentData.totalPages),
+    [currentData.page, currentData.totalPages],
   );
   const reviewCount =
-    data.counts.submitted + data.counts.under_review + data.counts.waitlisted;
+    currentData.counts.submitted +
+    currentData.counts.under_review +
+    currentData.counts.waitlisted;
   let firstResult = 0;
-  if (data.total > 0) firstResult = (data.page - 1) * data.pageSize + 1;
-  const lastResult = Math.min(data.page * data.pageSize, data.total);
+  if (currentData.total > 0) {
+    firstResult = (currentData.page - 1) * currentData.pageSize + 1;
+  }
+  const lastResult = Math.min(
+    currentData.page * currentData.pageSize,
+    currentData.total,
+  );
 
   return (
     <div className="relative min-h-svh overflow-hidden bg-background">
@@ -784,7 +891,7 @@ export function CandidateDashboard({
         <section className="mt-8 grid gap-3 sm:grid-cols-3">
           <StatCard
             label="Total applications"
-            value={data.counts.all}
+            value={currentData.counts.all}
             icon={<UsersIcon className="size-4 text-muted-foreground" />}
           />
           <StatCard
@@ -796,7 +903,7 @@ export function CandidateDashboard({
           />
           <StatCard
             label="Accepted"
-            value={data.counts.accepted}
+            value={currentData.counts.accepted}
             icon={
               <span className="size-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.12)]" />
             }
@@ -820,7 +927,7 @@ export function CandidateDashboard({
             </form>
             <div className="flex gap-1 overflow-x-auto rounded-xl border bg-background/70 p-1 shadow-sm backdrop-blur">
               {filterStatuses.map((filter) => {
-                const active = filter.value === initialStatus;
+                const active = filter.value === filters.status;
                 let className =
                   "shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors";
                 if (active) {
@@ -832,12 +939,19 @@ export function CandidateDashboard({
                 return (
                   <a
                     key={filter.label}
-                    href={pageHref(1, initialQuery, filter.value)}
+                    href={pageHref(1, filters.query, filter.value)}
+                    onClick={(event) =>
+                      navigateFromClick(event, {
+                        page: 1,
+                        query: filters.query,
+                        status: filter.value,
+                      })
+                    }
                     className={className}
                   >
                     {filter.label}
                     <span className="ml-1.5 opacity-65">
-                      {data.counts[filter.countKey]}
+                      {currentData.counts[filter.countKey]}
                     </span>
                   </a>
                 );
@@ -845,17 +959,28 @@ export function CandidateDashboard({
             </div>
           </div>
 
-          <div className="mt-4 overflow-hidden rounded-2xl border bg-card/90 shadow-sm backdrop-blur">
+          {candidateQuery.isError && (
+            <p
+              role="alert"
+              className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-300"
+            >
+              {candidateQuery.error.message}
+            </p>
+          )}
+          <div
+            className="mt-4 overflow-hidden rounded-2xl border bg-card/90 shadow-sm backdrop-blur"
+            aria-busy={candidateQuery.isFetching}
+          >
             <div className="hidden grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_7rem] gap-4 border-b bg-muted/35 px-5 py-3 text-[11px] font-medium tracking-wide text-muted-foreground uppercase sm:grid">
               <span>Candidate</span>
               <span>Background</span>
               <span>Status</span>
               <span className="text-right">Submitted</span>
             </div>
-            {data.candidates.length === 0 && <EmptyCandidates />}
-            {data.candidates.length > 0 && (
+            {currentData.candidates.length === 0 && <EmptyCandidates />}
+            {currentData.candidates.length > 0 && (
               <CandidateRows
-                candidates={data.candidates}
+                candidates={currentData.candidates}
                 onSelect={setSelectedId}
               />
             )}
@@ -863,7 +988,7 @@ export function CandidateDashboard({
 
           <div className="mt-4 flex flex-col items-center justify-between gap-3 text-xs text-muted-foreground sm:flex-row">
             <span>
-              Showing {firstResult}–{lastResult} of {data.total}
+              Showing {firstResult}–{lastResult} of {currentData.total}
             </span>
             <nav
               aria-label="Candidate pagination"
@@ -871,19 +996,28 @@ export function CandidateDashboard({
             >
               <PaginationArrow
                 href={pageHref(
-                  Math.max(1, data.page - 1),
-                  initialQuery,
-                  initialStatus,
+                  Math.max(1, currentData.page - 1),
+                  filters.query,
+                  filters.status,
                 )}
-                disabled={data.page === 1}
+                onClick={(event) =>
+                  navigateFromClick(event, {
+                    ...filters,
+                    page: Math.max(1, currentData.page - 1),
+                  })
+                }
+                disabled={currentData.page === 1}
                 label="Previous page"
                 icon={<ArrowLeftIcon className="size-3.5" />}
               />
               {pageNumbers.map((page) => (
                 <a
                   key={page}
-                  href={pageHref(page, initialQuery, initialStatus)}
-                  aria-current={page === data.page ? "page" : undefined}
+                  href={pageHref(page, filters.query, filters.status)}
+                  onClick={(event) =>
+                    navigateFromClick(event, { ...filters, page })
+                  }
+                  aria-current={page === currentData.page ? "page" : undefined}
                   className="grid size-8 place-items-center rounded-lg border bg-background font-medium transition-colors hover:bg-muted aria-current:bg-foreground aria-current:text-background"
                 >
                   {page}
@@ -891,11 +1025,20 @@ export function CandidateDashboard({
               ))}
               <PaginationArrow
                 href={pageHref(
-                  Math.min(data.totalPages, data.page + 1),
-                  initialQuery,
-                  initialStatus,
+                  Math.min(currentData.totalPages, currentData.page + 1),
+                  filters.query,
+                  filters.status,
                 )}
-                disabled={data.page === data.totalPages}
+                onClick={(event) =>
+                  navigateFromClick(event, {
+                    ...filters,
+                    page: Math.min(
+                      currentData.totalPages,
+                      currentData.page + 1,
+                    ),
+                  })
+                }
+                disabled={currentData.page === currentData.totalPages}
                 label="Next page"
                 icon={<ArrowRightIcon className="size-3.5" />}
               />
@@ -912,16 +1055,30 @@ export function CandidateDashboard({
           if (isOpen) return;
           setSelectedId(undefined);
           if (initialSelection) {
-            router.replace(pageHref(data.page, initialQuery, initialStatus));
+            window.history.replaceState(
+              null,
+              "",
+              pageHref(filters.page, filters.query, filters.status),
+            );
+          }
+          if (
+            selectedCandidate &&
+            filters.status &&
+            selectedCandidate.status !== filters.status
+          ) {
+            void queryClient.invalidateQueries({
+              queryKey: candidateKeys.list(filters),
+            });
           }
         }}
         onPrevious={goToPreviousCandidate}
         onNext={goToNextCandidate}
-        hasPrevious={selectedIndex > 0 || data.page > 1}
+        onCandidateUpdated={handleCandidateUpdated}
+        hasPrevious={selectedIndex > 0 || currentData.page > 1}
         hasNext={
           selectedIndex >= 0 &&
-          (selectedIndex < data.candidates.length - 1 ||
-            data.page < data.totalPages)
+          (selectedIndex < currentData.candidates.length - 1 ||
+            currentData.page < currentData.totalPages)
         }
       />
     </div>
@@ -1013,17 +1170,20 @@ const CandidateRows = ({
 
 const PaginationArrow = ({
   href,
+  onClick,
   disabled,
   label,
   icon,
 }: {
   readonly href: string;
+  readonly onClick: React.MouseEventHandler<HTMLAnchorElement>;
   readonly disabled: boolean;
   readonly label: string;
   readonly icon: React.ReactNode;
 }) => (
   <a
     href={href}
+    onClick={onClick}
     aria-disabled={disabled}
     aria-label={label}
     className="grid size-8 place-items-center rounded-lg border bg-background transition-colors hover:bg-muted aria-disabled:pointer-events-none aria-disabled:opacity-40"

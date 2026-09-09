@@ -2,6 +2,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/ui/themes";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { QueryProvider } from "@/components/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import "@chofex/ui/globals.css";
 import "./globals.css";
@@ -37,7 +38,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ClerkProvider appearance={{ theme: shadcn }}>
-            {children}
+            <QueryProvider>{children}</QueryProvider>
           </ClerkProvider>
         </ThemeProvider>
       </body>
