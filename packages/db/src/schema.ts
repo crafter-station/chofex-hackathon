@@ -98,10 +98,7 @@ export const registrations = pgTable(
     fieldOfStudy: varchar("field_of_study", { length: 160 }),
     graduationYear: integer("graduation_year"),
     experienceLevel: experienceLevel("experience_level"),
-    skills: text("skills")
-      .array()
-      .default(sql`ARRAY[]::text[]`)
-      .notNull(),
+    skills: text("skills").array().default(sql`ARRAY[]::text[]`).notNull(),
     bio: text("bio"),
 
     githubUrl: text("github_url"),
