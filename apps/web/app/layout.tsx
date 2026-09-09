@@ -37,7 +37,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ClerkProvider appearance={{ theme: shadcn }}>
+          <ClerkProvider
+            appearance={{ theme: shadcn }}
+            signInFallbackRedirectUrl="/admin/participants"
+            signUpFallbackRedirectUrl="/admin/participants"
+          >
             <QueryProvider>{children}</QueryProvider>
           </ClerkProvider>
         </ThemeProvider>
