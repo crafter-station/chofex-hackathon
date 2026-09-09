@@ -56,4 +56,73 @@ describe("CLI JSON mode", () => {
       data: { cliVersion: "0.1.0" },
     });
   });
+
+  test("advertises a command that verifies authentication", async () => {
+    const help = await runCli("--help");
+
+    expect(help.exitCode).toBe(0);
+    expect(help.stdout).toContain("whoami");
+    expect(help.stdout).toContain("Verify the current Clerk authentication");
+  });
+
+  test("renders verified authentication in human and JSON modes", async () => {
+    const server = Bun.serve({
+      port: 0,
+      fetch(request) {
+        if (
+          new URL(request.url).pathname !== "/api/v1/me" ||
+          request.method !== "GET" ||
+          request.headers.get("authorization") !== "Bearer oauth-token"
+        ) {
+          return new Response(null, { status: 404 });
+        }
+        return Response.json({
+          version: 1,
+          ok: true,
+          requestId: "request-whoami",
+          data: {
+            authenticated: true,
+            userId: "user_123",
+            tokenType: "oauth_token",
+          },
+        });
+      },
+    });
+
+    try {
+      const apiUrl = server.url.toString().replace(/\/$/, "");
+      const human = await runCli(
+        "--api-url",
+        apiUrl,
+        "--token",
+        "oauth-token",
+        "whoami",
+      );
+      const json = await runCli(
+        "--api-url",
+        apiUrl,
+        "--token",
+        "oauth-token",
+        "--output",
+        "json",
+        "whoami",
+      );
+
+      expect(human.exitCode).toBe(0);
+      expect(human.stdout.trim()).toBe(
+        "Authenticated as user_123 (oauth_token).",
+      );
+      expect(json.exitCode).toBe(0);
+      expect(JSON.parse(json.stdout)).toMatchObject({
+        ok: true,
+        data: {
+          authenticated: true,
+          userId: "user_123",
+          tokenType: "oauth_token",
+        },
+      });
+    } finally {
+      server.stop(true);
+    }
+  });
 });

@@ -41,6 +41,7 @@ issuer and client can be overridden with `CHOFEX_OAUTH_ISSUER` and
 ```sh
 # Submit an application interactively
 chofex login
+chofex whoami
 chofex register
 
 # Check review status and required next steps
@@ -75,6 +76,7 @@ issued specifically to the Chofex CLI.
 
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
+| `GET` | `/api/v1/me` | Verify the current Clerk identity |
 | `POST` | `/api/v1/registrations` | Submit a new application |
 | `GET` | `/api/v1/registration` | Read the latest application and requirements |
 | `PUT` | `/api/v1/registration/attendance` | Complete post-acceptance details |

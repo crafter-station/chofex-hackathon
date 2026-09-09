@@ -80,9 +80,9 @@ export const authenticateParticipant = async (
   );
 };
 
-export const requireParticipantUserId = async (
+export const requireAuthenticatedParticipant = async (
   request: Request,
-): Promise<string> => {
+): Promise<AuthenticatedParticipant> => {
   const authentication = await authenticateParticipant(request);
   if (!authentication) {
     throw new HttpError(
@@ -91,5 +91,12 @@ export const requireParticipantUserId = async (
       "Authentication failed",
     );
   }
+  return authentication;
+};
+
+export const requireParticipantUserId = async (
+  request: Request,
+): Promise<string> => {
+  const authentication = await requireAuthenticatedParticipant(request);
   return authentication.clerkUserId;
 };

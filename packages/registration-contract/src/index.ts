@@ -263,6 +263,14 @@ export type ApiFailure = typeof ApiFailureSchema.Type;
 
 export type ApiResponse<A> = ApiSuccess<A> | ApiFailure;
 
+export const CurrentUserSchema = Schema.Struct({
+  authenticated: Schema.Literal(true),
+  userId: Schema.String,
+  tokenType: Schema.Literals(["oauth_token", "session_token"]),
+});
+
+export type CurrentUser = typeof CurrentUserSchema.Type;
+
 export const RegistrationResultSchema = Schema.Struct({
   registration: RegistrationViewSchema,
   requirements: RegistrationRequirementsSchema,

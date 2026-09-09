@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { Effect } from "effect";
 
-import { getRegistration } from "../src/api-client.js";
+import { getCurrentUser, getRegistration } from "../src/api-client.js";
 
 const originalFetch = globalThis.fetch;
 
@@ -33,6 +33,43 @@ const registrationResult = {
 } as const;
 
 describe("registration API client", () => {
+  test("verifies the supplied token without requiring a registration", async () => {
+    let authorization: string | null = null;
+    let method: string | undefined;
+    let url = "";
+    globalThis.fetch = async (input, init) => {
+      url = String(input);
+      method = init?.method;
+      authorization = new Headers(init?.headers).get("authorization");
+      return Response.json({
+        version: 1,
+        ok: true,
+        requestId: "request-auth",
+        data: {
+          authenticated: true,
+          userId: "user_123",
+          tokenType: "oauth_token",
+        },
+      });
+    };
+
+    const response = await Effect.runPromise(
+      getCurrentUser({
+        apiUrl: "https://hack.example",
+        token: "oauth-token",
+      }),
+    );
+
+    expect(authorization).toBe("Bearer oauth-token");
+    expect(method).toBe("GET");
+    expect(url).toBe("https://hack.example/api/v1/me");
+    expect(response.data).toEqual({
+      authenticated: true,
+      userId: "user_123",
+      tokenType: "oauth_token",
+    });
+  });
+
   test("sends the supplied bearer token and decodes a v1 response", async () => {
     let authorization: string | null = null;
     globalThis.fetch = async (_input, init) => {

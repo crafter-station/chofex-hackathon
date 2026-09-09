@@ -6,6 +6,7 @@ import {
   ApplicationInput,
   acceptedDetailsSemanticRequirements,
   applicationSemanticRequirements,
+  CurrentUserSchema,
 } from "./index.js";
 
 const application = {
@@ -24,6 +25,20 @@ const application = {
 } as const;
 
 describe("registration contract", () => {
+  test("decodes an authenticated CLI identity", () => {
+    expect(
+      Schema.decodeUnknownSync(CurrentUserSchema)({
+        authenticated: true,
+        userId: "user_123",
+        tokenType: "oauth_token",
+      }),
+    ).toEqual({
+      authenticated: true,
+      userId: "user_123",
+      tokenType: "oauth_token",
+    });
+  });
+
   test("normalizes identity fields", () => {
     const decoded = Schema.decodeUnknownSync(ApplicationInput)(application);
     expect(decoded.firstName).toBe("Ada");

@@ -1,6 +1,11 @@
 import { Effect, Option } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
-import { confirmAttendance, getRegistration, register } from "./api-client.js";
+import {
+  confirmAttendance,
+  getCurrentUser,
+  getRegistration,
+  register,
+} from "./api-client.js";
 import { login as oauthLogin, logout as oauthLogout } from "./auth.js";
 import { config } from "./config.js";
 import { cliError } from "./errors.js";
@@ -186,6 +191,21 @@ const logoutCommand = Command.make(
   }),
 ).pipe(Command.withDescription("Revoke and remove locally stored credentials"));
 
+const whoamiCommand = Command.make(
+  "whoami",
+  {},
+  Effect.fn("whoamiCommand")(function* () {
+    const options = yield* root;
+    const token = Option.getOrUndefined(options.token);
+    const operation = getCurrentUser({ apiUrl: options.apiUrl, token });
+    yield* execute(
+      options.output,
+      operation,
+      (result) => `Authenticated as ${result.userId} (${result.tokenType}).`,
+    );
+  }),
+).pipe(Command.withDescription("Verify the current Clerk authentication"));
+
 const applicationTemplate = {
   firstName: "Ada",
   lastName: "Lovelace",
@@ -241,6 +261,7 @@ export const command = root.pipe(
   Command.withSubcommands([
     loginCommand,
     logoutCommand,
+    whoamiCommand,
     registerCommand,
     statusCommand,
     requirementsCommand,

@@ -4,6 +4,8 @@ import {
   ApiSuccessSchema,
   type CreatedRegistration,
   CreatedRegistrationSchema,
+  type CurrentUser,
+  CurrentUserSchema,
   type RegistrationResult,
   RegistrationResultSchema,
 } from "@repo/registration-contract";
@@ -117,6 +119,9 @@ const request = Effect.fn("apiRequest")(function* <A, R>(
 const decodeCreatedRegistration = Schema.decodeUnknownEffect(
   ApiSuccessSchema(CreatedRegistrationSchema),
 );
+const decodeCurrentUser = Schema.decodeUnknownEffect(
+  ApiSuccessSchema(CurrentUserSchema),
+);
 const decodeRegistrationResult = Schema.decodeUnknownEffect(
   ApiSuccessSchema(RegistrationResultSchema),
 );
@@ -134,6 +139,11 @@ export const register = (
     },
     decodeCreatedRegistration,
   );
+
+export const getCurrentUser = (
+  options: ApiClientOptions,
+): Effect.Effect<ApiSuccess<CurrentUser>, CliError> =>
+  request(options, "/api/v1/me", { method: "GET" }, decodeCurrentUser);
 
 export const getRegistration = (
   options: ApiClientOptions,
