@@ -8,7 +8,7 @@ import {
   CurrentUserSchema,
   type RegistrationResult,
   RegistrationResultSchema,
-} from "@repo/registration-contract";
+} from "@chofex/registration-contract";
 import { Effect, Result, Schema } from "effect";
 
 import { accessToken } from "./auth.js";

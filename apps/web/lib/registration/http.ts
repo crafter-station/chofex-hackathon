@@ -1,4 +1,4 @@
-import type { ApiFailure, ApiSuccess } from "@repo/registration-contract";
+import type { ApiFailure, ApiSuccess } from "@chofex/registration-contract";
 
 export class HttpError extends Error {
   constructor(

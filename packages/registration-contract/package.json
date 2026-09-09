@@ -1,5 +1,5 @@
 {
-  "name": "@repo/registration-contract",
+  "name": "@chofex/registration-contract",
   "version": "0.0.0",
   "type": "module",
   "private": true,
@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
-    "@repo/typescript-config": "*",
+    "@chofex/typescript-config": "*",
     "@types/bun": "^1.3.14",
     "typescript": "7.0.2"
   }

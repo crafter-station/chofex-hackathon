@@ -5,7 +5,7 @@ import {
   ApplicationInput,
   acceptedDetailsSemanticRequirements,
   applicationSemanticRequirements,
-} from "@repo/registration-contract";
+} from "@chofex/registration-contract";
 import { Effect, Schema } from "effect";
 import { Prompt } from "effect/unstable/cli";
 import type * as PromptModule from "effect/unstable/cli/Prompt";

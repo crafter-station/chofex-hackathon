@@ -14,8 +14,8 @@
     "components": "@/components",
     "hooks": "@/hooks",
     "lib": "@/lib",
-    "utils": "@repo/ui/lib/utils",
-    "ui": "@repo/ui/components"
+    "utils": "@chofex/ui/lib/utils",
+    "ui": "@chofex/ui/components"
   },
   "rtl": false,
   "menuColor": "default",

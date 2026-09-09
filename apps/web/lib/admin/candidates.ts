@@ -1,4 +1,4 @@
-import { db } from "@repo/db";
+import { db } from "@chofex/db";
 import {
   and,
   count,
@@ -8,8 +8,8 @@ import {
   inArray,
   or,
   type SQL,
-} from "@repo/db/orm";
-import { acceptanceDetails, applications } from "@repo/db/schema";
+} from "@chofex/db/orm";
+import { acceptanceDetails, applications } from "@chofex/db/schema";
 
 import { HttpError } from "@/lib/registration/http";
 import {

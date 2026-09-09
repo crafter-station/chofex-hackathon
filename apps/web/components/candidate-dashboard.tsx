@@ -1,7 +1,7 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@chofex/ui/components/button";
 import {
   Drawer,
   DrawerClose,
@@ -9,7 +9,7 @@ import {
   DrawerDescription,
   DrawerHeader,
   DrawerTitle,
-} from "@repo/ui/components/drawer";
+} from "@chofex/ui/components/drawer";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,

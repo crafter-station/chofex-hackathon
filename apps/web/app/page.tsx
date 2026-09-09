@@ -2,14 +2,14 @@ import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
 import { BlocksIcon, PackageCheckIcon, PaletteIcon } from "lucide-react";
 
 import { ModeToggle } from "@/components/mode-toggle";
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@chofex/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@repo/ui/components/card";
+} from "@chofex/ui/components/card";
 
 export default function Home() {
   return (
@@ -65,7 +65,7 @@ export default function Home() {
               <PackageCheckIcon className="mb-2 size-5 text-muted-foreground" />
               <CardTitle>Shared package</CardTitle>
               <CardDescription>
-                Import typed components from <code>@repo/ui</code> in any app.
+                Import typed components from <code>@chofex/ui</code> in any app.
               </CardDescription>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">

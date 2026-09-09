@@ -8,7 +8,7 @@ for people and stable JSON input/output for agents.
 ```sh
 bun install
 cp apps/web/.env.example apps/web/.env.local
-bun --filter @repo/db db:migrate
+bun --filter @chofex/db db:migrate
 bun dev
 ```
 

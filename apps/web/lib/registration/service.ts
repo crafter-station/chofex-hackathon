@@ -1,6 +1,6 @@
-import { db } from "@repo/db";
-import { desc, eq } from "@repo/db/orm";
-import { acceptanceDetails, applications, participants } from "@repo/db/schema";
+import { db } from "@chofex/db";
+import { desc, eq } from "@chofex/db/orm";
+import { acceptanceDetails, applications, participants } from "@chofex/db/schema";
 import {
   AcceptedDetailsInput,
   ApplicationInput,
@@ -12,7 +12,7 @@ import {
   hackathonParticipationMode,
   type RegistrationResult,
   type RegistrationView,
-} from "@repo/registration-contract";
+} from "@chofex/registration-contract";
 import { DateTime, Predicate, Schema } from "effect";
 
 import { HttpError } from "./http";

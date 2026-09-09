@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { RegistrationResult } from "@repo/registration-contract";
+import type { RegistrationResult } from "@chofex/registration-contract";
 
 import { registrationText, requirementsOnlyText } from "../src/output.js";
 

@@ -3,7 +3,7 @@ import {
   type CreatedRegistration,
   type RegistrationResult,
   RequirementSchema,
-} from "@repo/registration-contract";
+} from "@chofex/registration-contract";
 import { Console, Effect, Result, Schema } from "effect";
 
 import { type CliError, exitCodeFor } from "./errors.js";

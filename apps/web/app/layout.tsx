@@ -3,7 +3,7 @@ import { shadcn } from "@clerk/ui/themes";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { ThemeProvider } from "@/components/theme-provider";
-import "@repo/ui/globals.css";
+import "@chofex/ui/globals.css";
 import "./globals.css";
 
 const geistSans = localFont({
