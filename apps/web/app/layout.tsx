@@ -39,8 +39,8 @@ export default function RootLayout({
         >
           <ClerkProvider
             appearance={{ theme: shadcn }}
-            signInFallbackRedirectUrl="/admin/participants"
-            signUpFallbackRedirectUrl="/admin/participants"
+            signInFallbackRedirectUrl="/auth/complete"
+            signUpFallbackRedirectUrl="/auth/complete"
           >
             <QueryProvider>{children}</QueryProvider>
           </ClerkProvider>
