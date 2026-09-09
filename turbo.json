@@ -5,7 +5,13 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"]
+      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**", "dist/**"],
+      "env": [
+        "DATABASE_URL",
+        "CLERK_*",
+        "NEXT_PUBLIC_CLERK_*",
+        "PARTICIPANT_DATA_ENCRYPTION_KEY"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]

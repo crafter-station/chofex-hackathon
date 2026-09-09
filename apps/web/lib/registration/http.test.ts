@@ -49,4 +49,17 @@ describe("registration HTTP boundary", () => {
       },
     });
   });
+
+  test("replaces unsafe caller-supplied request IDs", async () => {
+    const request = new Request("https://hack.example/api/v1/registration", {
+      headers: { "x-request-id": "unsafe request id" },
+    });
+    const response = await withApiHandler(request, (requestId) =>
+      Promise.resolve(Response.json({ requestId })),
+    );
+    const body = (await response.json()) as { requestId: string };
+
+    expect(body.requestId).not.toBe("unsafe request id");
+    expect(body.requestId).toMatch(/^[0-9a-f-]{36}$/);
+  });
 });

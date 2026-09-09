@@ -11,9 +11,9 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-import { applications } from "./applications.js";
-import { auditTimestamps } from "./common.js";
-import { shirtSize } from "./enums.js";
+import { applications } from "./applications";
+import { auditTimestamps } from "./common";
+import { shirtSize } from "./enums";
 
 export const acceptanceDetails = pgTable(
   "acceptance_details",

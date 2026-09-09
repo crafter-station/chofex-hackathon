@@ -18,8 +18,11 @@ const responseHeaders = {
   "content-type": "application/json; charset=utf-8",
 };
 
-const requestIdFor = (request: Request): string =>
-  request.headers.get("x-request-id") ?? crypto.randomUUID();
+const requestIdFor = (request: Request): string => {
+  const supplied = request.headers.get("x-request-id");
+  if (supplied && /^[A-Za-z0-9_-]{1,128}$/.test(supplied)) return supplied;
+  return crypto.randomUUID();
+};
 
 export const jsonSuccess = <A>(
   requestId: string,

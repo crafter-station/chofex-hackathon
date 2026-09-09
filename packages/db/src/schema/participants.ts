@@ -1,6 +1,6 @@
 import { pgTable, uniqueIndex, uuid, varchar } from "drizzle-orm/pg-core";
 
-import { auditTimestamps } from "./common.js";
+import { auditTimestamps } from "./common";
 
 export const participants = pgTable(
   "participants",

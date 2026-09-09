@@ -213,7 +213,7 @@ const schemaCommand = Command.make(
   Effect.fn("schemaCommand")(function* ({ stage }) {
     const template =
       stage === "application" ? applicationTemplate : acceptanceTemplate;
-    yield* printJson({ version: 1, stage, template });
+    yield* printJson(template);
   }),
 ).pipe(
   Command.withDescription("Print a machine-readable input template"),

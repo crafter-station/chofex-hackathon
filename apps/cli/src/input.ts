@@ -27,7 +27,11 @@ const optionalText = (message: string): Prompt.Prompt<string> =>
 const withoutEmptyStrings = (
   input: Readonly<Record<string, unknown>>,
 ): Record<string, unknown> =>
-  Object.fromEntries(Object.entries(input).filter(([, value]) => value !== ""));
+  Object.fromEntries(
+    Object.entries(input).filter(
+      ([, value]) => value !== "" && value !== undefined,
+    ),
+  );
 
 const readStdin = async (): Promise<string> => {
   const chunks: Array<Buffer> = [];
@@ -59,7 +63,7 @@ const decode = <S extends Schema.ConstraintDecoder<unknown>>(
   schema: S,
   input: unknown,
 ): Effect.Effect<S["Type"], CliError, S["DecodingServices"]> =>
-  Schema.decodeUnknownEffect(schema)(input).pipe(
+  Schema.decodeUnknownEffect(schema, { onExcessProperty: "error" })(input).pipe(
     Effect.mapError((error) =>
       cliError("VALIDATION_ERROR", "Input validation failed", false, {
         issues: String(error),
@@ -143,28 +147,36 @@ const interactiveApplication = Prompt.run(promptForApplication).pipe(
   }),
 );
 
-const promptForAcceptedDetails = Prompt.all({
-  phone: requiredText("Phone number"),
-  dateOfBirth: requiredText("Date of birth (YYYY-MM-DD)"),
-  nationalIdNumber: requiredText("National ID or passport number"),
-  shirtSize: Prompt.select({
-    message: "Shirt size (choose prefer not to say if remote/not needed)",
+const shirtSizePrompt = (
+  participationMode: "in_person" | "remote",
+): PromptModule.Prompt<string | undefined> => {
+  if (participationMode === "remote") return Prompt.succeed(undefined);
+  return Prompt.select({
+    message: "Shirt size",
     choices: ["xs", "s", "m", "l", "xl", "2xl", "3xl", "prefer_not_to_say"].map(
       (value) => ({ title: value.toUpperCase(), value }),
     ),
-  }),
-  dietaryRestrictions: optionalText("Dietary restrictions (optional)"),
-  accessibilityNeeds: optionalText("Accessibility needs (optional)"),
-  emergencyContactName: requiredText("Emergency contact name"),
-  emergencyContactPhone: requiredText("Emergency contact phone"),
-  mediaConsent: Prompt.confirm({
-    message: "Do you consent to appearing in event media?",
-  }),
-});
+  });
+};
 
-const interactiveAcceptedDetails = Prompt.run(promptForAcceptedDetails).pipe(
-  Effect.map(withoutEmptyStrings),
-);
+const interactiveAcceptedDetails = (
+  participationMode: "in_person" | "remote",
+) =>
+  Prompt.run(
+    Prompt.all({
+      phone: requiredText("Phone number"),
+      dateOfBirth: requiredText("Date of birth (YYYY-MM-DD)"),
+      nationalIdNumber: requiredText("National ID or passport number"),
+      shirtSize: shirtSizePrompt(participationMode),
+      dietaryRestrictions: optionalText("Dietary restrictions (optional)"),
+      accessibilityNeeds: optionalText("Accessibility needs (optional)"),
+      emergencyContactName: requiredText("Emergency contact name"),
+      emergencyContactPhone: requiredText("Emergency contact phone"),
+      mediaConsent: Prompt.confirm({
+        message: "Do you consent to appearing in event media?",
+      }),
+    }),
+  ).pipe(Effect.map(withoutEmptyStrings));
 
 const inputOrInteractive = (
   path: string | undefined,
@@ -200,7 +212,7 @@ export const acceptedDetailsInput = (
   path: string | undefined,
   participationMode: "in_person" | "remote",
 ): Effect.Effect<AcceptedDetailsInput, CliError, PromptModule.Environment> =>
-  inputOrInteractive(path, interactiveAcceptedDetails).pipe(
+  inputOrInteractive(path, interactiveAcceptedDetails(participationMode)).pipe(
     Effect.flatMap((input) => decode(AcceptedDetailsInput, input)),
     Effect.flatMap((input) =>
       validateSemantics(

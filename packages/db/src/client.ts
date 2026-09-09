@@ -3,7 +3,7 @@ import "server-only";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 
-import * as schema from "./schema/index.js";
+import * as schema from "./schema/index";
 
 const databaseUrl = process.env.DATABASE_URL;
 

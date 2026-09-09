@@ -71,4 +71,31 @@ describe("registration contract", () => {
       }),
     ).toThrow();
   });
+
+  test("rejects impossible and future birth dates", () => {
+    const details = Schema.decodeUnknownSync(AcceptedDetailsInput)({
+      phone: "+44 20 0000 0000",
+      dateOfBirth: "2024-02-30",
+      nationalIdNumber: "AB123456",
+      emergencyContactName: "Charles Babbage",
+      emergencyContactPhone: "+44 20 0000 0001",
+    });
+    expect(acceptedDetailsSemanticRequirements(details, "remote")).toEqual([
+      {
+        field: "dateOfBirth",
+        reason: "Must be a valid date in the past",
+      },
+    ]);
+
+    const future = {
+      ...details,
+      dateOfBirth: "2100-01-01",
+    };
+    expect(acceptedDetailsSemanticRequirements(future, "remote")).toEqual([
+      {
+        field: "dateOfBirth",
+        reason: "Must be a valid date in the past",
+      },
+    ]);
+  });
 });

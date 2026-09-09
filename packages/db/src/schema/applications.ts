@@ -11,14 +11,14 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-import { auditTimestamps } from "./common.js";
+import { auditTimestamps } from "./common";
 import {
   applicationStatus,
   experienceLevel,
   participationMode,
   teamPreference,
-} from "./enums.js";
-import { participants } from "./participants.js";
+} from "./enums";
+import { participants } from "./participants";
 
 export const applications = pgTable(
   "applications",

@@ -15,6 +15,7 @@ import {
 import { Predicate, Schema } from "effect";
 
 import { HttpError } from "./http";
+import { encryptSensitiveValue } from "./sensitive";
 
 type ApplicationRecord = typeof applications.$inferSelect;
 type AcceptanceDetailsRecord = typeof acceptanceDetails.$inferSelect;
@@ -87,6 +88,26 @@ const isUniqueViolation = (error: unknown): boolean => {
     return isUniqueViolation(error.cause);
   }
   return false;
+};
+
+const encryptNationalId = (value: string): string => {
+  const encryptionKey = process.env.PARTICIPANT_DATA_ENCRYPTION_KEY;
+  if (!encryptionKey) {
+    throw new HttpError(
+      500,
+      "ENCRYPTION_NOT_CONFIGURED",
+      "Sensitive participant data encryption is not configured",
+    );
+  }
+  try {
+    return encryptSensitiveValue(value, encryptionKey);
+  } catch {
+    throw new HttpError(
+      500,
+      "ENCRYPTION_NOT_CONFIGURED",
+      "Sensitive participant data encryption is not configured correctly",
+    );
+  }
 };
 
 const toView = (
@@ -353,7 +374,7 @@ export const submitAcceptedDetails = async (
   const values = {
     phone: input.phone,
     dateOfBirth: new Date(`${input.dateOfBirth}T00:00:00.000Z`),
-    nationalIdNumber: input.nationalIdNumber,
+    nationalIdNumber: encryptNationalId(input.nationalIdNumber),
     shirtSize: optional(input.shirtSize),
     dietaryRestrictions: optional(input.dietaryRestrictions),
     accessibilityNeeds: optional(input.accessibilityNeeds),
