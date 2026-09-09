@@ -41,16 +41,17 @@ participant-provided wording and casing for personal answers.
 
 ## Command setup
 
-1. Check for the CLI with `chofex --version`.
-2. If it is unavailable, install it proactively by running
-   `npm install --global chofex-cli@latest`; do not delegate installation to
-   the participant.
-3. Verify the installation with `chofex --version`. If global installation is
-   unsupported or fails for lack of permission, use
-   `npx --yes chofex-cli@latest` as the command prefix. When working inside the
-   Chofex repository, `bun run --filter chofex-cli dev --` is also an acceptable
-   fallback. Ask the participant for help only when installation requires an
-   interactive administrator or credential step that the agent cannot perform.
+1. Check for the current CLI capabilities with `chofex --version` and
+   `chofex validate --help`.
+2. If either command is unavailable, install or upgrade proactively with
+   `npm install --global chofex-cli@latest`; do not delegate installation to the
+   participant.
+3. Verify both commands. If global installation is unsupported or fails for
+   lack of permission, use `npx --yes chofex-cli@latest` as the command prefix.
+   When working inside the Chofex repository,
+   `bun run --filter chofex-cli dev --` is also an acceptable fallback. Ask the
+   participant for help only when installation requires an interactive
+   administrator or credential step that the agent cannot perform.
 4. Use `--output json` for every command the agent needs to interpret. JSON
    responses are versioned envelopes with `ok`, `requestId`, and either `data`
    or `error`.
