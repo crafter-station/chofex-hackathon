@@ -16,18 +16,18 @@
     "./lib/*": "./src/lib/*.ts"
   },
   "scripts": {
-    "lint": "eslint . --max-warnings 0",
+    "lint": "biome lint --error-on-warnings .",
+    "format": "biome format --write .",
     "generate:component": "turbo gen react-component",
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {
-    "@repo/eslint-config": "*",
+    "@biomejs/biome": "2.5.12",
     "@repo/typescript-config": "*",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "26.4.1",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
-    "eslint": "10.9.1",
     "shadcn": "^4.21.0",
     "tailwindcss": "^4.3.3",
     "typescript": "7.0.2"

@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
+  "scripts": {
+    "lint": "biome lint --error-on-warnings .",
+    "format": "biome format --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.12"
+  },
   "publishConfig": {
     "access": "public"
   }
