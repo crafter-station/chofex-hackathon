@@ -32,12 +32,12 @@ participant correct it before submission:
 - Comma-separated skills become a trimmed array of skills.
 
 Ask a follow-up only when the input is malformed or has more than one plausible
-meaning that would materially change the application. Use the final application
-summary as the correction point for low-risk parsing instead of interrupting the
-interview. For example, map “community at Crafter Station” to role `community`
-and organization `Crafter Station`, and parse recognizable technology names in
-“nextjs react, opencode” as three skills. Preserve participant-provided wording
-and casing for personal answers.
+meaning that would materially change the application. State low-risk parsing in
+a concise interpretation note immediately before the final summary instead of
+interrupting the interview. For example, map “community at Crafter Station” to
+role `community` and organization `Crafter Station`, and parse recognizable
+technology names in “nextjs react, opencode” as three skills. Preserve
+participant-provided wording and casing for personal answers.
 
 ## Command setup
 
@@ -105,8 +105,9 @@ answers” is not an answer and must not be offered. Ask only for fields the
 participant has not already answered. Group the questionnaire so the participant
 can scan and answer it naturally:
 
-- required profile: name, city, experience, skills, and bio;
+- required profile: name, city, and bio;
 - optional profile: pronouns, organization, role, education, and profile URLs;
+- experience level and skills;
 - team preference and team name when applicable; and
 - required agreements and optional media consent.
 
@@ -164,10 +165,11 @@ fields. Validate it locally before asking for submission approval:
 chofex --output json validate --stage application --input "$application_file"
 ```
 
-Resolve validation errors before continuing. Then show a readable summary of
-the exact validated payload, state every low-risk interpretation or
-normalization, include every consent, and ask: **Submit this application now?**
-Run the submission only after an explicit yes given at this point.
+Resolve validation errors before continuing. First state every low-risk
+interpretation or normalization in a concise note. Then show a readable summary
+of the exact validated payload, include every consent, and ask: **Submit this
+application now?** Run the submission only after an explicit yes given at this
+point.
 
 ```sh
 chofex --output json register --input "$application_file"

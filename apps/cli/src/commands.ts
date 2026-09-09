@@ -18,6 +18,8 @@ import {
   requirementsOnlyText,
 } from "./output.js";
 
+type InputStage = "application" | "acceptance";
+
 const inputFlag = Flag.string("input").pipe(
   Flag.optional,
   Flag.withDescription("Read JSON from a file, or use - for stdin"),
@@ -240,7 +242,7 @@ const whoamiCommand = Command.make(
 ).pipe(Command.withDescription("Verify the current Clerk authentication"));
 
 const inputValidation = (
-  stage: "application" | "acceptance",
+  stage: InputStage,
   path: string | undefined,
 ) => {
   if (stage === "application") {
@@ -313,7 +315,7 @@ const acceptanceTemplate = {
   mediaConsent: false,
 };
 
-const templateFor = (stage: "application" | "acceptance") => {
+const templateFor = (stage: InputStage) => {
   if (stage === "application") return applicationTemplate;
   return acceptanceTemplate;
 };
