@@ -19,25 +19,18 @@ export default function Home() {
             </span>
             Hack the Andes
           </a>
-          <span className="font-mono text-xs uppercase tracking-[0.18em] opacity-55">
-            Lima · Peru
-          </span>
         </div>
       </header>
 
       <main id="top">
         <section className="mx-auto flex min-h-[calc(100svh-4rem)] max-w-6xl flex-col justify-between px-5 py-10 sm:px-8 sm:py-14">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] opacity-60">
-            The hackathon for builders
-          </p>
-
           <div className="py-20 sm:py-28">
             <h1 className="max-w-5xl text-[clamp(4.25rem,14vw,10rem)] leading-[0.78] font-semibold tracking-[-0.075em]">
               Hack the
               <span className="block pl-[0.32em] italic">Andes.</span>
             </h1>
             <p className="mt-12 max-w-md text-lg leading-relaxed opacity-65 sm:ml-[34%] sm:text-xl">
-              Here we’ll have the landing. Wait for it.
+              Here we will have the landing. Wait for it.
             </p>
           </div>
 
@@ -45,7 +38,7 @@ export default function Home() {
             href="#apply"
             className="flex w-fit items-center gap-3 text-sm font-medium"
           >
-            Applications are open
+            Apply below
             <span className="grid size-9 place-items-center rounded-full border border-current/30">
               <ArrowDownIcon className="size-4" aria-hidden="true" />
             </span>
@@ -65,10 +58,6 @@ export default function Home() {
                 <h2 className="max-w-2xl text-4xl leading-tight font-medium tracking-[-0.04em] sm:text-6xl">
                   Apply via the CLI or just tell your agent.
                 </h2>
-                <p className="mt-6 max-w-xl text-base leading-relaxed opacity-60 sm:text-lg">
-                  No long forms. Pick the flow that works for you and keep your
-                  answers, consent, and final approval in your hands.
-                </p>
               </div>
             </div>
 
@@ -76,7 +65,10 @@ export default function Home() {
               <article className="border-current/20 py-10 md:border-r md:pr-10">
                 <div className="mb-10 flex items-center justify-between">
                   <span className="font-mono text-xs opacity-50">01</span>
-                  <TerminalIcon className="size-5 opacity-50" aria-hidden="true" />
+                  <TerminalIcon
+                    className="size-5 opacity-50"
+                    aria-hidden="true"
+                  />
                 </div>
                 <h3 className="text-2xl font-medium tracking-tight">
                   Apply with the CLI
@@ -109,13 +101,6 @@ export default function Home() {
           </div>
         </section>
       </main>
-
-      <footer className="bg-[#171713] px-5 pb-8 text-[#f4f1e9] dark:bg-[#f4f1e9] dark:text-[#171713] sm:px-8">
-        <div className="mx-auto flex max-w-6xl justify-between border-current/20 border-t pt-6 font-mono text-xs uppercase tracking-[0.16em] opacity-50">
-          <span>Hack the Andes</span>
-          <span>2026</span>
-        </div>
-      </footer>
     </div>
   );
 }
