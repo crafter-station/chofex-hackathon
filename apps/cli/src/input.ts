@@ -3,7 +3,9 @@ import { readFile } from "node:fs/promises";
 import {
   AcceptedDetailsInput,
   ApplicationInput,
+  acceptedDetailsInputFieldNames,
   acceptedDetailsSemanticRequirements,
+  applicationInputFieldNames,
   applicationSemanticRequirements,
 } from "@chofex/registration-contract";
 import { Effect, Schema } from "effect";
@@ -66,11 +68,13 @@ const readJsonInput = (path: string): Effect.Effect<unknown, CliError> =>
 const decode = <S extends Schema.ConstraintDecoder<unknown>>(
   schema: S,
   input: unknown,
+  acceptedFields: ReadonlyArray<string>,
 ): Effect.Effect<S["Type"], CliError, S["DecodingServices"]> =>
   Schema.decodeUnknownEffect(schema, { onExcessProperty: "error" })(input).pipe(
     Effect.mapError((error) =>
       cliError("VALIDATION_ERROR", "Input validation failed", false, {
         issues: String(error),
+        acceptedFields,
       }),
     ),
   );
@@ -266,7 +270,9 @@ export const applicationInput = (
   publicBaseUrl: string,
 ): Effect.Effect<ApplicationInput, CliError, PromptModule.Environment> =>
   inputOrInteractive(path, interactiveApplication(publicBaseUrl)).pipe(
-    Effect.flatMap((input) => decode(ApplicationInput, input)),
+    Effect.flatMap((input) =>
+      decode(ApplicationInput, input, applicationInputFieldNames),
+    ),
     Effect.flatMap((input) =>
       validateSemantics(input, applicationSemanticRequirements(input)),
     ),
@@ -277,7 +283,9 @@ export const acceptedDetailsInput = (
   participationMode: "in_person" | "remote",
 ): Effect.Effect<AcceptedDetailsInput, CliError, PromptModule.Environment> =>
   inputOrInteractive(path, interactiveAcceptedDetails(participationMode)).pipe(
-    Effect.flatMap((input) => decode(AcceptedDetailsInput, input)),
+    Effect.flatMap((input) =>
+      decode(AcceptedDetailsInput, input, acceptedDetailsInputFieldNames),
+    ),
     Effect.flatMap((input) =>
       validateSemantics(
         input,

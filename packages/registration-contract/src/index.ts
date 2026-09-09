@@ -62,7 +62,7 @@ export const ShirtSize = Schema.Literals([
   "prefer_not_to_say",
 ]);
 
-export const ApplicationInput = Schema.Struct({
+const applicationInputFields = {
   firstName: nonBlank(100),
   lastName: nonBlank(100),
   pronouns: optionalText(50),
@@ -88,11 +88,15 @@ export const ApplicationInput = Schema.Struct({
   codeOfConductAccepted: Schema.Literal(true),
   privacyPolicyAccepted: Schema.Literal(true),
   mediaConsent: Schema.optional(Schema.Boolean),
-});
+};
+
+export const applicationInputFieldNames = Object.keys(applicationInputFields);
+
+export const ApplicationInput = Schema.Struct(applicationInputFields);
 
 export type ApplicationInput = typeof ApplicationInput.Type;
 
-export const AcceptedDetailsInput = Schema.Struct({
+const acceptedDetailsInputFields = {
   phone: nonBlank(32),
   dateOfBirth: Schema.String.pipe(
     Schema.check(
@@ -108,7 +112,13 @@ export const AcceptedDetailsInput = Schema.Struct({
   emergencyContactName: nonBlank(200),
   emergencyContactPhone: nonBlank(32),
   mediaConsent: Schema.optional(Schema.Boolean),
-});
+};
+
+export const acceptedDetailsInputFieldNames = Object.keys(
+  acceptedDetailsInputFields,
+);
+
+export const AcceptedDetailsInput = Schema.Struct(acceptedDetailsInputFields);
 
 export type AcceptedDetailsInput = typeof AcceptedDetailsInput.Type;
 

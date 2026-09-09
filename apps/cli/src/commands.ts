@@ -238,11 +238,20 @@ const whoamiCommand = Command.make(
 const applicationTemplate = {
   firstName: "Ada",
   lastName: "Lovelace",
+  pronouns: "she/her",
   city: "Lima",
+  organization: "Analytical Engines",
+  role: "Programmer",
+  fieldOfStudy: "Computer Science",
+  graduationYear: 2026,
   experienceLevel: "advanced",
   skills: ["TypeScript", "AI"],
   bio: "What I hope to build and contribute.",
-  teamPreference: "looking_for_team",
+  githubUrl: "https://github.com/ada-lovelace",
+  linkedInUrl: "https://linkedin.com/in/ada-lovelace",
+  portfolioUrl: "https://example.com",
+  teamPreference: "have_team",
+  teamName: "Analytical Engines",
   codeOfConductAccepted: true,
   privacyPolicyAccepted: true,
   mediaConsent: false,
@@ -253,6 +262,8 @@ const acceptanceTemplate = {
   dateOfBirth: "1990-01-01",
   nationalIdNumber: "passport-or-national-id",
   shirtSize: "m",
+  dietaryRestrictions: "Vegetarian",
+  accessibilityNeeds: "Wheelchair-accessible workspace",
   emergencyContactName: "Grace Hopper",
   emergencyContactPhone: "+1 555 0100",
   mediaConsent: false,
@@ -274,7 +285,7 @@ const schemaCommand = Command.make(
     yield* printJson(templateFor(stage));
   }),
 ).pipe(
-  Command.withDescription("Print a machine-readable input template"),
+  Command.withDescription("Print a complete machine-readable input template"),
   Command.withExamples([
     {
       command: "chofex schema --stage acceptance",

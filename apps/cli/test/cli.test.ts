@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { unlink } from "node:fs/promises";
+import {
+  acceptedDetailsInputFieldNames,
+  applicationInputFieldNames,
+} from "@chofex/registration-contract";
 
 const cliDirectory = new URL("../", import.meta.url).pathname;
 
@@ -66,16 +70,100 @@ describe("CLI JSON mode", () => {
     expect(help.stdout).toContain("Verify the current Clerk authentication");
   });
 
-  test("prints an application template containing only applicant-provided fields", async () => {
+  test("prints every accepted application input field", async () => {
     const result = await runCli("schema");
 
     expect(result.exitCode).toBe(0);
     const template = JSON.parse(result.stdout);
-    expect(template).toMatchObject({ city: "Lima" });
+    expect(Object.keys(template).sort()).toEqual(
+      [...applicationInputFieldNames].sort(),
+    );
+    expect(template).toHaveProperty("githubUrl");
+    expect(template).toHaveProperty("linkedInUrl");
+    expect(template).toHaveProperty("portfolioUrl");
     expect(template).not.toHaveProperty("email");
     expect(template).not.toHaveProperty("countryCode");
     expect(template).not.toHaveProperty("participationMode");
-    expect(template).not.toHaveProperty("teamName");
+  });
+
+  test("prints every accepted attendance input field", async () => {
+    const result = await runCli("schema", "--stage", "acceptance");
+
+    expect(result.exitCode).toBe(0);
+    const template = JSON.parse(result.stdout);
+    expect(Object.keys(template).sort()).toEqual(
+      [...acceptedDetailsInputFieldNames].sort(),
+    );
+  });
+
+  test("returns accepted field names for invalid input", async () => {
+    const server = Bun.serve({
+      port: 0,
+      fetch() {
+        return Response.json(
+          {
+            version: 1,
+            ok: false,
+            requestId: "request-no-registration",
+            error: {
+              code: "REGISTRATION_NOT_FOUND",
+              message: "Registration not found",
+              retryable: false,
+            },
+          },
+          { status: 404 },
+        );
+      },
+    });
+    const inputPath = `${cliDirectory}.invalid-application-${crypto.randomUUID()}.json`;
+
+    try {
+      await Bun.write(
+        inputPath,
+        JSON.stringify({
+          firstName: "Anthony",
+          lastName: "Cueva",
+          city: "Lima",
+          experienceLevel: "advanced",
+          skills: ["React"],
+          bio: "I build things.",
+          github: "https://github.com/cuevaio",
+          teamPreference: "solo",
+          codeOfConductAccepted: true,
+          privacyPolicyAccepted: true,
+        }),
+      );
+      const apiUrl = server.url.toString().replace(/\/$/, "");
+      const result = await runCli(
+        "--api-url",
+        apiUrl,
+        "--token",
+        "oauth-token",
+        "--output",
+        "json",
+        "register",
+        "--input",
+        inputPath,
+      );
+
+      expect(result.exitCode).toBe(2);
+      expect(JSON.parse(result.stdout)).toMatchObject({
+        ok: false,
+        error: {
+          code: "VALIDATION_ERROR",
+          details: {
+            acceptedFields: expect.arrayContaining([
+              "githubUrl",
+              "linkedInUrl",
+              "portfolioUrl",
+            ]),
+          },
+        },
+      });
+    } finally {
+      await unlink(inputPath).catch(() => undefined);
+      server.stop(true);
+    }
   });
 
   test("submits a normalized on-site application without identity fields", async () => {

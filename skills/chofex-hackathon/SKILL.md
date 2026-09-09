@@ -32,7 +32,12 @@ participant correct it before submission:
 - Comma-separated skills become a trimmed array of skills.
 
 Ask a follow-up only when the input is malformed or has more than one plausible
-meaning. Preserve participant-provided wording and casing for personal answers.
+meaning that would materially change the application. Use the final application
+summary as the correction point for low-risk parsing instead of interrupting the
+interview. For example, map “community at Crafter Station” to role `community`
+and organization `Crafter Station`, and parse recognizable technology names in
+“nextjs react, opencode” as three skills. Preserve participant-provided wording
+and casing for personal answers.
 
 ## Command setup
 
@@ -97,12 +102,16 @@ chmod 600 "$application_file"
 chofex schema --stage application > "$application_file"
 ```
 
-Collect every field in the template in one compact batch when practical. In the
-same batch, offer these optional fields when absent from the example: pronouns,
-organization, role, field of study, graduation year, GitHub, LinkedIn,
-portfolio, and team name. Accept profile usernames and bare domains using the
-normalization rules above. Ask only for fields the participant has not already
-answered. Explain these rules while collecting answers:
+The template contains every supported JSON key. Copy those keys exactly; for
+example, use `githubUrl`, `linkedInUrl`, and `portfolioUrl`.
+
+Collect every field in one compact batch when practical. Accept a natural,
+unlabeled reply and map it using context; numbered formatting is optional. For
+open-ended fields, ask directly in chat or use an input whose selectable choices
+are actual answers such as “Omit.” A placeholder choice such as “Enter all
+answers” is not an answer and must not be offered. Ask only for fields the
+participant has not already answered. Explain these rules while collecting
+answers:
 
 - Registration is for the in-person event in Lima, Peru. The application uses
   the authenticated account's primary email and records Peru as the country.
@@ -114,9 +123,9 @@ answered. Explain these rules while collecting answers:
   participant's explicit `true`; an agent cannot consent for them.
 - `mediaConsent` is optional and must reflect the participant's choice.
 
-Treat the fresh schema and this documented optional-field list as authoritative.
-Inspect CLI source only if the CLI returns a validation error that they cannot
-resolve.
+Treat the fresh schema as authoritative. On local validation errors, use
+`error.details.acceptedFields` to correct payload keys. Inspect CLI source only
+when the schema and error details do not resolve the problem.
 
 Before requesting required consent, give the participant these links:
 
@@ -137,18 +146,22 @@ an explicit yes given at this point.
 chofex --output json register --input "$application_file"
 ```
 
-Delete the temporary file after the CLI has read it. Report success only when
-the envelope has `ok: true`. Then proactively read status and requirements,
-deduplicate repeated state, and give one concise result with next steps.
+Keep the mode-600 temporary file through correctable validation failures so a
+retry does not require rebuilding it. Delete it after success, cancellation, or
+an unrecoverable error. Report success only when the envelope has `ok: true`.
+Then proactively read status once and give one concise result with next steps.
 
 ## Next steps
 
-Read both the application and server-calculated requirements:
+Read the application and server-calculated requirements together:
 
 ```sh
 chofex --output json status
-chofex --output json requirements
 ```
+
+The `status` response includes `requirements`. Run the separate `requirements`
+command only when the status response omits them or the participant specifically
+asks for requirements alone.
 
 Interpret the returned state as follows:
 
@@ -199,7 +212,10 @@ attendance confirmation is done.
 ## Failures
 
 On `ok: false`, report `error.code`, `error.message`, and `requestId`. Correct
-validation errors with the participant. Retry only when `error.retryable` is
-true and say that a retry is happening. For authentication failures, return to
-**Authenticate the participant**. Preserve the request ID for support instead
-of claiming success or bypassing a failed state.
+mechanical validation errors directly when the displayed application does not
+change; involve the participant when an answer or consent must change. Retry an
+unchanged failed request only when `retryable` is true. A corrected validation
+request is a new submission attempt and follows the final-approval rule. For
+authentication failures, return to **Authenticate the participant**. Preserve
+the request ID for support instead of claiming success or bypassing a failed
+state.
