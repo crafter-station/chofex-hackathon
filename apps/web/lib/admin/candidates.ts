@@ -18,14 +18,10 @@ import {
   type CandidatePage,
   candidateStatuses,
   type CandidateStatus,
+  reviewableCandidateStatuses,
 } from "./types";
 
 const pageSize = 10;
-const reviewableStatuses: ReadonlyArray<CandidateStatus> = [
-  "submitted",
-  "under_review",
-  "waitlisted",
-];
 
 const optional = <A>(value: A | null | undefined): A | undefined =>
   value ?? undefined;
@@ -309,19 +305,30 @@ export const decideCandidate = async (
     .where(
       and(
         eq(applications.id, input.applicationId),
-        inArray(applications.status, [...reviewableStatuses]),
+        inArray(applications.status, [...reviewableCandidateStatuses]),
       ),
     )
     .returning();
 
   const record = await candidateRecordById(input.applicationId);
-  if (!record) throw new Error("Updated application could not be loaded");
-  if (!updatedApplication && record.application.status !== input.decision) {
+  if (!record) {
     throw new HttpError(
-      409,
-      "APPLICATION_NOT_REVIEWABLE",
-      "This application has already been decided or is not ready for review",
+      404,
+      "APPLICATION_NOT_FOUND",
+      "Application not found",
     );
+  }
+  if (!updatedApplication) {
+    const isSameDecision = record.application.status === input.decision;
+    const isSameReviewer =
+      record.application.decidedByClerkUserId === input.decidedByClerkUserId;
+    if (!isSameDecision || !isSameReviewer) {
+      throw new HttpError(
+        409,
+        "APPLICATION_NOT_REVIEWABLE",
+        "This application has already been decided or is not ready for review",
+      );
+    }
   }
   const candidate = toCandidate(record);
 

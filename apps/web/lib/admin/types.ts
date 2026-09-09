@@ -10,6 +10,12 @@ export const candidateStatuses = [
 
 export type CandidateStatus = (typeof candidateStatuses)[number];
 
+export const reviewableCandidateStatuses: ReadonlyArray<CandidateStatus> = [
+  "submitted",
+  "under_review",
+  "waitlisted",
+];
+
 export interface Candidate {
   readonly id: string;
   readonly participantId: string;

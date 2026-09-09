@@ -42,11 +42,13 @@ import type {
   CandidatePage,
   CandidateStatus,
 } from "@/lib/admin/types";
+import { reviewableCandidateStatuses } from "@/lib/admin/types";
 
 interface CandidateDashboardProps {
   readonly data: CandidatePage;
   readonly initialQuery: string;
   readonly initialStatus?: CandidateStatus;
+  readonly initialSelection?: "first" | "last";
 }
 
 interface StatusStyle {
@@ -98,11 +100,9 @@ const statusStyles: Record<CandidateStatus, StatusStyle> = {
   },
 };
 
-const reviewableStatuses = new Set<CandidateStatus>([
-  "submitted",
-  "under_review",
-  "waitlisted",
-]);
+const reviewableStatuses = new Set<CandidateStatus>(
+  reviewableCandidateStatuses,
+);
 
 const filterStatuses: ReadonlyArray<{
   readonly value?: CandidateStatus;
@@ -141,6 +141,7 @@ const formatDate = (value: string): string =>
     month: "short",
     day: "numeric",
     year: "numeric",
+    timeZone: "America/Lima",
   }).format(new Date(value));
 
 const formatDateTime = (value: string): string =>
@@ -150,7 +151,16 @@ const formatDateTime = (value: string): string =>
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    timeZone: "America/Lima",
   }).format(new Date(value));
+
+const formatCalendarDate = (value: string): string =>
+  new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${value}T00:00:00.000Z`));
 
 const titleCase = (value: string): string =>
   value
@@ -258,6 +268,9 @@ const CandidateDrawer = ({
   const [notify, setNotify] = useState(true);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<string>();
+  const [failedDecision, setFailedDecision] = useState<
+    "accepted" | "rejected"
+  >();
 
   useEffect(() => {
     if (!open) return;
@@ -305,13 +318,16 @@ const CandidateDrawer = ({
         );
       }
       if (result.data?.emailStatus === "failed") {
+        setFailedDecision(decision);
         setFeedback(
           result.data.emailError ??
             "Decision saved, but the notification email failed.",
         );
       } else if (result.data?.emailStatus === "sent") {
+        setFailedDecision(undefined);
         setFeedback("Decision saved and email sent.");
       } else {
+        setFailedDecision(undefined);
         setFeedback("Decision saved.");
       }
       if (result.data?.emailStatus !== "failed") router.refresh();
@@ -324,7 +340,14 @@ const CandidateDrawer = ({
     }
   };
 
-  const isReviewable = reviewableStatuses.has(candidate.status);
+  const isReviewable =
+    reviewableStatuses.has(candidate.status) && !failedDecision;
+  const showDecisionPanel = isReviewable || Boolean(failedDecision);
+  let decisionPanelMessage = "This application is ready for your decision.";
+  if (!isReviewable) {
+    decisionPanelMessage =
+      "The decision was saved, but the email needs attention.";
+  }
   const experience =
     candidate.experienceLevel && titleCase(candidate.experienceLevel);
   const participation =
@@ -336,7 +359,7 @@ const CandidateDrawer = ({
   const checkedIn =
     candidate.checkedInAt && formatDateTime(candidate.checkedInAt);
   const dateOfBirth =
-    candidate.dateOfBirth && formatDate(candidate.dateOfBirth);
+    candidate.dateOfBirth && formatCalendarDate(candidate.dateOfBirth);
   const idDocument = candidate.nationalIdProvided && "Provided securely";
   const skillTags = candidate.skills.length > 0 && (
     <span className="flex flex-wrap gap-1.5">
@@ -349,7 +372,14 @@ const CandidateDrawer = ({
   );
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} swipeDirection="right">
+    <Drawer
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen && failedDecision) router.refresh();
+        onOpenChange(isOpen);
+      }}
+      swipeDirection="right"
+    >
       <DrawerContent
         className="shadow-2xl sm:rounded-l-2xl"
         style={
@@ -445,11 +475,11 @@ const CandidateDrawer = ({
             </div>
           </section>
 
-          {isReviewable && (
+          {showDecisionPanel && (
             <section className="border-b bg-background px-5 py-5 sm:px-7">
               <div className="overflow-hidden rounded-xl border border-amber-200/70 bg-amber-50/50 dark:border-amber-900 dark:bg-amber-950/30">
                 <div className="border-b border-amber-200/70 px-4 py-3 text-sm font-medium text-amber-900 dark:border-amber-900 dark:text-amber-200">
-                  This application is ready for your decision.
+                  {decisionPanelMessage}
                 </div>
                 <div className="space-y-3 bg-background/80 p-4">
                   <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
@@ -457,6 +487,7 @@ const CandidateDrawer = ({
                       type="checkbox"
                       checked={notify}
                       onChange={(event) => setNotify(event.target.checked)}
+                      disabled={Boolean(failedDecision)}
                       className="size-4 rounded border-input accent-foreground"
                     />
                     Notify candidate by email
@@ -485,25 +516,37 @@ const CandidateDrawer = ({
                       <span>{message.length}/2,000</span>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  {isReviewable && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        className="bg-emerald-600 text-white hover:bg-emerald-700"
+                        onClick={() => submitDecision("accepted")}
+                        disabled={saving}
+                      >
+                        <CheckIcon />
+                        Admit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        className="bg-rose-600 text-white hover:bg-rose-700"
+                        onClick={() => submitDecision("rejected")}
+                        disabled={saving}
+                      >
+                        <XIcon />
+                        Decline
+                      </Button>
+                    </div>
+                  )}
+                  {failedDecision && (
                     <Button
-                      className="bg-emerald-600 text-white hover:bg-emerald-700"
-                      onClick={() => submitDecision("accepted")}
+                      className="w-full"
+                      onClick={() => submitDecision(failedDecision)}
                       disabled={saving}
                     >
-                      <CheckIcon />
-                      Admit
+                      <MailIcon />
+                      Retry notification email
                     </Button>
-                    <Button
-                      variant="destructive"
-                      className="bg-rose-600 text-white hover:bg-rose-700"
-                      onClick={() => submitDecision("rejected")}
-                      disabled={saving}
-                    >
-                      <XIcon />
-                      Decline
-                    </Button>
-                  </div>
+                  )}
                   {feedback && (
                     <p className="rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
                       {feedback}
@@ -601,11 +644,13 @@ const pageHref = (
   page: number,
   query: string,
   status: CandidateStatus | undefined,
+  selection?: "first" | "last",
 ): string => {
   const parameters = new URLSearchParams();
   if (page > 1) parameters.set("page", page.toString());
   if (query) parameters.set("q", query);
   if (status) parameters.set("status", status);
+  if (selection) parameters.set("candidate", selection);
   const suffix = parameters.toString();
   if (suffix) return `/admin/participants?${suffix}`;
   return "/admin/participants";
@@ -624,10 +669,20 @@ export function CandidateDashboard({
   data,
   initialQuery,
   initialStatus,
+  initialSelection,
 }: CandidateDashboardProps) {
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
-  const [selectedId, setSelectedId] = useState<string>();
+  let initiallySelectedId: string | undefined;
+  if (initialSelection === "first") {
+    initiallySelectedId = data.candidates[0]?.id;
+  }
+  if (initialSelection === "last") {
+    initiallySelectedId = data.candidates.at(-1)?.id;
+  }
+  const [selectedId, setSelectedId] = useState<string | undefined>(
+    initiallySelectedId,
+  );
   const selectedIndex = data.candidates.findIndex(
     (candidate) => candidate.id === selectedId,
   );
@@ -636,6 +691,30 @@ export function CandidateDashboard({
   const goToCandidate = (index: number) => {
     const candidate = data.candidates[index];
     if (candidate) setSelectedId(candidate.id);
+  };
+
+  const goToPreviousCandidate = () => {
+    if (selectedIndex > 0) {
+      goToCandidate(selectedIndex - 1);
+      return;
+    }
+    if (data.page > 1) {
+      router.push(
+        pageHref(data.page - 1, initialQuery, initialStatus, "last"),
+      );
+    }
+  };
+
+  const goToNextCandidate = () => {
+    if (selectedIndex < data.candidates.length - 1) {
+      goToCandidate(selectedIndex + 1);
+      return;
+    }
+    if (data.page < data.totalPages) {
+      router.push(
+        pageHref(data.page + 1, initialQuery, initialStatus, "first"),
+      );
+    }
   };
 
   const handleSearch = (event: FormEvent<HTMLFormElement>) => {
@@ -830,13 +909,19 @@ export function CandidateDashboard({
         candidate={selectedCandidate}
         open={Boolean(selectedCandidate)}
         onOpenChange={(isOpen) => {
-          if (!isOpen) setSelectedId(undefined);
+          if (isOpen) return;
+          setSelectedId(undefined);
+          if (initialSelection) {
+            router.replace(pageHref(data.page, initialQuery, initialStatus));
+          }
         }}
-        onPrevious={() => goToCandidate(selectedIndex - 1)}
-        onNext={() => goToCandidate(selectedIndex + 1)}
-        hasPrevious={selectedIndex > 0}
+        onPrevious={goToPreviousCandidate}
+        onNext={goToNextCandidate}
+        hasPrevious={selectedIndex > 0 || data.page > 1}
         hasNext={
-          selectedIndex >= 0 && selectedIndex < data.candidates.length - 1
+          selectedIndex >= 0 &&
+          (selectedIndex < data.candidates.length - 1 ||
+            data.page < data.totalPages)
         }
       />
     </div>
@@ -956,7 +1041,7 @@ export const AdminAccessDenied = () => (
       <h1 className="mt-5 text-xl font-semibold">Admin access required</h1>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
         This workspace contains private participant information. Ask an
-        organizer to add the admin role to your Clerk account.
+        organizer to grant application reviewer access to your Clerk account.
       </p>
       <a
         href="/sign-in?redirect_url=/admin/participants"
