@@ -139,6 +139,21 @@ export const RequirementSchema = Schema.Struct({
 
 export type Requirement = typeof RequirementSchema.Type;
 
+const inPersonShirtSizeRequirement: Requirement = {
+  field: "shirtSize",
+  reason: "Required for in-person participants",
+};
+
+const addShirtSizeRequirement = (
+  requirements: Array<Requirement>,
+  participationMode: typeof ParticipationMode.Type,
+  shirtSize: typeof ShirtSize.Type | undefined,
+): void => {
+  if (participationMode === "in_person" && !shirtSize) {
+    requirements.push(inPersonShirtSizeRequirement);
+  }
+};
+
 export const applicationSemanticRequirements = (
   input: ApplicationInput,
 ): ReadonlyArray<Requirement> => {
@@ -155,12 +170,7 @@ export const acceptedDetailsSemanticRequirements = (
   participationMode: typeof ParticipationMode.Type,
 ): ReadonlyArray<Requirement> => {
   const requirements: Array<Requirement> = [];
-  if (participationMode === "in_person" && !input.shirtSize) {
-    requirements.push({
-      field: "shirtSize",
-      reason: "Required for in-person participants",
-    });
-  }
+  addShirtSizeRequirement(requirements, participationMode, input.shirtSize);
 
   const birthDate = DateTime.make(`${input.dateOfBirth}T00:00:00.000Z`);
   if (
@@ -253,16 +263,11 @@ const acceptedDetailsRequirementsFor = (
   if (!registration.emergencyContactPhone) {
     addMissingRequirement(missing, "emergencyContactPhone");
   }
-  if (
-    registration.participationMode === "in_person" &&
-    !registration.shirtSize
-  ) {
-    addMissingRequirement(
-      missing,
-      "shirtSize",
-      "Required for in-person participants",
-    );
-  }
+  addShirtSizeRequirement(
+    missing,
+    registration.participationMode,
+    registration.shirtSize,
+  );
 
   return missing;
 };
