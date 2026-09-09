@@ -11,6 +11,7 @@ import { Prompt } from "effect/unstable/cli";
 import type * as PromptModule from "effect/unstable/cli/Prompt";
 
 import { CliError, cliError } from "./errors.js";
+import { profileUsernamePrompt } from "./profile-username-prompt.js";
 
 const requiredText = (message: string): Prompt.Prompt<string> =>
   Prompt.text({
@@ -24,24 +25,8 @@ const requiredText = (message: string): Prompt.Prompt<string> =>
 const optionalText = (message: string): Prompt.Prompt<string> =>
   Prompt.text({ message, default: "" });
 
-const optionalProfileUsername = (
-  message: string,
-  profilePrefix: string,
-): Prompt.Prompt<string> =>
-  Prompt.text({
-    message,
-    default: "",
-    theme: {
-      pointerSmall: profilePrefix,
-      ellipsis: profilePrefix,
-    },
-    validate: (value) => {
-      if (value === "" || /^[A-Za-z0-9._-]+$/.test(value)) {
-        return Effect.succeed(value);
-      }
-      return Effect.fail("Enter only your username");
-    },
-  });
+const githubProfilePrefix = "github.com/";
+const linkedInProfilePrefix = "linkedin.com/in/";
 
 const withoutEmptyStrings = (
   input: Readonly<Record<string, unknown>>,
@@ -124,10 +109,13 @@ const applicationDetailsPrompts = Prompt.all({
   }),
   skills: Prompt.list({ message: "Skills (comma-separated)", delimiter: "," }),
   bio: requiredText("Short bio"),
-  githubUrl: optionalProfileUsername("GitHub username (optional)", "github.com/"),
-  linkedInUrl: optionalProfileUsername(
+  githubUsername: profileUsernamePrompt(
+    "GitHub username (optional)",
+    githubProfilePrefix,
+  ),
+  linkedInUsername: profileUsernamePrompt(
     "LinkedIn username (optional)",
-    "linkedin.com/in/",
+    linkedInProfilePrefix,
   ),
   portfolioUrl: optionalText("Portfolio URL (optional)"),
 });
@@ -206,15 +194,16 @@ const interactiveApplication = (publicBaseUrl: string) =>
     };
   }).pipe(
     Effect.map((input) => {
-      const normalized = withoutEmptyStrings(input);
+      const { githubUsername, linkedInUsername, ...application } = input;
+      const normalized = withoutEmptyStrings(application);
       if (input.graduationYear !== "") {
         normalized.graduationYear = Number(input.graduationYear);
       }
-      if (input.githubUrl !== "") {
-        normalized.githubUrl = `github.com/${input.githubUrl}`;
+      if (githubUsername !== "") {
+        normalized.githubUrl = `${githubProfilePrefix}${githubUsername}`;
       }
-      if (input.linkedInUrl !== "") {
-        normalized.linkedInUrl = `linkedin.com/in/${input.linkedInUrl}`;
+      if (linkedInUsername !== "") {
+        normalized.linkedInUrl = `${linkedInProfilePrefix}${linkedInUsername}`;
       }
       return normalized;
     }),
