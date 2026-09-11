@@ -36,6 +36,7 @@ test("keeps the camera path descending into the valley", () => {
   const hero = sampleCameraPath(0);
   const valley = sampleCameraPath(0.5);
   const scan = sampleCameraPath(0.9);
+  expect(hero.position[1]).toBeLessThan(24);
   expect(valley.position[1]).toBeLessThan(hero.position[1]);
   expect(scan.position[2]).toBeLessThan(hero.position[2]);
 });

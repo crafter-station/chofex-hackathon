@@ -41,18 +41,66 @@ function useModelAvailable(url: string): boolean | null {
   return available;
 }
 
+function polishStoneMaterial(
+  source: THREE.Material,
+  quality: SceneQuality,
+): THREE.Material {
+  if (!(source instanceof THREE.MeshStandardMaterial)) {
+    return source;
+  }
+
+  if (quality === "low") {
+    source.roughness = Math.min(source.roughness, 0.62);
+    return source;
+  }
+
+  const next = new THREE.MeshPhysicalMaterial();
+  next.copy(source);
+  next.metalness = Math.min(0.12, source.metalness + 0.04);
+  next.roughness = Math.min(0.42, source.roughness);
+  next.clearcoat = 0.48;
+  next.clearcoatRoughness = 0.32;
+  next.envMapIntensity = 1.15;
+  return next;
+}
+
 function MachuPicchuGltf({ quality }: { readonly quality: SceneQuality }) {
   const { scene } = useGLTF(HERO_SCENE_MODEL_URL);
   const clone = useMemo(() => scene.clone(true), [scene]);
 
   useEffect(() => {
+    const extras: THREE.Material[] = [];
     clone.traverse((child) => {
       if (!(child instanceof THREE.Mesh)) {
         return;
       }
       child.castShadow = quality === "high";
       child.receiveShadow = quality === "high";
+      const source = child.material;
+      if (Array.isArray(source)) {
+        child.material = source.map((entry) => {
+          const next = polishStoneMaterial(entry, quality);
+          if (next !== entry) {
+            extras.push(next);
+          }
+          return next;
+        });
+        return;
+      }
+      if (source) {
+        const next = polishStoneMaterial(source, quality);
+        child.material = next;
+        if (next !== source) {
+          extras.push(next);
+        }
+      }
     });
+
+    return () => {
+      for (const material of extras) {
+        material.dispose();
+      }
+    };
   }, [clone, quality]);
 
   return (
@@ -92,7 +140,7 @@ export function ProceduralMachuPicchu({
   return (
     <group>
       <mesh geometry={terrain} receiveShadow={quality === "high"}>
-        <meshStandardMaterial color="#9aa6b8" roughness={0.86} />
+        <meshStandardMaterial color="#8f9a7a" roughness={0.78} />
       </mesh>
       {blocks.map((block) => (
         <mesh
@@ -102,7 +150,11 @@ export function ProceduralMachuPicchu({
           receiveShadow={quality === "high"}
         >
           <boxGeometry args={block.size} />
-          <meshStandardMaterial color="#f4f7fb" roughness={0.42} />
+          <meshPhysicalMaterial
+            clearcoat={0.55}
+            color="#f4f7fb"
+            roughness={0.32}
+          />
         </mesh>
       ))}
       {terraces.map((step) => (
@@ -112,7 +164,11 @@ export function ProceduralMachuPicchu({
           receiveShadow={quality === "high"}
         >
           <boxGeometry args={step.size} />
-          <meshStandardMaterial color="#d7dde8" roughness={0.55} />
+          <meshPhysicalMaterial
+            clearcoat={0.4}
+            color="#d7dde8"
+            roughness={0.4}
+          />
         </mesh>
       ))}
       <mesh position={[6, 18, -38]}>

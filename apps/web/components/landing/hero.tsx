@@ -83,7 +83,7 @@ export function LandingHero() {
           <MachuPicchuScene onTargets={setTargets} progressRef={progressRef} />
         </HeroScene>
 
-        <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-[#0b0d10]/45 via-transparent to-[#0b0d10]/55" />
+        <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-[#0b0d10]/18 via-transparent to-[#0b0d10]/28" />
         <div className="pointer-events-none absolute inset-0 z-10 hud-scanlines" />
 
         <div

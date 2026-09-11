@@ -1,6 +1,6 @@
 "use client";
 
-import { AdaptiveDpr } from "@react-three/drei";
+import { AdaptiveDpr, Sparkles } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { type MutableRefObject, Suspense, useRef } from "react";
 import * as THREE from "three";
@@ -31,15 +31,15 @@ function WorldLights({ quality }: { readonly quality: SceneQuality }) {
 
   return (
     <>
-      <color args={["#0a3dff"]} attach="background" />
-      <fog attach="fog" args={["#3d7dff", 40, 220]} />
-      <ambientLight color="#9ec4ff" intensity={0.42} />
-      <hemisphereLight args={["#7eb6ff", "#2a3550", 0.55]} />
+      <color args={["#1a4fd8"]} attach="background" />
+      <fog attach="fog" args={["#4d86e8", 28, 160]} />
+      <ambientLight color="#ffd7a8" intensity={0.22} />
+      <hemisphereLight args={["#8ec4ff", "#3a2a18", 0.62]} />
       <directionalLight
         castShadow={quality === "high"}
-        color="#ffe566"
-        intensity={1.85}
-        position={[-48, 62, 28]}
+        color="#ffc878"
+        intensity={2.35}
+        position={[-38, 28, 46]}
         shadow-bias={-0.0004}
         shadow-camera-bottom={-50}
         shadow-camera-far={180}
@@ -50,11 +50,75 @@ function WorldLights({ quality }: { readonly quality: SceneQuality }) {
         shadow-mapSize={[mapSize, mapSize]}
       />
       <directionalLight
-        color="#e8ff00"
-        intensity={0.22}
-        position={[36, 18, -24]}
+        color="#d6ff00"
+        intensity={0.18}
+        position={[42, 16, -30]}
+      />
+      <pointLight
+        color="#ffb35c"
+        intensity={18}
+        position={[8, 6, 10]}
+        distance={42}
       />
     </>
+  );
+}
+
+function HeroSparkles({ quality }: { readonly quality: SceneQuality }) {
+  if (quality !== "high") {
+    return null;
+  }
+
+  return (
+    <Sparkles
+      color="#fff4d2"
+      count={90}
+      opacity={0.55}
+      position={[4, 10, 6]}
+      scale={[36, 14, 36]}
+      size={3.2}
+      speed={0.18}
+    />
+  );
+}
+
+function DriftDiscs({ quality }: { readonly quality: SceneQuality }) {
+  const group = useRef<THREE.Group>(null);
+  const discs = [
+    { color: "#f4f7fb", position: [-10, 8, 16] as const, radius: 1.6 },
+    { color: "#d6ff00", position: [14, 11, 8] as const, radius: 1.1 },
+    { color: "#ffe4b0", position: [6, 14, 22] as const, radius: 0.85 },
+  ];
+
+  useFrame(({ clock }) => {
+    const node = group.current;
+    if (!node) {
+      return;
+    }
+    const time = clock.elapsedTime;
+    node.children.forEach((child, index) => {
+      child.position.y = discs[index]?.position[1] ?? 8;
+      child.position.y += Math.sin(time * 0.35 + index * 1.3) * 0.7;
+      child.rotation.y = time * 0.12 + index;
+      child.rotation.x = Math.sin(time * 0.18 + index) * 0.2;
+    });
+  });
+
+  return (
+    <group ref={group}>
+      {discs.map((disc) => (
+        <mesh key={disc.color} position={disc.position}>
+          <cylinderGeometry args={[disc.radius, disc.radius, 0.18, 32]} />
+          <meshPhysicalMaterial
+            clearcoat={quality === "high" ? 0.85 : 0}
+            clearcoatRoughness={0.18}
+            color={disc.color}
+            metalness={0.12}
+            roughness={0.22}
+          />
+        </mesh>
+      ))}
+    </group>
   );
 }
 
@@ -69,17 +133,25 @@ function ValleyFigures({ quality }: { readonly quality: SceneQuality }) {
         const isJudge = figure.kind === "judge";
         let accent = "#ffffff";
         if (isJudge) {
-          accent = "#e8ff00";
+          accent = "#d6ff00";
         }
         return (
           <group key={figure.id} position={figure.position}>
             <mesh castShadow={quality === "high"} position={[0, 1.15, 0]}>
               <capsuleGeometry args={[0.28, 0.95, 6, 12]} />
-              <meshStandardMaterial color="#f7f9ff" roughness={0.35} />
+              <meshPhysicalMaterial
+                clearcoat={0.55}
+                color="#f7f9ff"
+                roughness={0.28}
+              />
             </mesh>
             <mesh castShadow={quality === "high"} position={[0, 2.05, 0]}>
               <sphereGeometry args={[0.26, 16, 16]} />
-              <meshStandardMaterial color={accent} roughness={0.28} />
+              <meshPhysicalMaterial
+                clearcoat={0.7}
+                color={accent}
+                roughness={0.18}
+              />
             </mesh>
           </group>
         );
@@ -106,10 +178,11 @@ function ExploreCamera({
     const chapter = chapterFromProgress(progress);
     const time = clock.elapsedTime;
     const explore = Math.max(0, 1 - progress / 0.24);
+    const drift = 0.4 + explore * 0.6;
     const portrait = size.height > size.width;
-    const orbit = Math.sin(time * 0.07) * 0.16 * explore;
-    const pointerYaw = pointer.x * 0.42 * explore;
-    const pointerPitch = pointer.y * 0.1 * explore;
+    const orbit = Math.sin(time * 0.055) * 0.26 * drift;
+    const pointerYaw = pointer.x * 0.48 * explore;
+    const pointerPitch = pointer.y * 0.12 * explore;
 
     let radiusBoost = 0;
     if (portrait && chapter === "hero") {
@@ -119,8 +192,8 @@ function ExploreCamera({
     camera.position.set(
       path.position[0] + Math.sin(orbit + pointerYaw) * (8 + radiusBoost),
       path.position[1] +
-        pointerPitch * 6 +
-        Math.sin(time * 0.05) * 0.55 * explore,
+        pointerPitch * 7 +
+        Math.sin(time * 0.045) * 0.85 * drift,
       path.position[2] + Math.cos(orbit + pointerYaw) * (6 + radiusBoost * 0.4),
     );
     LOOK.set(path.lookAt[0], path.lookAt[1], path.lookAt[2]);
@@ -178,6 +251,8 @@ function MachuWorld({
         <MachuPicchuAsset quality={quality} />
       </Suspense>
       <ValleyFigures quality={quality} />
+      <DriftDiscs quality={quality} />
+      <HeroSparkles quality={quality} />
       <ExploreCamera
         onTargets={onTargets}
         progressRef={progressRef}
@@ -197,7 +272,7 @@ export function MachuPicchuCanvas({
 }: MachuPicchuCanvasProps) {
   return (
     <Canvas
-      camera={{ far: 420, fov: 42, near: 0.1, position: [92, 40, 108] }}
+      camera={{ far: 420, fov: 38, near: 0.1, position: [46, 18, 58] }}
       className="pointer-events-none absolute inset-0 size-full"
       dpr={quality === "high" ? [1, 1.5] : [1, 1]}
       frameloop={visible ? "always" : "never"}
@@ -207,7 +282,9 @@ export function MachuPicchuCanvas({
         powerPreference: "high-performance",
       }}
       onCreated={({ gl }) => {
-        gl.setClearColor("#0a3dff");
+        gl.toneMapping = THREE.ACESFilmicToneMapping;
+        gl.toneMappingExposure = 1.18;
+        gl.setClearColor("#1a4fd8");
         gl.domElement.style.pointerEvents = "none";
         gl.domElement.addEventListener(
           "webglcontextlost",

@@ -41,11 +41,11 @@ const CAMERA_STOPS: ReadonlyArray<{
 }> = [
   {
     progress: 0,
-    frame: { position: [92, 40, 108], lookAt: [0, 14, -6] },
+    frame: { position: [46, 18, 58], lookAt: [2, 9, -4] },
   },
   {
     progress: 0.22,
-    frame: { position: [58, 28, 72], lookAt: [2, 12, -2] },
+    frame: { position: [34, 14, 42], lookAt: [3, 8, -1] },
   },
   {
     progress: 0.46,
