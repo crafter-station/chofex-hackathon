@@ -52,6 +52,7 @@ export interface Candidate {
   readonly mediaConsent: boolean;
   readonly submittedAt: string;
   readonly decidedAt?: string;
+  readonly approvedBy?: string;
   readonly attemptNumber: number;
   readonly lastRejection?: {
     readonly at: string;

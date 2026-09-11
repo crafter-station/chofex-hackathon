@@ -56,6 +56,7 @@ type CandidateRecord = {
 const toCandidate = (
   record: CandidateRecord,
   clerkPictureUrl: string | undefined,
+  approvedBy: string | undefined,
   lastRejectedBy: string | undefined,
 ): Candidate => {
   const { application, details } = record;
@@ -105,6 +106,7 @@ const toCandidate = (
       application.submittedAt ?? application.createdAt
     ).toISOString(),
     decidedAt: instantString(application.decidedAt),
+    approvedBy,
     attemptNumber: record.attemptNumber,
     lastRejection,
     documentFullName: optional(details?.fullName),
@@ -133,7 +135,15 @@ const toCandidates = async (
     if (reviewerId) return [reviewerId];
     return [];
   });
-  const allClerkUserIds = [...new Set([...clerkUserIds, ...reviewerIds])];
+  const approverIds = records.flatMap((record) => {
+    if (record.application.status !== "accepted") return [];
+    const approverId = record.application.decidedByClerkUserId;
+    if (approverId) return [approverId];
+    return [];
+  });
+  const allClerkUserIds = [
+    ...new Set([...clerkUserIds, ...reviewerIds, ...approverIds]),
+  ];
   const clerkPictures = new Map<string, string>();
   const clerkNames = new Map<string, string>();
 
@@ -154,6 +164,11 @@ const toCandidates = async (
   );
 
   return records.map((record) => {
+    let approvedBy: string | undefined;
+    if (record.application.status === "accepted") {
+      const approverId = record.application.decidedByClerkUserId;
+      if (approverId) approvedBy = clerkNames.get(approverId) ?? approverId;
+    }
     let lastRejectedBy: string | undefined;
     const reviewerId = record.lastRejection?.decidedByClerkUserId;
     if (reviewerId) {
@@ -162,6 +177,7 @@ const toCandidates = async (
     return toCandidate(
       record,
       clerkPictures.get(record.clerkUserId),
+      approvedBy,
       lastRejectedBy,
     );
   });

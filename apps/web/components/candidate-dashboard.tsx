@@ -656,6 +656,9 @@ const CandidateDrawer = ({
                 <Detail label="Decision time">
                   {candidate.decidedAt && formatDateTime(candidate.decidedAt)}
                 </Detail>
+                {candidate.status === "accepted" && (
+                  <Detail label="Approved by">{candidate.approvedBy}</Detail>
+                )}
               </dl>
             </div>
 
