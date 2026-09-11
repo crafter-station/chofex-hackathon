@@ -3,7 +3,6 @@ import { HudLabel } from "@/components/landing/hud";
 import {
   LandingContainer,
   LandingSectionHead,
-  landingFrameClassName,
 } from "@/components/landing/shell";
 
 export function LandingSponsors() {
@@ -25,14 +24,14 @@ export function LandingSponsors() {
             const label = slot.confirmed ? slot.name : "Más sponsors pronto";
             return (
               <li
-                className={`grid h-28 place-items-center px-3 text-center ${landingFrameClassName} border-[#0b0d10]/15 bg-white text-[#0b0d10]`}
+                className="grid h-28 place-items-center border border-[#0b0d10]/15 bg-white px-3 text-center"
                 key={slot.id}
               >
                 <span
                   className={
                     slot.confirmed
-                      ? "font-[family-name:var(--font-landing-display)] text-3xl uppercase tracking-[-0.02em]"
-                      : "font-[family-name:var(--font-landing-mono)] text-[10px] tracking-[0.16em] uppercase text-[#0b0d10]/50"
+                      ? "font-[family-name:var(--font-landing-display)] text-3xl tracking-[-0.02em] text-[#0b0d10] uppercase"
+                      : "font-[family-name:var(--font-landing-mono)] text-[10px] tracking-[0.16em] text-[#0b0d10]/55 uppercase"
                   }
                 >
                   {label}
