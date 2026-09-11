@@ -1,4 +1,5 @@
 import { db } from "@chofex/db";
+import { clerkClient } from "@clerk/nextjs/server";
 import {
   and,
   count,
@@ -16,6 +17,7 @@ import {
 } from "@chofex/db/schema";
 
 import { HttpError } from "@/lib/registration/http";
+import { candidateAvatarUrl } from "./avatars";
 import { type ApplicationDecision, buildDecisionEmail } from "./decision-email";
 import {
   type Candidate,
@@ -46,9 +48,13 @@ const instantString = (value: Date | null | undefined): string | undefined => {
 type CandidateRecord = {
   readonly application: typeof applications.$inferSelect;
   readonly details: typeof acceptanceDetails.$inferSelect | null;
+  readonly clerkUserId: string;
 };
 
-const toCandidate = ({ application, details }: CandidateRecord): Candidate => {
+const toCandidate = (
+  { application, details }: CandidateRecord,
+  clerkPictureUrl: string | undefined,
+): Candidate => {
   let dateOfBirth: string | undefined;
   if (details?.dateOfBirth) dateOfBirth = dateString(details.dateOfBirth);
 
@@ -58,7 +64,11 @@ const toCandidate = ({ application, details }: CandidateRecord): Candidate => {
     firstName: application.firstName ?? "Unknown",
     lastName: application.lastName ?? "participant",
     email: application.email ?? "",
-    avatarUrl: optional(application.pictureUrl),
+    avatarUrl: candidateAvatarUrl(
+      optional(application.pictureUrl),
+      clerkPictureUrl,
+      application.githubUrl,
+    ),
     pronouns: optional(application.pronouns),
     countryCode: optional(application.countryCode),
     city: optional(application.city),
@@ -98,8 +108,26 @@ const toCandidate = ({ application, details }: CandidateRecord): Candidate => {
 
 const toCandidates = async (
   records: ReadonlyArray<CandidateRecord>,
-): Promise<ReadonlyArray<Candidate>> =>
-  records.map((record) => toCandidate(record));
+): Promise<ReadonlyArray<Candidate>> => {
+  const clerk = await clerkClient();
+  const clerkUserIds = [...new Set(records.map((record) => record.clerkUserId))];
+  const clerkPictures = new Map<string, string>();
+
+  await Promise.all(
+    clerkUserIds.map(async (clerkUserId) => {
+      try {
+        const user = await clerk.users.getUser(clerkUserId);
+        if (user.hasImage) clerkPictures.set(clerkUserId, user.imageUrl);
+      } catch {
+        // A missing Clerk user should not prevent admins from reviewing applications.
+      }
+    }),
+  );
+
+  return records.map((record) =>
+    toCandidate(record, clerkPictures.get(record.clerkUserId)),
+  );
+};
 
 const candidateRecordById = async (
   applicationId: string,
@@ -108,6 +136,7 @@ const candidateRecordById = async (
     .select({
       application: applications,
       details: acceptanceDetails,
+      clerkUserId: participants.clerkUserId,
     })
     .from(applications)
     .innerJoin(participants, eq(participants.id, applications.participantId))
@@ -176,6 +205,7 @@ export const listCandidates = async (
     .select({
       application: applications,
       details: acceptanceDetails,
+      clerkUserId: participants.clerkUserId,
     })
     .from(applications)
     .innerJoin(participants, eq(participants.id, applications.participantId))

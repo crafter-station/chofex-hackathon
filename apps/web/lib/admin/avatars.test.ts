@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 
-import { githubAvatarUrl, preferredAvatarUrl } from "./avatars";
+import {
+  candidateAvatarUrl,
+  githubAvatarUrl,
+  preferredAvatarUrl,
+} from "./avatars";
 
 describe("candidate avatars", () => {
   test("builds a GitHub avatar URL from a profile URL", () => {
@@ -31,5 +35,28 @@ describe("candidate avatars", () => {
 
   test("leaves the avatar empty when neither source has a photo", () => {
     expect(preferredAvatarUrl(undefined, undefined)).toBeUndefined();
+  });
+
+  test("shows an available profile photo before badge picture confirmation", () => {
+    expect(
+      candidateAvatarUrl(
+        undefined,
+        "https://img.clerk.com/user.jpg",
+        "https://github.com/octocat",
+      ),
+    ).toBe("https://img.clerk.com/user.jpg");
+    expect(
+      candidateAvatarUrl(undefined, undefined, "https://github.com/octocat"),
+    ).toBe("https://github.com/octocat.png?size=112");
+  });
+
+  test("shows the confirmed badge picture once one is selected", () => {
+    expect(
+      candidateAvatarUrl(
+        "https://pictures.example/confirmed.jpg",
+        "https://img.clerk.com/user.jpg",
+        "https://github.com/octocat",
+      ),
+    ).toBe("https://pictures.example/confirmed.jpg");
   });
 });
