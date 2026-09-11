@@ -1,4 +1,8 @@
-import { LandingContainer, LandingEyebrow } from "@/components/landing/shell";
+import {
+  LandingContainer,
+  LandingEyebrow,
+  LandingTitle,
+} from "@/components/landing/shell";
 
 function RidgelineHint() {
   return (
@@ -69,41 +73,42 @@ const trackHints = [
 
 export function LandingTracks() {
   return (
-    <section aria-labelledby="tracks-heading">
-      <LandingContainer className="py-16 sm:py-24">
-        <div className="grid gap-8 border-current/20 border-b pb-10 md:grid-cols-[1fr_1.4fr]">
+    <section
+      aria-labelledby="tracks-heading"
+      className="border-[#e1ff00]/20 border-t"
+    >
+      <LandingContainer className="py-12 sm:py-16">
+        <div className="grid gap-5 border-[#e1ff00]/20 border-b pb-8 md:grid-cols-[1fr_1.6fr]">
           <LandingEyebrow id="tracks-heading">Tracks</LandingEyebrow>
-          <div className="flex flex-col gap-4">
-            <h2 className="max-w-xl text-4xl leading-[0.95] font-medium tracking-[-0.05em] sm:text-5xl">
-              Se revelan el día 1.
-            </h2>
-            <p className="max-w-md text-base leading-relaxed opacity-65">
+          <div className="flex flex-col gap-3">
+            <LandingTitle>Se revelan el día 1.</LandingTitle>
+            <p className="max-w-md text-sm leading-relaxed text-[#d1d5d1] sm:text-base">
               Cinco minutos para elegir. Cero spoilers. Las pistas están a la
               vista; los nombres, no.
             </p>
           </div>
         </div>
 
-        <div className="mt-10 grid gap-4 md:grid-cols-2">
+        <div className="mt-8 grid gap-px bg-[#e1ff00]/20 md:grid-cols-2">
           {trackHints.map((track) => {
             const Visual = track.visual;
             return (
               <article
-                className="flex flex-col gap-6 rounded-2xl border border-current/15 p-5 sm:p-6"
+                className="flex flex-col gap-5 bg-[#1a1a1a] p-5 sm:p-6"
                 key={track.code}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs opacity-45">
+                  <span className="font-mono text-xs text-[#d1d5d1]">
                     Señal {track.code}
                   </span>
-                  <span className="font-mono text-[11px] uppercase tracking-[0.16em] opacity-40">
-                    Locked
+                  <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#d1d5d1]">
+                    Bloqueado
                   </span>
                 </div>
-                <div className="aspect-16/9 overflow-hidden rounded-xl bg-current/5">
+                <div className="aspect-16/9 overflow-hidden border border-[#e1ff00]/20 bg-[#e1ff00]/5">
                   <Visual />
                 </div>
-                <p className="text-sm leading-relaxed opacity-60">
+                <p className="text-sm leading-relaxed text-[#d1d5d1]">
                   {track.hint}
                 </p>
               </article>

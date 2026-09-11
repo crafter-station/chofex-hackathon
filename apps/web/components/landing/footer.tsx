@@ -4,11 +4,11 @@ import { LandingContainer } from "@/components/landing/shell";
 
 export function LandingFooter() {
   return (
-    <footer className="border-current/15 border-t pb-24 sm:pb-0">
-      <LandingContainer className="flex flex-col gap-6 py-10 sm:flex-row sm:items-center sm:justify-between">
+    <footer className="border-[#e1ff00]/20 border-t pb-24 sm:pb-0">
+      <LandingContainer className="flex flex-col gap-6 py-8 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
-          <p className="font-medium">Hack the Andes</p>
-          <p className="text-sm opacity-50">
+          <p className="font-medium lowercase tracking-tight">hack the andes</p>
+          <p className="font-mono text-xs tracking-[0.08em] text-[#d1d5d1] uppercase">
             Lima · 10–11 oct 2026 · Sponsored by Chofex
           </p>
         </div>

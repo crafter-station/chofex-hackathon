@@ -63,9 +63,15 @@ export const filterSignals = [
   },
 ] as const;
 
+export const marqueeSignals = ["selectivo", "Lima", "1–4", "~30h"] as const;
+
+export const marqueePressure = [
+  "pocas plazas",
+  "presión real",
+  "presencial",
+] as const;
+
 export const sponsorSlots = [
   { id: "chofex", name: "Chofex", confirmed: true },
-  { id: "open-1", name: "Próximamente", confirmed: false },
-  { id: "open-2", name: "Próximamente", confirmed: false },
-  { id: "open-3", name: "Próximamente", confirmed: false },
+  { id: "open-1", name: "Más sponsors pronto", confirmed: false },
 ] as const;

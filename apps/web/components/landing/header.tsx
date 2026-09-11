@@ -1,27 +1,32 @@
 import { MountainIcon } from "lucide-react";
 
-import { LandingContainer } from "@/components/landing/shell";
+import {
+  LandingContainer,
+  landingCtaClassName,
+} from "@/components/landing/shell";
 
 export function LandingHeader() {
   return (
-    <header className="sticky top-0 z-40 border-current/15 border-b bg-[#f4f1e9]/90 backdrop-blur-md dark:bg-[#171713]/90">
-      <LandingContainer className="flex h-16 items-center justify-between gap-3">
+    <header className="absolute inset-x-0 top-0 z-40">
+      <LandingContainer className="flex h-16 items-center justify-between gap-3 sm:h-20">
         <a
-          className="flex min-w-0 items-center gap-2.5 font-semibold"
+          className="flex min-w-0 items-center gap-2.5 lowercase tracking-tight"
           href="#top"
         >
-          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#171713] text-[#f4f1e9] dark:bg-[#f4f1e9] dark:text-[#171713]">
+          <span className="grid size-8 shrink-0 place-items-center border-2 border-[#e1ff00] text-[#e1ff00]">
             <MountainIcon className="size-4" aria-hidden="true" />
           </span>
-          <span className="truncate">Hack the Andes</span>
+          <span className="truncate text-sm font-medium sm:text-base">
+            hack the andes
+          </span>
         </a>
-        <div className="flex shrink-0 items-center gap-3">
-          <p className="hidden text-[11px] tracking-[0.04em] opacity-50 sm:block">
+        <div className="flex shrink-0 items-center gap-4">
+          <p className="hidden font-mono text-[10px] tracking-[0.14em] text-[#d1d5d1] uppercase sm:block">
             Sponsored by Chofex
           </p>
           <a
             href="#apply"
-            className="inline-flex h-10 items-center rounded-full bg-[#171713] px-4 text-sm font-medium text-[#f4f1e9] dark:bg-[#f4f1e9] dark:text-[#171713]"
+            className={`${landingCtaClassName} min-h-10 px-4 py-1.5 text-sm md:min-h-10 md:px-5 md:text-sm`}
           >
             Aplicar
           </a>
@@ -33,11 +38,8 @@ export function LandingHeader() {
 
 export function LandingMobileCta() {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-current/15 border-t bg-[#f4f1e9]/95 p-3 backdrop-blur-md sm:hidden dark:bg-[#171713]/95">
-      <a
-        href="#apply"
-        className="flex h-12 items-center justify-center rounded-full bg-[#171713] text-sm font-medium text-[#f4f1e9] dark:bg-[#f4f1e9] dark:text-[#171713]"
-      >
+    <div className="fixed inset-x-0 bottom-0 z-40 border-[#e1ff00]/25 border-t bg-[#1a1a1a]/95 p-3 backdrop-blur-md sm:hidden">
+      <a href="#apply" className={`${landingCtaClassName} w-full min-h-12`}>
         Aplicar
       </a>
     </div>
