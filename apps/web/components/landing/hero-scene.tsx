@@ -3,6 +3,9 @@ import type { ReactNode } from "react";
 
 export const HERO_SCENE_ROOT_ID = "hero-scene";
 
+/** Locked subject for the R3F teammate: Moray, Valle Sagrado. */
+export const HERO_SCENE_THEME = "moray" as const;
+
 export type HeroSceneProps = {
   readonly className?: string;
   readonly children?: ReactNode;
@@ -10,17 +13,17 @@ export type HeroSceneProps = {
 
 function HeroSceneFallback() {
   return (
-    <div className="relative size-full bg-[#0c0c0b]">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_78%,#2a2e12_0%,#12140c_42%,#0c0c0b_68%,#050505_100%)]" />
-      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#050505] to-transparent" />
+    <div className="relative size-full overflow-hidden bg-[#1b3044]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_12%,#4d7fa3_0%,#1b3044_46%,#12181c_100%)]" />
+      <div className="hero-scene-moray-hint absolute top-[54%] left-1/2 size-[160vmax] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-80" />
     </div>
   );
 }
 
 /**
- * Valle Sagrado WebGL slot. The Three/R3F scene mounts here.
- * Drop a client Canvas as `children`, or replace the fallback in this file.
- * Keep this root `absolute inset-0` so landing UI can stay painted above it.
+ * Full-bleed Moray (Valle Sagrado) WebGL slot.
+ * Three/R3F owns the concentric-terrace scene. Mount a client Canvas as
+ * `children`, or replace the fallback. Do not paint landing type in here.
  */
 export function HeroScene({ className, children }: HeroSceneProps) {
   return (
@@ -31,6 +34,7 @@ export function HeroScene({ className, children }: HeroSceneProps) {
         className,
       )}
       data-hero-scene=""
+      data-hero-scene-theme={HERO_SCENE_THEME}
       id={HERO_SCENE_ROOT_ID}
     >
       {children ?? <HeroSceneFallback />}

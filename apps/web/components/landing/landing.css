@@ -1,3 +1,19 @@
+.hero-scene-moray-hint {
+  background: repeating-radial-gradient(
+    circle at 50% 50%,
+    #d8c07a 0 1.15%,
+    #b0894a 1.15% 1.45%,
+    #c9a35c 1.45% 2.35%,
+    #8f6d38 2.35% 2.7%
+  );
+}
+
+.landing-hero-title {
+  text-shadow:
+    0 0 28px rgb(26 26 26 / 55%),
+    0 2px 18px rgb(26 26 26 / 70%);
+}
+
 .landing-marquee {
   overflow: hidden;
   width: 100%;
