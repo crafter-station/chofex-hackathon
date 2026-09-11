@@ -35,6 +35,13 @@ so `PARTICIPANT_DATA_ENCRYPTION_KEY` is required for attendance confirmation.
 Connect a public Vercel Blob store and set `BLOB_READ_WRITE_TOKEN` for profile
 picture uploads.
 
+Badge generation runs in Trigger.dev after an accepted participant confirms
+attendance. Set `TRIGGER_PROJECT_REF` and a trigger-only `TRIGGER_SECRET_KEY` in
+the web app, then configure `DATABASE_URL`, `BLOB_READ_WRITE_TOKEN`, `FAL_KEY`,
+and `RESEND_API_KEY` in the matching Trigger.dev environment. Run tasks locally
+with `bun --filter @chofex/web trigger:dev` and deploy them with
+`bun --filter @chofex/web trigger:deploy`.
+
 ## CLI authentication
 
 Install the latest CLI globally so the `chofex` command is available:
@@ -76,6 +83,8 @@ chofex requirements
 
 # Provide private details after acceptance
 chofex confirm
+# The badge URL appears here once background generation finishes
+chofex badge
 # To use a local picture non-interactively:
 chofex confirm --input attendance.json --picture /path/to/picture.png
 ```
@@ -116,6 +125,7 @@ issued specifically to the Chofex CLI.
 | `PUT` | `/api/v1/registration/attendance` | Complete post-acceptance details |
 | `POST` | `/api/v1/profile-picture` | Authorize one accepted-participant Blob upload |
 | `PUT` | `/api/v1/profile-picture` | Verify and record a completed Blob upload |
+| `GET` | `/api/v1/badge` | Read the participant's generated badge status and URL |
 
 Responses use a versioned `{ version, ok, requestId, data | error }` envelope.
 Authentication failures advertise OAuth discovery through

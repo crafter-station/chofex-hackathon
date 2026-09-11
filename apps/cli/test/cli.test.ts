@@ -78,6 +78,14 @@ describe("CLI JSON mode", () => {
     expect(help.stdout).toContain("Validate input without submitting it");
   });
 
+  test("advertises the participant badge command", async () => {
+    const help = await runCli("--help");
+
+    expect(help.exitCode).toBe(0);
+    expect(help.stdout).toContain("badge");
+    expect(help.stdout).toContain("Show your generated participant badge");
+  });
+
   test("prints every accepted application input field", async () => {
     const result = await runCli("schema");
 

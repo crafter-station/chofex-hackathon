@@ -1,4 +1,5 @@
 import { requireAuthenticatedParticipantProfile } from "@/lib/auth";
+import { enqueueBadgeGeneration } from "@/lib/badges/enqueue";
 import { jsonSuccess, readJson, withApiHandler } from "@/lib/registration/http";
 import { submitAcceptedDetails } from "@/lib/registration/service";
 
@@ -15,5 +16,6 @@ export const PUT = (request: Request): Promise<Response> =>
       },
       await readJson(request),
     );
+    await enqueueBadgeGeneration(result.registration.id);
     return jsonSuccess(requestId, result);
   });

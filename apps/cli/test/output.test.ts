@@ -1,7 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import type { RegistrationResult } from "@chofex/registration-contract";
 
-import { registrationText, requirementsOnlyText } from "../src/output.js";
+import {
+  badgeText,
+  registrationText,
+  requirementsOnlyText,
+} from "../src/output.js";
 
 const withdrawnResult: RegistrationResult = {
   registration: {
@@ -69,5 +73,19 @@ describe("registration output", () => {
 
     expect(requirementsOnlyText(completeResult)).not.toContain(unexpected);
     expect(registrationText(completeResult)).not.toContain(unexpected);
+  });
+});
+
+describe("badge output", () => {
+  test("explains that a pending badge is not available yet", () => {
+    expect(badgeText({ status: "pending" })).toBe(
+      "You don't have a badge yet.",
+    );
+  });
+
+  test("prints the badge URL when generation is complete", () => {
+    expect(
+      badgeText({ status: "completed", url: "https://example.com/badge.png" }),
+    ).toBe("https://example.com/badge.png");
   });
 });

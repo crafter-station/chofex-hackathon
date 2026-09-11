@@ -1,5 +1,6 @@
 import {
   type ApiSuccess,
+  type BadgeResult,
   type CreatedRegistration,
   type RegistrationResult,
   RequirementSchema,
@@ -112,3 +113,8 @@ export const createdText = (result: CreatedRegistration): string =>
 
 export const requirementsOnlyText = (result: RegistrationResult): string =>
   requirementsText(result);
+
+export const badgeText = (result: BadgeResult): string => {
+  if (result.url) return result.url;
+  return "You don't have a badge yet.";
+};

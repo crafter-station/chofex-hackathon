@@ -37,3 +37,10 @@ export const pictureSource = pgEnum("picture_source", [
   "github",
   "upload",
 ]);
+
+export const badgeGenerationStatus = pgEnum("badge_generation_status", [
+  "pending",
+  "running",
+  "completed",
+  "failed",
+]);

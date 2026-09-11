@@ -4,6 +4,7 @@ import { Effect } from "effect";
 import {
   beginPictureUpload,
   completePictureUpload,
+  getBadge,
   getCurrentUser,
   getRegistration,
 } from "../src/api-client.js";
@@ -96,6 +97,29 @@ describe("registration API client", () => {
 
     expect(authorization).toBe("Bearer oauth-token");
     expect(response.data.registration.status).toBe("submitted");
+  });
+
+  test("reads the generated badge URL", async () => {
+    let url = "";
+    globalThis.fetch = async (input) => {
+      url = String(input);
+      return Response.json({
+        version: 1,
+        ok: true,
+        requestId: "request-badge",
+        data: {
+          status: "completed",
+          url: "https://store.public.blob.vercel-storage.com/badge.png",
+        },
+      });
+    };
+
+    const response = await Effect.runPromise(
+      getBadge({ apiUrl: "https://hack.example", token: "oauth-token" }),
+    );
+
+    expect(url).toBe("https://hack.example/api/v1/badge");
+    expect(response.data.url).toContain("badge.png");
   });
 
   test("preserves structured API errors", async () => {

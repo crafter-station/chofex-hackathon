@@ -2,6 +2,8 @@ import {
   ApiFailureSchema,
   type ApiSuccess,
   ApiSuccessSchema,
+  type BadgeResult,
+  BadgeResultSchema,
   type CreatedRegistration,
   CreatedRegistrationSchema,
   type CurrentUser,
@@ -122,6 +124,9 @@ const request = Effect.fn("apiRequest")(function* <A, R>(
 const decodeCreatedRegistration = Schema.decodeUnknownEffect(
   ApiSuccessSchema(CreatedRegistrationSchema),
 );
+const decodeBadgeResult = Schema.decodeUnknownEffect(
+  ApiSuccessSchema(BadgeResultSchema),
+);
 const decodeCurrentUser = Schema.decodeUnknownEffect(
   ApiSuccessSchema(CurrentUserSchema),
 );
@@ -163,6 +168,11 @@ export const getRegistration = (
     { method: "GET" },
     decodeRegistrationResult,
   );
+
+export const getBadge = (
+  options: ApiClientOptions,
+): Effect.Effect<ApiSuccess<BadgeResult>, CliError> =>
+  request(options, "/api/v1/badge", { method: "GET" }, decodeBadgeResult);
 
 export const confirmAttendance = (
   options: ApiClientOptions,

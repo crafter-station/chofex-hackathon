@@ -5,6 +5,7 @@
   "private": true,
   "exports": {
     ".": "./src/client.ts",
+    "./worker": "./src/worker.ts",
     "./schema": "./src/schema/index.ts",
     "./orm": "./src/orm.ts"
   },

@@ -50,6 +50,13 @@
       "when": 1789134500565,
       "tag": "0006_happy_morlun",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789135601872,
+      "tag": "0007_warm_wither",
+      "breakpoints": true
     }
   ]
 }

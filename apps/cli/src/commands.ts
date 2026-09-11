@@ -2,6 +2,7 @@ import { Effect, Option } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
 import {
   confirmAttendance,
+  getBadge,
   getCurrentUser,
   getRegistration,
   register,
@@ -15,6 +16,7 @@ import {
   picturePathInput,
 } from "./input.js";
 import {
+  badgeText,
   createdText,
   execute,
   printJson,
@@ -144,6 +146,17 @@ const requirementsCommand = Command.make(
     yield* execute(options.output, operation, requirementsOnlyText);
   }),
 ).pipe(Command.withDescription("Show information you still need to provide"));
+
+const badgeCommand = Command.make(
+  "badge",
+  {},
+  Effect.fn("badgeCommand")(function* () {
+    const options = yield* root;
+    const token = Option.getOrUndefined(options.token);
+    const operation = getBadge({ apiUrl: options.apiUrl, token });
+    yield* execute(options.output, operation, badgeText);
+  }),
+).pipe(Command.withDescription("Show your generated participant badge"));
 
 const confirmCommand = Command.make(
   "confirm",
@@ -379,6 +392,7 @@ export const command = root.pipe(
     registerCommand,
     statusCommand,
     requirementsCommand,
+    badgeCommand,
     confirmCommand,
     schemaCommand,
   ]),

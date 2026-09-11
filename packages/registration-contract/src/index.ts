@@ -403,6 +403,21 @@ export const CurrentUserSchema = Schema.Struct({
 
 export type CurrentUser = typeof CurrentUserSchema.Type;
 
+export const BadgeStatus = Schema.Literals([
+  "not_started",
+  "pending",
+  "running",
+  "completed",
+  "failed",
+]);
+
+export const BadgeResultSchema = Schema.Struct({
+  status: BadgeStatus,
+  url: Schema.optional(Schema.String),
+});
+
+export type BadgeResult = typeof BadgeResultSchema.Type;
+
 export const PictureUploadSchema = Schema.Struct({
   url: Schema.String,
   contentType: PictureContentType,
