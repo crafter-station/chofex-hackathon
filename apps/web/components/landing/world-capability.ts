@@ -94,6 +94,7 @@ export function resolveWorldPresentation(input: {
     return { mode: "fallback", reason: "no-webgl" };
   }
 
+  // Static painted fallback: no WebGL loop, sparkles, or camera drift.
   if (input.prefersReducedMotion) {
     return { mode: "fallback", reason: "reduced-motion" };
   }

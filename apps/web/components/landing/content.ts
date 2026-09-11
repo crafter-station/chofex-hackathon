@@ -63,9 +63,9 @@ export const sectionNav = [
 ] as const;
 
 export const worldChapters = [
-  { id: "hero", label: "Terreno", progress: 0 },
-  { id: "valley", label: "Valle", progress: 0.4 },
-  { id: "scan", label: "Escaneo", progress: 0.75 },
+  { id: "hero", label: "Cumbre", progress: 0 },
+  { id: "valley", label: "Valle", progress: 0.34 },
+  { id: "scan", label: "Escaneo", progress: 0.64 },
 ] as const;
 
 export const facts = [

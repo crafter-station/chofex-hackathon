@@ -1,10 +1,10 @@
 import {
-  PictureUploadCompletionSchema,
-  PictureUploadRequestSchema,
   detectPictureContentType,
   maximumPictureBytes,
   type PictureUpload,
+  PictureUploadCompletionSchema,
   type PictureUploadGrant,
+  PictureUploadRequestSchema,
 } from "@chofex/registration-contract";
 import { Result, Schema } from "effect";
 
@@ -90,11 +90,17 @@ const beginUpload = async (
     `${dependencies.randomId()}.${extension}`,
   ].join("/");
   await dependencies.reserve(identity, pathname);
-  const clientToken = await dependencies.issueToken({
-    pathname,
-    contentType: input.contentType,
-    maximumSizeInBytes: maximumPictureBytes,
-  });
+  let clientToken: string;
+  try {
+    clientToken = await dependencies.issueToken({
+      pathname,
+      contentType: input.contentType,
+      maximumSizeInBytes: maximumPictureBytes,
+    });
+  } catch (error) {
+    await dependencies.discard(identity, pathname).catch(() => undefined);
+    throw error;
+  }
   return { pathname, clientToken };
 };
 

@@ -1,6 +1,5 @@
 import { cn } from "@chofex/ui/lib/utils";
 import { LandingApply } from "@/components/landing/apply";
-import { LandingChapterRail } from "@/components/landing/chapter-nav";
 import {
   landingDisplay,
   landingMono,
@@ -10,6 +9,7 @@ import { LandingFooter } from "@/components/landing/footer";
 import { LandingHeader, LandingMobileCta } from "@/components/landing/header";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingJudges } from "@/components/landing/judges";
+import { HERO_MODEL_PRELOAD } from "@/components/landing/machu-picchu-preload";
 import { LandingPrizes } from "@/components/landing/prizes";
 import { LandingScan } from "@/components/landing/scan";
 import { landingPageClassName } from "@/components/landing/shell";
@@ -28,9 +28,15 @@ export default function Home() {
       )}
       id="top"
     >
+      <link
+        rel="preload"
+        href={HERO_MODEL_PRELOAD.href}
+        as={HERO_MODEL_PRELOAD.as}
+        crossOrigin={HERO_MODEL_PRELOAD.crossOrigin}
+        type={HERO_MODEL_PRELOAD.type}
+      />
       <LandingSkipLinks />
       <LandingHeader />
-      <LandingChapterRail />
       <main id="contenido">
         <LandingHero />
         <LandingJudges />

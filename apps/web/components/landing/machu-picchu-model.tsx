@@ -1,7 +1,7 @@
 "use client";
 
 import { Center, useGLTF } from "@react-three/drei";
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo } from "react";
 import * as THREE from "three";
 
 import { HERO_SCENE_MODEL_URL } from "@/components/landing/hero-scene";
@@ -15,31 +15,8 @@ import { ModelErrorBoundary } from "@/components/landing/model-error-boundary";
 
 type SceneQuality = "low" | "high";
 
-function useModelAvailable(url: string): boolean | null {
-  const [available, setAvailable] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    fetch(url, { method: "HEAD" })
-      .then((response) => {
-        if (!cancelled) {
-          setAvailable(response.ok);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setAvailable(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [url]);
-
-  return available;
-}
+const USE_DRACO = false;
+const USE_MESHOPT = true;
 
 function polishStoneMaterial(
   source: THREE.Material,
@@ -65,7 +42,7 @@ function polishStoneMaterial(
 }
 
 function MachuPicchuGltf({ quality }: { readonly quality: SceneQuality }) {
-  const { scene } = useGLTF(HERO_SCENE_MODEL_URL);
+  const { scene } = useGLTF(HERO_SCENE_MODEL_URL, USE_DRACO, USE_MESHOPT);
   const clone = useMemo(() => scene.clone(true), [scene]);
 
   useEffect(() => {
@@ -179,26 +156,6 @@ export function ProceduralMachuPicchu({
   );
 }
 
-function GltfOrFallback({
-  quality,
-  fallback,
-}: {
-  readonly quality: SceneQuality;
-  readonly fallback: ReactNode;
-}) {
-  const available = useModelAvailable(HERO_SCENE_MODEL_URL);
-
-  if (available !== true) {
-    return fallback;
-  }
-
-  return (
-    <ModelErrorBoundary fallback={fallback}>
-      <MachuPicchuGltf quality={quality} />
-    </ModelErrorBoundary>
-  );
-}
-
 export function MachuPicchuAsset({
   quality,
 }: {
@@ -206,7 +163,13 @@ export function MachuPicchuAsset({
 }) {
   const fallback = <ProceduralMachuPicchu quality={quality} />;
 
-  return <GltfOrFallback fallback={fallback} quality={quality} />;
+  return (
+    <ModelErrorBoundary fallback={fallback}>
+      <Suspense fallback={fallback}>
+        <MachuPicchuGltf quality={quality} />
+      </Suspense>
+    </ModelErrorBoundary>
+  );
 }
 
-useGLTF.preload(HERO_SCENE_MODEL_URL);
+useGLTF.preload(HERO_SCENE_MODEL_URL, USE_DRACO, USE_MESHOPT);

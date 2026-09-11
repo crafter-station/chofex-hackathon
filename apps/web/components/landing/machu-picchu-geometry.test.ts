@@ -3,12 +3,15 @@ import { expect, test } from "bun:test";
 import { HERO_SCENE_MODEL_URL } from "./hero-scene";
 import {
   chapterFromProgress,
+  chapterStartProgress,
   MACHU_MODEL_SCALE,
   MACHU_PICCHU_GLB,
   MACHU_SOURCE_BBOX,
   sampleCameraPath,
   scaledSourceSize,
+  WORLD_CHAPTERS,
   WORLD_FIGURES,
+  worldScrollTop,
 } from "./machu-picchu-geometry";
 
 test("points the hero model at the public glb path", () => {
@@ -30,6 +33,25 @@ test("maps scroll progress onto hero, valley, and scan chapters", () => {
   expect(chapterFromProgress(0)).toBe("hero");
   expect(chapterFromProgress(0.4)).toBe("valley");
   expect(chapterFromProgress(0.8)).toBe("scan");
+});
+
+test("exposes labeled chapter stops for the world rail", () => {
+  expect(WORLD_CHAPTERS.map((chapter) => chapter.id)).toEqual([
+    "hero",
+    "valley",
+    "scan",
+  ]);
+  expect(chapterStartProgress("hero")).toBe(0);
+  expect(chapterStartProgress("valley")).toBe(0.34);
+  expect(chapterStartProgress("scan")).toBe(0.64);
+  expect(
+    worldScrollTop({
+      sectionOffsetTop: 100,
+      sectionHeight: 4000,
+      viewportHeight: 1000,
+      progress: 0.34,
+    }),
+  ).toBe(1120);
 });
 
 test("keeps the camera path descending into the valley", () => {

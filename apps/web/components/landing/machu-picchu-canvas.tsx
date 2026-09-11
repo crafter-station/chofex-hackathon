@@ -1,8 +1,14 @@
 "use client";
 
+import { cn } from "@chofex/ui/lib/utils";
 import { AdaptiveDpr, Sparkles } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { type MutableRefObject, Suspense, useRef } from "react";
+import {
+  type MutableRefObject,
+  type PointerEvent,
+  useRef,
+  useState,
+} from "react";
 import * as THREE from "three";
 
 import {
@@ -11,7 +17,21 @@ import {
   sampleCameraPath,
   WORLD_FIGURES,
 } from "@/components/landing/machu-picchu-geometry";
+import {
+  isHorizontalLookGesture,
+  isVerticalScrollGesture,
+  type LookOffset,
+  lookExploreScale,
+  lookFromPointerDelta,
+  lookSensitivityForPointer,
+  REST_LOOK,
+} from "@/components/landing/machu-picchu-look";
 import { MachuPicchuAsset } from "@/components/landing/machu-picchu-model";
+import { worldFrameLoop } from "@/components/landing/world-loop";
+import {
+  shouldPlaySceneEffects,
+  worldMotionScale,
+} from "@/components/landing/world-motion";
 
 const LOOK = new THREE.Vector3();
 const PROJECT = new THREE.Vector3();
@@ -22,9 +42,25 @@ export type MachuPicchuCanvasProps = {
   readonly quality: SceneQuality;
   readonly progressRef: MutableRefObject<number>;
   readonly visible?: boolean;
+  readonly reducedMotion?: boolean;
   readonly onContextLost?: () => void;
+  readonly onWorldReady?: () => void;
   readonly onTargets?: (targets: ProjectedTarget[]) => void;
 };
+
+function ReportWorldReady({ onReady }: { readonly onReady?: () => void }) {
+  const sent = useRef(false);
+
+  useFrame(() => {
+    if (sent.current || !onReady) {
+      return;
+    }
+    sent.current = true;
+    onReady();
+  });
+
+  return null;
+}
 
 function WorldLights({ quality }: { readonly quality: SceneQuality }) {
   const mapSize = quality === "high" ? 2048 : 512;
@@ -64,8 +100,14 @@ function WorldLights({ quality }: { readonly quality: SceneQuality }) {
   );
 }
 
-function HeroSparkles({ quality }: { readonly quality: SceneQuality }) {
-  if (quality !== "high") {
+function HeroSparkles({
+  quality,
+  reducedMotion,
+}: {
+  readonly quality: SceneQuality;
+  readonly reducedMotion: boolean;
+}) {
+  if (quality !== "high" || !shouldPlaySceneEffects(reducedMotion)) {
     return null;
   }
 
@@ -82,7 +124,13 @@ function HeroSparkles({ quality }: { readonly quality: SceneQuality }) {
   );
 }
 
-function DriftDiscs({ quality }: { readonly quality: SceneQuality }) {
+function DriftDiscs({
+  quality,
+  reducedMotion,
+}: {
+  readonly quality: SceneQuality;
+  readonly reducedMotion: boolean;
+}) {
   const group = useRef<THREE.Group>(null);
   const discs = [
     { color: "#f4f7fb", position: [-10, 8, 16] as const, radius: 1.6 },
@@ -92,7 +140,7 @@ function DriftDiscs({ quality }: { readonly quality: SceneQuality }) {
 
   useFrame(({ clock }) => {
     const node = group.current;
-    if (!node) {
+    if (!node || !shouldPlaySceneEffects(reducedMotion)) {
       return;
     }
     const time = clock.elapsedTime;
@@ -163,13 +211,19 @@ function ValleyFigures({ quality }: { readonly quality: SceneQuality }) {
 function ExploreCamera({
   progressRef,
   quality,
+  reducedMotion,
+  lookRef,
+  draggingRef,
   onTargets,
 }: {
   readonly progressRef: MutableRefObject<number>;
   readonly quality: SceneQuality;
+  readonly reducedMotion: boolean;
+  readonly lookRef: MutableRefObject<LookOffset>;
+  readonly draggingRef: MutableRefObject<boolean>;
   readonly onTargets?: (targets: ProjectedTarget[]) => void;
 }) {
-  const { camera, size, pointer } = useThree();
+  const { camera, size } = useThree();
   const frame = useRef(0);
 
   useFrame(({ clock }) => {
@@ -177,12 +231,15 @@ function ExploreCamera({
     const path = sampleCameraPath(progress);
     const chapter = chapterFromProgress(progress);
     const time = clock.elapsedTime;
-    const explore = Math.max(0, 1 - progress / 0.24);
-    const drift = 0.4 + explore * 0.6;
+    const motion = worldMotionScale(reducedMotion);
+    const explore = lookExploreScale(progress);
+    const hold = draggingRef.current ? 0.12 : 1;
+    const drift = (0.4 + explore * 0.6) * motion * hold;
     const portrait = size.height > size.width;
     const orbit = Math.sin(time * 0.055) * 0.26 * drift;
-    const pointerYaw = pointer.x * 0.48 * explore;
-    const pointerPitch = pointer.y * 0.12 * explore;
+    const look = lookRef.current;
+    const pointerYaw = look.yaw * explore;
+    const pointerPitch = look.pitch * explore;
 
     let radiusBoost = 0;
     if (portrait && chapter === "hero") {
@@ -238,26 +295,36 @@ function ExploreCamera({
 function MachuWorld({
   quality,
   progressRef,
+  reducedMotion,
+  lookRef,
+  draggingRef,
+  onWorldReady,
   onTargets,
 }: {
   readonly quality: SceneQuality;
   readonly progressRef: MutableRefObject<number>;
+  readonly reducedMotion: boolean;
+  readonly lookRef: MutableRefObject<LookOffset>;
+  readonly draggingRef: MutableRefObject<boolean>;
+  readonly onWorldReady?: () => void;
   readonly onTargets?: (targets: ProjectedTarget[]) => void;
 }) {
   return (
     <>
       <WorldLights quality={quality} />
-      <Suspense fallback={null}>
-        <MachuPicchuAsset quality={quality} />
-      </Suspense>
+      <MachuPicchuAsset quality={quality} />
       <ValleyFigures quality={quality} />
-      <DriftDiscs quality={quality} />
-      <HeroSparkles quality={quality} />
+      <DriftDiscs quality={quality} reducedMotion={reducedMotion} />
+      <HeroSparkles quality={quality} reducedMotion={reducedMotion} />
       <ExploreCamera
+        draggingRef={draggingRef}
+        lookRef={lookRef}
         onTargets={onTargets}
         progressRef={progressRef}
         quality={quality}
+        reducedMotion={reducedMotion}
       />
+      <ReportWorldReady onReady={onWorldReady} />
       <AdaptiveDpr pixelated={false} />
     </>
   );
@@ -267,42 +334,138 @@ export function MachuPicchuCanvas({
   quality,
   progressRef,
   visible = true,
+  reducedMotion = false,
   onContextLost,
+  onWorldReady,
   onTargets,
 }: MachuPicchuCanvasProps) {
+  const animate = visible && shouldPlaySceneEffects(reducedMotion);
+  const frameLoop = worldFrameLoop(animate);
+  const lookEnabled = shouldPlaySceneEffects(reducedMotion);
+  const lookRef = useRef<LookOffset>(REST_LOOK);
+  const draggingRef = useRef(false);
+  const pointerStartRef = useRef<{
+    x: number;
+    y: number;
+    look: LookOffset;
+    pointerType: string;
+  } | null>(null);
+  const [grabbing, setGrabbing] = useState(false);
+
+  const beginLook = (event: PointerEvent<HTMLDivElement>) => {
+    if (!lookEnabled) {
+      return;
+    }
+    if (event.pointerType !== "touch" && event.button !== 0) {
+      return;
+    }
+
+    pointerStartRef.current = {
+      x: event.clientX,
+      y: event.clientY,
+      look: { ...lookRef.current },
+      pointerType: event.pointerType,
+    };
+
+    if (event.pointerType === "touch") {
+      return;
+    }
+
+    draggingRef.current = true;
+    setGrabbing(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const moveLook = (event: PointerEvent<HTMLDivElement>) => {
+    const start = pointerStartRef.current;
+    if (!start || !lookEnabled) {
+      return;
+    }
+
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+
+    if (!draggingRef.current) {
+      if (isVerticalScrollGesture(dx, dy)) {
+        pointerStartRef.current = null;
+        return;
+      }
+      if (!isHorizontalLookGesture(dx, dy)) {
+        return;
+      }
+      draggingRef.current = true;
+      setGrabbing(true);
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+
+    lookRef.current = lookFromPointerDelta(
+      start.look,
+      dx,
+      dy,
+      lookSensitivityForPointer(start.pointerType),
+    );
+  };
+
+  const endLook = (event: PointerEvent<HTMLDivElement>) => {
+    pointerStartRef.current = null;
+    draggingRef.current = false;
+    setGrabbing(false);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  };
+
   return (
-    <Canvas
-      camera={{ far: 420, fov: 38, near: 0.1, position: [46, 18, 58] }}
-      className="pointer-events-none absolute inset-0 size-full"
-      dpr={quality === "high" ? [1, 1.5] : [1, 1]}
-      frameloop={visible ? "always" : "never"}
-      gl={{
-        alpha: false,
-        antialias: quality === "high",
-        powerPreference: "high-performance",
-      }}
-      onCreated={({ gl }) => {
-        gl.toneMapping = THREE.ACESFilmicToneMapping;
-        gl.toneMappingExposure = 1.18;
-        gl.setClearColor("#1a4fd8");
-        gl.domElement.style.pointerEvents = "none";
-        gl.domElement.addEventListener(
-          "webglcontextlost",
-          (event) => {
-            event.preventDefault();
-            onContextLost?.();
-          },
-          { once: true },
-        );
-      }}
-      shadows={quality === "high"}
-      style={{ pointerEvents: "none" }}
+    <div
+      className={cn(
+        "absolute inset-0 size-full",
+        lookEnabled ? "pointer-events-auto cursor-grab" : "pointer-events-none",
+        grabbing && "cursor-grabbing",
+      )}
+      data-world-look={lookEnabled ? "ready" : "paused"}
+      onPointerCancel={endLook}
+      onPointerDown={beginLook}
+      onPointerMove={moveLook}
+      onPointerUp={endLook}
+      style={{ touchAction: "pan-y" }}
     >
-      <MachuWorld
-        onTargets={onTargets}
-        progressRef={progressRef}
-        quality={quality}
-      />
-    </Canvas>
+      <Canvas
+        camera={{ far: 420, fov: 38, near: 0.1, position: [46, 18, 58] }}
+        className="pointer-events-none absolute inset-0 size-full"
+        dpr={quality === "high" ? [1, 1.5] : [1, 1]}
+        frameloop={frameLoop}
+        gl={{
+          alpha: false,
+          antialias: quality === "high",
+          powerPreference: "high-performance",
+        }}
+        onCreated={({ gl }) => {
+          gl.toneMapping = THREE.ACESFilmicToneMapping;
+          gl.toneMappingExposure = 1.18;
+          gl.setClearColor("#1a4fd8");
+          gl.domElement.style.pointerEvents = "none";
+          gl.domElement.addEventListener(
+            "webglcontextlost",
+            (event) => {
+              event.preventDefault();
+              onContextLost?.();
+            },
+            { once: true },
+          );
+        }}
+        shadows={quality === "high"}
+        style={{ pointerEvents: "none" }}
+      >
+        <MachuWorld
+          draggingRef={draggingRef}
+          lookRef={lookRef}
+          onTargets={onTargets}
+          onWorldReady={onWorldReady}
+          progressRef={progressRef}
+          quality={quality}
+          reducedMotion={reducedMotion}
+        />
+      </Canvas>
+    </div>
   );
 }

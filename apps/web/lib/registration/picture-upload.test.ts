@@ -121,6 +121,36 @@ describe("profile picture upload HTTP endpoint", () => {
     expect(issued).toBe(false);
   });
 
+  test("discards the reservation when issuing storage access fails", async () => {
+    const request = new Request("https://hack.example/api/v1/profile-picture", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ contentType: "image/png", size: 9 }),
+    });
+    const tokenError = new Error("Storage is unavailable");
+    let discardedPathname: string | undefined;
+    const adapters: PictureUploadDependencies = {
+      ...dependencies(),
+      authorize: async () => ({
+        applicationId: "application-123",
+        clerkUserId: "user-123",
+      }),
+      issueToken: async () => {
+        throw tokenError;
+      },
+      discard: async (_identity, pathname) => {
+        discardedPathname = pathname;
+      },
+    };
+
+    await expect(handlePictureUpload(request, adapters)).rejects.toBe(
+      tokenError,
+    );
+    expect(discardedPathname).toBe(
+      "profile-pictures/user-123/application-123/upload-123.png",
+    );
+  });
+
   test("rejects replayed completion before reading Blob storage", async () => {
     const request = new Request("https://hack.example/api/v1/profile-picture", {
       method: "PUT",
