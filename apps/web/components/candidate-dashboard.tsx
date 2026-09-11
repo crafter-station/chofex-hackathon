@@ -37,17 +37,25 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   CircleUserRoundIcon,
+  CopyIcon,
   ExternalLinkIcon,
   MailIcon,
   SearchIcon,
   ShieldAlertIcon,
   SparklesIcon,
   SquareCodeIcon,
+  TriangleAlertIcon,
   UsersIcon,
   XIcon,
 } from "lucide-react";
 import Image from "next/image";
-import { type FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  type FormEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import {
   type CandidateFilters,
@@ -272,6 +280,58 @@ const CandidateLink = ({
   );
 };
 
+type CopyEmailStatus = "idle" | "copied" | "failed";
+
+const CopyEmailButton = ({ email }: { readonly email: string }) => {
+  const [status, setStatus] = useState<CopyEmailStatus>("idle");
+  const resetTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+
+  useEffect(
+    () => () => {
+      if (resetTimer.current !== undefined) clearTimeout(resetTimer.current);
+    },
+    [],
+  );
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(email);
+      setStatus("copied");
+    } catch {
+      setStatus("failed");
+    }
+
+    if (resetTimer.current !== undefined) clearTimeout(resetTimer.current);
+    resetTimer.current = setTimeout(() => setStatus("idle"), 3_000);
+  };
+
+  let label = "Copy email address";
+  let icon = <CopyIcon />;
+  if (status === "copied") {
+    label = "Email address copied";
+    icon = <CheckIcon />;
+  } else if (status === "failed") {
+    label = "Could not copy email address";
+    icon = <TriangleAlertIcon />;
+  }
+
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon-xs"
+      className="text-muted-foreground hover:text-foreground"
+      onClick={copyEmail}
+      aria-label={label}
+      title={label}
+    >
+      {icon}
+    </Button>
+  );
+};
+
 const CandidateDrawer = ({
   candidate,
   open,
@@ -443,13 +503,23 @@ const CandidateDrawer = ({
                     <h2 className="text-xl font-semibold tracking-tight">
                       {displayName(candidate)}
                     </h2>
-                    <a
-                      className="mt-1 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-                      href={`mailto:${candidate.email}`}
-                    >
-                      <MailIcon className="size-3.5" />
-                      {candidate.email || "No email provided"}
-                    </a>
+                    <div className="mt-1 flex items-center gap-1">
+                      <a
+                        className="inline-flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+                        href={`mailto:${candidate.email}`}
+                      >
+                        <MailIcon className="size-3.5" />
+                        <span className="truncate">
+                          {candidate.email || "No email provided"}
+                        </span>
+                      </a>
+                      {candidate.email && (
+                        <CopyEmailButton
+                          key={candidate.id}
+                          email={candidate.email}
+                        />
+                      )}
+                    </div>
                   </div>
                   <StatusBadge status={candidate.status} />
                 </div>
