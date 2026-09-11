@@ -53,6 +53,20 @@ const completeResult: RegistrationResult = {
   },
 };
 
+const rejectedResult: RegistrationResult = {
+  registration: {
+    ...withdrawnResult.registration,
+    status: "rejected",
+    rejectionReason: "Please add a concrete example of something you shipped.",
+  },
+  requirements: {
+    stage: "rejected",
+    canSubmitNewApplication: true,
+    canSubmitAcceptedDetails: false,
+    missing: [],
+  },
+};
+
 describe("registration output", () => {
   test("shows that a withdrawn participant may apply again", () => {
     const expected = "Application withdrawn. You may submit a new application.";
@@ -73,6 +87,12 @@ describe("registration output", () => {
 
     expect(requirementsOnlyText(completeResult)).not.toContain(unexpected);
     expect(registrationText(completeResult)).not.toContain(unexpected);
+  });
+
+  test("shows reviewer feedback for a rejected application", () => {
+    expect(registrationText(rejectedResult)).toContain(
+      "Review feedback: Please add a concrete example of something you shipped.",
+    );
   });
 });
 

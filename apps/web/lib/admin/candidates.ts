@@ -8,6 +8,7 @@ import {
   ilike,
   inArray,
   or,
+  sql,
   type SQL,
 } from "@chofex/db/orm";
 import {
@@ -22,9 +23,8 @@ import { type ApplicationDecision, buildDecisionEmail } from "./decision-email";
 import {
   type Candidate,
   type CandidateCounts,
+  type CandidateFilter,
   type CandidatePage,
-  candidateStatuses,
-  type CandidateStatus,
   reviewableCandidateStatuses,
 } from "./types";
 
@@ -49,14 +49,28 @@ type CandidateRecord = {
   readonly application: typeof applications.$inferSelect;
   readonly details: typeof acceptanceDetails.$inferSelect | null;
   readonly clerkUserId: string;
+  readonly attemptNumber: number;
+  readonly lastRejection?: typeof applications.$inferSelect;
 };
 
 const toCandidate = (
-  { application, details }: CandidateRecord,
+  record: CandidateRecord,
   clerkPictureUrl: string | undefined,
+  lastRejectedBy: string | undefined,
 ): Candidate => {
+  const { application, details } = record;
   let dateOfBirth: string | undefined;
   if (details?.dateOfBirth) dateOfBirth = dateString(details.dateOfBirth);
+  let lastRejection: Candidate["lastRejection"];
+  if (record.lastRejection) {
+    const rejectedAt =
+      record.lastRejection.decidedAt ?? record.lastRejection.updatedAt;
+    lastRejection = {
+      at: rejectedAt.toISOString(),
+      rejectedBy: lastRejectedBy,
+      message: optional(record.lastRejection.rejectionReason),
+    };
+  }
 
   return {
     id: application.id,
@@ -91,7 +105,8 @@ const toCandidate = (
       application.submittedAt ?? application.createdAt
     ).toISOString(),
     decidedAt: instantString(application.decidedAt),
-    rejectionReason: optional(application.rejectionReason),
+    attemptNumber: record.attemptNumber,
+    lastRejection,
     documentFullName: optional(details?.fullName),
     phone: optional(details?.phone),
     dateOfBirth,
@@ -110,23 +125,82 @@ const toCandidates = async (
   records: ReadonlyArray<CandidateRecord>,
 ): Promise<ReadonlyArray<Candidate>> => {
   const clerk = await clerkClient();
-  const clerkUserIds = [...new Set(records.map((record) => record.clerkUserId))];
+  const clerkUserIds = [
+    ...new Set(records.map((record) => record.clerkUserId)),
+  ];
+  const reviewerIds = records.flatMap((record) => {
+    const reviewerId = record.lastRejection?.decidedByClerkUserId;
+    if (reviewerId) return [reviewerId];
+    return [];
+  });
+  const allClerkUserIds = [...new Set([...clerkUserIds, ...reviewerIds])];
   const clerkPictures = new Map<string, string>();
+  const clerkNames = new Map<string, string>();
 
   await Promise.all(
-    clerkUserIds.map(async (clerkUserId) => {
+    allClerkUserIds.map(async (clerkUserId) => {
       try {
         const user = await clerk.users.getUser(clerkUserId);
         if (user.hasImage) clerkPictures.set(clerkUserId, user.imageUrl);
+        const name = [user.firstName, user.lastName].filter(Boolean).join(" ");
+        const primaryEmail = user.emailAddresses.find(
+          (email) => email.id === user.primaryEmailAddressId,
+        )?.emailAddress;
+        clerkNames.set(clerkUserId, name || primaryEmail || clerkUserId);
       } catch {
         // A missing Clerk user should not prevent admins from reviewing applications.
       }
     }),
   );
 
-  return records.map((record) =>
-    toCandidate(record, clerkPictures.get(record.clerkUserId)),
-  );
+  return records.map((record) => {
+    let lastRejectedBy: string | undefined;
+    const reviewerId = record.lastRejection?.decidedByClerkUserId;
+    if (reviewerId) {
+      lastRejectedBy = clerkNames.get(reviewerId) ?? reviewerId;
+    }
+    return toCandidate(
+      record,
+      clerkPictures.get(record.clerkUserId),
+      lastRejectedBy,
+    );
+  });
+};
+
+const addAttemptHistory = async <
+  BaseRecord extends Omit<CandidateRecord, "attemptNumber" | "lastRejection">,
+>(
+  records: ReadonlyArray<BaseRecord>,
+): Promise<ReadonlyArray<CandidateRecord>> => {
+  const participantIds = [
+    ...new Set(records.map((record) => record.application.participantId)),
+  ];
+  if (participantIds.length === 0) return [];
+
+  const history = await db
+    .select()
+    .from(applications)
+    .where(inArray(applications.participantId, participantIds))
+    .orderBy(desc(applications.createdAt), desc(applications.id));
+  const historyByParticipant = new Map<
+    string,
+    Array<typeof applications.$inferSelect>
+  >();
+  for (const application of history) {
+    const existing = historyByParticipant.get(application.participantId) ?? [];
+    existing.push(application);
+    historyByParticipant.set(application.participantId, existing);
+  }
+
+  return records.map((record) => {
+    const attempts =
+      historyByParticipant.get(record.application.participantId) ?? [];
+    return {
+      ...record,
+      attemptNumber: attempts.length,
+      lastRejection: attempts.find((attempt) => attempt.status === "rejected"),
+    };
+  });
 };
 
 const candidateRecordById = async (
@@ -146,7 +220,9 @@ const candidateRecordById = async (
     )
     .where(eq(applications.id, applicationId))
     .limit(1);
-  return record;
+  if (!record) return undefined;
+  const [candidateRecord] = await addAttemptHistory([record]);
+  return candidateRecord;
 };
 
 type MutableCandidateCounts = {
@@ -162,12 +238,13 @@ const emptyCounts = (): MutableCandidateCounts => ({
   accepted: 0,
   rejected: 0,
   withdrawn: 0,
+  reattempt: 0,
 });
 
 export interface CandidateListInput {
   readonly page?: number;
   readonly query?: string;
-  readonly status?: CandidateStatus;
+  readonly status?: CandidateFilter;
 }
 
 export const listCandidates = async (
@@ -185,17 +262,51 @@ export const listCandidates = async (
     );
   }
   let statusCondition: SQL | undefined;
-  if (input.status) {
+  if (input.status && input.status !== "reattempt") {
     statusCondition = eq(applications.status, input.status);
   }
-  const whereCondition = and(searchCondition, statusCondition);
+  const latestApplications = db
+    .selectDistinctOn([applications.participantId], { id: applications.id })
+    .from(applications)
+    .orderBy(
+      applications.participantId,
+      desc(applications.createdAt),
+      desc(applications.id),
+    )
+    .as("latest_applications");
+  const isReattemptCondition = sql<boolean>`exists (
+    select 1
+    from "applications" as "prior_application"
+    where "prior_application"."participant_id" = ${applications.participantId}
+      and "prior_application"."status" = 'rejected'
+      and "prior_application"."id" <> ${applications.id}
+  )`;
+  let reattemptCondition: SQL | undefined;
+  if (input.status === "reattempt") {
+    reattemptCondition = isReattemptCondition;
+  }
+  const whereCondition = and(
+    searchCondition,
+    statusCondition,
+    reattemptCondition,
+  );
 
-  const [totalResult, statusResults] = await Promise.all([
-    db.select({ value: count() }).from(applications).where(whereCondition),
+  const [totalResult, statusResults, reattemptResult] = await Promise.all([
+    db
+      .select({ value: count() })
+      .from(applications)
+      .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
+      .where(whereCondition),
     db
       .select({ status: applications.status, value: count() })
       .from(applications)
+      .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
       .groupBy(applications.status),
+    db
+      .select({ value: count() })
+      .from(applications)
+      .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
+      .where(isReattemptCondition),
   ]);
 
   const total = totalResult[0]?.value ?? 0;
@@ -208,6 +319,7 @@ export const listCandidates = async (
       clerkUserId: participants.clerkUserId,
     })
     .from(applications)
+    .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
     .innerJoin(participants, eq(participants.id, applications.participantId))
     .leftJoin(
       acceptanceDetails,
@@ -223,8 +335,9 @@ export const listCandidates = async (
     counts[result.status] = result.value;
     counts.all += result.value;
   }
+  counts.reattempt = reattemptResult[0]?.value ?? 0;
 
-  const candidates = await toCandidates(records);
+  const candidates = await toCandidates(await addAttemptHistory(records));
 
   return {
     candidates,
@@ -362,11 +475,4 @@ export const decideCandidate = async (
       emailError: "The decision was saved, but the email could not be sent",
     };
   }
-};
-
-export const parseCandidateStatus = (
-  value: string | undefined,
-): CandidateStatus | undefined => {
-  if (!value) return undefined;
-  return candidateStatuses.find((candidate) => candidate === value);
 };

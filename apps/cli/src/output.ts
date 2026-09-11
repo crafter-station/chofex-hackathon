@@ -92,8 +92,10 @@ const requirementsText = (result: RegistrationResult): string => {
   if (requirements.stage === "review")
     return "No action needed while your application is reviewed.";
   let feedback = "";
-  if (requirements.rejectionReason) {
-    feedback = `\nReview feedback: ${requirements.rejectionReason}`;
+  const rejectionReason =
+    requirements.rejectionReason ?? registration.rejectionReason;
+  if (rejectionReason) {
+    feedback = `\nReview feedback: ${rejectionReason}`;
   }
 
   let nextCommand = "";

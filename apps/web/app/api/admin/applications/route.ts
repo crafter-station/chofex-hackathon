@@ -1,5 +1,6 @@
 import { requireAdminIdentity } from "@/lib/admin/auth";
-import { listCandidates, parseCandidateStatus } from "@/lib/admin/candidates";
+import { listCandidates } from "@/lib/admin/candidates";
+import { parseCandidateFilter } from "@/lib/admin/types";
 import { jsonSuccess, withApiHandler } from "@/lib/registration/http";
 
 export const runtime = "nodejs";
@@ -12,7 +13,7 @@ export const GET = async (request: Request): Promise<Response> =>
     const parsedPage = Number.parseInt(parameters.get("page") ?? "1", 10);
     const page = Number.isFinite(parsedPage) ? parsedPage : 1;
     const query = parameters.get("q")?.trim().slice(0, 200) ?? "";
-    const status = parseCandidateStatus(parameters.get("status") ?? undefined);
+    const status = parseCandidateFilter(parameters.get("status") ?? undefined);
     const candidates = await listCandidates({ page, query, status });
 
     return jsonSuccess(requestId, candidates);

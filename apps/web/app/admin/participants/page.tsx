@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 
 import { CandidateDashboard } from "@/components/candidate-dashboard";
 import { getAdminIdentity } from "@/lib/admin/auth";
-import { listCandidates, parseCandidateStatus } from "@/lib/admin/candidates";
+import { listCandidates } from "@/lib/admin/candidates";
+import { parseCandidateFilter } from "@/lib/admin/types";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +32,7 @@ export default async function ParticipantsAdminPage({
   const parsedPage = Number.parseInt(parameters.page ?? "1", 10);
   const page = Number.isFinite(parsedPage) ? parsedPage : 1;
   const query = parameters.q?.trim().slice(0, 200) ?? "";
-  const status = parseCandidateStatus(parameters.status);
+  const status = parseCandidateFilter(parameters.status);
   const data = await listCandidates({ page, query, status });
   let selection: "first" | "last" | undefined;
   if (parameters.candidate === "first" || parameters.candidate === "last") {

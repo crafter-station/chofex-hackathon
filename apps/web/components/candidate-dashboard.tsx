@@ -49,13 +49,7 @@ import {
   XIcon,
 } from "lucide-react";
 import Image from "next/image";
-import {
-  type FormEvent,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   type CandidateFilters,
@@ -66,18 +60,19 @@ import {
 import type {
   Candidate,
   CandidateCounts,
+  CandidateFilter,
   CandidatePage,
   CandidateStatus,
 } from "@/lib/admin/types";
 import {
-  candidateStatuses,
+  parseCandidateFilter,
   reviewableCandidateStatuses,
 } from "@/lib/admin/types";
 
 interface CandidateDashboardProps {
   readonly data: CandidatePage;
   readonly initialQuery: string;
-  readonly initialStatus?: CandidateStatus;
+  readonly initialStatus?: CandidateFilter;
   readonly initialSelection?: "first" | "last";
 }
 
@@ -129,7 +124,7 @@ const reviewableStatuses = new Set<CandidateStatus>(
 );
 
 const filterStatuses: ReadonlyArray<{
-  readonly value?: CandidateStatus;
+  readonly value?: CandidateFilter;
   readonly label: string;
   readonly countKey: keyof CandidateCounts;
 }> = [
@@ -139,6 +134,7 @@ const filterStatuses: ReadonlyArray<{
   { value: "waitlisted", label: "Waitlisted", countKey: "waitlisted" },
   { value: "accepted", label: "Accepted", countKey: "accepted" },
   { value: "rejected", label: "Declined", countKey: "rejected" },
+  { value: "reattempt", label: "Reattempts", countKey: "reattempt" },
 ];
 
 const displayName = (candidate: Candidate): string =>
@@ -523,6 +519,9 @@ const CandidateDrawer = ({
                   </div>
                   <StatusBadge status={candidate.status} />
                 </div>
+                <p className="mt-2 text-xs font-medium text-muted-foreground">
+                  Attempt {candidate.attemptNumber}
+                </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <CandidateLink
                     href={candidate.githubUrl}
@@ -633,6 +632,9 @@ const CandidateDrawer = ({
                 <Detail label="Submitted">
                   {formatDateTime(candidate.submittedAt)}
                 </Detail>
+                <Detail label="Attempt">
+                  {candidate.attemptNumber.toString()}
+                </Detail>
                 <Detail label="Location">
                   {[candidate.city, candidate.countryCode]
                     .filter(Boolean)
@@ -702,11 +704,22 @@ const CandidateDrawer = ({
               </div>
             )}
 
-            {candidate.rejectionReason && (
+            {candidate.lastRejection && (
               <div className="border-t pt-5">
-                <Detail label="Decline note">
-                  {candidate.rejectionReason}
-                </Detail>
+                <h3 className="text-sm font-semibold">Last rejection</h3>
+                <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-5">
+                  <Detail label="Rejected">
+                    {formatDateTime(candidate.lastRejection.at)}
+                  </Detail>
+                  <Detail label="Rejected by">
+                    {candidate.lastRejection.rejectedBy}
+                  </Detail>
+                  <div className="col-span-2">
+                    <Detail label="Message">
+                      {candidate.lastRejection.message || "No message provided"}
+                    </Detail>
+                  </div>
+                </dl>
               </div>
             )}
           </section>
@@ -719,7 +732,7 @@ const CandidateDrawer = ({
 const pageHref = (
   page: number,
   query: string,
-  status: CandidateStatus | undefined,
+  status: CandidateFilter | undefined,
   selection?: "first" | "last",
 ): string => {
   const parameters = new URLSearchParams();
@@ -747,8 +760,7 @@ const filtersFromUrl = (url: string): CandidateFilters => {
   let page = 1;
   if (Number.isFinite(parsedPage)) page = Math.max(1, parsedPage);
   const query = parameters.get("q")?.trim().slice(0, 200) ?? "";
-  const requestedStatus = parameters.get("status");
-  const status = candidateStatuses.find((value) => value === requestedStatus);
+  const status = parseCandidateFilter(parameters.get("status") ?? undefined);
   return { page, query, status };
 };
 
@@ -981,7 +993,7 @@ export function CandidateDashboard({
 
         <section className="mt-8 grid gap-3 sm:grid-cols-3">
           <StatCard
-            label="Total applications"
+            label="Total participants"
             value={currentData.counts.all}
             icon={<UsersIcon className="size-4 text-muted-foreground" />}
           />
@@ -1229,6 +1241,9 @@ const CandidateRows = ({
           <span className="min-w-0">
             <span className="block truncate text-sm font-medium">
               {displayName(candidate)}
+              <span className="ml-2 text-[11px] font-normal text-muted-foreground">
+                Attempt {candidate.attemptNumber}
+              </span>
             </span>
             <span className="mt-0.5 block truncate text-xs text-muted-foreground">
               {candidate.email || "No email provided"}

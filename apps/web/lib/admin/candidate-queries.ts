@@ -2,14 +2,14 @@ import { queryOptions } from "@tanstack/react-query";
 
 import type {
   Candidate,
+  CandidateFilter,
   CandidatePage,
-  CandidateStatus,
 } from "@/lib/admin/types";
 
 export interface CandidateFilters {
   readonly page: number;
   readonly query: string;
-  readonly status?: CandidateStatus;
+  readonly status?: CandidateFilter;
 }
 
 interface ApiResponse<A> {

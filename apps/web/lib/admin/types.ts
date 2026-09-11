@@ -10,6 +10,15 @@ export const candidateStatuses = [
 
 export type CandidateStatus = (typeof candidateStatuses)[number];
 
+export const candidateFilters = [...candidateStatuses, "reattempt"] as const;
+
+export type CandidateFilter = (typeof candidateFilters)[number];
+
+export const parseCandidateFilter = (
+  value: string | undefined,
+): CandidateFilter | undefined =>
+  candidateFilters.find((candidate) => candidate === value);
+
 export const reviewableCandidateStatuses: ReadonlyArray<CandidateStatus> = [
   "submitted",
   "under_review",
@@ -43,7 +52,12 @@ export interface Candidate {
   readonly mediaConsent: boolean;
   readonly submittedAt: string;
   readonly decidedAt?: string;
-  readonly rejectionReason?: string;
+  readonly attemptNumber: number;
+  readonly lastRejection?: {
+    readonly at: string;
+    readonly rejectedBy?: string;
+    readonly message?: string;
+  };
   readonly documentFullName?: string;
   readonly phone?: string;
   readonly dateOfBirth?: string;
@@ -66,6 +80,7 @@ export interface CandidateCounts {
   readonly accepted: number;
   readonly rejected: number;
   readonly withdrawn: number;
+  readonly reattempt: number;
 }
 
 export interface CandidatePage {
