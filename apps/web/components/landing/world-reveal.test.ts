@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 
 import {
   isPaintedFallbackVisible,
+  isWorldReadyToReveal,
   paintedFallbackClassName,
 } from "./world-reveal";
 
@@ -15,4 +16,11 @@ test("fades the painted fallback only after the world is ready", () => {
   expect(paintedFallbackClassName(true)).toBe(
     "landing-world-fallback landing-world-fallback--ready",
   );
+});
+
+test("treats only the presented citadel GLB as a ready world", () => {
+  expect(isWorldReadyToReveal("pending")).toBe(false);
+  expect(isWorldReadyToReveal("canvas")).toBe(false);
+  expect(isWorldReadyToReveal("procedural")).toBe(false);
+  expect(isWorldReadyToReveal("citadel")).toBe(true);
 });

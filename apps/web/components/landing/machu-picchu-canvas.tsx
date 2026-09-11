@@ -48,20 +48,6 @@ export type MachuPicchuCanvasProps = {
   readonly onTargets?: (targets: ProjectedTarget[]) => void;
 };
 
-function ReportWorldReady({ onReady }: { readonly onReady?: () => void }) {
-  const sent = useRef(false);
-
-  useFrame(() => {
-    if (sent.current || !onReady) {
-      return;
-    }
-    sent.current = true;
-    onReady();
-  });
-
-  return null;
-}
-
 function WorldLights({ quality }: { readonly quality: SceneQuality }) {
   const mapSize = quality === "high" ? 2048 : 512;
 
@@ -312,7 +298,7 @@ function MachuWorld({
   return (
     <>
       <WorldLights quality={quality} />
-      <MachuPicchuAsset quality={quality} />
+      <MachuPicchuAsset onPresented={onWorldReady} quality={quality} />
       <ValleyFigures quality={quality} />
       <DriftDiscs quality={quality} reducedMotion={reducedMotion} />
       <HeroSparkles quality={quality} reducedMotion={reducedMotion} />
@@ -324,7 +310,6 @@ function MachuWorld({
         quality={quality}
         reducedMotion={reducedMotion}
       />
-      <ReportWorldReady onReady={onWorldReady} />
       <AdaptiveDpr pixelated={false} />
     </>
   );

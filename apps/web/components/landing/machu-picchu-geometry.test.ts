@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 
 import { HERO_SCENE_MODEL_URL } from "./hero-scene";
 import {
+  CITADEL_OVERLOOK,
   chapterFromProgress,
   chapterStartProgress,
   MACHU_MODEL_SCALE,
@@ -52,6 +53,23 @@ test("exposes labeled chapter stops for the world rail", () => {
       progress: 0.34,
     }),
   ).toBe(1120);
+});
+
+test("reloads onto the Cumbre citadel overlook", () => {
+  expect(CITADEL_OVERLOOK.chapter).toBe("hero");
+  expect(CITADEL_OVERLOOK.progress).toBe(0);
+  expect(chapterFromProgress(CITADEL_OVERLOOK.progress)).toBe("hero");
+  expect(chapterStartProgress("hero")).toBe(CITADEL_OVERLOOK.progress);
+  expect(WORLD_CHAPTERS[0]).toEqual({
+    id: "hero",
+    label: "Cumbre",
+    progress: 0,
+  });
+
+  const overlook = sampleCameraPath(CITADEL_OVERLOOK.progress);
+  const valley = sampleCameraPath(0.5);
+  expect(overlook.position[1]).toBeGreaterThan(valley.position[1]);
+  expect(overlook.position[2]).toBeGreaterThan(valley.position[2]);
 });
 
 test("keeps the camera path descending into the valley", () => {

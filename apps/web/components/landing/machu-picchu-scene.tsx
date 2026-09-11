@@ -80,6 +80,7 @@ export function MachuPicchuFallback({
  * - Render as children of `#hero-scene`
  * - Look layer accepts constrained drag; CTAs keep their own hit targets
  * - Landing type / CTAs stay in the scroll overlays
+ * - Painted fallback stays until the citadel GLB is on a presented frame
  */
 export function MachuPicchuScene({
   className,
@@ -151,6 +152,7 @@ export function MachuPicchuScene({
     documentVisible,
     reducedMotion,
   });
+  const citadelReady = worldReady && webglReady;
 
   return (
     <div
@@ -159,6 +161,7 @@ export function MachuPicchuScene({
         "pointer-events-none absolute inset-0 size-full",
         className,
       )}
+      data-world-reveal={citadelReady ? "citadel" : "pending"}
     >
       {webglReady ? (
         <MachuPicchuCanvas
@@ -171,9 +174,7 @@ export function MachuPicchuScene({
           visible={visible}
         />
       ) : null}
-      <MachuPicchuFallback
-        className={paintedFallbackClassName(worldReady && webglReady)}
-      />
+      <MachuPicchuFallback className={paintedFallbackClassName(citadelReady)} />
     </div>
   );
 }

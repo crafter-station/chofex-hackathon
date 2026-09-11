@@ -1,7 +1,8 @@
 "use client";
 
 import { Center, useGLTF } from "@react-three/drei";
-import { Suspense, useEffect, useMemo } from "react";
+import { useFrame } from "@react-three/fiber";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 import { HERO_SCENE_MODEL_URL } from "@/components/landing/hero-scene";
@@ -41,7 +42,31 @@ function polishStoneMaterial(
   return next;
 }
 
-function MachuPicchuGltf({ quality }: { readonly quality: SceneQuality }) {
+function ReportCitadelPresented({
+  onPresented,
+}: {
+  readonly onPresented?: () => void;
+}) {
+  const sent = useRef(false);
+
+  useFrame(() => {
+    if (sent.current || !onPresented) {
+      return;
+    }
+    sent.current = true;
+    onPresented();
+  });
+
+  return null;
+}
+
+function MachuPicchuGltf({
+  quality,
+  onPresented,
+}: {
+  readonly quality: SceneQuality;
+  readonly onPresented?: () => void;
+}) {
   const { scene } = useGLTF(HERO_SCENE_MODEL_URL, USE_DRACO, USE_MESHOPT);
   const clone = useMemo(() => scene.clone(true), [scene]);
 
@@ -83,10 +108,12 @@ function MachuPicchuGltf({ quality }: { readonly quality: SceneQuality }) {
   return (
     <Center disableY>
       <primitive object={clone} scale={MACHU_MODEL_SCALE} />
+      <ReportCitadelPresented onPresented={onPresented} />
     </Center>
   );
 }
 
+/** Error-boundary stand-in only. Never treat this as a ready world. */
 export function ProceduralMachuPicchu({
   quality,
 }: {
@@ -158,15 +185,18 @@ export function ProceduralMachuPicchu({
 
 export function MachuPicchuAsset({
   quality,
+  onPresented,
 }: {
   readonly quality: SceneQuality;
+  readonly onPresented?: () => void;
 }) {
   const fallback = <ProceduralMachuPicchu quality={quality} />;
 
   return (
     <ModelErrorBoundary fallback={fallback}>
-      <Suspense fallback={fallback}>
-        <MachuPicchuGltf quality={quality} />
+      {/* Keep the rocky stand-in off-screen; painted fallback covers load. */}
+      <Suspense fallback={null}>
+        <MachuPicchuGltf onPresented={onPresented} quality={quality} />
       </Suspense>
     </ModelErrorBoundary>
   );
