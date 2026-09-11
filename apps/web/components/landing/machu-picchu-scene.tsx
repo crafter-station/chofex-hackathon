@@ -13,11 +13,11 @@ import {
   type WorldPresentation,
   type WorldQuality,
 } from "@/components/landing/world-capability";
-import { subscribePrefersReducedMotion } from "@/components/landing/world-motion";
 import {
   isDocumentVisible,
   shouldRunWorldFrameLoop,
 } from "@/components/landing/world-loop";
+import { subscribePrefersReducedMotion } from "@/components/landing/world-motion";
 
 const MachuPicchuCanvas = dynamic(
   () =>

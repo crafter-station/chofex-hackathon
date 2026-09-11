@@ -4,8 +4,8 @@ import { cn } from "@chofex/ui/lib/utils";
 
 import {
   chapterStartProgress,
-  type WorldChapter,
   WORLD_CHAPTERS,
+  type WorldChapter,
   worldScrollTop,
 } from "@/components/landing/machu-picchu-geometry";
 
@@ -69,7 +69,9 @@ export function WorldChapterRail({
                 }}
                 type="button"
               >
-                <span className={cn("size-2.5 rounded-full border", dotClass)} />
+                <span
+                  className={cn("size-2.5 rounded-full border", dotClass)}
+                />
               </button>
             </li>
           );

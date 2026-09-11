@@ -1,9 +1,6 @@
 import { expect, test } from "bun:test";
 
-import {
-  shouldPlaySceneEffects,
-  worldMotionScale,
-} from "./world-motion";
+import { shouldPlaySceneEffects, worldMotionScale } from "./world-motion";
 
 test("zeros camera drift and effects when reduced motion is preferred", () => {
   expect(worldMotionScale(true)).toBe(0);

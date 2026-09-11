@@ -117,6 +117,12 @@
   animation: landing-scan 3.6s ease-in-out infinite;
 }
 
+.landing-world-motion {
+  transition:
+    opacity 500ms ease,
+    transform 500ms ease;
+}
+
 .landing-scan-box {
   position: absolute;
   border: 1px solid #d6ff00;
@@ -143,9 +149,8 @@
     transform: translateY(36%);
   }
 
-  .landing-world-motion,
-  .landing-world-motion * {
-    transition: none !important;
-    animation: none !important;
+  .landing-world-motion {
+    transition: none;
+    animation: none;
   }
 }

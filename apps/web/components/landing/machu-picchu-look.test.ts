@@ -12,16 +12,19 @@ import {
 } from "./machu-picchu-look";
 
 test("clamps look orbit so the citadel stays framed", () => {
-  expect(
-    clampLookOffset({ yaw: 4, pitch: -3 }),
-  ).toEqual({
+  expect(clampLookOffset({ yaw: 4, pitch: -3 })).toEqual({
     yaw: LOOK_LIMITS.yaw,
     pitch: -LOOK_LIMITS.pitch,
   });
 });
 
 test("applies pointer deltas with pointer-type sensitivity", () => {
-  const next = lookFromPointerDelta(REST_LOOK, 20, -10, lookSensitivityForPointer("mouse"));
+  const next = lookFromPointerDelta(
+    REST_LOOK,
+    20,
+    -10,
+    lookSensitivityForPointer("mouse"),
+  );
   expect(next.yaw).toBeLessThan(0);
   expect(next.pitch).toBeLessThan(0);
   expect(lookSensitivityForPointer("touch")).toBeLessThan(
