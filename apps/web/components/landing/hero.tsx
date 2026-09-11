@@ -24,7 +24,7 @@ export function LandingHero() {
               hecho.
             </p>
           </div>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
             <a
               href="#apply"
               className="inline-flex h-12 w-full items-center justify-center rounded-full bg-[#171713] text-base font-medium text-[#f4f1e9] sm:w-auto sm:px-8 dark:bg-[#f4f1e9] dark:text-[#171713]"
@@ -35,9 +35,12 @@ export function LandingHero() {
               10–11 oct 2026 · presencial
             </p>
           </div>
+          <p className="text-center text-[11px] tracking-[0.08em] uppercase opacity-45 sm:hidden">
+            Sponsored by Chofex
+          </p>
         </div>
 
-        <div className="flex items-end justify-between gap-4">
+        <div className="flex items-end justify-between gap-4 pb-16 sm:pb-0">
           <a
             href="#apply"
             className="flex w-fit items-center gap-3 text-sm font-medium"
@@ -47,9 +50,6 @@ export function LandingHero() {
               <ArrowDownIcon className="size-4" aria-hidden="true" />
             </span>
           </a>
-          <p className="text-right text-[11px] tracking-[0.08em] uppercase opacity-45 sm:hidden">
-            Sponsored by Chofex
-          </p>
         </div>
       </LandingContainer>
     </section>
