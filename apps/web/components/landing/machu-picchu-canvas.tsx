@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@chofex/ui/lib/utils";
-import { AdaptiveDpr, Sparkles } from "@react-three/drei";
+import { AdaptiveDpr } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   type MutableRefObject,
@@ -53,15 +53,14 @@ function WorldLights({ quality }: { readonly quality: SceneQuality }) {
 
   return (
     <>
-      <color args={["#3d7eef"]} attach="background" />
-      <fog attach="fog" args={["#7eb4ff", 90, 240]} />
-      <ambientLight color="#fff1d6" intensity={0.58} />
-      <hemisphereLight args={["#c5e2ff", "#8a9bb0", 0.92]} />
+      <fog attach="fog" args={["#76a8ca", 118, 280]} />
+      <ambientLight color="#fff1d6" intensity={0.32} />
+      <hemisphereLight args={["#cdeaff", "#354b39", 0.72]} />
       <directionalLight
         castShadow={quality === "high"}
         color="#ffe2a8"
-        intensity={2.15}
-        position={[46, 28, 58]}
+        intensity={1.72}
+        position={[48, 34, 60]}
         shadow-bias={-0.0004}
         shadow-camera-bottom={-50}
         shadow-camera-far={180}
@@ -72,130 +71,16 @@ function WorldLights({ quality }: { readonly quality: SceneQuality }) {
         shadow-mapSize={[mapSize, mapSize]}
       />
       <directionalLight
-        color="#fff6d8"
-        intensity={1.15}
+        color="#dceeff"
+        intensity={0.48}
         position={[-24, 22, 36]}
       />
       <directionalLight
         color="#d6ff00"
-        intensity={0.22}
+        intensity={0.1}
         position={[42, 16, -30]}
       />
-      <pointLight
-        color="#ffd19a"
-        intensity={22}
-        position={[8, 10, 14]}
-        distance={56}
-      />
     </>
-  );
-}
-
-function HeroSparkles({
-  quality,
-  reducedMotion,
-}: {
-  readonly quality: SceneQuality;
-  readonly reducedMotion: boolean;
-}) {
-  if (quality !== "high" || !shouldPlaySceneEffects(reducedMotion)) {
-    return null;
-  }
-
-  return (
-    <Sparkles
-      color="#fff4d2"
-      count={90}
-      opacity={0.55}
-      position={[4, 10, 6]}
-      scale={[36, 14, 36]}
-      size={3.2}
-      speed={0.18}
-    />
-  );
-}
-
-function DriftDiscs({
-  quality,
-  reducedMotion,
-}: {
-  readonly quality: SceneQuality;
-  readonly reducedMotion: boolean;
-}) {
-  const group = useRef<THREE.Group>(null);
-  const discs = [
-    { color: "#f4f7fb", position: [-10, 8, 16] as const, radius: 1.6 },
-    { color: "#d6ff00", position: [14, 11, 8] as const, radius: 1.1 },
-    { color: "#ffe4b0", position: [6, 14, 22] as const, radius: 0.85 },
-  ];
-
-  useFrame(({ clock }) => {
-    const node = group.current;
-    if (!node || !shouldPlaySceneEffects(reducedMotion)) {
-      return;
-    }
-    const time = clock.elapsedTime;
-    node.children.forEach((child, index) => {
-      child.position.y = discs[index]?.position[1] ?? 8;
-      child.position.y += Math.sin(time * 0.35 + index * 1.3) * 0.7;
-      child.rotation.y = time * 0.12 + index;
-      child.rotation.x = Math.sin(time * 0.18 + index) * 0.2;
-    });
-  });
-
-  return (
-    <group ref={group}>
-      {discs.map((disc) => (
-        <mesh key={disc.color} position={disc.position}>
-          <cylinderGeometry args={[disc.radius, disc.radius, 0.18, 32]} />
-          <meshPhysicalMaterial
-            clearcoat={quality === "high" ? 0.85 : 0}
-            clearcoatRoughness={0.18}
-            color={disc.color}
-            metalness={0.12}
-            roughness={0.22}
-          />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-function ValleyFigures({ quality }: { readonly quality: SceneQuality }) {
-  return (
-    <group>
-      <mesh position={[6, 0.04, 8.6]} receiveShadow={quality === "high"}>
-        <cylinderGeometry args={[16, 16, 0.12, 48]} />
-        <meshStandardMaterial color="#dfe6f2" roughness={0.62} />
-      </mesh>
-      {WORLD_FIGURES.map((figure) => {
-        const isJudge = figure.kind === "judge";
-        let accent = "#ffffff";
-        if (isJudge) {
-          accent = "#d6ff00";
-        }
-        return (
-          <group key={figure.id} position={figure.position}>
-            <mesh castShadow={quality === "high"} position={[0, 1.15, 0]}>
-              <capsuleGeometry args={[0.28, 0.95, 6, 12]} />
-              <meshPhysicalMaterial
-                clearcoat={0.55}
-                color="#f7f9ff"
-                roughness={0.28}
-              />
-            </mesh>
-            <mesh castShadow={quality === "high"} position={[0, 2.05, 0]}>
-              <sphereGeometry args={[0.26, 16, 16]} />
-              <meshPhysicalMaterial
-                clearcoat={0.7}
-                color={accent}
-                roughness={0.18}
-              />
-            </mesh>
-          </group>
-        );
-      })}
-    </group>
   );
 }
 
@@ -304,9 +189,6 @@ function MachuWorld({
     <>
       <WorldLights quality={quality} />
       <MachuPicchuAsset onPresented={onWorldReady} quality={quality} />
-      <ValleyFigures quality={quality} />
-      <DriftDiscs quality={quality} reducedMotion={reducedMotion} />
-      <HeroSparkles quality={quality} reducedMotion={reducedMotion} />
       <ExploreCamera
         draggingRef={draggingRef}
         lookRef={lookRef}
@@ -420,19 +302,19 @@ export function MachuPicchuCanvas({
       style={{ touchAction: "pan-y" }}
     >
       <Canvas
-        camera={{ far: 420, fov: 38, near: 0.1, position: [46, 18, 58] }}
+        camera={{ far: 420, fov: 36, near: 0.1, position: [48, 19, 60] }}
         className="pointer-events-none absolute inset-0 size-full"
         dpr={quality === "high" ? [1, 1.5] : [1, 1]}
         frameloop={frameLoop}
         gl={{
-          alpha: false,
+          alpha: true,
           antialias: quality === "high",
           powerPreference: "high-performance",
         }}
         onCreated={({ gl }) => {
           gl.toneMapping = THREE.ACESFilmicToneMapping;
-          gl.toneMappingExposure = 1.32;
-          gl.setClearColor("#3d7eef");
+          gl.toneMappingExposure = 1.08;
+          gl.setClearColor("#000000", 0);
           gl.domElement.style.pointerEvents = "none";
           gl.domElement.addEventListener(
             "webglcontextlost",
@@ -444,7 +326,11 @@ export function MachuPicchuCanvas({
           );
         }}
         shadows={quality === "high"}
-        style={{ pointerEvents: "none" }}
+        style={{
+          background:
+            "radial-gradient(circle at 72% 14%, #c8e6f3 0%, #63a3d1 30%, #214e70 72%, #0b2138 100%)",
+          pointerEvents: "none",
+        }}
       >
         <MachuWorld
           draggingRef={draggingRef}

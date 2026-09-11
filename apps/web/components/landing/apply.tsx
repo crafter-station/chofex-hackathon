@@ -10,7 +10,10 @@ import {
 
 export function LandingApply() {
   return (
-    <section className="bg-[#0b0d10] text-[#f5f5f5]" id="apply">
+    <section
+      className="landing-topography bg-[linear-gradient(180deg,#07152b_0%,#0d2949_100%)] text-[#f5f5f5]"
+      id="apply"
+    >
       <LandingContainer className="py-16 sm:py-20">
         <HudLabel className="mb-3 text-[#d6ff00]">{applyCopy.kicker}</HudLabel>
         <LandingSectionHead title={applyCopy.title}>
@@ -31,7 +34,7 @@ export function LandingApply() {
             <h3 className="font-[family-name:var(--font-landing-display)] text-3xl leading-none uppercase">
               {applyCopy.cliTitle}
             </h3>
-            <div className="hud-box mt-6 overflow-x-auto bg-[#0b0d10] p-5 font-[family-name:var(--font-landing-mono)] text-sm leading-8">
+            <div className="hud-box mt-6 overflow-x-auto bg-[#06152c] p-5 font-[family-name:var(--font-landing-mono)] text-sm leading-8">
               {cliCommands.map((command) => (
                 <div className="whitespace-nowrap" key={command}>
                   <span className="mr-3 text-[#d6ff00]">$</span>

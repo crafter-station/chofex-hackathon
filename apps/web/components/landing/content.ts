@@ -64,7 +64,7 @@ export const sectionNav = [
 
 export const worldChapters = [
   { id: "hero", label: "Cumbre", progress: 0 },
-  { id: "valley", label: "Valle", progress: 0.34 },
+  { id: "valley", label: "Valle Sagrado", progress: 0.34 },
   { id: "scan", label: "Escaneo", progress: 0.64 },
 ] as const;
 
@@ -76,7 +76,7 @@ export const facts = [
 ] as const;
 
 export const heroCopy = {
-  channel: "hta / mundo-01 / machu picchu",
+  channel: "hta / mundo-01 / valle sagrado · cusco",
   navStatus: "navegación activa",
   eyebrow: "la élite · lima",
   titleLead: "Hack the",
@@ -87,6 +87,22 @@ export const heroCopy = {
   ctaMeta: "17–18 oct 2026 · presencial",
   sponsor: "con el apoyo de chofex",
   skipToWhy: "Bajar a por qué entrar",
+} as const;
+
+export const worldChapterCopy = {
+  valley: {
+    eyebrow: "01 / valle sagrado",
+    title: "El terreno selecciona",
+    body: "Una ruta inmersiva por las montañas de Cusco. Explora el valle mientras conoces el nivel de exigencia de esta edición.",
+    metric: "2,800 m",
+    metricLabel: "altura de referencia",
+  },
+  scan: {
+    eyebrow: "02 / señal activa",
+    title: "Encontramos a quienes construyen",
+    body: "El challenge, los golden tickets y tu trabajo público forman una sola señal. La selección empieza antes del evento.",
+    status: "rastreo en curso",
+  },
 } as const;
 
 export const valleySignal = {
@@ -197,6 +213,7 @@ export const sponsorsCopy = {
 export const footerCopy = {
   meta: "lima · 17–18 oct 2026 · con el apoyo de chofex",
   legalLabel: "Legal",
+  terrainCredit: "Terreno: Mapzen / USGS",
   terms: "Términos",
   privacy: "Privacidad",
 } as const;

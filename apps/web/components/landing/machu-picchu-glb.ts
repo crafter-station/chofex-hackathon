@@ -46,10 +46,10 @@ export function parseGlbManifest(bytes: Uint8Array): HeroGltfManifest {
 
   const extras = gltf.asset?.extras;
   const nodeSubject = gltf.nodes?.find(
-    (node) => node.extras?.heroSubject === "citadel",
+    (node) => node.extras?.heroSubject === "terrain",
   )?.extras?.heroSubject;
   const sceneSubject = gltf.scenes?.find(
-    (scene) => scene.extras?.heroSubject === "citadel",
+    (scene) => scene.extras?.heroSubject === "terrain",
   )?.extras?.heroSubject;
   const heroSubject = [extras?.heroSubject, nodeSubject, sceneSubject].find(
     (value) => typeof value === "string",
@@ -74,13 +74,10 @@ export function parseGlbManifest(bytes: Uint8Array): HeroGltfManifest {
   };
 }
 
-export function isHeroGltfCitadel(manifest: HeroGltfManifest): boolean {
+export function isHeroGltfTerrain(manifest: HeroGltfManifest): boolean {
   const title = manifest.title.toLowerCase();
-  if (title.includes("ollantaytambo")) {
-    return false;
-  }
   return (
-    manifest.heroSubject === "citadel" && title.includes("machu picchu citadel")
+    manifest.heroSubject === "terrain" && title.includes("sacred valley")
   );
 }
 
@@ -92,10 +89,10 @@ export function isHeroGltfLoaderSafe(manifest: HeroGltfManifest): boolean {
 
 export function readHeroSubject(
   ...sources: Array<{ heroSubject?: unknown } | undefined>
-): "citadel" | null {
+): "terrain" | null {
   for (const source of sources) {
-    if (source?.heroSubject === "citadel") {
-      return "citadel";
+    if (source?.heroSubject === "terrain") {
+      return "terrain";
     }
   }
   return null;
@@ -107,7 +104,7 @@ export function heroSubjectFromLoadedGltf(input: {
     userData?: { heroSubject?: unknown };
     children: Array<{ userData?: { heroSubject?: unknown } }>;
   };
-}): "citadel" | null {
+}): "terrain" | null {
   const childSubjects = input.scene.children.map((child) => child.userData);
   return readHeroSubject(
     input.asset?.extras,

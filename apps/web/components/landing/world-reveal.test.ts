@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 
 import {
-  isCitadelPresented,
+  isTerrainPresented,
   isPaintedFallbackVisible,
   isWorldReadyToReveal,
   paintedFallbackClassName,
@@ -19,33 +19,33 @@ test("fades the painted fallback only after the world is ready", () => {
   );
 });
 
-test("treats only the presented citadel GLB as a ready world", () => {
+test("treats only the presented terrain GLB as a ready world", () => {
   expect(isWorldReadyToReveal("pending")).toBe(false);
   expect(isWorldReadyToReveal("canvas")).toBe(false);
   expect(isWorldReadyToReveal("procedural")).toBe(false);
   expect(isWorldReadyToReveal("uncentered")).toBe(false);
-  expect(isWorldReadyToReveal("citadel")).toBe(true);
+  expect(isWorldReadyToReveal("terrain")).toBe(true);
 });
 
-test("waits for the citadel to be centered and drawn before reveal", () => {
+test("waits for the terrain to be centered and drawn before reveal", () => {
   expect(
-    isCitadelPresented({
+    isTerrainPresented({
       glbLoaded: true,
       centered: false,
       presentedFrames: 4,
-      heroSubject: "citadel",
+      heroSubject: "terrain",
     }),
   ).toBe(false);
   expect(
-    isCitadelPresented({
+    isTerrainPresented({
       glbLoaded: true,
       centered: true,
       presentedFrames: 1,
-      heroSubject: "citadel",
+      heroSubject: "terrain",
     }),
   ).toBe(false);
   expect(
-    isCitadelPresented({
+    isTerrainPresented({
       glbLoaded: true,
       centered: true,
       presentedFrames: 2,
@@ -53,11 +53,11 @@ test("waits for the citadel to be centered and drawn before reveal", () => {
     }),
   ).toBe(false);
   expect(
-    isCitadelPresented({
+    isTerrainPresented({
       glbLoaded: true,
       centered: true,
       presentedFrames: 2,
-      heroSubject: "citadel",
+      heroSubject: "terrain",
     }),
   ).toBe(true);
 });

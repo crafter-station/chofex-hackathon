@@ -17,7 +17,7 @@ import {
 
 test("points the hero model at the public glb path", () => {
   expect(MACHU_PICCHU_GLB).toBe(HERO_SCENE_MODEL_URL);
-  expect(HERO_SCENE_MODEL_URL).toBe("/models/machu-picchu.glb");
+  expect(HERO_SCENE_MODEL_URL).toBe("/models/sacred-valley.glb");
   expect(MACHU_MODEL_SCALE).toBeGreaterThan(0);
   expect(MACHU_SOURCE_BBOX.max[1]).toBeGreaterThan(MACHU_SOURCE_BBOX.min[1]);
 });
@@ -25,7 +25,7 @@ test("points the hero model at the public glb path", () => {
 test("scales the source bbox into a navigable hero volume", () => {
   const size = scaledSourceSize();
   expect(size.width).toBeGreaterThan(24);
-  expect(size.width).toBeLessThan(80);
+  expect(size.width).toBeLessThan(120);
   expect(size.height).toBeGreaterThan(20);
   expect(size.height).toBeLessThan(50);
 });

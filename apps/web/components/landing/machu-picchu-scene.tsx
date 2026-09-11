@@ -62,19 +62,16 @@ export function MachuPicchuFallback({
 }) {
   return (
     <div
-      className={cn("absolute inset-0 overflow-hidden bg-[#0057ff]", className)}
+      className={cn("absolute inset-0 overflow-hidden bg-[#3f83c9]", className)}
     >
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,#8ec2ff_0%,#0057ff_38%,#0a2a88_72%,#07122b_100%)]" />
-      <div className="absolute top-[18%] right-[16%] size-24 rounded-full bg-[#e8ff00] blur-[2px]" />
-      <div className="absolute right-[-8%] bottom-[8%] h-[58%] w-[62%] rounded-[46%_40%_20%_60%] bg-[#9aa6b8]" />
-      <div className="absolute right-[18%] bottom-[28%] h-[36%] w-[28%] rounded-[30%] bg-[#f4f7fb]" />
-      <div className="absolute bottom-0 left-0 h-[22%] w-full bg-[#1d3f8a]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_68%_12%,#bfe4f7_0%,#5598c9_35%,#173c52_72%,#07152b_100%)]" />
+      <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(115deg,transparent_0_48%,rgba(255,255,255,.18)_49%,transparent_50%)] [background-size:42px_42px]" />
     </div>
   );
 }
 
 /**
- * Machu Picchu WebGL mount for `HeroScene`.
+ * Sacred Valley WebGL mount for `HeroScene`.
  *
  * Overlay contract:
  * - Render as children of `#hero-scene`
@@ -152,7 +149,7 @@ export function MachuPicchuScene({
     documentVisible,
     reducedMotion,
   });
-  const citadelReady = worldReady && webglReady;
+  const terrainReady = worldReady && webglReady;
 
   return (
     <div
@@ -161,7 +158,7 @@ export function MachuPicchuScene({
         "pointer-events-none absolute inset-0 size-full",
         className,
       )}
-      data-world-reveal={citadelReady ? "citadel" : "pending"}
+      data-world-reveal={terrainReady ? "terrain" : "pending"}
     >
       {webglReady ? (
         <MachuPicchuCanvas
@@ -174,7 +171,7 @@ export function MachuPicchuScene({
           visible={visible}
         />
       ) : null}
-      <MachuPicchuFallback className={paintedFallbackClassName(citadelReady)} />
+      <MachuPicchuFallback className={paintedFallbackClassName(terrainReady)} />
     </div>
   );
 }

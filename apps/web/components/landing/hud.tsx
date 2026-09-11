@@ -63,7 +63,7 @@ export function DeviceCard({
       : "bg-[#0057ff] text-[#f5f5f5]";
 
   return (
-    <article className="flex flex-col overflow-hidden border border-[#f5f5f5]/15 bg-[#111318]">
+    <article className="flex flex-col overflow-hidden border border-white/15 bg-[#0c2344]/92 shadow-[0_20px_60px_rgba(1,8,20,0.2)]">
       <div
         className={cn(
           "flex items-center justify-between px-4 py-2 font-[family-name:var(--font-landing-mono)] text-[10px] tracking-[0.16em] uppercase",
@@ -73,7 +73,7 @@ export function DeviceCard({
         <span>{code}</span>
         <span>{hudChrome.unit}</span>
       </div>
-      <div className="relative aspect-4/3 overflow-hidden bg-[#0b0d10]">
+      <div className="relative aspect-4/3 overflow-hidden bg-[#071a34]">
         <div
           aria-hidden="true"
           className="hud-halftone absolute inset-0 opacity-50"

@@ -58,7 +58,7 @@ export function LandingHeader() {
         <button
           aria-controls={menuId}
           aria-expanded={open}
-          className={`pointer-events-auto sm:hidden ${landingHudClassName} bg-[#111318] px-3 py-2 text-[10px] text-[#d6ff00]`}
+          className={`pointer-events-auto sm:hidden ${landingHudClassName} bg-[#0c2344] px-3 py-2 text-[10px] text-[#d6ff00]`}
           onClick={() => setOpen((current) => !current)}
           type="button"
         >
@@ -68,7 +68,7 @@ export function LandingHeader() {
 
       {open ? (
         <div
-          className="pointer-events-auto mx-4 border border-[#f5f5f5]/20 bg-[#0b0d10]/95 p-4 backdrop-blur-sm sm:hidden"
+          className="pointer-events-auto mx-4 border border-[#f5f5f5]/20 bg-[#071a34]/95 p-4 shadow-2xl backdrop-blur-md sm:hidden"
           id={menuId}
         >
           <nav

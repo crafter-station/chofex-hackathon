@@ -4,7 +4,7 @@ import type { ComponentProps, ReactNode } from "react";
 import "@/components/landing/landing.css";
 
 export const landingPageClassName =
-  "landing-page min-h-svh bg-[#0b0d10] text-[#f5f5f5] antialiased selection:bg-[#d6ff00] selection:text-[#0b0d10]";
+  "landing-page min-h-svh bg-[#07152b] text-[#f8fafc] antialiased selection:bg-[#d6ff00] selection:text-[#07152b]";
 
 /** Primary lockup: title-case brand, display condensed. */
 export const landingDisplayClassName =
@@ -17,7 +17,7 @@ export const landingCtaClassName =
   "landing-cta inline-flex min-h-12 flex-col items-center justify-center bg-[#d6ff00] px-7 py-2.5 text-center font-[family-name:var(--font-landing-mono)] text-sm font-semibold text-[#0b0d10] uppercase tracking-[0.14em] transition hover:bg-[#e7ff4d] md:min-h-13 md:px-9";
 
 export const landingFrameClassName =
-  "border border-[#f5f5f5]/20 bg-[#111318] text-[#f5f5f5]";
+  "border border-white/15 bg-[#0c2344]/90 text-[#f8fafc] shadow-[0_24px_80px_rgba(1,8,20,0.24)] backdrop-blur-sm";
 
 export function LandingContainer({
   className,

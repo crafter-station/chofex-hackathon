@@ -14,7 +14,7 @@ export function LandingScan() {
   return (
     <section
       aria-labelledby="scan-heading"
-      className="relative overflow-hidden bg-[#141414]"
+      className="relative overflow-hidden bg-[linear-gradient(145deg,#102a4c_0%,#0a1d37_52%,#153b52_100%)]"
       id="scan"
     >
       <div
@@ -58,7 +58,7 @@ export function LandingScan() {
             })}
           </div>
 
-          <aside className="hud-box relative overflow-hidden bg-[#0b0d10]/80 lg:col-span-5">
+          <aside className="hud-box relative overflow-hidden bg-[#071a34]/90 shadow-[0_24px_70px_rgba(1,8,20,0.22)] lg:col-span-5">
             <div
               aria-hidden="true"
               className="hud-scanlines absolute inset-0"

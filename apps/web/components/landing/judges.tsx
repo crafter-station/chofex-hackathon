@@ -9,7 +9,7 @@ export function LandingJudges() {
   return (
     <section
       aria-labelledby="why-heading"
-      className="relative overflow-hidden bg-[#0b0d10]"
+      className="landing-topography relative overflow-hidden bg-[linear-gradient(180deg,#07152b_0%,#0c2344_100%)]"
       id="why"
     >
       <div

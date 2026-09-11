@@ -21,7 +21,7 @@ import {
 } from "@/components/landing/machu-picchu-geometry";
 import { heroSubjectFromLoadedGltf } from "@/components/landing/machu-picchu-glb";
 import { ModelErrorBoundary } from "@/components/landing/model-error-boundary";
-import { isCitadelPresented } from "@/components/landing/world-reveal";
+import { isTerrainPresented } from "@/components/landing/world-reveal";
 
 type SceneQuality = "low" | "high";
 
@@ -36,7 +36,7 @@ function liftStoneColor(color: THREE.Color): void {
   color.lerp(new THREE.Color("#f2f4f8"), 0.62);
 }
 
-function polishStoneMaterial(
+export function polishStoneMaterial(
   source: THREE.Material,
   quality: SceneQuality,
 ): THREE.Material {
@@ -52,13 +52,34 @@ function polishStoneMaterial(
     return source;
   }
 
-  const next = new THREE.MeshPhysicalMaterial();
-  next.copy(source);
-  next.metalness = Math.min(0.06, source.metalness);
-  next.roughness = Math.min(0.48, source.roughness);
-  next.clearcoat = 0.38;
-  next.clearcoatRoughness = 0.36;
-  next.envMapIntensity = 1.05;
+  const next = new THREE.MeshPhysicalMaterial({
+    alphaMap: source.alphaMap,
+    alphaTest: source.alphaTest,
+    aoMap: source.aoMap,
+    aoMapIntensity: source.aoMapIntensity,
+    color: source.color.clone(),
+    emissive: source.emissive.clone(),
+    emissiveIntensity: source.emissiveIntensity,
+    emissiveMap: source.emissiveMap,
+    envMap: source.envMap,
+    envMapIntensity: 0.76,
+    lightMap: source.lightMap,
+    lightMapIntensity: source.lightMapIntensity,
+    map: source.map,
+    metalness: 0,
+    metalnessMap: source.metalnessMap,
+    name: source.name,
+    normalMap: source.normalMap,
+    normalScale: source.normalScale.clone(),
+    opacity: source.opacity,
+    roughness: Math.max(0.76, source.roughness),
+    roughnessMap: source.roughnessMap,
+    side: source.side,
+    transparent: source.transparent,
+    vertexColors: source.vertexColors,
+  });
+  next.clearcoat = 0.04;
+  next.clearcoatRoughness = 0.82;
   return next;
 }
 
@@ -69,7 +90,7 @@ function ReportCitadelPresented({
 }: {
   readonly onPresented?: () => void;
   readonly ready: boolean;
-  readonly heroSubject: "citadel" | null;
+  readonly heroSubject: "terrain" | null;
 }) {
   const sent = useRef(false);
   const presentedFrames = useRef(0);
@@ -80,7 +101,7 @@ function ReportCitadelPresented({
     }
     presentedFrames.current += 1;
     if (
-      !isCitadelPresented({
+      !isTerrainPresented({
         glbLoaded: true,
         centered: ready,
         presentedFrames: presentedFrames.current,

@@ -4,28 +4,28 @@ import { join } from "node:path";
 
 import {
   heroSubjectFromLoadedGltf,
-  isHeroGltfCitadel,
+  isHeroGltfTerrain,
   isHeroGltfLoaderSafe,
   parseGlbManifest,
   readHeroSubject,
 } from "./machu-picchu-glb";
 
-const GLB_PATH = join(import.meta.dir, "../../public/models/machu-picchu.glb");
+const GLB_PATH = join(import.meta.dir, "../../public/models/sacred-valley.glb");
 
-test("ships a loader-safe Machu Picchu citadel GLB", () => {
+test("ships a loader-safe Sacred Valley terrain GLB", () => {
   const manifest = parseGlbManifest(new Uint8Array(readFileSync(GLB_PATH)));
-  expect(isHeroGltfCitadel(manifest)).toBe(true);
+  expect(isHeroGltfTerrain(manifest)).toBe(true);
   expect(isHeroGltfLoaderSafe(manifest)).toBe(true);
-  expect(manifest.heroSubject).toBe("citadel");
-  expect(manifest.title).toBe("Machu Picchu Citadel");
+  expect(manifest.heroSubject).toBe("terrain");
+  expect(manifest.title).toBe("Sacred Valley of Cusco Terrain");
   expect(manifest.extensionsRequired).toEqual([]);
   expect(manifest.imageMimeTypes).toEqual([]);
-  expect(manifest.materialNames).toContain("citadel-stone");
+  expect(manifest.materialNames).toContain("sacred-valley-earth");
 });
 
-test("rejects the valley DEM stand-in as a citadel", () => {
+test("rejects an unmarked scene as Sacred Valley terrain", () => {
   expect(
-    isHeroGltfCitadel({
+    isHeroGltfTerrain({
       title: "Ollantaytambo Archaeological Site",
       heroSubject: null,
       extensionsRequired: ["EXT_texture_webp", "EXT_meshopt_compression"],
@@ -44,13 +44,13 @@ test("rejects the valley DEM stand-in as a citadel", () => {
   ).toBe(false);
 });
 
-test("reads the citadel subject from GLB extras", () => {
-  expect(readHeroSubject({ heroSubject: "citadel" })).toBe("citadel");
-  expect(readHeroSubject({ heroSubject: "terrain" }, undefined)).toBe(null);
+test("reads the terrain subject from GLB extras", () => {
+  expect(readHeroSubject({ heroSubject: "terrain" })).toBe("terrain");
+  expect(readHeroSubject({ heroSubject: "citadel" }, undefined)).toBe(null);
   expect(
     heroSubjectFromLoadedGltf({
-      asset: { extras: { heroSubject: "citadel" } },
+      asset: { extras: { heroSubject: "terrain" } },
       scene: { userData: {}, children: [] },
     }),
-  ).toBe("citadel");
+  ).toBe("terrain");
 });

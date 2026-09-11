@@ -2,12 +2,35 @@
   --hud-blue: #0057ff;
   --hud-yellow: #d6ff00;
   --hud-white: #f5f5f5;
-  --hud-ink: #0b0d10;
-  --hud-panel: #111318;
+  --hud-ink: #07152b;
+  --hud-panel: #0c2344;
   /* ~9.6:1 on #0b0d10 — small HUD labels stay AA */
   --hud-muted: #c5c8d0;
   /* ~8.4:1 on #f5f5f5 */
   --hud-muted-on-light: #3a3d44;
+}
+
+.landing-page {
+  background:
+    radial-gradient(circle at 85% 12%, rgb(0 87 255 / 14%), transparent 32rem),
+    #07152b;
+}
+
+.landing-glass-panel {
+  border: 1px solid rgb(255 255 255 / 18%);
+  background: linear-gradient(145deg, rgb(7 21 43 / 88%), rgb(12 35 68 / 68%));
+  box-shadow: 0 28px 100px rgb(1 8 20 / 32%);
+  backdrop-filter: blur(14px);
+}
+
+.landing-topography {
+  background-image:
+    radial-gradient(circle at 24% 18%, rgb(214 255 0 / 7%), transparent 20rem),
+    repeating-radial-gradient(
+      ellipse at 80% 20%,
+      transparent 0 20px,
+      rgb(255 255 255 / 4%) 21px 22px
+    );
 }
 
 .landing-type-meta {
@@ -27,31 +50,6 @@
   .landing-type-lede {
     font-size: 1.2rem;
   }
-}
-
-.hero-scene-machu-hint {
-  background:
-    linear-gradient(180deg, #4d9adf 0 36%, transparent 36%),
-    repeating-linear-gradient(
-      180deg,
-      #6f7d4a 0 14px,
-      #8d7a4a 14px 22px,
-      #5a6840 22px 30px
-    );
-  clip-path: polygon(
-    0 42%,
-    8% 36%,
-    18% 40%,
-    28% 22%,
-    38% 30%,
-    48% 16%,
-    58% 28%,
-    70% 18%,
-    82% 32%,
-    100% 24%,
-    100% 100%,
-    0 100%
-  );
 }
 
 .hud-halftone {

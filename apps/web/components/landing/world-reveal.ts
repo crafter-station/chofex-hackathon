@@ -4,28 +4,26 @@ export type WorldRevealSignal =
   | "canvas"
   | "procedural"
   | "uncentered"
-  | "citadel";
+  | "terrain";
 
 /**
- * Painted fallback stays up until the citadel GLB is centered and drawn.
- * A first Canvas frame, the rocky procedural stand-in, a valley DEM, or
- * the uncentered source mesh is not ready.
+ * Painted fallback stays up until the terrain GLB is centered and drawn.
  */
 export function isWorldReadyToReveal(signal: WorldRevealSignal): boolean {
-  return signal === "citadel";
+  return signal === "terrain";
 }
 
-export function isCitadelPresented(input: {
+export function isTerrainPresented(input: {
   glbLoaded: boolean;
   centered: boolean;
   presentedFrames: number;
-  heroSubject: "citadel" | null;
+  heroSubject: "terrain" | null;
 }): boolean {
   return (
     input.glbLoaded &&
     input.centered &&
     input.presentedFrames >= 2 &&
-    input.heroSubject === "citadel"
+    input.heroSubject === "terrain"
   );
 }
 

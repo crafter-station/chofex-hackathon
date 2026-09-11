@@ -5,8 +5,8 @@ export const MACHU_PICCHU_GLB = HERO_SCENE_MODEL_URL;
 
 /** Source-space bbox of the authored citadel (units before scene scale). */
 export const MACHU_SOURCE_BBOX = {
-  min: [-18, -3, -38],
-  max: [18, 30, 10],
+  min: [-52, -5.5, -52],
+  max: [52, 28, 52],
 } as const;
 
 /** Citadel is authored in hero-world units. */
@@ -34,7 +34,7 @@ export const WORLD_CHAPTERS = [
     label: CITADEL_OVERLOOK.label,
     progress: CITADEL_OVERLOOK.progress,
   },
-  { id: "valley", label: "Valle", progress: 0.34 },
+  { id: "valley", label: "Valle Sagrado", progress: 0.34 },
   { id: "scan", label: "Escaneo", progress: 0.64 },
 ] as const;
 
@@ -87,25 +87,25 @@ const CAMERA_STOPS: ReadonlyArray<{
   frame: CameraKeyframe;
 }> = [
   {
-    // Cumbre: high overlook of the bright citadel against open sky.
+    // Cumbre: a wide establishing shot with open sky behind the title.
     progress: CITADEL_OVERLOOK.progress,
-    frame: { position: [46, 18, 58], lookAt: [2, 9, -4] },
+    frame: { position: [48, 19, 60], lookAt: [0, 8, -4] },
   },
   {
     progress: 0.22,
-    frame: { position: [34, 14, 42], lookAt: [3, 8, -1] },
+    frame: { position: [39, 16, 48], lookAt: [2, 7, -2] },
   },
   {
     progress: 0.46,
-    frame: { position: [20, 9.5, 38], lookAt: [5.2, 2.6, 8.4] },
+    frame: { position: [28, 13, 40], lookAt: [5.2, 4.8, 6.4] },
   },
   {
     progress: 0.74,
-    frame: { position: [13, 7.8, 22], lookAt: [4.4, 2.3, 7.2] },
+    frame: { position: [20, 10, 30], lookAt: [4.4, 3.3, 7.2] },
   },
   {
     progress: 1,
-    frame: { position: [11, 8.4, 18], lookAt: [4.8, 2.5, 7.6] },
+    frame: { position: [16, 9, 24], lookAt: [4.8, 3.5, 7.6] },
   },
 ];
 
