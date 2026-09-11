@@ -13,9 +13,9 @@ export function ScanHud({
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
-      <div className="landing-halftone" />
-      <div className="landing-scanlines" />
-      <div className="absolute top-28 left-4 font-mono text-[10px] tracking-[0.2em] text-[#e8ff00] uppercase sm:left-8">
+      <div className="hud-halftone absolute inset-0 opacity-40" />
+      <div className="hud-scanlines absolute inset-0" />
+      <div className="absolute top-28 left-4 font-[family-name:var(--font-landing-mono)] text-[10px] tracking-[0.2em] text-[#d6ff00] uppercase sm:left-8">
         scan / talento
       </div>
       {targets.map((target) => {
