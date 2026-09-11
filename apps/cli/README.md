@@ -15,6 +15,7 @@ chofex whoami
 chofex register
 chofex status
 chofex requirements
+chofex confirm
 ```
 
 For agent or script input, `chofex schema --stage application` and
@@ -32,6 +33,12 @@ use `requirements` only when requirements-only human output is preferred.
 
 Run `chofex login` to authenticate. For automation, provide an OAuth access
 token with `CHOFEX_TOKEN`.
+
+Accepted participants must confirm which profile picture reviewers should use:
+their Clerk picture, their GitHub avatar, or a custom upload. Interactive
+confirmation prompts for the choice and local file path. For JSON input, set
+`pictureSource` and pass `--picture /path/to/image` when its value is `upload`.
+Uploads show percentage progress and accept JPEG, PNG, or WebP files up to 5 MB.
 
 API requests use `https://andes.crafter.run` by default. Use `CHOFEX_API_URL` to
 override the API URL when running against a local or preview Chofex instance.

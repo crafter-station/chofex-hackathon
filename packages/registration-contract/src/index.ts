@@ -57,6 +57,35 @@ export const ShirtSize = Schema.Literals([
   "prefer_not_to_say",
 ]);
 
+export const PictureSource = Schema.Literals(["clerk", "github", "upload"]);
+
+export const PictureContentType = Schema.Literals([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+
+export type PictureContentType = typeof PictureContentType.Type;
+export const maximumPictureBytes = 5 * 1024 * 1024;
+
+const bytesStartWith = (
+  bytes: Uint8Array,
+  signature: ReadonlyArray<number>,
+): boolean => signature.every((value, index) => bytes[index] === value);
+
+export const detectPictureContentType = (
+  bytes: Uint8Array,
+): PictureContentType | undefined => {
+  if (bytesStartWith(bytes, [0xff, 0xd8, 0xff])) return "image/jpeg";
+  if (bytesStartWith(bytes, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) {
+    return "image/png";
+  }
+  const isWebp =
+    bytesStartWith(bytes, [0x52, 0x49, 0x46, 0x46]) &&
+    bytesStartWith(bytes.slice(8), [0x57, 0x45, 0x42, 0x50]);
+  if (isWebp) return "image/webp";
+};
+
 export const applicationInputFields = {
   firstName: nonBlank(100),
   lastName: nonBlank(100),
@@ -105,6 +134,7 @@ export const acceptedDetailsInputFields = {
   emergencyContactName: nonBlank(200),
   emergencyContactPhone: nonBlank(32),
   mediaConsent: Schema.optional(Schema.Boolean),
+  pictureSource: PictureSource,
 };
 
 export const acceptedDetailsInputFieldNames = Object.keys(
@@ -133,6 +163,7 @@ export const acceptedRequiredFields = [
   "nationalIdNumber",
   "emergencyContactName",
   "emergencyContactPhone",
+  "pictureSource",
 ] as const;
 
 export const RequirementSchema = Schema.Struct({
@@ -227,6 +258,8 @@ export const RegistrationViewSchema = Schema.Struct({
   emergencyContactName: Schema.optional(Schema.String),
   emergencyContactPhone: Schema.optional(Schema.String),
   mediaConsent: Schema.Boolean,
+  pictureSource: Schema.optional(PictureSource),
+  pictureUrl: Schema.optional(Schema.String),
   rejectionReason: Schema.optional(Schema.String),
   submittedAt: Schema.String,
   acceptanceDetailsCompletedAt: Schema.optional(Schema.String),
@@ -272,6 +305,13 @@ const acceptedDetailsRequirementsFor = (
   }
   if (!registration.emergencyContactPhone) {
     addMissingRequirement(missing, "emergencyContactPhone");
+  }
+  if (!registration.pictureUrl) {
+    addMissingRequirement(
+      missing,
+      "pictureSource",
+      "Confirm a Clerk, GitHub, or uploaded picture",
+    );
   }
   addShirtSizeRequirement(
     missing,
@@ -354,9 +394,41 @@ export const CurrentUserSchema = Schema.Struct({
   userId: Schema.String,
   email: Schema.String,
   tokenType: Schema.Literals(["oauth_token", "session_token"]),
+  clerkPictureUrl: Schema.optional(Schema.String),
 });
 
 export type CurrentUser = typeof CurrentUserSchema.Type;
+
+export const PictureUploadSchema = Schema.Struct({
+  url: Schema.String,
+  contentType: PictureContentType,
+  size: Schema.Number,
+});
+
+export type PictureUpload = typeof PictureUploadSchema.Type;
+
+export const PictureUploadRequestSchema = Schema.Struct({
+  contentType: PictureContentType,
+  size: Schema.Number.pipe(
+    Schema.check(Schema.isBetween({ minimum: 1, maximum: maximumPictureBytes })),
+  ),
+});
+
+export type PictureUploadRequest = typeof PictureUploadRequestSchema.Type;
+
+export const PictureUploadGrantSchema = Schema.Struct({
+  pathname: Schema.String,
+  clientToken: Schema.String,
+});
+
+export type PictureUploadGrant = typeof PictureUploadGrantSchema.Type;
+
+export const PictureUploadCompletionSchema = Schema.Struct({
+  pathname: Schema.String,
+  url: Schema.String,
+});
+
+export type PictureUploadCompletion = typeof PictureUploadCompletionSchema.Type;
 
 export const RegistrationResultSchema = Schema.Struct({
   registration: RegistrationViewSchema,

@@ -115,6 +115,7 @@ describe("registration contract", () => {
       nationalIdNumber: "AB123456",
       emergencyContactName: "Charles Babbage",
       emergencyContactPhone: "+44 20 0000 0001",
+      pictureSource: "clerk",
     });
     expect(acceptedDetailsSemanticRequirements(details, "in_person")).toEqual([
       {
@@ -132,6 +133,7 @@ describe("registration contract", () => {
         dateOfBirth: "1990-01-01",
         emergencyContactName: "Charles Babbage",
         emergencyContactPhone: "+44 20 0000 0001",
+        pictureSource: "clerk",
       }),
     ).toThrow();
   });
@@ -143,6 +145,7 @@ describe("registration contract", () => {
       nationalIdNumber: "AB123456",
       emergencyContactName: "Charles Babbage",
       emergencyContactPhone: "+44 20 0000 0001",
+      pictureSource: "github",
     });
     expect(acceptedDetailsSemanticRequirements(details, "remote")).toEqual([
       {
@@ -161,6 +164,18 @@ describe("registration contract", () => {
         reason: "Must be a valid date in the past",
       },
     ]);
+  });
+
+  test("requires accepted participants to confirm a picture source", () => {
+    expect(() =>
+      Schema.decodeUnknownSync(AcceptedDetailsInput)({
+        phone: "+44 20 0000 0000",
+        dateOfBirth: "1990-01-01",
+        nationalIdNumber: "AB123456",
+        emergencyContactName: "Charles Babbage",
+        emergencyContactPhone: "+44 20 0000 0001",
+      }),
+    ).toThrow();
   });
 
   test("keeps every active application in review", () => {
@@ -213,6 +228,8 @@ describe("registration contract", () => {
       shirtSize: "m",
       emergencyContactName: "Grace Hopper",
       emergencyContactPhone: "+1 555 0100",
+      pictureSource: "clerk",
+      pictureUrl: "https://images.example/ada.jpg",
       acceptanceDetailsCompletedAt: "2026-09-02T12:00:00.000Z",
     });
 
@@ -255,6 +272,8 @@ describe("registration contract", () => {
       nationalIdProvided: true,
       emergencyContactName: "Grace Hopper",
       emergencyContactPhone: "+1 555 0100",
+      pictureSource: "github",
+      pictureUrl: "https://github.com/ada.png",
       acceptanceDetailsCompletedAt: "2026-09-02T12:00:00.000Z",
     });
 

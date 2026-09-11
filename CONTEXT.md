@@ -15,3 +15,7 @@ An application that is being drafted, awaiting a decision, or has been accepted.
 ## Acceptance details
 
 Personal and logistical information requested only after an application is accepted. The details are complete only when completion has been recorded and every detail required for the participation mode is present. They may still be updated after completion.
+
+## Confirmed profile picture
+
+The picture an accepted participant explicitly chooses during attendance confirmation. It may come from Clerk, the application's GitHub profile, or a verified custom upload. Available images are not used until the participant confirms a source.

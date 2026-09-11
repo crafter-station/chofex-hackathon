@@ -32,6 +32,8 @@ bun dev
 Configure the Clerk and database values in `apps/web/.env.local`. The national
 ID or passport number requested after acceptance is encrypted with AES-256-GCM,
 so `PARTICIPANT_DATA_ENCRYPTION_KEY` is required for attendance confirmation.
+Connect a public Vercel Blob store and set `BLOB_READ_WRITE_TOKEN` for profile
+picture uploads.
 
 ## CLI authentication
 
@@ -74,6 +76,8 @@ chofex requirements
 
 # Provide private details after acceptance
 chofex confirm
+# To use a local picture non-interactively:
+chofex confirm --input attendance.json --picture /path/to/picture.png
 ```
 
 A rejected application remains in history. Running `chofex register` again
@@ -110,10 +114,17 @@ issued specifically to the Chofex CLI.
 | `POST` | `/api/v1/registrations` | Submit a new application |
 | `GET` | `/api/v1/registration` | Read the latest application and requirements |
 | `PUT` | `/api/v1/registration/attendance` | Complete post-acceptance details |
+| `POST` | `/api/v1/profile-picture` | Authorize one accepted-participant Blob upload |
+| `PUT` | `/api/v1/profile-picture` | Verify and record a completed Blob upload |
 
 Responses use a versioned `{ version, ok, requestId, data | error }` envelope.
 Authentication failures advertise OAuth discovery through
 `/.well-known/oauth-protected-resource`.
+
+Picture uploads are limited to authenticated participants whose latest
+application is accepted. The API allows JPEG, PNG, or WebP files up to 5 MB,
+issues a token scoped to one random Blob pathname, verifies the stored bytes,
+and permits at most five upload attempts per 24-hour window.
 
 ## Verification
 

@@ -1,6 +1,10 @@
 import { db } from "@chofex/db";
 import { desc, eq } from "@chofex/db/orm";
-import { acceptanceDetails, applications, participants } from "@chofex/db/schema";
+import {
+  acceptanceDetails,
+  applications,
+  participants,
+} from "@chofex/db/schema";
 import {
   AcceptedDetailsInput,
   ApplicationInput,
@@ -16,6 +20,7 @@ import {
 import { DateTime, Predicate, Schema } from "effect";
 
 import { HttpError } from "./http";
+import { confirmedPictureUrl } from "./pictures";
 import { encryptSensitiveValue } from "./sensitive";
 
 type ApplicationRecord = typeof applications.$inferSelect;
@@ -24,6 +29,7 @@ type AcceptanceDetailsRecord = typeof acceptanceDetails.$inferSelect;
 interface RegistrationIdentity {
   readonly clerkUserId: string;
   readonly email: string;
+  readonly clerkPictureUrl?: string;
 }
 
 const optional = <A>(value: A | null | undefined): A | undefined =>
@@ -150,6 +156,8 @@ const toView = (
   emergencyContactName: optional(details?.emergencyContactName),
   emergencyContactPhone: optional(details?.emergencyContactPhone),
   mediaConsent: details?.mediaConsent ?? application.mediaConsent,
+  pictureSource: optional(application.pictureSource),
+  pictureUrl: optional(application.pictureUrl),
   rejectionReason: optional(application.rejectionReason),
   submittedAt: instantString(application.submittedAt ?? application.createdAt),
   acceptanceDetailsCompletedAt: optionalInstantString(details?.completedAt),
@@ -284,11 +292,11 @@ export const getRegistration = async (
 };
 
 export const submitAcceptedDetails = async (
-  clerkUserId: string,
+  identity: RegistrationIdentity,
   rawInput: unknown,
 ): Promise<RegistrationResult> => {
   const input = parseInput(AcceptedDetailsInput, rawInput);
-  const current = await latestApplicationFor(clerkUserId);
+  const current = await latestApplicationFor(identity.clerkUserId);
   if (current.application.status !== "accepted") {
     throw new HttpError(
       409,
@@ -312,6 +320,21 @@ export const submitAcceptedDetails = async (
     ),
   );
 
+  const pictureUrl = confirmedPictureUrl(input.pictureSource, {
+    clerkPictureUrl: identity.clerkPictureUrl,
+    githubUrl: current.application.githubUrl,
+    uploadedPictureUrl: current.application.customPictureUrl,
+  });
+  const applicationUpdate = db
+    .update(applications)
+    .set({
+      pictureSource: input.pictureSource,
+      pictureUrl,
+      updatedAt: new Date(),
+    })
+    .where(eq(applications.id, current.application.id))
+    .returning();
+
   const values = {
     phone: input.phone,
     dateOfBirth: DateTime.toDateUtc(
@@ -326,7 +349,7 @@ export const submitAcceptedDetails = async (
     mediaConsent: input.mediaConsent ?? current.application.mediaConsent,
     completedAt: new Date(),
   };
-  const [details] = await db
+  const detailsUpdate = db
     .insert(acceptanceDetails)
     .values({ applicationId: current.application.id, ...values })
     .onConflictDoUpdate({
@@ -334,6 +357,14 @@ export const submitAcceptedDetails = async (
       set: values,
     })
     .returning();
+  const [applicationRows, detailsRows] = await db.batch([
+    applicationUpdate,
+    detailsUpdate,
+  ]);
+  const [application] = applicationRows;
+  const [details] = detailsRows;
+  if (!application)
+    throw new Error("Application picture update returned no row");
   if (!details) throw new Error("Acceptance details update returned no row");
-  return resultFor(current.application, details);
+  return resultFor(application, details);
 };

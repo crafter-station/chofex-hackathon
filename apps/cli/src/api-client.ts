@@ -6,6 +6,9 @@ import {
   CreatedRegistrationSchema,
   type CurrentUser,
   CurrentUserSchema,
+  type PictureUpload,
+  PictureUploadGrantSchema,
+  PictureUploadSchema,
   type RegistrationResult,
   RegistrationResultSchema,
 } from "@chofex/registration-contract";
@@ -125,6 +128,12 @@ const decodeCurrentUser = Schema.decodeUnknownEffect(
 const decodeRegistrationResult = Schema.decodeUnknownEffect(
   ApiSuccessSchema(RegistrationResultSchema),
 );
+const decodePictureUploadGrant = Schema.decodeUnknownEffect(
+  ApiSuccessSchema(PictureUploadGrantSchema),
+);
+const decodePictureUpload = Schema.decodeUnknownEffect(
+  ApiSuccessSchema(PictureUploadSchema),
+);
 
 export const register = (
   options: ApiClientOptions,
@@ -164,4 +173,29 @@ export const confirmAttendance = (
     "/api/v1/registration/attendance",
     { method: "PUT", body: JSON.stringify(input) },
     decodeRegistrationResult,
+  );
+
+export const beginPictureUpload = (
+  options: ApiClientOptions,
+  input: {
+    readonly contentType: PictureUpload["contentType"];
+    readonly size: number;
+  },
+) =>
+  request(
+    options,
+    "/api/v1/profile-picture",
+    { method: "POST", body: JSON.stringify(input) },
+    decodePictureUploadGrant,
+  );
+
+export const completePictureUpload = (
+  options: ApiClientOptions,
+  input: { readonly pathname: string; readonly url: string },
+) =>
+  request(
+    options,
+    "/api/v1/profile-picture",
+    { method: "PUT", body: JSON.stringify(input) },
+    decodePictureUpload,
   );

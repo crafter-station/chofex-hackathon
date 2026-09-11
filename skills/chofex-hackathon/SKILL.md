@@ -213,7 +213,10 @@ The server response is authoritative when it differs from this summary.
 ## Confirm attendance
 
 Acceptance details include a birth date, national ID or passport number,
-emergency contact, and other private information. Recommend that the
+emergency contact, a required profile-picture confirmation, and other private
+information. The participant must explicitly choose their Clerk picture, their
+GitHub avatar, or a custom upload; never infer this choice from an available
+image. Recommend that the
 participant keep these values out of agent chat by running this themselves in
 an interactive terminal:
 
@@ -234,6 +237,13 @@ obtain a fresh **Submit these private attendance details now?** approval and run
 ```sh
 chofex --output json confirm --input /path/to/private-attendance.json
 ```
+
+When `pictureSource` is `upload`, ask for the image's path on the participant's
+computer and add `--picture /that/path/image.png` to the confirm command. Do not
+copy image bytes into the JSON file or chat. The CLI accepts JPEG, PNG, and WebP
+files up to 5 MB, waits for the upload and verification to finish, and displays
+upload progress on stderr. Custom uploads are available only after acceptance
+and are limited to five attempts per 24 hours.
 
 Delete the file immediately after the command completes. Run `status` again
 and verify that the requirements stage is `complete` before reporting that

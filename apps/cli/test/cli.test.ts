@@ -160,6 +160,7 @@ describe("CLI JSON mode", () => {
           shirtSize: "m",
           emergencyContactName: "Grace Hopper",
           emergencyContactPhone: "+1 555 0100",
+          pictureSource: "clerk",
         }),
       );
       const result = await runCli(
@@ -510,6 +511,88 @@ describe("CLI JSON mode", () => {
       expect(result.stderr).toContain("Request ID: request-validation");
     } finally {
       server.stop(true);
+    }
+  });
+
+  test("requires a computer path when an accepted participant chooses upload", async () => {
+    const inputPath = `${cliDirectory}.attendance-${crypto.randomUUID()}.json`;
+    let attendanceSubmitted = false;
+    const server = Bun.serve({
+      port: 0,
+      fetch(request) {
+        const path = new URL(request.url).pathname;
+        if (path === "/api/v1/me") {
+          return Response.json({
+            version: 1,
+            ok: true,
+            requestId: "request-me",
+            data: {
+              authenticated: true,
+              userId: "user-123",
+              email: "ada@example.com",
+              tokenType: "oauth_token",
+            },
+          });
+        }
+        if (request.method === "PUT") attendanceSubmitted = true;
+        return Response.json({
+          version: 1,
+          ok: true,
+          requestId: "request-registration",
+          data: {
+            registration: {
+              id: "application-123",
+              status: "accepted",
+              firstName: "Ada",
+              lastName: "Lovelace",
+              email: "ada@example.com",
+              participationMode: "in_person",
+              nationalIdProvided: false,
+              mediaConsent: false,
+              submittedAt: "2026-09-09T00:00:00.000Z",
+              createdAt: "2026-09-09T00:00:00.000Z",
+              updatedAt: "2026-09-09T00:00:00.000Z",
+            },
+            requirements: {
+              stage: "accepted",
+              canSubmitNewApplication: false,
+              canSubmitAcceptedDetails: true,
+              missing: [],
+            },
+          },
+        });
+      },
+    });
+
+    try {
+      await Bun.write(
+        inputPath,
+        JSON.stringify({
+          phone: "+51 999 999 999",
+          dateOfBirth: "1990-01-01",
+          nationalIdNumber: "private-passport-number",
+          shirtSize: "m",
+          emergencyContactName: "Grace Hopper",
+          emergencyContactPhone: "+1 555 0100",
+          pictureSource: "upload",
+        }),
+      );
+      const result = await runCli(
+        "--api-url",
+        server.url.toString(),
+        "--token",
+        "oauth-token",
+        "confirm",
+        "--input",
+        inputPath,
+      );
+
+      expect(result.exitCode).toBe(2);
+      expect(result.stderr).toContain("Use --picture <path>");
+      expect(attendanceSubmitted).toBe(false);
+    } finally {
+      server.stop(true);
+      await unlink(inputPath).catch(() => undefined);
     }
   });
 });

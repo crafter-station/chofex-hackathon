@@ -1,22 +1,6 @@
-export const githubAvatarUrl = (
-  githubUrl: string | null | undefined,
-): string | undefined => {
-  if (!githubUrl) return undefined;
+export { githubAvatarUrl } from "@/lib/registration/pictures";
 
-  try {
-    const url = new URL(githubUrl);
-    const isGitHub =
-      url.protocol === "https:" &&
-      (url.hostname === "github.com" || url.hostname === "www.github.com");
-    if (!isGitHub) return undefined;
-
-    const [username] = url.pathname.split("/").filter(Boolean);
-    if (!username) return undefined;
-    return `https://github.com/${encodeURIComponent(username)}.png?size=112`;
-  } catch {
-    return undefined;
-  }
-};
+import { githubAvatarUrl } from "@/lib/registration/pictures";
 
 export const preferredAvatarUrl = (
   clerkImageUrl: string | undefined,

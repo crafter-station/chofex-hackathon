@@ -131,7 +131,10 @@ const validateSemantics = <A>(
 const applicationDetailsPrompts = Prompt.all({
   firstName: requiredText("First name", applicationInputFields.firstName),
   lastName: requiredText("Last name", applicationInputFields.lastName),
-  pronouns: optionalText("Pronouns (optional)", applicationInputFields.pronouns),
+  pronouns: optionalText(
+    "Pronouns (optional)",
+    applicationInputFields.pronouns,
+  ),
   city: requiredText("City of residence in Peru", applicationInputFields.city),
   organization: optionalText(
     "Organization (optional)",
@@ -295,37 +298,70 @@ const shirtSizePrompt = (
 
 const interactiveAcceptedDetails = (
   participationMode: "in_person" | "remote",
+  pictures: {
+    readonly clerkPictureUrl?: string;
+    readonly githubUrl?: string;
+  },
 ) =>
-  Prompt.run(
-    Prompt.all({
-      phone: requiredText("Phone number", acceptedDetailsInputFields.phone),
-      dateOfBirth: dateOfBirthPrompt(),
-      nationalIdNumber: requiredText(
-        "National ID or passport number",
-        acceptedDetailsInputFields.nationalIdNumber,
-      ),
-      shirtSize: shirtSizePrompt(participationMode),
-      dietaryRestrictions: optionalText(
-        "Dietary restrictions (optional)",
-        acceptedDetailsInputFields.dietaryRestrictions,
-      ),
-      accessibilityNeeds: optionalText(
-        "Accessibility needs (optional)",
-        acceptedDetailsInputFields.accessibilityNeeds,
-      ),
-      emergencyContactName: requiredText(
-        "Emergency contact name",
-        acceptedDetailsInputFields.emergencyContactName,
-      ),
-      emergencyContactPhone: requiredText(
-        "Emergency contact phone",
-        acceptedDetailsInputFields.emergencyContactPhone,
-      ),
-      mediaConsent: Prompt.confirm({
-        message: "Do you consent to appearing in event media?",
+  Effect.gen(function* () {
+    const details = yield* Prompt.run(
+      Prompt.all({
+        phone: requiredText("Phone number", acceptedDetailsInputFields.phone),
+        dateOfBirth: dateOfBirthPrompt(),
+        nationalIdNumber: requiredText(
+          "National ID or passport number",
+          acceptedDetailsInputFields.nationalIdNumber,
+        ),
+        shirtSize: shirtSizePrompt(participationMode),
+        dietaryRestrictions: optionalText(
+          "Dietary restrictions (optional)",
+          acceptedDetailsInputFields.dietaryRestrictions,
+        ),
+        accessibilityNeeds: optionalText(
+          "Accessibility needs (optional)",
+          acceptedDetailsInputFields.accessibilityNeeds,
+        ),
+        emergencyContactName: requiredText(
+          "Emergency contact name",
+          acceptedDetailsInputFields.emergencyContactName,
+        ),
+        emergencyContactPhone: requiredText(
+          "Emergency contact phone",
+          acceptedDetailsInputFields.emergencyContactPhone,
+        ),
+        mediaConsent: Prompt.confirm({
+          message: "Do you consent to appearing in event media?",
+        }),
       }),
-    }),
-  ).pipe(Effect.map(withoutEmptyStrings));
+    );
+    const pictureChoices: Array<{
+      readonly title: string;
+      readonly value: "clerk" | "github" | "upload";
+    }> = [];
+    if (pictures.clerkPictureUrl) {
+      pictureChoices.push({
+        title: `Use my Clerk picture (${pictures.clerkPictureUrl})`,
+        value: "clerk",
+      });
+    }
+    if (pictures.githubUrl) {
+      pictureChoices.push({
+        title: `Use my GitHub picture (${pictures.githubUrl})`,
+        value: "github",
+      });
+    }
+    pictureChoices.push({
+      title: "Upload a different picture",
+      value: "upload",
+    });
+    const pictureSource = yield* Prompt.run(
+      Prompt.select({
+        message: "Confirm the profile picture reviewers should use",
+        choices: pictureChoices,
+      }),
+    );
+    return withoutEmptyStrings({ ...details, pictureSource });
+  });
 
 const inputOrInteractive = (
   path: string | undefined,
@@ -364,8 +400,15 @@ export const applicationInput = (
 export const acceptedDetailsInput = (
   path: string | undefined,
   participationMode: "in_person" | "remote",
+  pictures: {
+    readonly clerkPictureUrl?: string;
+    readonly githubUrl?: string;
+  } = {},
 ): Effect.Effect<AcceptedDetailsInput, CliError, PromptModule.Environment> =>
-  inputOrInteractive(path, interactiveAcceptedDetails(participationMode)).pipe(
+  inputOrInteractive(
+    path,
+    interactiveAcceptedDetails(participationMode, pictures),
+  ).pipe(
     Effect.flatMap((input) =>
       decode(AcceptedDetailsInput, input, acceptedDetailsInputFieldNames),
     ),
@@ -376,3 +419,27 @@ export const acceptedDetailsInput = (
       ),
     ),
   );
+
+export const picturePathInput = (
+  suppliedPath: string | undefined,
+): Effect.Effect<string, CliError, PromptModule.Environment> => {
+  if (suppliedPath) return Effect.succeed(suppliedPath);
+  if (!process.stdin.isTTY || !process.stdout.isTTY) {
+    return Effect.fail(
+      cliError(
+        "PICTURE_PATH_REQUIRED",
+        "Use --picture <path> when pictureSource is upload",
+      ),
+    );
+  }
+  return Prompt.run(
+    requiredText(
+      "Path to a JPEG, PNG, or WebP picture (5 MB maximum)",
+      Schema.String.pipe(Schema.check(Schema.isMinLength(1))),
+    ),
+  ).pipe(
+    Effect.mapError(() =>
+      cliError("PROMPT_CANCELLED", "Interactive input was cancelled"),
+    ),
+  );
+};

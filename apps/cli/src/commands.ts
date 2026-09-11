@@ -9,7 +9,11 @@ import {
 import { login as oauthLogin, logout as oauthLogout } from "./auth.js";
 import { config } from "./config.js";
 import { cliError } from "./errors.js";
-import { acceptedDetailsInput, applicationInput } from "./input.js";
+import {
+  acceptedDetailsInput,
+  applicationInput,
+  picturePathInput,
+} from "./input.js";
 import {
   createdText,
   execute,
@@ -17,6 +21,7 @@ import {
   registrationText,
   requirementsOnlyText,
 } from "./output.js";
+import { uploadPicture } from "./picture-upload.js";
 
 type InputStage = "application" | "acceptance";
 
@@ -135,8 +140,14 @@ const requirementsCommand = Command.make(
 
 const confirmCommand = Command.make(
   "confirm",
-  { input: inputFlag },
-  Effect.fn("confirmCommand")(function* ({ input }) {
+  {
+    input: inputFlag,
+    picture: Flag.string("picture").pipe(
+      Flag.optional,
+      Flag.withDescription("Path to a JPEG, PNG, or WebP picture (5 MB max)"),
+    ),
+  },
+  Effect.fn("confirmCommand")(function* ({ input, picture }) {
     const options = yield* root;
     const operation = Effect.gen(function* () {
       const token = Option.getOrUndefined(options.token);
@@ -150,10 +161,25 @@ const confirmCommand = Command.make(
           ),
         );
       }
+      const currentUser = yield* getCurrentUser(client);
       const body = yield* acceptedDetailsInput(
         Option.getOrUndefined(input),
         current.data.registration.participationMode,
+        {
+          clerkPictureUrl: currentUser.data.clerkPictureUrl,
+          githubUrl: current.data.registration.githubUrl,
+        },
       );
+      const picturePath = Option.getOrUndefined(picture);
+      if (body.pictureSource === "upload") {
+        const path = yield* picturePathInput(picturePath);
+        yield* uploadPicture(client, path);
+      } else if (picturePath) {
+        return yield* cliError(
+          "UNEXPECTED_PICTURE_PATH",
+          "--picture can only be used when pictureSource is upload",
+        );
+      }
       return yield* confirmAttendance(client, body);
     });
     yield* execute(options.output, operation, registrationText);
@@ -241,10 +267,7 @@ const whoamiCommand = Command.make(
   }),
 ).pipe(Command.withDescription("Verify the current Clerk authentication"));
 
-const inputValidation = (
-  stage: InputStage,
-  path: string | undefined,
-) => {
+const inputValidation = (stage: InputStage, path: string | undefined) => {
   if (stage === "application") {
     return applicationInput(path, config.publicSiteUrl).pipe(Effect.asVoid);
   }
@@ -313,6 +336,7 @@ const acceptanceTemplate = {
   emergencyContactName: "Grace Hopper",
   emergencyContactPhone: "+1 555 0100",
   mediaConsent: false,
+  pictureSource: "github",
 };
 
 const templateFor = (stage: InputStage) => {

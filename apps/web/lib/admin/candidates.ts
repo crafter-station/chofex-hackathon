@@ -1,5 +1,4 @@
 import { db } from "@chofex/db";
-import { clerkClient } from "@clerk/nextjs/server";
 import {
   and,
   count,
@@ -17,7 +16,6 @@ import {
 } from "@chofex/db/schema";
 
 import { HttpError } from "@/lib/registration/http";
-import { preferredAvatarUrl } from "./avatars";
 import { type ApplicationDecision, buildDecisionEmail } from "./decision-email";
 import {
   type Candidate,
@@ -48,13 +46,9 @@ const instantString = (value: Date | null | undefined): string | undefined => {
 type CandidateRecord = {
   readonly application: typeof applications.$inferSelect;
   readonly details: typeof acceptanceDetails.$inferSelect | null;
-  readonly clerkUserId: string;
 };
 
-const toCandidate = (
-  { application, details }: CandidateRecord,
-  clerkImageUrl?: string,
-): Candidate => {
+const toCandidate = ({ application, details }: CandidateRecord): Candidate => {
   let dateOfBirth: string | undefined;
   if (details?.dateOfBirth) dateOfBirth = dateString(details.dateOfBirth);
 
@@ -64,7 +58,7 @@ const toCandidate = (
     firstName: application.firstName ?? "Unknown",
     lastName: application.lastName ?? "participant",
     email: application.email ?? "",
-    avatarUrl: preferredAvatarUrl(clerkImageUrl, application.githubUrl),
+    avatarUrl: optional(application.pictureUrl),
     pronouns: optional(application.pronouns),
     countryCode: optional(application.countryCode),
     city: optional(application.city),
@@ -101,37 +95,10 @@ const toCandidate = (
   };
 };
 
-const clerkAvatarUrls = async (
-  records: ReadonlyArray<CandidateRecord>,
-): Promise<ReadonlyMap<string, string>> => {
-  const userIds = [...new Set(records.map((record) => record.clerkUserId))];
-  if (userIds.length === 0) return new Map();
-
-  try {
-    const clerk = await clerkClient();
-    const users = await clerk.users.getUserList({
-      userId: userIds,
-      limit: userIds.length,
-    });
-    return new Map(
-      users.data
-        .filter((user) => user.hasImage)
-        .map((user) => [user.id, user.imageUrl]),
-    );
-  } catch (error) {
-    console.error("Could not load candidate avatars from Clerk", error);
-    return new Map();
-  }
-};
-
 const toCandidates = async (
   records: ReadonlyArray<CandidateRecord>,
-): Promise<ReadonlyArray<Candidate>> => {
-  const avatarUrls = await clerkAvatarUrls(records);
-  return records.map((record) =>
-    toCandidate(record, avatarUrls.get(record.clerkUserId)),
-  );
-};
+): Promise<ReadonlyArray<Candidate>> =>
+  records.map((record) => toCandidate(record));
 
 const candidateRecordById = async (
   applicationId: string,
@@ -140,7 +107,6 @@ const candidateRecordById = async (
     .select({
       application: applications,
       details: acceptanceDetails,
-      clerkUserId: participants.clerkUserId,
     })
     .from(applications)
     .innerJoin(participants, eq(participants.id, applications.participantId))
@@ -209,7 +175,6 @@ export const listCandidates = async (
     .select({
       application: applications,
       details: acceptanceDetails,
-      clerkUserId: participants.clerkUserId,
     })
     .from(applications)
     .innerJoin(participants, eq(participants.id, applications.participantId))
@@ -333,11 +298,7 @@ export const decideCandidate = async (
 
   const record = await candidateRecordById(input.applicationId);
   if (!record) {
-    throw new HttpError(
-      404,
-      "APPLICATION_NOT_FOUND",
-      "Application not found",
-    );
+    throw new HttpError(404, "APPLICATION_NOT_FOUND", "Application not found");
   }
   if (!updatedApplication) {
     const isSameDecision = record.application.status === input.decision;

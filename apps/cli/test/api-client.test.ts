@@ -1,7 +1,12 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { Effect } from "effect";
 
-import { getCurrentUser, getRegistration } from "../src/api-client.js";
+import {
+  beginPictureUpload,
+  completePictureUpload,
+  getCurrentUser,
+  getRegistration,
+} from "../src/api-client.js";
 
 const originalFetch = globalThis.fetch;
 
@@ -140,5 +145,59 @@ describe("registration API client", () => {
     );
 
     expect(response.data.registration.id).toBe("registration-123");
+  });
+
+  test("uses the authenticated two-phase picture upload endpoint", async () => {
+    const requests: Array<{ method?: string; body: unknown }> = [];
+    globalThis.fetch = async (_input, init) => {
+      requests.push({
+        method: init?.method,
+        body: JSON.parse(String(init?.body)) as unknown,
+      });
+      if (init?.method === "POST") {
+        return Response.json({
+          version: 1,
+          ok: true,
+          requestId: "request-picture-grant",
+          data: {
+            pathname: "profile-pictures/u/a/p.png",
+            clientToken: "token",
+          },
+        });
+      }
+      return Response.json({
+        version: 1,
+        ok: true,
+        requestId: "request-picture-complete",
+        data: {
+          url: "https://store.public.blob.vercel-storage.com/p.png",
+          contentType: "image/png",
+          size: 9,
+        },
+      });
+    };
+    const options = { apiUrl: "https://hack.example", token: "oauth-token" };
+
+    const grant = await Effect.runPromise(
+      beginPictureUpload(options, { contentType: "image/png", size: 9 }),
+    );
+    const completed = await Effect.runPromise(
+      completePictureUpload(options, {
+        pathname: grant.data.pathname,
+        url: "https://store.public.blob.vercel-storage.com/p.png",
+      }),
+    );
+
+    expect(completed.data.contentType).toBe("image/png");
+    expect(requests).toEqual([
+      { method: "POST", body: { contentType: "image/png", size: 9 } },
+      {
+        method: "PUT",
+        body: {
+          pathname: "profile-pictures/u/a/p.png",
+          url: "https://store.public.blob.vercel-storage.com/p.png",
+        },
+      },
+    ]);
   });
 });

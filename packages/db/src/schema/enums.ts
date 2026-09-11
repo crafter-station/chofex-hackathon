@@ -31,3 +31,9 @@ export const shirtSize = pgEnum("shirt_size", [
   "3xl",
   "prefer_not_to_say",
 ]);
+
+export const pictureSource = pgEnum("picture_source", [
+  "clerk",
+  "github",
+  "upload",
+]);

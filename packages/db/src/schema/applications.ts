@@ -14,6 +14,7 @@ import {
 import { auditTimestamps } from "./common";
 import {
   applicationStatus,
+  pictureSource,
   participationMode,
   teamPreference,
 } from "./enums";
@@ -45,6 +46,19 @@ export const applications = pgTable(
     githubUrl: text("github_url"),
     linkedInUrl: text("linkedin_url"),
     portfolioUrl: text("portfolio_url"),
+    pictureSource: pictureSource("picture_source"),
+    pictureUrl: text("picture_url"),
+    customPictureUrl: text("custom_picture_url"),
+    customPicturePathname: text("custom_picture_pathname"),
+    pendingPicturePathname: text("pending_picture_pathname"),
+    pendingPictureExpiresAt: timestamp("pending_picture_expires_at", {
+      withTimezone: true,
+    }),
+    pictureUploadWindowStartedAt: timestamp(
+      "picture_upload_window_started_at",
+      { withTimezone: true },
+    ),
+    pictureUploadCount: integer("picture_upload_count").default(0).notNull(),
     teamPreference: teamPreference("team_preference"),
     teamName: varchar("team_name", { length: 120 }),
 
