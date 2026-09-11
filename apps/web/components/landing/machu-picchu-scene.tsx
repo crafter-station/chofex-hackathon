@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { type MutableRefObject, useEffect, useRef, useState } from "react";
 
 import type { ProjectedTarget } from "@/components/landing/machu-picchu-geometry";
+import { startHeroModelPreload } from "@/components/landing/machu-picchu-preload";
 import {
   detectWebGL,
   prefersReducedMotion,
@@ -13,6 +14,12 @@ import {
   type WorldPresentation,
   type WorldQuality,
 } from "@/components/landing/world-capability";
+import {
+  isDocumentVisible,
+  shouldRunWorldFrameLoop,
+} from "@/components/landing/world-loop";
+import { subscribePrefersReducedMotion } from "@/components/landing/world-motion";
+import { paintedFallbackClassName } from "@/components/landing/world-reveal";
 
 const MachuPicchuCanvas = dynamic(
   () =>
@@ -71,7 +78,7 @@ export function MachuPicchuFallback({
  *
  * Overlay contract:
  * - Render as children of `#hero-scene`
- * - This layer is `pointer-events: none` and sits at z-0
+ * - Look layer accepts constrained drag; CTAs keep their own hit targets
  * - Landing type / CTAs stay in the scroll overlays
  */
 export function MachuPicchuScene({
@@ -86,16 +93,42 @@ export function MachuPicchuScene({
     mode: "fallback",
     reason: "ssr",
   });
-  const [visible, setVisible] = useState(true);
+  const [intersecting, setIntersecting] = useState(false);
+  const [documentVisible, setDocumentVisible] = useState(true);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const [contextLost, setContextLost] = useState(false);
+  const [worldReady, setWorldReady] = useState(false);
 
   useEffect(() => {
-    setPresentation(detectPresentation(quality, forceFallback));
+    startHeroModelPreload();
+  }, []);
+
+  useEffect(() => {
+    return subscribePrefersReducedMotion((matches) => {
+      setReducedMotion(matches);
+      setPresentation(detectPresentation(quality, forceFallback));
+    });
   }, [forceFallback, quality]);
 
   useEffect(() => {
+    const syncVisibility = () => {
+      setDocumentVisible(isDocumentVisible(document.visibilityState));
+    };
+
+    syncVisibility();
+    document.addEventListener("visibilitychange", syncVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", syncVisibility);
+    };
+  }, []);
+
+  useEffect(() => {
     const root = rootRef.current;
-    if (!root || typeof IntersectionObserver === "undefined") {
+    if (!root) {
+      return;
+    }
+    if (typeof IntersectionObserver === "undefined") {
+      setIntersecting(true);
       return;
     }
 
@@ -104,7 +137,7 @@ export function MachuPicchuScene({
         if (!entry) {
           return;
         }
-        setVisible(entry.isIntersecting);
+        setIntersecting(entry.isIntersecting);
       },
       { threshold: 0.04 },
     );
@@ -113,6 +146,11 @@ export function MachuPicchuScene({
   }, []);
 
   const webglReady = presentation.mode === "webgl" && !contextLost;
+  const visible = shouldRunWorldFrameLoop({
+    intersecting,
+    documentVisible,
+    reducedMotion,
+  });
 
   return (
     <div
@@ -122,16 +160,20 @@ export function MachuPicchuScene({
         className,
       )}
     >
-      <MachuPicchuFallback />
       {webglReady ? (
         <MachuPicchuCanvas
           onContextLost={() => setContextLost(true)}
           onTargets={onTargets}
+          onWorldReady={() => setWorldReady(true)}
           progressRef={progressRef}
           quality={presentation.quality}
+          reducedMotion={reducedMotion}
           visible={visible}
         />
       ) : null}
+      <MachuPicchuFallback
+        className={paintedFallbackClassName(worldReady && webglReady)}
+      />
     </div>
   );
 }

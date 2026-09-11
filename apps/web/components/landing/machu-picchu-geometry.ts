@@ -14,6 +14,35 @@ export const MACHU_MODEL_SCALE = 0.036;
 
 export type WorldChapter = "hero" | "valley" | "scan";
 
+export const WORLD_CHAPTERS = [
+  { id: "hero", label: "Cumbre", progress: 0 },
+  { id: "valley", label: "Valle", progress: 0.34 },
+  { id: "scan", label: "Escaneo", progress: 0.64 },
+] as const;
+
+export function chapterStartProgress(chapter: WorldChapter): number {
+  if (chapter === "hero") {
+    return 0;
+  }
+  if (chapter === "valley") {
+    return 0.34;
+  }
+  return 0.64;
+}
+
+export function worldScrollTop(input: {
+  sectionOffsetTop: number;
+  sectionHeight: number;
+  viewportHeight: number;
+  progress: number;
+}): number {
+  const total = input.sectionHeight - input.viewportHeight;
+  if (total <= 0) {
+    return input.sectionOffsetTop;
+  }
+  return input.sectionOffsetTop + total * clamp01(input.progress);
+}
+
 export type CameraKeyframe = {
   position: [number, number, number];
   lookAt: [number, number, number];
