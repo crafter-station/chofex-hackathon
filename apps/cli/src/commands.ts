@@ -75,17 +75,20 @@ const registerCommand = Command.make(
       );
       if (Option.isSome(current)) {
         const { status } = current.value.data.registration;
-        const isAwaitingApproval =
+        const registrationAlreadyExists =
           status === "submitted" ||
           status === "under_review" ||
-          status === "waitlisted";
-        if (isAwaitingApproval) {
-          return yield* cliError(
-            "ACTIVE_APPLICATION_EXISTS",
-            "Already registered. Wait for approval.",
-            false,
-            { currentStatus: status },
-          );
+          status === "waitlisted" ||
+          status === "accepted";
+        if (registrationAlreadyExists) {
+          let message = "Already registered. Wait for approval.";
+          if (status === "accepted") {
+            message =
+              "Already accepted. Use `chofex status` to view your next steps.";
+          }
+          return yield* cliError("ACTIVE_APPLICATION_EXISTS", message, false, {
+            currentStatus: status,
+          });
         }
       }
       const body = yield* applicationInput(
