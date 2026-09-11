@@ -1,4 +1,3 @@
-import { type OpenAIImageModelEditOptions, openai } from "@ai-sdk/openai";
 import { eq } from "@chofex/db/orm";
 import { participantBadges } from "@chofex/db/schema";
 import { db } from "@chofex/db/worker";
@@ -36,7 +35,7 @@ export const generatePixelArt = task({
     const original = await downloadImage(payload.pictureUrl);
     const referenceImage = await preparePixelArtInput(original);
     const { image, usage, warnings } = await generateImage({
-      model: openai.image(pixelArtModel),
+      model: pixelArtModel,
       prompt: {
         text: pixelArtPrompt,
         images: [referenceImage],
@@ -46,7 +45,7 @@ export const generatePixelArt = task({
         openai: {
           quality: "low",
           outputFormat: "png",
-        } satisfies OpenAIImageModelEditOptions,
+        },
       },
       abortSignal: AbortSignal.timeout(300_000),
     });

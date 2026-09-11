@@ -1,4 +1,4 @@
-export const pixelArtModel = "gpt-image-2.5-flare";
+export const pixelArtModel = "openai/gpt-image-2.5-flare";
 export const pixelArtInputMaxSize = 512;
 export const pixelArtInputJpegQuality = 60;
 export const pixelArtGenerationSize = "816x816";
