@@ -325,7 +325,7 @@ export function MachuPicchuCanvas({
             { once: true },
           );
         }}
-        shadows={quality === "high"}
+        shadows={quality === "high" ? "percentage" : false}
         style={{
           background:
             "radial-gradient(circle at 72% 14%, #c8e6f3 0%, #63a3d1 30%, #214e70 72%, #0b2138 100%)",
