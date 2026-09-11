@@ -1,21 +1,15 @@
-import { cn } from "@chofex/ui/lib/utils";
-
 import {
   formatSoles,
   prizeAmountsPen,
   prizeAmountsUsd,
   usdToPenRate,
 } from "@/components/landing/content";
+import { HudLabel } from "@/components/landing/hud";
+import { PrizeCounter } from "@/components/landing/prize-counter";
 import {
   LandingContainer,
-  LandingEyebrow,
-  landingInvertClassName,
+  LandingSectionHead,
 } from "@/components/landing/shell";
-
-const places = [
-  { place: "1er lugar", amount: prizeAmountsPen.first },
-  { place: "2do lugar", amount: prizeAmountsPen.second },
-] as const;
 
 export function LandingPrizes() {
   const cashHeadline =
@@ -25,57 +19,61 @@ export function LandingPrizes() {
   return (
     <section
       aria-labelledby="prizes-heading"
-      className={landingInvertClassName}
+      className="bg-[#0057ff] text-[#f5f5f5]"
+      id="prizes"
     >
-      <LandingContainer className="py-16 sm:py-24">
-        <div className="grid gap-8 border-current/20 border-b pb-10 md:grid-cols-[1fr_1.4fr]">
-          <LandingEyebrow id="prizes-heading">Premios</LandingEyebrow>
-          <div className="flex flex-col gap-4">
-            <h2 className="max-w-xl text-4xl leading-[0.95] font-medium tracking-[-0.05em] sm:text-6xl">
-              Más de {formatSoles(cashHeadline)} en efectivo.
-            </h2>
-            <p className="max-w-md text-base leading-relaxed opacity-65">
-              Premios en soles para que se sientan cerca. Convertidos de USD{" "}
-              {prizeAmountsUsd.first.toLocaleString("es-PE")} /{" "}
-              {prizeAmountsUsd.second.toLocaleString("es-PE")} al tipo ~S/.{" "}
-              {usdToPenRate.toLocaleString("es-PE")}.
+      <LandingContainer className="flex flex-col justify-center gap-12 py-16 md:min-h-dvh md:py-20">
+        <LandingSectionHead title="Premios" titleId="prizes-heading">
+          <p className="max-w-lg text-sm leading-relaxed text-[#f5f5f5]/80 sm:text-base">
+            más de {formatSoles(cashHeadline)} en efectivo. convertidos de USD{" "}
+            {prizeAmountsUsd.first.toLocaleString("es-PE")} /{" "}
+            {prizeAmountsUsd.second.toLocaleString("es-PE")} al tipo ~S/.{" "}
+            {usdToPenRate.toLocaleString("es-PE")}.
+          </p>
+        </LandingSectionHead>
+
+        <div className="grid items-end gap-10 lg:grid-cols-[1.1fr_auto_1fr] lg:items-center">
+          <div className="flex flex-col gap-2">
+            <HudLabel className="text-[#d6ff00]">pozo de premios</HudLabel>
+            <p className="font-[family-name:var(--font-landing-display)] text-[clamp(4.6rem,16vw,10rem)] leading-[0.78] tracking-[-0.03em] text-[#d6ff00]">
+              <PrizeCounter amount={prizeAmountsPen.first} format="number" />
+            </p>
+            <p className="font-[family-name:var(--font-landing-mono)] text-xs tracking-[0.16em] uppercase">
+              S/. en 1er lugar
+            </p>
+            <p className="mt-1 text-sm text-[#f5f5f5]/80">
+              2do lugar{" "}
+              <span className="font-semibold text-[#d6ff00]">
+                <PrizeCounter amount={prizeAmountsPen.second} />
+              </span>
+            </p>
+          </div>
+
+          <p className="hidden font-[family-name:var(--font-landing-display)] text-6xl leading-none text-[#d6ff00] lg:block">
+            +
+          </p>
+
+          <div className="flex flex-col gap-2 lg:text-right">
+            <HudLabel className="text-[#d6ff00] lg:ml-auto">
+              viaje / minijuegos
+            </HudLabel>
+            <p className="font-[family-name:var(--font-landing-display)] text-[clamp(3.4rem,8vw,6rem)] leading-[0.86] tracking-[-0.03em]">
+              <PrizeCounter
+                amount={prizeAmountsPen.travelPool}
+                format="number"
+              />
+            </p>
+            <p className="max-w-md text-sm leading-snug text-[#f5f5f5]/80 sm:text-base lg:ml-auto">
+              pool extra de ~{formatSoles(prizeAmountsPen.travelPool)} para
+              minijuegos y/o viaje de provincia.
             </p>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2">
-          {places.map((item, index) => {
-            const isFirst = index === 0;
-            const frameClassName = isFirst
-              ? "border-current/20 md:border-r md:pr-10"
-              : "border-current/20 border-t md:border-t-0 md:pl-10";
-
-            return (
-              <article
-                className={cn("flex flex-col gap-3 py-10", frameClassName)}
-                key={item.place}
-              >
-                <p className="font-mono text-xs uppercase tracking-[0.16em] opacity-50">
-                  {item.place}
-                </p>
-                <p className="text-4xl font-medium tracking-[-0.04em] sm:text-5xl">
-                  {formatSoles(item.amount)}
-                </p>
-              </article>
-            );
-          })}
-        </div>
-
-        <div className="mt-4 flex flex-col gap-3 border-current/20 border-t pt-8 text-sm leading-relaxed opacity-60">
-          <p>
-            Hay un pool extra de ~{formatSoles(prizeAmountsPen.travelPool)} para
-            minijuegos y/o viaje de provincia.
-          </p>
-          <p>
-            * Los equipos top podrían ser invitados a un work trial de dos
-            semanas en Monterrey o San Francisco. No es una oferta de trabajo.
-          </p>
-        </div>
+        <p className="text-sm leading-relaxed text-[#f5f5f5]/70">
+          * los equipos top podrían ser invitados a un work trial de dos semanas
+          en monterrey o san francisco. no es una oferta de trabajo.
+        </p>
       </LandingContainer>
     </section>
   );

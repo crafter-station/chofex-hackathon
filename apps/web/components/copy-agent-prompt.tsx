@@ -57,7 +57,7 @@ export function CopyAgentPrompt() {
         type="button"
         size="lg"
         variant="outline"
-        className="h-11 border-white/20 bg-transparent px-4 text-[#f4f1e9] hover:bg-white/10 hover:text-[#f4f1e9] dark:border-black/20 dark:text-[#171713] dark:hover:bg-black/10 dark:hover:text-[#171713]"
+        className="h-11 rounded-none border-0 bg-[#d6ff00] px-5 font-[family-name:var(--font-landing-mono)] text-[#0b0d10] uppercase tracking-[0.12em] hover:bg-[#e7ff4d] hover:text-[#0b0d10]"
         onClick={copyPrompt}
       >
         {iconForStatus(status)}

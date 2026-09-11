@@ -1,26 +1,37 @@
+import { cn } from "@chofex/ui/lib/utils";
 import { LandingApply } from "@/components/landing/apply";
-import { LandingFacts } from "@/components/landing/facts";
-import { LandingFilter } from "@/components/landing/filter";
+import {
+  landingDisplay,
+  landingMono,
+  landingSans,
+} from "@/components/landing/fonts";
 import { LandingFooter } from "@/components/landing/footer";
 import { LandingHeader, LandingMobileCta } from "@/components/landing/header";
 import { LandingHero } from "@/components/landing/hero";
+import { LandingJudges } from "@/components/landing/judges";
 import { LandingPrizes } from "@/components/landing/prizes";
+import { LandingScan } from "@/components/landing/scan";
 import { landingPageClassName } from "@/components/landing/shell";
 import { LandingSponsors } from "@/components/landing/sponsors";
-import { LandingTracks } from "@/components/landing/tracks";
-import { LandingWhy } from "@/components/landing/why";
 
 export default function Home() {
   return (
-    <div className={landingPageClassName} lang="es">
+    <div
+      className={cn(
+        landingPageClassName,
+        landingDisplay.variable,
+        landingSans.variable,
+        landingMono.variable,
+        landingSans.className,
+      )}
+      lang="es"
+    >
       <LandingHeader />
       <main id="top">
         <LandingHero />
-        <LandingFacts />
+        <LandingJudges />
+        <LandingScan />
         <LandingPrizes />
-        <LandingTracks />
-        <LandingWhy />
-        <LandingFilter />
         <LandingApply />
         <LandingSponsors />
       </main>

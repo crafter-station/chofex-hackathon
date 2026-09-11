@@ -1,33 +1,37 @@
 import { sponsorSlots } from "@/components/landing/content";
-import { LandingContainer, LandingEyebrow } from "@/components/landing/shell";
+import { HudLabel } from "@/components/landing/hud";
+import {
+  LandingContainer,
+  LandingSectionHead,
+} from "@/components/landing/shell";
 
 export function LandingSponsors() {
   return (
-    <section aria-labelledby="sponsors-heading">
+    <section
+      aria-labelledby="sponsors-heading"
+      className="bg-[#f5f5f5] text-[#0b0d10]"
+    >
       <LandingContainer className="py-16 sm:py-20">
-        <div className="flex flex-col gap-3">
-          <LandingEyebrow id="sponsors-heading">Sponsors</LandingEyebrow>
-          <h2 className="text-2xl font-medium tracking-tight sm:text-3xl">
-            Sponsored by Chofex
-          </h2>
-          <p className="max-w-md text-sm leading-relaxed opacity-55">
-            Identidad propia del evento. Chofex patrocina — no pinta la paleta.
-            Más logos cuando estén confirmados.
+        <HudLabel className="mb-3 text-[#0057ff]">{"sponsors / spec"}</HudLabel>
+        <LandingSectionHead title="Sponsors" titleId="sponsors-heading">
+          <p className="max-w-md text-sm leading-relaxed text-[#0b0d10]/70">
+            Sponsored by Chofex. Identidad propia del evento. Chofex patrocina —
+            no pinta la paleta.
           </p>
-        </div>
-        <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        </LandingSectionHead>
+        <ul className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-2">
           {sponsorSlots.map((slot) => {
-            const label = slot.confirmed ? slot.name : "Próximamente";
+            const label = slot.confirmed ? slot.name : "Más sponsors pronto";
             return (
               <li
-                className="grid h-24 place-items-center rounded-2xl border border-dashed border-current/20 px-3 text-center"
+                className="grid h-28 place-items-center border border-[#0b0d10]/15 bg-white px-3 text-center"
                 key={slot.id}
               >
                 <span
                   className={
                     slot.confirmed
-                      ? "text-sm font-semibold tracking-tight"
-                      : "text-xs tracking-[0.12em] uppercase opacity-40"
+                      ? "font-[family-name:var(--font-landing-display)] text-3xl tracking-[-0.02em] text-[#0b0d10] uppercase"
+                      : "font-[family-name:var(--font-landing-mono)] text-[10px] tracking-[0.16em] text-[#0b0d10]/55 uppercase"
                   }
                 >
                   {label}

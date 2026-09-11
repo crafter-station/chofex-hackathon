@@ -1,0 +1,124 @@
+.landing-page {
+  --hud-blue: #0057ff;
+  --hud-yellow: #d6ff00;
+  --hud-white: #f5f5f5;
+  --hud-ink: #0b0d10;
+  --hud-panel: #111318;
+}
+
+.hero-scene-machu-hint {
+  background:
+    linear-gradient(180deg, #4d9adf 0 36%, transparent 36%),
+    repeating-linear-gradient(
+      180deg,
+      #6f7d4a 0 14px,
+      #8d7a4a 14px 22px,
+      #5a6840 22px 30px
+    );
+  clip-path: polygon(
+    0 42%,
+    8% 36%,
+    18% 40%,
+    28% 22%,
+    38% 30%,
+    48% 16%,
+    58% 28%,
+    70% 18%,
+    82% 32%,
+    100% 24%,
+    100% 100%,
+    0 100%
+  );
+}
+
+.hud-halftone {
+  background-image: radial-gradient(
+    rgb(245 245 245 / 28%) 0.7px,
+    transparent 0.8px
+  );
+  background-size: 5px 5px;
+}
+
+.hud-scanlines {
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgb(245 245 245 / 6%) 0 1px,
+    transparent 1px 4px
+  );
+}
+
+.hud-box {
+  position: relative;
+  border: 1px solid rgb(245 245 245 / 85%);
+}
+
+.hud-box::before,
+.hud-box::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--hud-yellow);
+}
+
+.hud-box::before {
+  top: -2px;
+  left: -2px;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.hud-box::after {
+  right: -2px;
+  bottom: -2px;
+  border-top: 0;
+  border-left: 0;
+}
+
+.hud-cross {
+  position: relative;
+}
+
+.hud-cross::before,
+.hud-cross::after {
+  content: "";
+  position: absolute;
+  background: var(--hud-yellow);
+}
+
+.hud-cross::before {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
+
+.hud-cross::after {
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100%;
+}
+
+@keyframes landing-scan {
+  0%,
+  100% {
+    transform: translateY(-8%);
+    opacity: 0.2;
+  }
+
+  50% {
+    transform: translateY(80%);
+    opacity: 0.7;
+  }
+}
+
+.landing-scan-beam {
+  animation: landing-scan 3.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-scan-beam {
+    animation: none;
+  }
+}

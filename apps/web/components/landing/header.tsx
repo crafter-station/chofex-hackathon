@@ -1,43 +1,36 @@
-import { MountainIcon } from "lucide-react";
-
-import { LandingContainer } from "@/components/landing/shell";
+import {
+  landingCtaClassName,
+  landingHudClassName,
+} from "@/components/landing/shell";
 
 export function LandingHeader() {
   return (
-    <header className="sticky top-0 z-40 border-current/15 border-b bg-[#f4f1e9]/90 backdrop-blur-md dark:bg-[#171713]/90">
-      <LandingContainer className="flex h-16 items-center justify-between gap-3">
+    <header className="pointer-events-none absolute inset-x-0 top-0 z-30">
+      <div className="mx-auto flex w-full max-w-[1800px] items-center justify-between px-4 py-4 sm:px-8">
         <a
-          className="flex min-w-0 items-center gap-2.5 font-semibold"
+          className={`pointer-events-auto ${landingHudClassName} text-[10px] text-[#d6ff00]`}
           href="#top"
         >
-          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[#171713] text-[#f4f1e9] dark:bg-[#f4f1e9] dark:text-[#171713]">
-            <MountainIcon className="size-4" aria-hidden="true" />
-          </span>
-          <span className="truncate">Hack the Andes</span>
+          Hack the Andes
         </a>
-        <div className="flex shrink-0 items-center gap-3">
-          <p className="hidden text-[11px] tracking-[0.04em] opacity-50 sm:block">
-            Sponsored by Chofex
-          </p>
-          <a
-            href="#apply"
-            className="inline-flex h-10 items-center rounded-full bg-[#171713] px-4 text-sm font-medium text-[#f4f1e9] dark:bg-[#f4f1e9] dark:text-[#171713]"
-          >
-            Aplicar
-          </a>
-        </div>
-      </LandingContainer>
+        <nav
+          aria-label="Secciones"
+          className={`pointer-events-auto hidden gap-5 text-[10px] text-[#f5f5f5]/80 sm:flex ${landingHudClassName}`}
+        >
+          <a href="#judges">Jueces</a>
+          <a href="#scan">Scan</a>
+          <a href="#prizes">Premios</a>
+          <a href="#apply">Aplicar</a>
+        </nav>
+      </div>
     </header>
   );
 }
 
 export function LandingMobileCta() {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-current/15 border-t bg-[#f4f1e9]/95 p-3 backdrop-blur-md sm:hidden dark:bg-[#171713]/95">
-      <a
-        href="#apply"
-        className="flex h-12 items-center justify-center rounded-full bg-[#171713] text-sm font-medium text-[#f4f1e9] dark:bg-[#f4f1e9] dark:text-[#171713]"
-      >
+    <div className="fixed inset-x-4 bottom-4 z-40 sm:hidden">
+      <a href="#apply" className={`${landingCtaClassName} min-h-12 w-full`}>
         Aplicar
       </a>
     </div>
