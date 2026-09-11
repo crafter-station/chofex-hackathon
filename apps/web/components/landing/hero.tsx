@@ -87,7 +87,7 @@ export function LandingHero() {
         <div className="pointer-events-none absolute inset-0 z-10 hud-scanlines" />
 
         <div
-          className={`pointer-events-none relative z-20 mx-auto flex h-dvh w-full max-w-[1800px] flex-col justify-between px-4 pt-6 pb-8 transition-opacity duration-500 sm:px-8 ${heroOpacity}`}
+          className={`landing-world-motion pointer-events-none relative z-20 mx-auto flex h-dvh w-full max-w-[1800px] flex-col justify-between px-4 pt-6 pb-8 transition-opacity duration-500 sm:px-8 ${heroOpacity}`}
         >
           <div className="flex items-start justify-between gap-4">
             <HudLabel className="text-[#d6ff00]">
@@ -164,7 +164,7 @@ export function LandingHero() {
         </div>
 
         <aside
-          className={`absolute right-4 bottom-24 z-20 w-[min(22rem,calc(100%-2rem))] transition duration-500 sm:right-8 ${valleyClass}`}
+          className={`landing-world-motion absolute right-4 bottom-24 z-20 w-[min(22rem,calc(100%-2rem))] transition duration-500 sm:right-8 ${valleyClass}`}
         >
           <DeviceCard
             accent="yellow"

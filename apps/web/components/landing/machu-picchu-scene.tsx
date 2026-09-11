@@ -13,6 +13,7 @@ import {
   type WorldPresentation,
   type WorldQuality,
 } from "@/components/landing/world-capability";
+import { subscribePrefersReducedMotion } from "@/components/landing/world-motion";
 
 const MachuPicchuCanvas = dynamic(
   () =>
@@ -87,10 +88,14 @@ export function MachuPicchuScene({
     reason: "ssr",
   });
   const [visible, setVisible] = useState(true);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const [contextLost, setContextLost] = useState(false);
 
   useEffect(() => {
-    setPresentation(detectPresentation(quality, forceFallback));
+    return subscribePrefersReducedMotion((matches) => {
+      setReducedMotion(matches);
+      setPresentation(detectPresentation(quality, forceFallback));
+    });
   }, [forceFallback, quality]);
 
   useEffect(() => {
@@ -129,6 +134,7 @@ export function MachuPicchuScene({
           onTargets={onTargets}
           progressRef={progressRef}
           quality={presentation.quality}
+          reducedMotion={reducedMotion}
           visible={visible}
         />
       ) : null}

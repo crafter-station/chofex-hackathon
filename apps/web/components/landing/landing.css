@@ -139,5 +139,13 @@
 @media (prefers-reduced-motion: reduce) {
   .landing-scan-beam {
     animation: none;
+    opacity: 0.28;
+    transform: translateY(36%);
+  }
+
+  .landing-world-motion,
+  .landing-world-motion * {
+    transition: none !important;
+    animation: none !important;
   }
 }

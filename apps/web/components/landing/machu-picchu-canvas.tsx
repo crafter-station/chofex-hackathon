@@ -12,6 +12,10 @@ import {
   WORLD_FIGURES,
 } from "@/components/landing/machu-picchu-geometry";
 import { MachuPicchuAsset } from "@/components/landing/machu-picchu-model";
+import {
+  shouldPlaySceneEffects,
+  worldMotionScale,
+} from "@/components/landing/world-motion";
 
 const LOOK = new THREE.Vector3();
 const PROJECT = new THREE.Vector3();
@@ -22,6 +26,7 @@ export type MachuPicchuCanvasProps = {
   readonly quality: SceneQuality;
   readonly progressRef: MutableRefObject<number>;
   readonly visible?: boolean;
+  readonly reducedMotion?: boolean;
   readonly onContextLost?: () => void;
   readonly onTargets?: (targets: ProjectedTarget[]) => void;
 };
@@ -64,8 +69,14 @@ function WorldLights({ quality }: { readonly quality: SceneQuality }) {
   );
 }
 
-function HeroSparkles({ quality }: { readonly quality: SceneQuality }) {
-  if (quality !== "high") {
+function HeroSparkles({
+  quality,
+  reducedMotion,
+}: {
+  readonly quality: SceneQuality;
+  readonly reducedMotion: boolean;
+}) {
+  if (quality !== "high" || !shouldPlaySceneEffects(reducedMotion)) {
     return null;
   }
 
@@ -82,7 +93,13 @@ function HeroSparkles({ quality }: { readonly quality: SceneQuality }) {
   );
 }
 
-function DriftDiscs({ quality }: { readonly quality: SceneQuality }) {
+function DriftDiscs({
+  quality,
+  reducedMotion,
+}: {
+  readonly quality: SceneQuality;
+  readonly reducedMotion: boolean;
+}) {
   const group = useRef<THREE.Group>(null);
   const discs = [
     { color: "#f4f7fb", position: [-10, 8, 16] as const, radius: 1.6 },
@@ -92,7 +109,7 @@ function DriftDiscs({ quality }: { readonly quality: SceneQuality }) {
 
   useFrame(({ clock }) => {
     const node = group.current;
-    if (!node) {
+    if (!node || !shouldPlaySceneEffects(reducedMotion)) {
       return;
     }
     const time = clock.elapsedTime;
@@ -163,10 +180,12 @@ function ValleyFigures({ quality }: { readonly quality: SceneQuality }) {
 function ExploreCamera({
   progressRef,
   quality,
+  reducedMotion,
   onTargets,
 }: {
   readonly progressRef: MutableRefObject<number>;
   readonly quality: SceneQuality;
+  readonly reducedMotion: boolean;
   readonly onTargets?: (targets: ProjectedTarget[]) => void;
 }) {
   const { camera, size, pointer } = useThree();
@@ -177,12 +196,13 @@ function ExploreCamera({
     const path = sampleCameraPath(progress);
     const chapter = chapterFromProgress(progress);
     const time = clock.elapsedTime;
+    const motion = worldMotionScale(reducedMotion);
     const explore = Math.max(0, 1 - progress / 0.24);
-    const drift = 0.4 + explore * 0.6;
+    const drift = (0.4 + explore * 0.6) * motion;
     const portrait = size.height > size.width;
     const orbit = Math.sin(time * 0.055) * 0.26 * drift;
-    const pointerYaw = pointer.x * 0.48 * explore;
-    const pointerPitch = pointer.y * 0.12 * explore;
+    const pointerYaw = pointer.x * 0.48 * explore * motion;
+    const pointerPitch = pointer.y * 0.12 * explore * motion;
 
     let radiusBoost = 0;
     if (portrait && chapter === "hero") {
@@ -238,10 +258,12 @@ function ExploreCamera({
 function MachuWorld({
   quality,
   progressRef,
+  reducedMotion,
   onTargets,
 }: {
   readonly quality: SceneQuality;
   readonly progressRef: MutableRefObject<number>;
+  readonly reducedMotion: boolean;
   readonly onTargets?: (targets: ProjectedTarget[]) => void;
 }) {
   return (
@@ -251,12 +273,13 @@ function MachuWorld({
         <MachuPicchuAsset quality={quality} />
       </Suspense>
       <ValleyFigures quality={quality} />
-      <DriftDiscs quality={quality} />
-      <HeroSparkles quality={quality} />
+      <DriftDiscs quality={quality} reducedMotion={reducedMotion} />
+      <HeroSparkles quality={quality} reducedMotion={reducedMotion} />
       <ExploreCamera
         onTargets={onTargets}
         progressRef={progressRef}
         quality={quality}
+        reducedMotion={reducedMotion}
       />
       <AdaptiveDpr pixelated={false} />
     </>
@@ -267,15 +290,18 @@ export function MachuPicchuCanvas({
   quality,
   progressRef,
   visible = true,
+  reducedMotion = false,
   onContextLost,
   onTargets,
 }: MachuPicchuCanvasProps) {
+  const animate = visible && shouldPlaySceneEffects(reducedMotion);
+
   return (
     <Canvas
       camera={{ far: 420, fov: 38, near: 0.1, position: [46, 18, 58] }}
       className="pointer-events-none absolute inset-0 size-full"
       dpr={quality === "high" ? [1, 1.5] : [1, 1]}
-      frameloop={visible ? "always" : "never"}
+      frameloop={animate ? "always" : "never"}
       gl={{
         alpha: false,
         antialias: quality === "high",
@@ -302,6 +328,7 @@ export function MachuPicchuCanvas({
         onTargets={onTargets}
         progressRef={progressRef}
         quality={quality}
+        reducedMotion={reducedMotion}
       />
     </Canvas>
   );
