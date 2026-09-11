@@ -1,4 +1,5 @@
 import { db } from "@chofex/db";
+import { clerkClient } from "@clerk/nextjs/server";
 import {
   and,
   count,
@@ -9,9 +10,14 @@ import {
   or,
   type SQL,
 } from "@chofex/db/orm";
-import { acceptanceDetails, applications } from "@chofex/db/schema";
+import {
+  acceptanceDetails,
+  applications,
+  participants,
+} from "@chofex/db/schema";
 
 import { HttpError } from "@/lib/registration/http";
+import { preferredAvatarUrl } from "./avatars";
 import {
   type Candidate,
   type CandidateCounts,
@@ -39,9 +45,13 @@ const instantString = (value: Date | null | undefined): string | undefined => {
 type CandidateRecord = {
   readonly application: typeof applications.$inferSelect;
   readonly details: typeof acceptanceDetails.$inferSelect | null;
+  readonly clerkUserId: string;
 };
 
-const toCandidate = ({ application, details }: CandidateRecord): Candidate => {
+const toCandidate = (
+  { application, details }: CandidateRecord,
+  clerkImageUrl?: string,
+): Candidate => {
   let dateOfBirth: string | undefined;
   if (details?.dateOfBirth) dateOfBirth = dateString(details.dateOfBirth);
 
@@ -51,6 +61,7 @@ const toCandidate = ({ application, details }: CandidateRecord): Candidate => {
     firstName: application.firstName ?? "Unknown",
     lastName: application.lastName ?? "participant",
     email: application.email ?? "",
+    avatarUrl: preferredAvatarUrl(clerkImageUrl, application.githubUrl),
     pronouns: optional(application.pronouns),
     countryCode: optional(application.countryCode),
     city: optional(application.city),
@@ -87,12 +98,49 @@ const toCandidate = ({ application, details }: CandidateRecord): Candidate => {
   };
 };
 
+const clerkAvatarUrls = async (
+  records: ReadonlyArray<CandidateRecord>,
+): Promise<ReadonlyMap<string, string>> => {
+  const userIds = [...new Set(records.map((record) => record.clerkUserId))];
+  if (userIds.length === 0) return new Map();
+
+  try {
+    const clerk = await clerkClient();
+    const users = await clerk.users.getUserList({
+      userId: userIds,
+      limit: userIds.length,
+    });
+    return new Map(
+      users.data
+        .filter((user) => user.hasImage)
+        .map((user) => [user.id, user.imageUrl]),
+    );
+  } catch (error) {
+    console.error("Could not load candidate avatars from Clerk", error);
+    return new Map();
+  }
+};
+
+const toCandidates = async (
+  records: ReadonlyArray<CandidateRecord>,
+): Promise<ReadonlyArray<Candidate>> => {
+  const avatarUrls = await clerkAvatarUrls(records);
+  return records.map((record) =>
+    toCandidate(record, avatarUrls.get(record.clerkUserId)),
+  );
+};
+
 const candidateRecordById = async (
   applicationId: string,
 ): Promise<CandidateRecord | undefined> => {
   const [record] = await db
-    .select({ application: applications, details: acceptanceDetails })
+    .select({
+      application: applications,
+      details: acceptanceDetails,
+      clerkUserId: participants.clerkUserId,
+    })
     .from(applications)
+    .innerJoin(participants, eq(participants.id, applications.participantId))
     .leftJoin(
       acceptanceDetails,
       eq(acceptanceDetails.applicationId, applications.id),
@@ -155,8 +203,13 @@ export const listCandidates = async (
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const currentPage = Math.min(requestedPage, totalPages);
   const records = await db
-    .select({ application: applications, details: acceptanceDetails })
+    .select({
+      application: applications,
+      details: acceptanceDetails,
+      clerkUserId: participants.clerkUserId,
+    })
     .from(applications)
+    .innerJoin(participants, eq(participants.id, applications.participantId))
     .leftJoin(
       acceptanceDetails,
       eq(acceptanceDetails.applicationId, applications.id),
@@ -172,8 +225,10 @@ export const listCandidates = async (
     counts.all += result.value;
   }
 
+  const candidates = await toCandidates(records);
+
   return {
-    candidates: records.map(toCandidate),
+    candidates,
     counts,
     page: currentPage,
     pageSize,
@@ -330,7 +385,8 @@ export const decideCandidate = async (
       );
     }
   }
-  const candidate = toCandidate(record);
+  const [candidate] = await toCandidates([record]);
+  if (!candidate) throw new Error("Candidate conversion returned no result");
 
   if (!input.notify) {
     return { candidate, emailStatus: "not_requested" };

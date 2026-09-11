@@ -46,6 +46,7 @@ import {
   UsersIcon,
   XIcon,
 } from "lucide-react";
+import Image from "next/image";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 
 import {
@@ -137,6 +138,39 @@ const displayName = (candidate: Candidate): string =>
 
 const initials = (candidate: Candidate): string =>
   `${candidate.firstName.charAt(0)}${candidate.lastName.charAt(0)}`.toUpperCase();
+
+const CandidateAvatar = ({
+  candidate,
+  className,
+}: {
+  readonly candidate: Candidate;
+  readonly className: string;
+}) => {
+  const avatarUrl = safeUrl(candidate.avatarUrl);
+  const [failedUrl, setFailedUrl] = useState<string>();
+  if (avatarUrl && avatarUrl !== failedUrl) {
+    return (
+      <span className={`${className} overflow-hidden`}>
+        <Image
+          src={avatarUrl}
+          alt=""
+          width={56}
+          height={56}
+          unoptimized
+          className="size-full object-cover"
+          referrerPolicy="no-referrer"
+          onError={() => setFailedUrl(avatarUrl)}
+        />
+      </span>
+    );
+  }
+
+  return (
+    <span className={`${className} overflow-hidden`}>
+      {initials(candidate)}
+    </span>
+  );
+};
 
 const formatDate = (value: string): string =>
   new Intl.DateTimeFormat("en-US", {
@@ -399,9 +433,10 @@ const CandidateDrawer = ({
         <div className="min-h-0 flex-1 overflow-y-auto bg-muted/20">
           <section className="border-b bg-background px-5 py-6 sm:px-7">
             <div className="flex items-start gap-4">
-              <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-muted text-sm font-semibold text-muted-foreground">
-                {initials(candidate)}
-              </div>
+              <CandidateAvatar
+                candidate={candidate}
+                className="grid size-14 shrink-0 place-items-center rounded-2xl bg-muted text-sm font-semibold text-muted-foreground"
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
@@ -1114,9 +1149,10 @@ const CandidateRows = ({
         className="group sm:grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_7rem]"
       >
         <span className="flex min-w-0 items-center gap-3">
-          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-[11px] font-semibold text-muted-foreground">
-            {initials(candidate)}
-          </span>
+          <CandidateAvatar
+            candidate={candidate}
+            className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-[11px] font-semibold text-muted-foreground"
+          />
           <span className="min-w-0">
             <span className="block truncate text-sm font-medium">
               {displayName(candidate)}

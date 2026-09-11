@@ -22,6 +22,7 @@ export interface Candidate {
   readonly firstName: string;
   readonly lastName: string;
   readonly email: string;
+  readonly avatarUrl?: string;
   readonly pronouns?: string;
   readonly countryCode?: string;
   readonly city?: string;
