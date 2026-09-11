@@ -6,7 +6,7 @@ export const HERO_SCENE_ROOT_ID = "hero-scene";
 /** Locked subject for the R3F teammate: navigable Machu Picchu world. */
 export const HERO_SCENE_THEME = "machu-picchu" as const;
 
-/** Public URL for the Sketchfab GLB Three Js Dev loads into this slot. */
+/** Public URL for the Machu Picchu GLB Three Js Dev loads into this slot. */
 export const HERO_SCENE_MODEL_URL = "/models/machu-picchu.glb" as const;
 
 export type HeroSceneProps = {
