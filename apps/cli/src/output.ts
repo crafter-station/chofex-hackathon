@@ -83,6 +83,11 @@ const requirementsText = (result: RegistrationResult): string => {
     feedback = `\nReview feedback: ${requirements.rejectionReason}`;
   }
 
+  let nextCommand = "";
+  if (requirements.stage === "accepted") {
+    nextCommand = "\nNext command: chofex confirm";
+  }
+
   let missing = "";
   if (requirements.missing.length > 0) {
     const items = requirements.missing
@@ -91,7 +96,7 @@ const requirementsText = (result: RegistrationResult): string => {
     missing = `\nStill required:\n${items}`;
   }
 
-  return `Next stage: ${requirements.stage}${feedback}${missing}`;
+  return `Next stage: ${requirements.stage}${feedback}${missing}${nextCommand}`;
 };
 
 export const registrationText = (result: RegistrationResult): string =>
