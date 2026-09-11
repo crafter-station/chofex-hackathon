@@ -1,3 +1,4 @@
+import { aptGet } from "@trigger.dev/build/extensions/core";
 import { defineConfig } from "@trigger.dev/sdk";
 
 export default defineConfig({
@@ -16,5 +17,6 @@ export default defineConfig({
   },
   build: {
     external: ["sharp"],
+    extensions: [aptGet({ packages: ["fonts-liberation2"] })],
   },
 });

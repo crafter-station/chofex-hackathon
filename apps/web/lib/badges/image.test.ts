@@ -18,4 +18,11 @@ describe("badge image", () => {
     ).toString();
     expect(svg).toContain('textLength="840"');
   });
+
+  test("uses the font installed in the Trigger.dev image", () => {
+    const svg = badgeFrameSvg("Ada Lovelace").toString();
+
+    expect(svg).toContain('font-family="Liberation Sans"');
+    expect(svg).not.toContain('font-family="Arial');
+  });
 });
