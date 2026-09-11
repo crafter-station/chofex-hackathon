@@ -93,11 +93,11 @@ export function LandingHero() {
         />
 
         <div
-          className={`pointer-events-none relative z-20 mx-auto flex h-dvh w-full max-w-[1800px] flex-col justify-between px-4 pt-6 pb-8 transition-opacity duration-500 sm:px-8 ${heroOpacity}`}
+          className={`pointer-events-none relative z-20 mx-auto flex h-dvh w-full max-w-[1800px] flex-col justify-between px-4 pt-20 pb-8 transition-opacity duration-500 sm:px-8 ${heroOpacity}`}
         >
           <div className="flex items-start justify-between gap-4">
             <HudLabel className="text-[#d6ff00]">{heroCopy.channel}</HudLabel>
-            <HudLabel className="text-[var(--hud-muted)]">
+            <HudLabel className="hidden text-[var(--hud-muted)] sm:block">
               {heroCopy.navStatus}
             </HudLabel>
           </div>
