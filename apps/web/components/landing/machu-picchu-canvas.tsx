@@ -6,7 +6,6 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   type MutableRefObject,
   type PointerEvent,
-  Suspense,
   useRef,
   useState,
 } from "react";
@@ -45,8 +44,23 @@ export type MachuPicchuCanvasProps = {
   readonly visible?: boolean;
   readonly reducedMotion?: boolean;
   readonly onContextLost?: () => void;
+  readonly onWorldReady?: () => void;
   readonly onTargets?: (targets: ProjectedTarget[]) => void;
 };
+
+function ReportWorldReady({ onReady }: { readonly onReady?: () => void }) {
+  const sent = useRef(false);
+
+  useFrame(() => {
+    if (sent.current || !onReady) {
+      return;
+    }
+    sent.current = true;
+    onReady();
+  });
+
+  return null;
+}
 
 function WorldLights({ quality }: { readonly quality: SceneQuality }) {
   const mapSize = quality === "high" ? 2048 : 512;
@@ -284,6 +298,7 @@ function MachuWorld({
   reducedMotion,
   lookRef,
   draggingRef,
+  onWorldReady,
   onTargets,
 }: {
   readonly quality: SceneQuality;
@@ -291,14 +306,13 @@ function MachuWorld({
   readonly reducedMotion: boolean;
   readonly lookRef: MutableRefObject<LookOffset>;
   readonly draggingRef: MutableRefObject<boolean>;
+  readonly onWorldReady?: () => void;
   readonly onTargets?: (targets: ProjectedTarget[]) => void;
 }) {
   return (
     <>
       <WorldLights quality={quality} />
-      <Suspense fallback={null}>
-        <MachuPicchuAsset quality={quality} />
-      </Suspense>
+      <MachuPicchuAsset quality={quality} />
       <ValleyFigures quality={quality} />
       <DriftDiscs quality={quality} reducedMotion={reducedMotion} />
       <HeroSparkles quality={quality} reducedMotion={reducedMotion} />
@@ -310,6 +324,7 @@ function MachuWorld({
         quality={quality}
         reducedMotion={reducedMotion}
       />
+      <ReportWorldReady onReady={onWorldReady} />
       <AdaptiveDpr pixelated={false} />
     </>
   );
@@ -321,6 +336,7 @@ export function MachuPicchuCanvas({
   visible = true,
   reducedMotion = false,
   onContextLost,
+  onWorldReady,
   onTargets,
 }: MachuPicchuCanvasProps) {
   const animate = visible && shouldPlaySceneEffects(reducedMotion);
@@ -444,6 +460,7 @@ export function MachuPicchuCanvas({
           draggingRef={draggingRef}
           lookRef={lookRef}
           onTargets={onTargets}
+          onWorldReady={onWorldReady}
           progressRef={progressRef}
           quality={quality}
           reducedMotion={reducedMotion}

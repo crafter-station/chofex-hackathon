@@ -123,6 +123,15 @@
     transform 500ms ease;
 }
 
+.landing-world-fallback {
+  z-index: 1;
+  transition: opacity 360ms ease;
+}
+
+.landing-world-fallback--ready {
+  opacity: 0;
+}
+
 .landing-scan-box {
   position: absolute;
   border: 1px solid #d6ff00;
@@ -152,5 +161,9 @@
   .landing-world-motion {
     transition: none;
     animation: none;
+  }
+
+  .landing-world-fallback {
+    transition: none;
   }
 }

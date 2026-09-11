@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { type MutableRefObject, useEffect, useRef, useState } from "react";
 
 import type { ProjectedTarget } from "@/components/landing/machu-picchu-geometry";
+import { startHeroModelPreload } from "@/components/landing/machu-picchu-preload";
 import {
   detectWebGL,
   prefersReducedMotion,
@@ -18,6 +19,7 @@ import {
   shouldRunWorldFrameLoop,
 } from "@/components/landing/world-loop";
 import { subscribePrefersReducedMotion } from "@/components/landing/world-motion";
+import { paintedFallbackClassName } from "@/components/landing/world-reveal";
 
 const MachuPicchuCanvas = dynamic(
   () =>
@@ -95,6 +97,11 @@ export function MachuPicchuScene({
   const [documentVisible, setDocumentVisible] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [contextLost, setContextLost] = useState(false);
+  const [worldReady, setWorldReady] = useState(false);
+
+  useEffect(() => {
+    startHeroModelPreload();
+  }, []);
 
   useEffect(() => {
     return subscribePrefersReducedMotion((matches) => {
@@ -153,17 +160,20 @@ export function MachuPicchuScene({
         className,
       )}
     >
-      <MachuPicchuFallback />
       {webglReady ? (
         <MachuPicchuCanvas
           onContextLost={() => setContextLost(true)}
           onTargets={onTargets}
+          onWorldReady={() => setWorldReady(true)}
           progressRef={progressRef}
           quality={presentation.quality}
           reducedMotion={reducedMotion}
           visible={visible}
         />
       ) : null}
+      <MachuPicchuFallback
+        className={paintedFallbackClassName(worldReady && webglReady)}
+      />
     </div>
   );
 }
