@@ -45,33 +45,52 @@ const instantString = (value: Date | null | undefined): string | undefined => {
   return value.toISOString();
 };
 
+type ApplicationRecord = typeof applications.$inferSelect;
+type DecidedApplication = ApplicationRecord & {
+  readonly status: "accepted" | "rejected";
+};
+type DecisionRecord = {
+  readonly application: DecidedApplication;
+  readonly attemptNumber: number;
+};
+
+const isDecidedApplication = (
+  application: ApplicationRecord,
+): application is DecidedApplication =>
+  application.status === "accepted" || application.status === "rejected";
+
 type CandidateRecord = {
-  readonly application: typeof applications.$inferSelect;
+  readonly application: ApplicationRecord;
   readonly details: typeof acceptanceDetails.$inferSelect | null;
   readonly clerkUserId: string;
   readonly attemptNumber: number;
-  readonly lastRejection?: typeof applications.$inferSelect;
+  readonly decisionHistory: ReadonlyArray<DecisionRecord>;
 };
 
 const toCandidate = (
   record: CandidateRecord,
   clerkPictureUrl: string | undefined,
   approvedBy: string | undefined,
-  lastRejectedBy: string | undefined,
+  clerkNames: ReadonlyMap<string, string>,
 ): Candidate => {
   const { application, details } = record;
   let dateOfBirth: string | undefined;
   if (details?.dateOfBirth) dateOfBirth = dateString(details.dateOfBirth);
-  let lastRejection: Candidate["lastRejection"];
-  if (record.lastRejection) {
-    const rejectedAt =
-      record.lastRejection.decidedAt ?? record.lastRejection.updatedAt;
-    lastRejection = {
-      at: rejectedAt.toISOString(),
-      rejectedBy: lastRejectedBy,
-      message: optional(record.lastRejection.rejectionReason),
+  const decisionHistory = record.decisionHistory.map((decisionRecord) => {
+    const decision = decisionRecord.application;
+    const decidedAt = decision.decidedAt ?? decision.updatedAt;
+    const reviewerId = decision.decidedByClerkUserId;
+    let decidedBy: string | undefined;
+    if (reviewerId) decidedBy = clerkNames.get(reviewerId) ?? reviewerId;
+    return {
+      applicationId: decision.id,
+      attemptNumber: decisionRecord.attemptNumber,
+      decision: decision.status,
+      at: decidedAt.toISOString(),
+      decidedBy,
+      message: optional(decision.rejectionReason),
     };
-  }
+  });
 
   return {
     id: application.id,
@@ -108,7 +127,7 @@ const toCandidate = (
     decidedAt: instantString(application.decidedAt),
     approvedBy,
     attemptNumber: record.attemptNumber,
-    lastRejection,
+    decisionHistory,
     documentFullName: optional(details?.fullName),
     phone: optional(details?.phone),
     dateOfBirth,
@@ -130,11 +149,13 @@ const toCandidates = async (
   const clerkUserIds = [
     ...new Set(records.map((record) => record.clerkUserId)),
   ];
-  const reviewerIds = records.flatMap((record) => {
-    const reviewerId = record.lastRejection?.decidedByClerkUserId;
-    if (reviewerId) return [reviewerId];
-    return [];
-  });
+  const reviewerIds = records.flatMap((record) =>
+    record.decisionHistory.flatMap(({ application: decision }) => {
+      const reviewerId = decision.decidedByClerkUserId;
+      if (reviewerId) return [reviewerId];
+      return [];
+    }),
+  );
   const approverIds = records.flatMap((record) => {
     if (record.application.status !== "accepted") return [];
     const approverId = record.application.decidedByClerkUserId;
@@ -169,22 +190,17 @@ const toCandidates = async (
       const approverId = record.application.decidedByClerkUserId;
       if (approverId) approvedBy = clerkNames.get(approverId) ?? approverId;
     }
-    let lastRejectedBy: string | undefined;
-    const reviewerId = record.lastRejection?.decidedByClerkUserId;
-    if (reviewerId) {
-      lastRejectedBy = clerkNames.get(reviewerId) ?? reviewerId;
-    }
     return toCandidate(
       record,
       clerkPictures.get(record.clerkUserId),
       approvedBy,
-      lastRejectedBy,
+      clerkNames,
     );
   });
 };
 
 const addAttemptHistory = async <
-  BaseRecord extends Omit<CandidateRecord, "attemptNumber" | "lastRejection">,
+  BaseRecord extends Omit<CandidateRecord, "attemptNumber" | "decisionHistory">,
 >(
   records: ReadonlyArray<BaseRecord>,
 ): Promise<ReadonlyArray<CandidateRecord>> => {
@@ -198,10 +214,7 @@ const addAttemptHistory = async <
     .from(applications)
     .where(inArray(applications.participantId, participantIds))
     .orderBy(desc(applications.createdAt), desc(applications.id));
-  const historyByParticipant = new Map<
-    string,
-    Array<typeof applications.$inferSelect>
-  >();
+  const historyByParticipant = new Map<string, Array<ApplicationRecord>>();
   for (const application of history) {
     const existing = historyByParticipant.get(application.participantId) ?? [];
     existing.push(application);
@@ -214,7 +227,12 @@ const addAttemptHistory = async <
     return {
       ...record,
       attemptNumber: attempts.length,
-      lastRejection: attempts.find((attempt) => attempt.status === "rejected"),
+      decisionHistory: attempts.flatMap((attempt, index) => {
+        if (!isDecidedApplication(attempt)) return [];
+        return [
+          { application: attempt, attemptNumber: attempts.length - index },
+        ];
+      }),
     };
   });
 };

@@ -707,22 +707,37 @@ const CandidateDrawer = ({
               </div>
             )}
 
-            {candidate.lastRejection && (
+            {candidate.decisionHistory.length > 0 && (
               <div className="border-t pt-5">
-                <h3 className="text-sm font-semibold">Last rejection</h3>
-                <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-5">
-                  <Detail label="Rejected">
-                    {formatDateTime(candidate.lastRejection.at)}
-                  </Detail>
-                  <Detail label="Rejected by">
-                    {candidate.lastRejection.rejectedBy}
-                  </Detail>
-                  <div className="col-span-2">
-                    <Detail label="Message">
-                      {candidate.lastRejection.message || "No message provided"}
-                    </Detail>
-                  </div>
-                </dl>
+                <h3 className="text-sm font-semibold">Decision history</h3>
+                <ol className="mt-4 space-y-3">
+                  {candidate.decisionHistory.map((decision) => (
+                    <li
+                      key={decision.applicationId}
+                      className="rounded-xl border bg-background p-4"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <StatusBadge status={decision.decision} />
+                          <span className="text-xs text-muted-foreground">
+                            Attempt {decision.attemptNumber}
+                          </span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDateTime(decision.at)}
+                        </span>
+                      </div>
+                      <dl className="mt-3 space-y-3">
+                        <Detail label="Decided by">{decision.decidedBy}</Detail>
+                        {decision.decision === "rejected" && (
+                          <Detail label="Message">
+                            {decision.message || "No message provided"}
+                          </Detail>
+                        )}
+                      </dl>
+                    </li>
+                  ))}
+                </ol>
               </div>
             )}
           </section>

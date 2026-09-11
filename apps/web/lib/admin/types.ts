@@ -54,11 +54,14 @@ export interface Candidate {
   readonly decidedAt?: string;
   readonly approvedBy?: string;
   readonly attemptNumber: number;
-  readonly lastRejection?: {
+  readonly decisionHistory: ReadonlyArray<{
+    readonly applicationId: string;
+    readonly attemptNumber: number;
+    readonly decision: "accepted" | "rejected";
     readonly at: string;
-    readonly rejectedBy?: string;
+    readonly decidedBy?: string;
     readonly message?: string;
-  };
+  }>;
   readonly documentFullName?: string;
   readonly phone?: string;
   readonly dateOfBirth?: string;
