@@ -1,7 +1,11 @@
 import { LandingApply } from "@/components/landing/apply";
 import { LandingFacts } from "@/components/landing/facts";
 import { LandingFilter } from "@/components/landing/filter";
-import { landingDisplay } from "@/components/landing/fonts";
+import {
+  landingDisplay,
+  landingMono,
+  landingTitle,
+} from "@/components/landing/fonts";
 import { LandingFooter } from "@/components/landing/footer";
 import { LandingHeader, LandingMobileCta } from "@/components/landing/header";
 import { LandingHero } from "@/components/landing/hero";
@@ -18,7 +22,9 @@ export default function Home() {
       className={cn(
         landingPageClassName,
         landingDisplay.variable,
-        landingDisplay.className,
+        landingTitle.variable,
+        landingMono.variable,
+        landingMono.className,
       )}
       lang="es"
     >

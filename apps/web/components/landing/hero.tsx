@@ -1,3 +1,4 @@
+import { AndesWireframe } from "@/components/landing/graphics";
 import {
   LandingContainer,
   landingCtaClassName,
@@ -5,51 +6,37 @@ import {
 
 export function LandingHero() {
   return (
-    <section className="relative min-h-dvh w-full overflow-hidden md:h-dvh">
-      <LandingContainer className="relative flex min-h-dvh flex-col justify-between pt-24 pb-20 md:h-dvh md:pt-28 md:pb-16">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <p className="max-w-xl font-mono text-[11px] leading-relaxed tracking-[0.2em] text-[#d1d5d1] uppercase sm:text-xs">
-            Hackathon selectivo de IA · Lima, Perú
-          </p>
-          <h1 className="max-w-6xl lowercase leading-[0.78] font-medium tracking-tighter text-[clamp(3.4rem,14vw,9.5rem)]">
-            hack the <span className="font-normal">andes</span>
-          </h1>
-          <p className="font-mono text-[11px] tracking-[0.22em] text-[#d1d5d1] uppercase md:text-sm">
-            10–11 oct 2026 · presencial
-          </p>
+    <section className="relative min-h-dvh w-full overflow-hidden bg-[#1a1a1a] md:h-dvh">
+      <LandingContainer className="relative flex min-h-dvh flex-col items-center justify-between pt-10 pb-8 md:h-dvh md:pt-14 md:pb-10">
+        <h1 className="px-2 text-center lowercase tracking-tighter">
+          <span className="block font-[family-name:var(--font-landing-display)] text-[clamp(2.8rem,12vw,8rem)] leading-[0.85] font-light">
+            hack the <span className="font-medium">[andes]</span>
+          </span>
+          <span className="mt-3 block font-[family-name:var(--font-landing-title)] text-[11px] tracking-[0.22em] uppercase sm:text-sm md:text-base">
+            hackathon selectivo de IA · Lima, Perú —{" "}
+            <strong className="font-medium">10–11 oct 2026</strong>
+          </span>
+        </h1>
+
+        <div className="flex w-full max-w-lg flex-1 items-center justify-center py-6 md:max-w-xl">
+          <AndesWireframe className="h-auto w-full max-h-[38vh]" />
         </div>
 
-        <div className="mx-auto flex max-w-xl flex-col items-center gap-4 text-center">
-          <p className="text-xl leading-snug font-medium tracking-tight lowercase sm:text-2xl">
-            Entrar es difícil. Ese es el punto.
-          </p>
-          <p className="text-sm leading-relaxed text-[#d1d5d1] sm:text-base">
-            Un hackathon presencial para el talento que ya está construyendo.
-            Pocas plazas, presión real y ~30 horas para demostrar de qué estás
-            hecho.
-          </p>
-        </div>
-
-        <div className="landing-fade-in flex flex-col items-center gap-5">
+        <div className="landing-fade-in flex flex-col items-center gap-4">
           <a href="#apply" className={landingCtaClassName}>
             <span>Aplicar ahora</span>
-            <span className="mt-0.5 font-mono text-[9px] tracking-[0.08em] text-[#1a1a1a]/75 uppercase md:text-[11px]">
+            <span className="mt-0.5 font-mono text-[9px] tracking-[0.08em] text-[#1a1a1a]/70 lowercase md:text-[11px]">
               10–11 oct 2026 · presencial
             </span>
           </a>
-          <p className="font-mono text-[10px] tracking-[0.16em] text-[#d1d5d1] uppercase sm:hidden">
-            Sponsored by Chofex
+          <p className="font-mono text-[10px] tracking-[0.14em] text-[#d1d5d1] lowercase">
+            sponsored by chofex
           </p>
-          <a
-            href="#apply"
-            className="flex flex-col items-center gap-1 text-[#e1ff00]"
-          >
-            <span className="font-mono text-[10px] tracking-[0.18em] uppercase">
-              Aplicar abajo
-            </span>
+          <a className="text-[#e1ff00]" href="#apply">
+            <span className="sr-only">Aplicar abajo</span>
             <span
               aria-hidden="true"
-              className="landing-bounce-cue text-3xl leading-none"
+              className="landing-bounce-cue block text-3xl leading-none"
             >
               ⌄
             </span>

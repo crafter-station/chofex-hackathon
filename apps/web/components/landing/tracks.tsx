@@ -1,7 +1,7 @@
 import {
   LandingContainer,
-  LandingEyebrow,
-  LandingTitle,
+  landingFrameClassName,
+  LandingSectionHead,
 } from "@/components/landing/shell";
 
 function RidgelineHint() {
@@ -73,39 +73,32 @@ const trackHints = [
 
 export function LandingTracks() {
   return (
-    <section
-      aria-labelledby="tracks-heading"
-      className="border-[#e1ff00]/20 border-t"
-    >
-      <LandingContainer className="py-12 sm:py-16">
-        <div className="grid gap-5 border-[#e1ff00]/20 border-b pb-8 md:grid-cols-[1fr_1.6fr]">
-          <LandingEyebrow id="tracks-heading">Tracks</LandingEyebrow>
-          <div className="flex flex-col gap-3">
-            <LandingTitle>Se revelan el día 1.</LandingTitle>
-            <p className="max-w-md text-sm leading-relaxed text-[#d1d5d1] sm:text-base">
-              Cinco minutos para elegir. Cero spoilers. Las pistas están a la
-              vista; los nombres, no.
-            </p>
-          </div>
-        </div>
+    <section aria-labelledby="tracks-heading" className="bg-[#1a1a1a]">
+      <LandingContainer className="py-14 sm:py-16">
+        <LandingSectionHead title="Tracks" titleId="tracks-heading">
+          <p className="max-w-md text-sm leading-relaxed text-[#d1d5d1] sm:text-base">
+            Se revelan el día 1. Cinco minutos para elegir. Cero spoilers. Las
+            pistas están a la vista; los nombres, no.
+          </p>
+        </LandingSectionHead>
 
-        <div className="mt-8 grid gap-px bg-[#e1ff00]/20 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           {trackHints.map((track) => {
             const Visual = track.visual;
             return (
               <article
-                className="flex flex-col gap-5 bg-[#1a1a1a] p-5 sm:p-6"
+                className={`flex flex-col gap-5 p-5 ${landingFrameClassName}`}
                 key={track.code}
               >
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs text-[#d1d5d1]">
-                    Señal {track.code}
+                    señal {track.code}
                   </span>
-                  <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#d1d5d1]">
+                  <span className="font-mono text-[11px] tracking-[0.16em] uppercase">
                     Bloqueado
                   </span>
                 </div>
-                <div className="aspect-16/9 overflow-hidden border border-[#e1ff00]/20 bg-[#e1ff00]/5">
+                <div className="aspect-16/9 overflow-hidden bg-[#e1ff00]/5">
                   <Visual />
                 </div>
                 <p className="text-sm leading-relaxed text-[#d1d5d1]">

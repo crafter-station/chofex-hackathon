@@ -1,40 +1,33 @@
 import { sponsorSlots } from "@/components/landing/content";
 import {
   LandingContainer,
-  LandingEyebrow,
-  LandingTitle,
+  landingFrameClassName,
+  LandingSectionHead,
 } from "@/components/landing/shell";
 
 export function LandingSponsors() {
   return (
-    <section
-      aria-labelledby="sponsors-heading"
-      className="border-[#e1ff00]/20 border-t"
-    >
-      <LandingContainer className="py-12 sm:py-16">
-        <div className="flex flex-col gap-3">
-          <LandingEyebrow id="sponsors-heading">Sponsors</LandingEyebrow>
-          <LandingTitle className="normal-case tracking-tight">
-            Sponsored by Chofex
-          </LandingTitle>
+    <section aria-labelledby="sponsors-heading" className="bg-[#1a1a1a]">
+      <LandingContainer className="py-14 sm:py-16">
+        <LandingSectionHead title="Sponsors" titleId="sponsors-heading">
           <p className="max-w-md text-sm leading-relaxed text-[#d1d5d1]">
-            Identidad propia del evento. Chofex patrocina — no pinta la paleta.
-            Más logos cuando estén confirmados.
+            Sponsored by Chofex. Identidad propia del evento. Chofex patrocina —
+            no pinta la paleta.
           </p>
-        </div>
-        <ul className="mt-8 grid gap-px bg-[#e1ff00]/20 sm:grid-cols-2">
+        </LandingSectionHead>
+        <ul className="mx-auto grid max-w-3xl gap-3 sm:grid-cols-2">
           {sponsorSlots.map((slot) => {
             const label = slot.confirmed ? slot.name : "Más sponsors pronto";
             return (
               <li
-                className="grid h-28 place-items-center border border-[#e1ff00]/20 bg-[#1a1a1a] px-3 text-center"
+                className={`grid h-28 place-items-center px-3 text-center ${landingFrameClassName}`}
                 key={slot.id}
               >
                 <span
                   className={
                     slot.confirmed
-                      ? "text-lg font-semibold tracking-[0.08em] uppercase"
-                      : "font-mono text-xs tracking-[0.16em] text-[#d1d5d1] uppercase"
+                      ? "font-[family-name:var(--font-landing-title)] text-lg tracking-[0.14em] uppercase"
+                      : "font-mono text-xs tracking-[0.12em] text-[#d1d5d1] lowercase"
                   }
                 >
                   {label}

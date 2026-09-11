@@ -4,9 +4,14 @@ import { useEffect, useRef, useState } from "react";
 
 import { formatSoles } from "@/components/landing/content";
 
-const DURATION_MS = 1400;
+const DURATION_MS = 1600;
 
-export function PrizeCounter({ amount }: { readonly amount: number }) {
+interface PrizeCounterProps {
+  readonly amount: number;
+  readonly format?: "soles" | "number";
+}
+
+export function PrizeCounter({ amount, format = "soles" }: PrizeCounterProps) {
   const nodeRef = useRef<HTMLSpanElement>(null);
   const [value, setValue] = useState(0);
 
@@ -61,9 +66,12 @@ export function PrizeCounter({ amount }: { readonly amount: number }) {
     };
   }, [amount]);
 
+  const formatted =
+    format === "number" ? value.toLocaleString("es-PE") : formatSoles(value);
+
   return (
     <span ref={nodeRef} className="tabular-nums">
-      {formatSoles(value)}
+      {formatted}
     </span>
   );
 }
