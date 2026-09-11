@@ -14,6 +14,10 @@ import {
   type WorldQuality,
 } from "@/components/landing/world-capability";
 import { subscribePrefersReducedMotion } from "@/components/landing/world-motion";
+import {
+  isDocumentVisible,
+  shouldRunWorldFrameLoop,
+} from "@/components/landing/world-loop";
 
 const MachuPicchuCanvas = dynamic(
   () =>
@@ -87,7 +91,8 @@ export function MachuPicchuScene({
     mode: "fallback",
     reason: "ssr",
   });
-  const [visible, setVisible] = useState(true);
+  const [intersecting, setIntersecting] = useState(false);
+  const [documentVisible, setDocumentVisible] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [contextLost, setContextLost] = useState(false);
 
@@ -99,8 +104,24 @@ export function MachuPicchuScene({
   }, [forceFallback, quality]);
 
   useEffect(() => {
+    const syncVisibility = () => {
+      setDocumentVisible(isDocumentVisible(document.visibilityState));
+    };
+
+    syncVisibility();
+    document.addEventListener("visibilitychange", syncVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", syncVisibility);
+    };
+  }, []);
+
+  useEffect(() => {
     const root = rootRef.current;
-    if (!root || typeof IntersectionObserver === "undefined") {
+    if (!root) {
+      return;
+    }
+    if (typeof IntersectionObserver === "undefined") {
+      setIntersecting(true);
       return;
     }
 
@@ -109,7 +130,7 @@ export function MachuPicchuScene({
         if (!entry) {
           return;
         }
-        setVisible(entry.isIntersecting);
+        setIntersecting(entry.isIntersecting);
       },
       { threshold: 0.04 },
     );
@@ -118,6 +139,11 @@ export function MachuPicchuScene({
   }, []);
 
   const webglReady = presentation.mode === "webgl" && !contextLost;
+  const visible = shouldRunWorldFrameLoop({
+    intersecting,
+    documentVisible,
+    reducedMotion,
+  });
 
   return (
     <div

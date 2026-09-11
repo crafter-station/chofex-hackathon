@@ -28,6 +28,7 @@ import {
   REST_LOOK,
 } from "@/components/landing/machu-picchu-look";
 import { MachuPicchuAsset } from "@/components/landing/machu-picchu-model";
+import { worldFrameLoop } from "@/components/landing/world-loop";
 import {
   shouldPlaySceneEffects,
   worldMotionScale,
@@ -323,6 +324,7 @@ export function MachuPicchuCanvas({
   onTargets,
 }: MachuPicchuCanvasProps) {
   const animate = visible && shouldPlaySceneEffects(reducedMotion);
+  const frameLoop = worldFrameLoop(animate);
   const lookEnabled = shouldPlaySceneEffects(reducedMotion);
   const lookRef = useRef<LookOffset>(REST_LOOK);
   const draggingRef = useRef(false);
@@ -415,7 +417,7 @@ export function MachuPicchuCanvas({
         camera={{ far: 420, fov: 38, near: 0.1, position: [46, 18, 58] }}
         className="pointer-events-none absolute inset-0 size-full"
         dpr={quality === "high" ? [1, 1.5] : [1, 1]}
-        frameloop={animate ? "always" : "never"}
+        frameloop={frameLoop}
         gl={{
           alpha: false,
           antialias: quality === "high",
