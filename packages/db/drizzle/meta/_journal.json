@@ -29,6 +29,13 @@
       "when": 1789104196794,
       "tag": "0003_chilly_vampiro",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789104434705,
+      "tag": "0004_strange_expediter",
+      "breakpoints": true
     }
   ]
 }

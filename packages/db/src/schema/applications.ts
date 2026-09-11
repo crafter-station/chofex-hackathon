@@ -14,7 +14,6 @@ import {
 import { auditTimestamps } from "./common";
 import {
   applicationStatus,
-  experienceLevel,
   participationMode,
   teamPreference,
 } from "./enums";
@@ -40,8 +39,6 @@ export const applications = pgTable(
     role: varchar("role", { length: 120 }),
     fieldOfStudy: varchar("field_of_study", { length: 160 }),
     graduationYear: integer("graduation_year"),
-    experienceLevel: experienceLevel("experience_level"),
-    skills: text("skills").array(),
     shippedProject: text("shipped_project"),
     hackathonProject: text("hackathon_project"),
     bio: text("bio"),

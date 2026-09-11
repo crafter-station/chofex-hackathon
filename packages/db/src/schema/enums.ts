@@ -15,12 +15,6 @@ export const participationMode = pgEnum("participation_mode", [
   "remote",
 ]);
 
-export const experienceLevel = pgEnum("experience_level", [
-  "beginner",
-  "intermediate",
-  "advanced",
-]);
-
 export const teamPreference = pgEnum("team_preference", [
   "have_team",
   "looking_for_team",

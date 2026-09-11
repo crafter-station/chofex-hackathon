@@ -34,8 +34,8 @@ Ask a follow-up only when the input is malformed or has more than one plausible
 meaning that would materially change the application. State low-risk parsing in
 a concise interpretation note immediately before the final summary instead of
 interrupting the interview. For example, map “community at Crafter Station” to
-role `community` and organization `Crafter Station`, and parse recognizable
-participant-provided wording and casing for personal answers.
+role `community` and organization `Crafter Station`. Preserve participant-provided
+wording and casing for personal answers.
 
 ## Command setup
 
@@ -106,7 +106,8 @@ can scan and answer it naturally:
 
 - required profile: name, city, and bio;
 - optional profile: pronouns, organization, role, education, and profile URLs;
-- what they have shipped and what they want to ship at the hackathon;
+- shipping: “What have you shipped?” and “What do you want to ship at the
+  hackathon?”;
 - team preference and team name when applicable; and
 - required agreements and optional media consent.
 
