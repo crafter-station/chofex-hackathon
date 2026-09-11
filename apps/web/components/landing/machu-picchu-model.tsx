@@ -19,13 +19,22 @@ import {
   MACHU_MODEL_SCALE,
   ridgeHeight,
 } from "@/components/landing/machu-picchu-geometry";
+import { heroSubjectFromLoadedGltf } from "@/components/landing/machu-picchu-glb";
 import { ModelErrorBoundary } from "@/components/landing/model-error-boundary";
 import { isCitadelPresented } from "@/components/landing/world-reveal";
 
 type SceneQuality = "low" | "high";
 
 const USE_DRACO = false;
-const USE_MESHOPT = true;
+const USE_MESHOPT = false;
+
+function liftStoneColor(color: THREE.Color): void {
+  const luma = color.r * 0.2126 + color.g * 0.7152 + color.b * 0.0722;
+  if (luma >= 0.42) {
+    return;
+  }
+  color.lerp(new THREE.Color("#f2f4f8"), 0.62);
+}
 
 function polishStoneMaterial(
   source: THREE.Material,
@@ -35,6 +44,9 @@ function polishStoneMaterial(
     return source;
   }
 
+  source.metalness = Math.min(source.metalness, 0.04);
+  liftStoneColor(source.color);
+
   if (quality === "low") {
     source.roughness = Math.min(source.roughness, 0.62);
     return source;
@@ -42,20 +54,22 @@ function polishStoneMaterial(
 
   const next = new THREE.MeshPhysicalMaterial();
   next.copy(source);
-  next.metalness = Math.min(0.12, source.metalness + 0.04);
-  next.roughness = Math.min(0.42, source.roughness);
-  next.clearcoat = 0.48;
-  next.clearcoatRoughness = 0.32;
-  next.envMapIntensity = 1.15;
+  next.metalness = Math.min(0.06, source.metalness);
+  next.roughness = Math.min(0.48, source.roughness);
+  next.clearcoat = 0.38;
+  next.clearcoatRoughness = 0.36;
+  next.envMapIntensity = 1.05;
   return next;
 }
 
 function ReportCitadelPresented({
   onPresented,
   ready,
+  heroSubject,
 }: {
   readonly onPresented?: () => void;
   readonly ready: boolean;
+  readonly heroSubject: "citadel" | null;
 }) {
   const sent = useRef(false);
   const presentedFrames = useRef(0);
@@ -70,6 +84,7 @@ function ReportCitadelPresented({
         glbLoaded: true,
         centered: ready,
         presentedFrames: presentedFrames.current,
+        heroSubject,
       })
     ) {
       return;
@@ -88,8 +103,12 @@ function MachuPicchuGltf({
   readonly quality: SceneQuality;
   readonly onPresented?: () => void;
 }) {
-  const { scene } = useGLTF(HERO_SCENE_MODEL_URL, USE_DRACO, USE_MESHOPT);
-  const clone = useMemo(() => scene.clone(true), [scene]);
+  const gltf = useGLTF(HERO_SCENE_MODEL_URL, USE_DRACO, USE_MESHOPT);
+  const clone = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
+  const heroSubject = heroSubjectFromLoadedGltf({
+    asset: gltf.asset,
+    scene: clone,
+  });
   const [centered, setCentered] = useState(false);
   const markCentered = useCallback(() => {
     setCentered(true);
@@ -133,7 +152,11 @@ function MachuPicchuGltf({
   return (
     <Center disableY onCentered={markCentered}>
       <primitive object={clone} scale={MACHU_MODEL_SCALE} />
-      <ReportCitadelPresented onPresented={onPresented} ready={centered} />
+      <ReportCitadelPresented
+        heroSubject={heroSubject}
+        onPresented={onPresented}
+        ready={centered}
+      />
     </Center>
   );
 }
