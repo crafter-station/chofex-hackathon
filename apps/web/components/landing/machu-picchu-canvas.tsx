@@ -53,15 +53,15 @@ function WorldLights({ quality }: { readonly quality: SceneQuality }) {
 
   return (
     <>
-      <color args={["#1a4fd8"]} attach="background" />
-      <fog attach="fog" args={["#4d86e8", 28, 160]} />
-      <ambientLight color="#ffd7a8" intensity={0.22} />
-      <hemisphereLight args={["#8ec4ff", "#3a2a18", 0.62]} />
+      <color args={["#3d7eef"]} attach="background" />
+      <fog attach="fog" args={["#7eb4ff", 90, 240]} />
+      <ambientLight color="#fff1d6" intensity={0.58} />
+      <hemisphereLight args={["#c5e2ff", "#8a9bb0", 0.92]} />
       <directionalLight
         castShadow={quality === "high"}
-        color="#ffc878"
-        intensity={2.35}
-        position={[-38, 28, 46]}
+        color="#ffe2a8"
+        intensity={2.15}
+        position={[46, 28, 58]}
         shadow-bias={-0.0004}
         shadow-camera-bottom={-50}
         shadow-camera-far={180}
@@ -72,15 +72,20 @@ function WorldLights({ quality }: { readonly quality: SceneQuality }) {
         shadow-mapSize={[mapSize, mapSize]}
       />
       <directionalLight
+        color="#fff6d8"
+        intensity={1.15}
+        position={[-24, 22, 36]}
+      />
+      <directionalLight
         color="#d6ff00"
-        intensity={0.18}
+        intensity={0.22}
         position={[42, 16, -30]}
       />
       <pointLight
-        color="#ffb35c"
-        intensity={18}
-        position={[8, 6, 10]}
-        distance={42}
+        color="#ffd19a"
+        intensity={22}
+        position={[8, 10, 14]}
+        distance={56}
       />
     </>
   );
@@ -426,8 +431,8 @@ export function MachuPicchuCanvas({
         }}
         onCreated={({ gl }) => {
           gl.toneMapping = THREE.ACESFilmicToneMapping;
-          gl.toneMappingExposure = 1.18;
-          gl.setClearColor("#1a4fd8");
+          gl.toneMappingExposure = 1.32;
+          gl.setClearColor("#3d7eef");
           gl.domElement.style.pointerEvents = "none";
           gl.domElement.addEventListener(
             "webglcontextlost",

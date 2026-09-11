@@ -33,6 +33,7 @@ test("waits for the citadel to be centered and drawn before reveal", () => {
       glbLoaded: true,
       centered: false,
       presentedFrames: 4,
+      heroSubject: "citadel",
     }),
   ).toBe(false);
   expect(
@@ -40,6 +41,7 @@ test("waits for the citadel to be centered and drawn before reveal", () => {
       glbLoaded: true,
       centered: true,
       presentedFrames: 1,
+      heroSubject: "citadel",
     }),
   ).toBe(false);
   expect(
@@ -47,6 +49,15 @@ test("waits for the citadel to be centered and drawn before reveal", () => {
       glbLoaded: true,
       centered: true,
       presentedFrames: 2,
+      heroSubject: null,
+    }),
+  ).toBe(false);
+  expect(
+    isCitadelPresented({
+      glbLoaded: true,
+      centered: true,
+      presentedFrames: 2,
+      heroSubject: "citadel",
     }),
   ).toBe(true);
 });
