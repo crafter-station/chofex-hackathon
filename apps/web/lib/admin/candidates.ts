@@ -82,6 +82,7 @@ const toCandidate = ({ application, details }: CandidateRecord): Candidate => {
     ).toISOString(),
     decidedAt: instantString(application.decidedAt),
     rejectionReason: optional(application.rejectionReason),
+    documentFullName: optional(details?.fullName),
     phone: optional(details?.phone),
     dateOfBirth,
     shirtSize: optional(details?.shirtSize),

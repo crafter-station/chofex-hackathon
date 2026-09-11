@@ -212,9 +212,10 @@ The server response is authoritative when it differs from this summary.
 
 ## Confirm attendance
 
-Acceptance details include a birth date, national ID or passport number,
-emergency contact, a required profile-picture confirmation, and other private
-information. The participant must explicitly choose their Clerk picture, their
+Acceptance details include the participant's full name exactly as it appears on
+their ID document, birth date, national ID or passport number, emergency
+contact, a required profile-picture confirmation, and other private information.
+The participant must explicitly choose their Clerk picture, their
 GitHub avatar, or a custom upload; never infer this choice from an available
 image. Recommend that the
 participant keep these values out of agent chat by running this themselves in

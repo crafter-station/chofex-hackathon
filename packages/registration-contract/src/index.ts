@@ -119,6 +119,7 @@ export const ApplicationInput = Schema.Struct(applicationInputFields);
 export type ApplicationInput = typeof ApplicationInput.Type;
 
 export const acceptedDetailsInputFields = {
+  fullName: nonBlank(200),
   phone: nonBlank(32),
   dateOfBirth: Schema.String.pipe(
     Schema.check(
@@ -158,6 +159,7 @@ export const initialRequiredFields = [
 ] as const;
 
 export const acceptedRequiredFields = [
+  "fullName",
   "phone",
   "dateOfBirth",
   "nationalIdNumber",
@@ -233,6 +235,7 @@ export const RegistrationViewSchema = Schema.Struct({
   firstName: Schema.String,
   lastName: Schema.String,
   email: Schema.String,
+  fullName: Schema.optional(Schema.String),
   phone: Schema.optional(Schema.String),
   dateOfBirth: Schema.optional(Schema.String),
   pronouns: Schema.optional(Schema.String),
@@ -293,6 +296,7 @@ const acceptedDetailsRequirementsFor = (
 ): ReadonlyArray<Requirement> => {
   const missing: Array<Requirement> = [];
 
+  if (!registration.fullName) addMissingRequirement(missing, "fullName");
   if (!registration.phone) addMissingRequirement(missing, "phone");
   if (!registration.dateOfBirth) {
     addMissingRequirement(missing, "dateOfBirth");
@@ -410,7 +414,9 @@ export type PictureUpload = typeof PictureUploadSchema.Type;
 export const PictureUploadRequestSchema = Schema.Struct({
   contentType: PictureContentType,
   size: Schema.Number.pipe(
-    Schema.check(Schema.isBetween({ minimum: 1, maximum: maximumPictureBytes })),
+    Schema.check(
+      Schema.isBetween({ minimum: 1, maximum: maximumPictureBytes }),
+    ),
   ),
 });
 

@@ -154,6 +154,7 @@ describe("CLI JSON mode", () => {
       await Bun.write(
         inputPath,
         JSON.stringify({
+          fullName: "Ada Lovelace",
           phone: "+51 999 999 999",
           dateOfBirth: "1990-01-01",
           nationalIdNumber,
@@ -600,6 +601,7 @@ describe("CLI JSON mode", () => {
       await Bun.write(
         inputPath,
         JSON.stringify({
+          fullName: "Ada Lovelace",
           phone: "+51 999 999 999",
           dateOfBirth: "1990-01-01",
           nationalIdNumber: "private-passport-number",

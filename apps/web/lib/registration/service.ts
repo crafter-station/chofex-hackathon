@@ -131,6 +131,7 @@ const toView = (
   firstName: application.firstName ?? "",
   lastName: application.lastName ?? "",
   email: application.email ?? "",
+  fullName: optional(details?.fullName),
   phone: optional(details?.phone),
   dateOfBirth: optionalDateString(details?.dateOfBirth),
   pronouns: optional(application.pronouns),
@@ -336,6 +337,7 @@ export const submitAcceptedDetails = async (
     .returning();
 
   const values = {
+    fullName: input.fullName,
     phone: input.phone,
     dateOfBirth: DateTime.toDateUtc(
       DateTime.makeUnsafe(`${input.dateOfBirth}T00:00:00.000Z`),

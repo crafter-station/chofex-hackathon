@@ -44,6 +44,7 @@ export interface Candidate {
   readonly submittedAt: string;
   readonly decidedAt?: string;
   readonly rejectionReason?: string;
+  readonly documentFullName?: string;
   readonly phone?: string;
   readonly dateOfBirth?: string;
   readonly shirtSize?: string;

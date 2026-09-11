@@ -607,6 +607,9 @@ const CandidateDrawer = ({
                 <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-5">
                   <Detail label="Details status">{attendanceStatus}</Detail>
                   <Detail label="Checked in">{checkedIn}</Detail>
+                  <Detail label="Full name on ID">
+                    {candidate.documentFullName}
+                  </Detail>
                   <Detail label="Phone">{candidate.phone}</Detail>
                   <Detail label="Date of birth">{dateOfBirth}</Detail>
                   <Detail label="Shirt size">

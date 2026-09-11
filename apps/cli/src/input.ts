@@ -301,9 +301,31 @@ const interactiveAcceptedDetails = (
   pictures: {
     readonly clerkPictureUrl?: string;
     readonly githubUrl?: string;
+    readonly currentFullName?: string;
   },
 ) =>
   Effect.gen(function* () {
+    let fullName = pictures.currentFullName;
+    if (fullName) {
+      const nameChoice = yield* Prompt.run(
+        Prompt.select({
+          message: `Is "${fullName}" your full name exactly as it appears on your ID document?`,
+          choices: [
+            { title: "Yes, use this name", value: "keep" as const },
+            { title: "No, update it", value: "update" as const },
+          ],
+        }),
+      );
+      if (nameChoice === "update") fullName = undefined;
+    }
+    if (!fullName) {
+      fullName = yield* Prompt.run(
+        requiredText(
+          "Full name exactly as it appears on your ID document",
+          acceptedDetailsInputFields.fullName,
+        ),
+      );
+    }
     const details = yield* Prompt.run(
       Prompt.all({
         phone: requiredText("Phone number", acceptedDetailsInputFields.phone),
@@ -360,7 +382,7 @@ const interactiveAcceptedDetails = (
         choices: pictureChoices,
       }),
     );
-    return withoutEmptyStrings({ ...details, pictureSource });
+    return withoutEmptyStrings({ fullName, ...details, pictureSource });
   });
 
 const inputOrInteractive = (
@@ -403,6 +425,7 @@ export const acceptedDetailsInput = (
   pictures: {
     readonly clerkPictureUrl?: string;
     readonly githubUrl?: string;
+    readonly currentFullName?: string;
   } = {},
 ): Effect.Effect<AcceptedDetailsInput, CliError, PromptModule.Environment> =>
   inputOrInteractive(

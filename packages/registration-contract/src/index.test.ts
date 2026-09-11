@@ -110,6 +110,7 @@ describe("registration contract", () => {
 
   test("requires shirt size only for in-person attendance", () => {
     const details = Schema.decodeUnknownSync(AcceptedDetailsInput)({
+      fullName: "Ada Lovelace",
       phone: "+44 20 0000 0000",
       dateOfBirth: "1990-01-01",
       nationalIdNumber: "AB123456",
@@ -129,6 +130,7 @@ describe("registration contract", () => {
   test("requires a national ID after acceptance", () => {
     expect(() =>
       Schema.decodeUnknownSync(AcceptedDetailsInput)({
+        fullName: "Ada Lovelace",
         phone: "+44 20 0000 0000",
         dateOfBirth: "1990-01-01",
         emergencyContactName: "Charles Babbage",
@@ -138,8 +140,22 @@ describe("registration contract", () => {
     ).toThrow();
   });
 
+  test("requires the full name shown on the participant's ID", () => {
+    expect(() =>
+      Schema.decodeUnknownSync(AcceptedDetailsInput)({
+        phone: "+44 20 0000 0000",
+        dateOfBirth: "1990-01-01",
+        nationalIdNumber: "AB123456",
+        emergencyContactName: "Charles Babbage",
+        emergencyContactPhone: "+44 20 0000 0001",
+        pictureSource: "clerk",
+      }),
+    ).toThrow();
+  });
+
   test("rejects impossible and future birth dates", () => {
     const details = Schema.decodeUnknownSync(AcceptedDetailsInput)({
+      fullName: "Ada Lovelace",
       phone: "+44 20 0000 0000",
       dateOfBirth: "2024-02-30",
       nationalIdNumber: "AB123456",
@@ -169,6 +185,7 @@ describe("registration contract", () => {
   test("requires accepted participants to confirm a picture source", () => {
     expect(() =>
       Schema.decodeUnknownSync(AcceptedDetailsInput)({
+        fullName: "Ada Lovelace",
         phone: "+44 20 0000 0000",
         dateOfBirth: "1990-01-01",
         nationalIdNumber: "AB123456",
@@ -222,6 +239,7 @@ describe("registration contract", () => {
   test("requires a completion marker and every acceptance field", () => {
     const completed = registrationView({
       status: "accepted",
+      fullName: "Ada Lovelace",
       phone: "+51 999 999 999",
       dateOfBirth: "1990-01-01",
       nationalIdProvided: true,
@@ -267,6 +285,7 @@ describe("registration contract", () => {
     const completed = registrationView({
       status: "accepted",
       participationMode: "remote",
+      fullName: "Ada Lovelace",
       phone: "+51 999 999 999",
       dateOfBirth: "1990-01-01",
       nationalIdProvided: true,

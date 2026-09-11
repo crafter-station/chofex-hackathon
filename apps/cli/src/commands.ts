@@ -175,6 +175,8 @@ const confirmCommand = Command.make(
         {
           clerkPictureUrl: currentUser.data.clerkPictureUrl,
           githubUrl: current.data.registration.githubUrl,
+          currentFullName:
+            `${current.data.registration.firstName} ${current.data.registration.lastName}`.trim(),
         },
       );
       const picturePath = Option.getOrUndefined(picture);
@@ -334,6 +336,7 @@ const applicationTemplate = {
 };
 
 const acceptanceTemplate = {
+  fullName: "Ada Lovelace",
   phone: "+44 20 0000 0000",
   dateOfBirth: "1990-01-01",
   nationalIdNumber: "passport-or-national-id",
