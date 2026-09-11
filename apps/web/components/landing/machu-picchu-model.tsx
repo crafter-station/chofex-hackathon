@@ -2,7 +2,14 @@
 
 import { Center, useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import * as THREE from "three";
 
 import { HERO_SCENE_MODEL_URL } from "@/components/landing/hero-scene";
@@ -13,6 +20,7 @@ import {
   ridgeHeight,
 } from "@/components/landing/machu-picchu-geometry";
 import { ModelErrorBoundary } from "@/components/landing/model-error-boundary";
+import { isCitadelPresented } from "@/components/landing/world-reveal";
 
 type SceneQuality = "low" | "high";
 
@@ -44,13 +52,26 @@ function polishStoneMaterial(
 
 function ReportCitadelPresented({
   onPresented,
+  ready,
 }: {
   readonly onPresented?: () => void;
+  readonly ready: boolean;
 }) {
   const sent = useRef(false);
+  const presentedFrames = useRef(0);
 
   useFrame(() => {
-    if (sent.current || !onPresented) {
+    if (sent.current || !onPresented || !ready) {
+      return;
+    }
+    presentedFrames.current += 1;
+    if (
+      !isCitadelPresented({
+        glbLoaded: true,
+        centered: ready,
+        presentedFrames: presentedFrames.current,
+      })
+    ) {
       return;
     }
     sent.current = true;
@@ -69,6 +90,10 @@ function MachuPicchuGltf({
 }) {
   const { scene } = useGLTF(HERO_SCENE_MODEL_URL, USE_DRACO, USE_MESHOPT);
   const clone = useMemo(() => scene.clone(true), [scene]);
+  const [centered, setCentered] = useState(false);
+  const markCentered = useCallback(() => {
+    setCentered(true);
+  }, []);
 
   useEffect(() => {
     const extras: THREE.Material[] = [];
@@ -106,9 +131,9 @@ function MachuPicchuGltf({
   }, [clone, quality]);
 
   return (
-    <Center disableY>
+    <Center disableY onCentered={markCentered}>
       <primitive object={clone} scale={MACHU_MODEL_SCALE} />
-      <ReportCitadelPresented onPresented={onPresented} />
+      <ReportCitadelPresented onPresented={onPresented} ready={centered} />
     </Center>
   );
 }
