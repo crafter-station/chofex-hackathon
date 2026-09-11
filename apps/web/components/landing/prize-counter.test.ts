@@ -1,11 +1,9 @@
 import { expect, test } from "bun:test";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
-import { formatSoles } from "./content";
-import {
-  formatPrizeAmount,
-  isRectInViewport,
-  shouldStartPrizeCounter,
-} from "./prize-counter";
+import { formatSoles, prizeAmountsPen } from "./content";
+import { formatPrizeAmount, PrizeCounter } from "./prize-counter";
 
 test("formats the accessible prize amount without counting up", () => {
   const numbered = formatPrizeAmount(6_700, "number");
@@ -14,51 +12,35 @@ test("formats the accessible prize amount without counting up", () => {
   expect(formatPrizeAmount(1_675, "soles")).toBe(formatSoles(1_675));
 });
 
-test("treats a node already on screen as in view", () => {
-  expect(
-    isRectInViewport(
-      { top: 80, right: 400, bottom: 160, left: 24 },
-      { width: 1280, height: 720 },
-    ),
-  ).toBe(true);
-  expect(
-    isRectInViewport(
-      { top: 800, right: 400, bottom: 880, left: 24 },
-      { width: 1280, height: 720 },
-    ),
-  ).toBe(false);
+test("formats first and second place as the final amounts, not zero", () => {
+  expect(formatPrizeAmount(prizeAmountsPen.first, "number")).toBe(
+    formatPrizeAmount(6_700, "number"),
+  );
+  expect(formatPrizeAmount(prizeAmountsPen.second, "soles")).toBe(
+    formatSoles(1_675),
+  );
+  expect(formatPrizeAmount(prizeAmountsPen.first, "number")).not.toBe(
+    formatPrizeAmount(0, "number"),
+  );
+  expect(formatPrizeAmount(prizeAmountsPen.second, "soles")).not.toBe(
+    formatPrizeAmount(0, "soles"),
+  );
 });
 
-test("shows the final amount immediately when motion is reduced", () => {
-  expect(
-    shouldStartPrizeCounter({
-      reducedMotion: true,
-      intersecting: false,
-      alreadyInViewport: false,
+test("server markup paints final prize amounts, not zero", () => {
+  const first = renderToStaticMarkup(
+    createElement(PrizeCounter, {
+      amount: prizeAmountsPen.first,
+      format: "number",
     }),
-  ).toBe("final");
-});
+  );
+  const second = renderToStaticMarkup(
+    createElement(PrizeCounter, { amount: prizeAmountsPen.second }),
+  );
 
-test("starts as soon as the node is intersecting or already in view", () => {
-  expect(
-    shouldStartPrizeCounter({
-      reducedMotion: false,
-      intersecting: true,
-      alreadyInViewport: false,
-    }),
-  ).toBe("play");
-  expect(
-    shouldStartPrizeCounter({
-      reducedMotion: false,
-      intersecting: false,
-      alreadyInViewport: true,
-    }),
-  ).toBe("play");
-  expect(
-    shouldStartPrizeCounter({
-      reducedMotion: false,
-      intersecting: false,
-      alreadyInViewport: false,
-    }),
-  ).toBe("wait");
+  expect(first).toContain(formatPrizeAmount(6_700, "number"));
+  expect(first).not.toBe(formatPrizeAmount(0, "number"));
+  expect(first).not.toContain(`>${formatPrizeAmount(0, "number")}<`);
+  expect(second).toContain(formatSoles(1_675));
+  expect(second).not.toContain(formatSoles(0));
 });
