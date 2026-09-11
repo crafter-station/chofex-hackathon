@@ -4,7 +4,13 @@ import { NextResponse } from "next/server";
 const clerk = clerkMiddleware();
 
 function isPublicMarketingPath(pathname: string) {
-  if (pathname === "/" || pathname === "/terms" || pathname === "/privacy") {
+  if (
+    pathname === "/" ||
+    pathname === "/terms" ||
+    pathname === "/privacy" ||
+    pathname === "/opengraph-image" ||
+    pathname === "/twitter-image"
+  ) {
     return true;
   }
 
