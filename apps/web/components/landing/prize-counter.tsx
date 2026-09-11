@@ -138,8 +138,9 @@ export function PrizeCounter({ amount, format = "soles" }: PrizeCounterProps) {
   const accessible = formatPrizeAmount(amount, format);
 
   return (
-    <span ref={nodeRef} className="tabular-nums" aria-label={accessible}>
-      {formatted}
+    <span ref={nodeRef} className="tabular-nums">
+      <span aria-hidden="true">{formatted}</span>
+      <span className="sr-only">{accessible}</span>
     </span>
   );
 }
