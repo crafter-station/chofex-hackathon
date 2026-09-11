@@ -197,8 +197,9 @@ Interpret the returned state as follows:
   status and requirements. When the requirements stage is `review`, no action
   is needed while organizers review the application.
 - `rejected`: show the review feedback when present. Offer a new application
-  only if `canSubmitNewApplication` is true; repeat the full interview and
-  submission approval rather than silently resubmitting old answers.
+  only if `canSubmitNewApplication` is true. Interactive `chofex register`
+  presents the rejected application's answers as editable defaults. Obtain a
+  fresh submission approval rather than silently resubmitting old answers.
 - `accepted`: congratulate the participant and explain any `missing`
   acceptance fields. Continue to **Confirm attendance** only when
   `canSubmitAcceptedDetails` is true.

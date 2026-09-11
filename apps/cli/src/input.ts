@@ -3,13 +3,14 @@ import { readFile } from "node:fs/promises";
 import {
   AcceptedDetailsInput,
   ApplicationInput,
-  acceptedDetailsInputFields,
   acceptedDetailsInputFieldNames,
+  acceptedDetailsInputFields,
   acceptedDetailsSemanticRequirements,
-  applicationInputFields,
   applicationInputFieldNames,
+  applicationInputFields,
   applicationSemanticRequirements,
   dateOfBirthRequirement,
+  type RegistrationView,
 } from "@chofex/registration-contract";
 import { Effect, Schema } from "effect";
 import { Prompt } from "effect/unstable/cli";
@@ -30,9 +31,11 @@ const validatePromptValue = (
 const requiredText = (
   message: string,
   schema: Schema.Decoder<unknown, never>,
+  defaultValue = "",
 ): Prompt.Prompt<string> =>
   Prompt.text({
     message,
+    default: defaultValue,
     validate: (value) =>
       validatePromptValue(schema, value).pipe(Effect.as(value)),
   });
@@ -40,10 +43,11 @@ const requiredText = (
 const optionalText = (
   message: string,
   schema: Schema.Decoder<unknown, never>,
+  defaultValue = "",
 ): Prompt.Prompt<string> =>
   Prompt.text({
     message,
-    default: "",
+    default: defaultValue,
     validate: (value) => {
       if (value === "") return Effect.succeed(value);
       return validatePromptValue(schema, value).pipe(Effect.as(value));
@@ -64,6 +68,49 @@ export const dateOfBirthPrompt = (): Prompt.Prompt<string> =>
 const githubProfilePrefix = "github.com/";
 const linkedInProfilePrefix = "linkedin.com/in/";
 
+const profileUsernameFromUrl = (
+  profileUrl: string | undefined,
+  profilePrefix: string,
+): string => {
+  if (!profileUrl) return "";
+  const normalized = profileUrl
+    .replace(/^https?:\/\/(?:www\.)?/i, "")
+    .replace(/\/$/, "");
+  if (!normalized.toLowerCase().startsWith(profilePrefix)) return "";
+  const username = normalized.slice(profilePrefix.length);
+  if (!/^[A-Za-z0-9._-]+$/.test(username)) return "";
+  return username;
+};
+
+const profileUrlPrompt = (
+  usernameMessage: string,
+  urlMessage: string,
+  profilePrefix: string,
+  schema: Schema.Decoder<unknown, never>,
+  defaultUrl: string | undefined,
+): Prompt.Prompt<string> => {
+  const defaultUsername = profileUsernameFromUrl(defaultUrl, profilePrefix);
+  if (defaultUrl && !defaultUsername) {
+    return optionalText(urlMessage, schema, defaultUrl);
+  }
+  return profileUsernamePrompt(
+    usernameMessage,
+    profilePrefix,
+    (value) => {
+      if (value === "") return Effect.succeed(value);
+      return validatePromptValue(schema, `${profilePrefix}${value}`).pipe(
+        Effect.as(value),
+      );
+    },
+    defaultUsername,
+  ).pipe(
+    Prompt.map((value) => {
+      if (value === "") return value;
+      return `${profilePrefix}${value}`;
+    }),
+  );
+};
+
 const withoutEmptyStrings = (
   input: Readonly<Record<string, unknown>>,
 ): Record<string, unknown> =>
@@ -72,6 +119,30 @@ const withoutEmptyStrings = (
       ([, value]) => value !== "" && value !== undefined,
     ),
   );
+
+export const applicationDefaultsFromRegistration = (
+  registration: RegistrationView,
+): Partial<ApplicationInput> => ({
+  firstName: registration.firstName,
+  lastName: registration.lastName,
+  pronouns: registration.pronouns,
+  city: registration.city,
+  organization: registration.organization,
+  role: registration.role,
+  fieldOfStudy: registration.fieldOfStudy,
+  graduationYear: registration.graduationYear,
+  shippedProject: registration.shippedProject,
+  hackathonProject: registration.hackathonProject,
+  bio: registration.bio,
+  githubUrl: registration.githubUrl,
+  linkedInUrl: registration.linkedInUrl,
+  portfolioUrl: registration.portfolioUrl,
+  teamPreference: registration.teamPreference,
+  teamName: registration.teamName,
+  codeOfConductAccepted: true,
+  privacyPolicyAccepted: true,
+  mediaConsent: registration.mediaConsent,
+});
 
 const readStdin = async (): Promise<string> => {
   const chunks: Array<Buffer> = [];
@@ -128,79 +199,109 @@ const validateSemantics = <A>(
   );
 };
 
-const applicationDetailsPrompts = Prompt.all({
-  firstName: requiredText("First name", applicationInputFields.firstName),
-  lastName: requiredText("Last name", applicationInputFields.lastName),
-  pronouns: optionalText(
-    "Pronouns (optional)",
-    applicationInputFields.pronouns,
-  ),
-  city: requiredText("City of residence in Peru", applicationInputFields.city),
-  organization: optionalText(
-    "Organization (optional)",
-    applicationInputFields.organization,
-  ),
-  role: optionalText("Role (optional)", applicationInputFields.role),
-  fieldOfStudy: optionalText(
-    "Field of study (optional)",
-    applicationInputFields.fieldOfStudy,
-  ),
-  graduationYear: Prompt.text({
-    message: "Graduation year (optional)",
-    default: "",
-    validate: (value) => {
-      if (value === "") return Effect.succeed(value);
-      return validatePromptValue(
-        applicationInputFields.graduationYear,
-        Number(value),
-      ).pipe(Effect.as(value));
-    },
-  }),
-  shippedProject: requiredText(
-    "What have you shipped?",
-    applicationInputFields.shippedProject,
-  ),
-  hackathonProject: requiredText(
-    "What do you want to ship at the hackathon?",
-    applicationInputFields.hackathonProject,
-  ),
-  bio: requiredText("Short bio", applicationInputFields.bio),
-  githubUsername: profileUsernamePrompt(
-    "GitHub username (optional)",
-    githubProfilePrefix,
-    (value) => {
-      if (value === "") return Effect.succeed(value);
-      return validatePromptValue(
-        applicationInputFields.githubUrl,
-        `${githubProfilePrefix}${value}`,
-      ).pipe(Effect.as(value));
-    },
-  ),
-  linkedInUsername: profileUsernamePrompt(
-    "LinkedIn username (optional)",
-    linkedInProfilePrefix,
-    (value) => {
-      if (value === "") return Effect.succeed(value);
-      return validatePromptValue(
-        applicationInputFields.linkedInUrl,
-        `${linkedInProfilePrefix}${value}`,
-      ).pipe(Effect.as(value));
-    },
-  ),
-  portfolioUrl: optionalText(
-    "Portfolio URL (optional)",
-    applicationInputFields.portfolioUrl,
-  ),
-});
+const applicationDetailsPrompts = (defaults: Partial<ApplicationInput>) =>
+  Prompt.all({
+    firstName: requiredText(
+      "First name",
+      applicationInputFields.firstName,
+      defaults.firstName,
+    ),
+    lastName: requiredText(
+      "Last name",
+      applicationInputFields.lastName,
+      defaults.lastName,
+    ),
+    pronouns: optionalText(
+      "Pronouns (optional)",
+      applicationInputFields.pronouns,
+      defaults.pronouns,
+    ),
+    city: requiredText(
+      "City of residence in Peru",
+      applicationInputFields.city,
+      defaults.city,
+    ),
+    organization: optionalText(
+      "Organization (optional)",
+      applicationInputFields.organization,
+      defaults.organization,
+    ),
+    role: optionalText(
+      "Role (optional)",
+      applicationInputFields.role,
+      defaults.role,
+    ),
+    fieldOfStudy: optionalText(
+      "Field of study (optional)",
+      applicationInputFields.fieldOfStudy,
+      defaults.fieldOfStudy,
+    ),
+    graduationYear: Prompt.text({
+      message: "Graduation year (optional)",
+      default: defaults.graduationYear?.toString() ?? "",
+      validate: (value) => {
+        if (value === "") return Effect.succeed(value);
+        return validatePromptValue(
+          applicationInputFields.graduationYear,
+          Number(value),
+        ).pipe(Effect.as(value));
+      },
+    }),
+    shippedProject: requiredText(
+      "What have you shipped?",
+      applicationInputFields.shippedProject,
+      defaults.shippedProject,
+    ),
+    hackathonProject: requiredText(
+      "What do you want to ship at the hackathon?",
+      applicationInputFields.hackathonProject,
+      defaults.hackathonProject,
+    ),
+    bio: requiredText("Short bio", applicationInputFields.bio, defaults.bio),
+    githubUrl: profileUrlPrompt(
+      "GitHub username (optional)",
+      "GitHub URL (optional)",
+      githubProfilePrefix,
+      applicationInputFields.githubUrl,
+      defaults.githubUrl,
+    ),
+    linkedInUrl: profileUrlPrompt(
+      "LinkedIn username (optional)",
+      "LinkedIn URL (optional)",
+      linkedInProfilePrefix,
+      applicationInputFields.linkedInUrl,
+      defaults.linkedInUrl,
+    ),
+    portfolioUrl: optionalText(
+      "Portfolio URL (optional)",
+      applicationInputFields.portfolioUrl,
+      defaults.portfolioUrl,
+    ),
+  });
 
-const teamPreferencePrompt = Prompt.select({
-  message: "Team preference",
-  choices: [
-    { title: "I have a team", value: "have_team" as const },
-    { title: "I am looking for a team", value: "looking_for_team" as const },
-    { title: "I will participate solo", value: "solo" as const },
-  ],
-});
+const teamPreferencePrompt = (
+  defaultValue?: ApplicationInput["teamPreference"],
+) =>
+  Prompt.select({
+    message: "Team preference",
+    choices: [
+      {
+        title: "I have a team",
+        value: "have_team" as const,
+        selected: defaultValue === "have_team",
+      },
+      {
+        title: "I am looking for a team",
+        value: "looking_for_team" as const,
+        selected: defaultValue === "looking_for_team",
+      },
+      {
+        title: "I will participate solo",
+        value: "solo" as const,
+        selected: defaultValue === "solo",
+      },
+    ],
+  });
 
 export const publicDocumentUrl = (baseUrl: string, path: string): string =>
   `${baseUrl.replace(/\/$/, "")}${path}`;
@@ -208,10 +309,12 @@ export const publicDocumentUrl = (baseUrl: string, path: string): string =>
 const requiredAgreement = Effect.fn("requiredAgreement")(function* (
   name: string,
   url: string,
+  initial = false,
 ) {
   const accepted = yield* Prompt.run(
     Prompt.confirm({
       message: `Do you accept the ${name}? Read it at ${url}`,
+      initial,
     }),
   );
   if (accepted) return true as const;
@@ -236,27 +339,39 @@ const requiredAgreement = Effect.fn("requiredAgreement")(function* (
   );
 });
 
-const interactiveApplication = (publicBaseUrl: string) =>
+const interactiveApplication = (
+  publicBaseUrl: string,
+  defaults: Partial<ApplicationInput>,
+) =>
   Effect.gen(function* () {
-    const details = yield* Prompt.run(applicationDetailsPrompts);
-    const teamPreference = yield* Prompt.run(teamPreferencePrompt);
+    const details = yield* Prompt.run(applicationDetailsPrompts(defaults));
+    const teamPreference = yield* Prompt.run(
+      teamPreferencePrompt(defaults.teamPreference),
+    );
     let teamName: string | undefined;
     if (teamPreference === "have_team") {
       teamName = yield* Prompt.run(
-        requiredText("Team name", applicationInputFields.teamName),
+        requiredText(
+          "Team name",
+          applicationInputFields.teamName,
+          defaults.teamName,
+        ),
       );
     }
     const codeOfConductAccepted = yield* requiredAgreement(
       "Terms and Code of Conduct",
       publicDocumentUrl(publicBaseUrl, "/terms"),
+      defaults.codeOfConductAccepted,
     );
     const privacyPolicyAccepted = yield* requiredAgreement(
       "Privacy Policy",
       publicDocumentUrl(publicBaseUrl, "/privacy"),
+      defaults.privacyPolicyAccepted,
     );
     const mediaConsent = yield* Prompt.run(
       Prompt.confirm({
         message: "Do you consent to appearing in event media? (optional)",
+        initial: defaults.mediaConsent ?? false,
       }),
     );
     return {
@@ -269,16 +384,9 @@ const interactiveApplication = (publicBaseUrl: string) =>
     };
   }).pipe(
     Effect.map((input) => {
-      const { githubUsername, linkedInUsername, ...application } = input;
-      const normalized = withoutEmptyStrings(application);
+      const normalized = withoutEmptyStrings(input);
       if (input.graduationYear !== "") {
         normalized.graduationYear = Number(input.graduationYear);
-      }
-      if (githubUsername !== "") {
-        normalized.githubUrl = `${githubProfilePrefix}${githubUsername}`;
-      }
-      if (linkedInUsername !== "") {
-        normalized.linkedInUrl = `${linkedInProfilePrefix}${linkedInUsername}`;
       }
       return normalized;
     }),
@@ -409,8 +517,12 @@ const inputOrInteractive = (
 export const applicationInput = (
   path: string | undefined,
   publicBaseUrl: string,
+  defaults: Partial<ApplicationInput> = {},
 ): Effect.Effect<ApplicationInput, CliError, PromptModule.Environment> =>
-  inputOrInteractive(path, interactiveApplication(publicBaseUrl)).pipe(
+  inputOrInteractive(
+    path,
+    interactiveApplication(publicBaseUrl, defaults),
+  ).pipe(
     Effect.flatMap((input) =>
       decode(ApplicationInput, input, applicationInputFieldNames),
     ),

@@ -12,6 +12,7 @@ import { config } from "./config.js";
 import { cliError } from "./errors.js";
 import {
   acceptedDetailsInput,
+  applicationDefaultsFromRegistration,
   applicationInput,
   picturePathInput,
 } from "./input.js";
@@ -98,9 +99,21 @@ const registerCommand = Command.make(
           });
         }
       }
+      let applicationDefaults:
+        | ReturnType<typeof applicationDefaultsFromRegistration>
+        | undefined;
+      if (
+        Option.isSome(current) &&
+        current.value.data.registration.status === "rejected"
+      ) {
+        applicationDefaults = applicationDefaultsFromRegistration(
+          current.value.data.registration,
+        );
+      }
       const body = yield* applicationInput(
         Option.getOrUndefined(input),
         config.publicSiteUrl,
+        applicationDefaults,
       );
       return yield* register(client, body);
     });

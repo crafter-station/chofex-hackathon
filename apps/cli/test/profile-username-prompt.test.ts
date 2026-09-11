@@ -13,6 +13,31 @@ const input = (value: string, name = value): Terminal.UserInput => ({
 });
 
 describe("profile username prompt", () => {
+  test("submits the previous username by default", async () => {
+    const output: Array<string> = [];
+    const program = Effect.gen(function* () {
+      const inputs = yield* Queue.make<Terminal.UserInput, Cause.Done>();
+      yield* Queue.offer(inputs, input("\r", "return"));
+      const terminal = Terminal.make({
+        columns: Effect.succeed(120),
+        rows: Effect.succeed(40),
+        readInput: Effect.succeed(inputs),
+        readLine: Effect.never,
+        display: (text) => Effect.sync(() => output.push(text)),
+      });
+
+      return yield* profileUsernamePrompt(
+        "GitHub username (optional)",
+        "github.com/",
+        Effect.succeed,
+        "cuevaio",
+      ).pipe(Effect.provideService(Terminal.Terminal, terminal));
+    }).pipe(Effect.provide(NodeServices.layer));
+
+    expect(await Effect.runPromise(program)).toBe("cuevaio");
+    expect(output.join("")).toContain("cuevaio");
+  });
+
   test("renders a muted prefix directly beside the entered username", async () => {
     const output: Array<string> = [];
     const program = Effect.gen(function* () {

@@ -34,6 +34,10 @@ use `requirements` only when requirements-only human output is preferred.
 Run `chofex login` to authenticate. For automation, provide an OAuth access
 token with `CHOFEX_TOKEN`.
 
+When applying again after a rejection, interactive registration pre-fills the
+previous application's answers. Keep a value by pressing Enter, or press Ctrl+U
+and type a replacement for an answer that needs to change.
+
 Accepted participants must confirm which profile picture reviewers should use:
 their Clerk picture, their GitHub avatar, or a custom upload. Interactive
 confirmation prompts for the choice and local file path. For JSON input, set

@@ -143,9 +143,7 @@ const processProfileUsername = (
     );
   }
   if (input.key.name === "home") {
-    return Effect.succeed(
-      nextFrame({ ...state, cursor: 0, error: undefined }),
-    );
+    return Effect.succeed(nextFrame({ ...state, cursor: 0, error: undefined }));
   }
   if (input.key.name === "end") {
     return Effect.succeed(
@@ -160,9 +158,7 @@ const processProfileUsername = (
     if (state.value === "" || /^[A-Za-z0-9._-]+$/.test(state.value)) {
       return validate(state.value).pipe(
         Effect.map((value) => ({ _tag: "Submit" as const, value })),
-        Effect.catch((error) =>
-          Effect.succeed(nextFrame({ ...state, error })),
-        ),
+        Effect.catch((error) => Effect.succeed(nextFrame({ ...state, error }))),
       );
     }
     return Effect.succeed(
@@ -182,9 +178,10 @@ export const profileUsernamePrompt = (
   message: string,
   profilePrefix: string,
   validate: (value: string) => Effect.Effect<string, string> = Effect.succeed,
+  defaultValue = "",
 ): Prompt.Prompt<string> =>
   Prompt.custom(
-    { cursor: 0, value: "" },
+    { cursor: defaultValue.length, value: defaultValue },
     {
       render: (state, action) => {
         if (action._tag === "Beep") return Effect.succeed(ansi.beep);
