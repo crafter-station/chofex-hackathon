@@ -34,7 +34,7 @@ export const brandName = "Hack the Andes";
 export const metadataCopy = {
   title: brandName,
   description:
-    "Hackathon selectivo de IA en Lima, 10–11 de octubre 2026. Aplica con la CLI o con tu agent.",
+    "Hackathon selectivo de IA en Lima, 17–18 de octubre 2026. Aplica con la CLI o con tu agent.",
 } as const;
 
 export const cliCommands = [
@@ -69,7 +69,7 @@ export const worldChapters = [
 ] as const;
 
 export const facts = [
-  { label: "Cuándo", value: "10–11 oct 2026" },
+  { label: "Cuándo", value: "17–18 oct 2026" },
   { label: "Dónde", value: "Lima, Perú · presencial" },
   { label: "Equipos", value: "1–4 personas · solos OK" },
   { label: "Duración", value: "~30 horas" },
@@ -82,9 +82,9 @@ export const heroCopy = {
   titleLead: "Hack the",
   titleAccent: "Andes",
   lede: "No vienes a mirar. Vienes a construir.",
-  meta: "Hackathon selectivo de IA · Lima, Perú · 10–11 oct 2026",
+  meta: "Hackathon selectivo de IA · Lima, Perú · 17–18 oct 2026",
   cta: "Aplicar ahora",
-  ctaMeta: "10–11 oct 2026 · presencial",
+  ctaMeta: "17–18 oct 2026 · presencial",
   sponsor: "con el apoyo de chofex",
   skipToWhy: "Bajar a por qué entrar",
 } as const;
@@ -195,7 +195,7 @@ export const sponsorsCopy = {
 } as const;
 
 export const footerCopy = {
-  meta: "lima · 10–11 oct 2026 · con el apoyo de chofex",
+  meta: "lima · 17–18 oct 2026 · con el apoyo de chofex",
   legalLabel: "Legal",
   terms: "Términos",
   privacy: "Privacidad",

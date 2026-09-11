@@ -3,6 +3,7 @@ import { shadcn } from "@clerk/ui/themes";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { DocumentLang } from "@/components/document-lang";
+import { metadataCopy } from "@/components/landing/content";
 import { QueryProvider } from "@/components/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import "@chofex/ui/globals.css";
@@ -17,24 +18,20 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
 });
 
-const siteTitle = "Hack the Andes";
-const siteDescription =
-  "Hackathon selectivo de IA en Lima, 10–11 de octubre 2026. Aplica con la CLI o con tu agent.";
-
 export const metadata: Metadata = {
-  title: siteTitle,
-  description: siteDescription,
+  title: metadataCopy.title,
+  description: metadataCopy.description,
   openGraph: {
-    title: siteTitle,
-    description: siteDescription,
+    title: metadataCopy.title,
+    description: metadataCopy.description,
     locale: "es_PE",
-    siteName: siteTitle,
+    siteName: metadataCopy.title,
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: siteTitle,
-    description: siteDescription,
+    title: metadataCopy.title,
+    description: metadataCopy.description,
   },
 };
 
