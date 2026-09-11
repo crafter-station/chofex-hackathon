@@ -590,10 +590,10 @@ const CandidateDrawer = ({
             <div className="border-t pt-5">
               <h3 className="text-sm font-semibold">Projects & story</h3>
               <dl className="mt-4 space-y-5">
-                <Detail label="What they have shipped">
+                <Detail label="What have you shipped?">
                   {candidate.shippedProject}
                 </Detail>
-                <Detail label="What they want to ship">
+                <Detail label="What do you want to ship at the hackathon?">
                   {candidate.hackathonProject}
                 </Detail>
                 <Detail label="Bio">{candidate.bio}</Detail>
