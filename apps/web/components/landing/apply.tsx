@@ -1,6 +1,6 @@
 import { TerminalIcon } from "lucide-react";
 import { CopyAgentPrompt } from "@/components/copy-agent-prompt";
-import { cliCommands } from "@/components/landing/content";
+import { applyCopy, cliCommands } from "@/components/landing/content";
 import { HudLabel } from "@/components/landing/hud";
 import {
   LandingContainer,
@@ -12,10 +12,10 @@ export function LandingApply() {
   return (
     <section className="bg-[#0b0d10] text-[#f5f5f5]" id="apply">
       <LandingContainer className="py-16 sm:py-20">
-        <HudLabel className="mb-3 text-[#d6ff00]">{"apply / window"}</HudLabel>
-        <LandingSectionHead title="Aplica ahora">
-          <p className="max-w-xl text-sm leading-relaxed text-[#f5f5f5]/70 sm:text-base">
-            Aplica con la CLI o dile a tu agent.
+        <HudLabel className="mb-3 text-[#d6ff00]">{applyCopy.kicker}</HudLabel>
+        <LandingSectionHead title={applyCopy.title}>
+          <p className="max-w-xl text-sm leading-relaxed text-[var(--hud-muted)] sm:text-base">
+            {applyCopy.lede}
           </p>
         </LandingSectionHead>
 
@@ -25,11 +25,11 @@ export function LandingApply() {
               <HudLabel className="text-[#d6ff00]">01</HudLabel>
               <TerminalIcon
                 aria-hidden="true"
-                className="size-5 text-[#f5f5f5]/50"
+                className="size-5 text-[var(--hud-muted)]"
               />
             </div>
-            <h3 className="font-[family-name:var(--font-landing-display)] text-3xl uppercase leading-none">
-              Aplica con la CLI
+            <h3 className="font-[family-name:var(--font-landing-display)] text-3xl leading-none uppercase">
+              {applyCopy.cliTitle}
             </h3>
             <div className="hud-box mt-6 overflow-x-auto bg-[#0b0d10] p-5 font-[family-name:var(--font-landing-mono)] text-sm leading-8">
               {cliCommands.map((command) => (
@@ -44,10 +44,12 @@ export function LandingApply() {
           <article className={`p-6 ${landingFrameClassName}`}>
             <div className="mb-8 flex items-center justify-between">
               <HudLabel className="text-[#d6ff00]">02</HudLabel>
-              <HudLabel className="text-[#f5f5f5]/50">agent</HudLabel>
+              <HudLabel className="text-[var(--hud-muted)]">
+                {applyCopy.agentKicker}
+              </HudLabel>
             </div>
-            <h3 className="font-[family-name:var(--font-landing-display)] text-3xl uppercase leading-none">
-              O dile a tu agent
+            <h3 className="font-[family-name:var(--font-landing-display)] text-3xl leading-none uppercase">
+              {applyCopy.agentTitle}
             </h3>
             <CopyAgentPrompt />
           </article>

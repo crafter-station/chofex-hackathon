@@ -44,4 +44,5 @@ test("keeps the camera path descending into the valley", () => {
 test("places figures for the valley and scan chapters", () => {
   expect(WORLD_FIGURES.some((figure) => figure.kind === "judge")).toBe(true);
   expect(WORLD_FIGURES.length).toBeGreaterThan(3);
+  expect(WORLD_FIGURES.some((figure) => figure.label === "QUISPE")).toBe(false);
 });

@@ -1,3 +1,4 @@
+import { scanCopy } from "@/components/landing/content";
 import type { ProjectedTarget } from "@/components/landing/machu-picchu-geometry";
 
 export function ScanHud({
@@ -12,11 +13,14 @@ export function ScanHud({
   }
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-20 overflow-hidden"
+    >
       <div className="hud-halftone absolute inset-0 opacity-40" />
       <div className="hud-scanlines absolute inset-0" />
       <div className="absolute top-28 left-4 font-[family-name:var(--font-landing-mono)] text-[10px] tracking-[0.2em] text-[#d6ff00] uppercase sm:left-8">
-        scan / talento
+        {scanCopy.overlayKicker}
       </div>
       {targets.map((target) => {
         if (!target.visible) {
