@@ -6,6 +6,9 @@ export const HERO_SCENE_ROOT_ID = "hero-scene";
 /** Locked subject for the R3F teammate: navigable Machu Picchu world. */
 export const HERO_SCENE_THEME = "machu-picchu" as const;
 
+/** Public URL for the Sketchfab GLB Three Js Dev loads into this slot. */
+export const HERO_SCENE_MODEL_URL = "/models/machu-picchu.glb" as const;
+
 export type HeroSceneProps = {
   readonly className?: string;
   readonly children?: ReactNode;
@@ -22,8 +25,9 @@ function HeroSceneFallback() {
 
 /**
  * Full-bleed Machu Picchu WebGL slot.
- * Three/R3F owns the navigable citadel/camera. Mount a client Canvas as
- * `children`, or replace the fallback. Do not paint landing type in here.
+ * Three/R3F owns the navigable citadel/camera. Load
+ * `HERO_SCENE_MODEL_URL` (`/models/machu-picchu.glb`) from a client
+ * Canvas mounted as `children`. Do not paint landing type in here.
  */
 export function HeroScene({ className, children }: HeroSceneProps) {
   return (
@@ -34,6 +38,7 @@ export function HeroScene({ className, children }: HeroSceneProps) {
         className,
       )}
       data-hero-scene=""
+      data-hero-scene-model={HERO_SCENE_MODEL_URL}
       data-hero-scene-theme={HERO_SCENE_THEME}
       id={HERO_SCENE_ROOT_ID}
     >
