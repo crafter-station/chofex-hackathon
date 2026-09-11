@@ -3,14 +3,14 @@ import { HERO_SCENE_MODEL_URL } from "@/components/landing/hero-scene";
 /** Same public URL the HeroScene mount advertises. */
 export const MACHU_PICCHU_GLB = HERO_SCENE_MODEL_URL;
 
-/** Source-space bbox of the provided export (units before scene scale). */
+/** Source-space bbox of the authored citadel (units before scene scale). */
 export const MACHU_SOURCE_BBOX = {
-  min: [-2025, 0, -2017],
-  max: [2025, 1101, 2017],
+  min: [-43, 0, -43],
+  max: [43, 34, 43],
 } as const;
 
-/** Fits the ~4 km source mesh into a navigable hero volume. */
-export const MACHU_MODEL_SCALE = 0.036;
+/** Citadel is authored in hero-world units. */
+export const MACHU_MODEL_SCALE = 1;
 
 export type WorldChapter = "hero" | "valley" | "scan";
 
