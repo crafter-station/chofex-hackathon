@@ -17,10 +17,25 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
 });
 
+const siteTitle = "Hack the Andes";
+const siteDescription =
+  "Hackathon selectivo de IA en Lima, 10–11 de octubre 2026. Aplica con la CLI o con tu agent.";
+
 export const metadata: Metadata = {
-  title: "Hack the Andes",
-  description:
-    "Hackathon selectivo de IA en Lima, 10–11 de octubre 2026. Aplica con la CLI o con tu agent.",
+  title: siteTitle,
+  description: siteDescription,
+  openGraph: {
+    title: siteTitle,
+    description: siteDescription,
+    locale: "es_PE",
+    siteName: siteTitle,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteTitle,
+    description: siteDescription,
+  },
 };
 
 export default function RootLayout({
