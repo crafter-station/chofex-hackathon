@@ -14,15 +14,33 @@ export const MACHU_MODEL_SCALE = 0.036;
 
 export type WorldChapter = "hero" | "valley" | "scan";
 
+/**
+ * Bright-sky citadel overlook. A top-of-page reload keeps `#world` at
+ * progress 0, so first paint lands on Cumbre rather than Valle/Escaneo.
+ */
+export const CITADEL_OVERLOOK = {
+  chapter: "hero",
+  label: "Cumbre",
+  progress: 0,
+} as const satisfies {
+  chapter: WorldChapter;
+  label: string;
+  progress: number;
+};
+
 export const WORLD_CHAPTERS = [
-  { id: "hero", label: "Cumbre", progress: 0 },
+  {
+    id: CITADEL_OVERLOOK.chapter,
+    label: CITADEL_OVERLOOK.label,
+    progress: CITADEL_OVERLOOK.progress,
+  },
   { id: "valley", label: "Valle", progress: 0.34 },
   { id: "scan", label: "Escaneo", progress: 0.64 },
 ] as const;
 
 export function chapterStartProgress(chapter: WorldChapter): number {
   if (chapter === "hero") {
-    return 0;
+    return CITADEL_OVERLOOK.progress;
   }
   if (chapter === "valley") {
     return 0.34;
@@ -69,7 +87,8 @@ const CAMERA_STOPS: ReadonlyArray<{
   frame: CameraKeyframe;
 }> = [
   {
-    progress: 0,
+    // Cumbre: high overlook of the bright citadel against open sky.
+    progress: CITADEL_OVERLOOK.progress,
     frame: { position: [46, 18, 58], lookAt: [2, 9, -4] },
   },
   {
