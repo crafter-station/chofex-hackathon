@@ -18,6 +18,7 @@ import {
 
 import { HttpError } from "@/lib/registration/http";
 import { preferredAvatarUrl } from "./avatars";
+import { type ApplicationDecision, buildDecisionEmail } from "./decision-email";
 import {
   type Candidate,
   type CandidateCounts,
@@ -28,6 +29,8 @@ import {
 } from "./types";
 
 const pageSize = 10;
+const decisionEmailFrom = "hackathons@crafterstation.com";
+const decisionEmailReplyTo = "anthony@crafterstation.com";
 
 const optional = <A>(value: A | null | undefined): A | undefined =>
   value ?? undefined;
@@ -239,7 +242,7 @@ export const listCandidates = async (
 
 export interface CandidateDecisionInput {
   readonly applicationId: string;
-  readonly decision: "accepted" | "rejected";
+  readonly decision: ApplicationDecision;
   readonly message?: string;
   readonly notify: boolean;
   readonly decidedByClerkUserId: string;
@@ -251,35 +254,6 @@ export interface CandidateDecisionResult {
   readonly emailError?: string;
 }
 
-const escapeHtml = (value: string): string =>
-  value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-
-const emailCopy = (
-  decision: CandidateDecisionInput["decision"],
-): {
-  readonly subject: string;
-  readonly heading: string;
-  readonly body: string;
-} => {
-  if (decision === "accepted") {
-    return {
-      subject: "You’re in — welcome to Chofex Hackathon",
-      heading: "Your application was accepted",
-      body: "We’re excited to have you join us in Lima. Sign in to complete your attendance details.",
-    };
-  }
-  return {
-    subject: "An update on your Chofex Hackathon application",
-    heading: "Your application has been reviewed",
-    body: "We’re sorry that we can’t offer you a place at this Chofex Hackathon.",
-  };
-};
-
 const sendDecisionEmail = async (
   candidate: Candidate,
   decision: CandidateDecisionInput["decision"],
@@ -288,19 +262,18 @@ const sendDecisionEmail = async (
   { readonly ok: true } | { readonly ok: false; readonly error: string }
 > => {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM_EMAIL;
-  if (!apiKey || !from) {
+  if (!apiKey) {
     return { ok: false, error: "Resend is not configured" };
   }
   if (!candidate.email) {
     return { ok: false, error: "Candidate does not have an email address" };
   }
 
-  const copy = emailCopy(decision);
-  let customMessage = "";
-  if (message) {
-    customMessage = `<div style="margin:24px 0;padding:16px 18px;background:#f5f5f4;border-radius:12px;white-space:pre-wrap">${escapeHtml(message)}</div>`;
-  }
+  const email = buildDecisionEmail({
+    decision,
+    firstName: candidate.firstName,
+    message,
+  });
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -309,19 +282,12 @@ const sendDecisionEmail = async (
       "idempotency-key": `application-decision/${candidate.id}/${decision}`,
     },
     body: JSON.stringify({
-      from,
+      from: decisionEmailFrom,
       to: [candidate.email],
-      reply_to: process.env.RESEND_REPLY_TO,
-      subject: copy.subject,
-      text: [
-        `Hi ${candidate.firstName},`,
-        "",
-        copy.body,
-        message ? `\n${message}` : "",
-        "",
-        "— The Chofex team",
-      ].join("\n"),
-      html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#171717;max-width:560px;margin:0 auto;padding:32px"><p>Hi ${escapeHtml(candidate.firstName)},</p><h1 style="font-size:24px;line-height:1.2">${copy.heading}</h1><p>${copy.body}</p>${customMessage}<p>— The Chofex team</p></div>`,
+      reply_to: decisionEmailReplyTo,
+      subject: email.subject,
+      text: email.text,
+      html: email.html,
     }),
   });
   if (!response.ok) {
