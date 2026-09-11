@@ -16,6 +16,10 @@ import {
   landingCtaClassName,
   landingDisplayClassName,
 } from "@/components/landing/shell";
+import {
+  scrollWorldToChapter,
+  WorldChapterRail,
+} from "@/components/landing/world-chapter-rail";
 
 function readProgress(section: HTMLElement): number {
   const total = section.offsetHeight - window.innerHeight;
@@ -176,6 +180,12 @@ export function LandingHero() {
         </aside>
 
         <ScanHud targets={targets} visible={scanVisible} />
+        <WorldChapterRail
+          chapter={chapter}
+          onSelect={(next) => {
+            scrollWorldToChapter(sectionRef.current, next);
+          }}
+        />
       </div>
       <div aria-hidden="true" className="h-[320vh]" />
     </section>
