@@ -370,7 +370,18 @@ describe("CLI JSON mode", () => {
         missing: [{ field: "phone", reason: "Required after acceptance" }],
       },
       expectedMessage:
-        "Already accepted. Use `chofex status` to view your next steps.",
+        "Already accepted. Run `chofex confirm` to complete your registration.",
+    },
+    {
+      name: "an accepted registration is complete",
+      status: "accepted",
+      requirements: {
+        stage: "complete",
+        canSubmitNewApplication: false,
+        canSubmitAcceptedDetails: true,
+        missing: [],
+      },
+      expectedMessage: "Already accepted. Your registration is complete.",
     },
   ] as const) {
     test(`stops before collecting input when ${scenario.name}`, async () => {

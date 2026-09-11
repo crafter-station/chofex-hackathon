@@ -74,7 +74,8 @@ const registerCommand = Command.make(
         }),
       );
       if (Option.isSome(current)) {
-        const { status } = current.value.data.registration;
+        const { registration, requirements } = current.value.data;
+        const { status } = registration;
         const registrationAlreadyExists =
           status === "submitted" ||
           status === "under_review" ||
@@ -83,8 +84,11 @@ const registerCommand = Command.make(
         if (registrationAlreadyExists) {
           let message = "Already registered. Wait for approval.";
           if (status === "accepted") {
-            message =
-              "Already accepted. Use `chofex status` to view your next steps.";
+            message = "Already accepted. Your registration is complete.";
+            if (requirements.stage === "accepted") {
+              message =
+                "Already accepted. Run `chofex confirm` to complete your registration.";
+            }
           }
           return yield* cliError("ACTIVE_APPLICATION_EXISTS", message, false, {
             currentStatus: status,
