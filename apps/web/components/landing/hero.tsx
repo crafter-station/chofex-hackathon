@@ -3,41 +3,43 @@ import { HeroScene } from "@/components/landing/hero-scene";
 import { LandingMarquee } from "@/components/landing/marquee";
 import {
   landingCtaClassName,
-  landingLedClassName,
+  landingDisplayClassName,
 } from "@/components/landing/shell";
 
 export function LandingHero() {
   return (
-    <section className="relative min-h-dvh w-full overflow-hidden bg-[#1a1a1a] md:h-dvh">
+    <section className="relative min-h-dvh w-full overflow-hidden bg-[#4d8ec8] md:h-dvh">
       <HeroScene />
 
-      <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-[#1a1a1a]/70 via-[#1a1a1a]/20 to-[#1a1a1a]/80" />
+      <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-[#1f1833]/45 via-transparent to-[#1f1833]/55" />
 
       <div className="pointer-events-none relative z-20 mx-auto flex min-h-dvh w-full max-w-[1800px] flex-col justify-between px-4 pt-8 pb-8 sm:px-8 md:h-dvh md:pt-10 md:pb-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-          <h1 className="landing-hero-title max-w-[14ch] lowercase">
-            <span className="block font-[family-name:var(--font-landing-display)] text-[clamp(4.2rem,16vw,13rem)] leading-[0.78] font-light tracking-tighter text-[#e1ff00]">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <h1 className="landing-hero-title max-w-[12ch]">
+            <span
+              className={`${landingDisplayClassName} block text-[clamp(4.4rem,16vw,13rem)] font-normal`}
+            >
               hack the
             </span>
-            <span className="block font-[family-name:var(--font-landing-display)] text-[clamp(4.2rem,16vw,13rem)] leading-[0.78] font-medium tracking-tighter text-white">
+            <span
+              className={`${landingDisplayClassName} block text-[clamp(4.4rem,16vw,13rem)] font-normal`}
+            >
               andes
             </span>
           </h1>
 
           <a
-            className={`pointer-events-auto landing-fade-in mt-2 w-full lg:mt-8 lg:w-auto ${landingCtaClassName}`}
+            className={`pointer-events-auto landing-fade-in mt-2 w-full lg:mt-10 lg:w-auto ${landingCtaClassName}`}
             href="#apply"
           >
             <span>Aplicar ahora</span>
-            <span className="mt-0.5 font-mono text-[9px] tracking-[0.08em] text-[#1a1a1a]/70 lowercase md:text-[11px]">
+            <span className="mt-0.5 text-[11px] font-medium tracking-wide text-[#1f1833]/60">
               10–11 oct 2026 · presencial
             </span>
           </a>
         </div>
 
-        <p
-          className={`${landingLedClassName} max-w-3xl text-[11px] tracking-[0.16em] text-[#e1ff00] sm:text-sm`}
-        >
+        <p className="max-w-3xl font-[family-name:var(--font-landing-sans)] text-sm font-medium tracking-wide text-[#fff3e4] sm:text-base">
           hackathon selectivo de IA · lima, perú · 10–11 oct 2026
         </p>
 
@@ -45,7 +47,7 @@ export function LandingHero() {
           <LandingMarquee>
             {marqueeSignals.map((signal) => (
               <span
-                className={`${landingLedClassName} text-[clamp(1.15rem,3.2vw,1.9rem)] text-[#e1ff00]`}
+                className={`${landingDisplayClassName} text-[clamp(1.4rem,3.4vw,2.4rem)] text-[#fff3e4]`}
                 key={signal}
               >
                 {signal}
@@ -54,10 +56,10 @@ export function LandingHero() {
           </LandingMarquee>
 
           <div className="flex items-end justify-between gap-4">
-            <p className="font-mono text-[10px] tracking-[0.16em] text-[#d1d5d1] lowercase">
+            <p className="text-[11px] font-medium tracking-[0.16em] text-[#fff3e4]/80 uppercase">
               sponsored by chofex
             </p>
-            <a className="pointer-events-auto text-[#e1ff00]" href="#apply">
+            <a className="pointer-events-auto text-[#fff3e4]" href="#apply">
               <span className="sr-only">Aplicar abajo</span>
               <span
                 aria-hidden="true"

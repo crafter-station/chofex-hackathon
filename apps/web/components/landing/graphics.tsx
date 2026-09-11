@@ -32,7 +32,7 @@ export function ClockMark({
       <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" />
       <line
         stroke="currentColor"
-        strokeLinecap="square"
+        strokeLinecap="round"
         strokeWidth="4"
         x1="32"
         x2="32"
@@ -41,7 +41,7 @@ export function ClockMark({
       />
       <line
         stroke="currentColor"
-        strokeLinecap="square"
+        strokeLinecap="round"
         strokeWidth="4"
         transform={`rotate(${hourAngle} 32 32)`}
         x1="32"

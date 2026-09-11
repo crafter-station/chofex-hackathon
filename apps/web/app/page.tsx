@@ -1,10 +1,11 @@
+import { cn } from "@chofex/ui/lib/utils";
 import { LandingApply } from "@/components/landing/apply";
 import { LandingFacts } from "@/components/landing/facts";
 import { LandingFilter } from "@/components/landing/filter";
 import {
   landingDisplay,
-  landingLed,
   landingMono,
+  landingSans,
 } from "@/components/landing/fonts";
 import { LandingFooter } from "@/components/landing/footer";
 import { LandingHeader, LandingMobileCta } from "@/components/landing/header";
@@ -14,7 +15,6 @@ import { landingPageClassName } from "@/components/landing/shell";
 import { LandingSponsors } from "@/components/landing/sponsors";
 import { LandingTracks } from "@/components/landing/tracks";
 import { LandingWhy } from "@/components/landing/why";
-import { cn } from "@chofex/ui/lib/utils";
 
 export default function Home() {
   return (
@@ -22,9 +22,9 @@ export default function Home() {
       className={cn(
         landingPageClassName,
         landingDisplay.variable,
-        landingLed.variable,
+        landingSans.variable,
         landingMono.variable,
-        landingMono.className,
+        landingSans.className,
       )}
       lang="es"
     >

@@ -11,7 +11,7 @@ export function LandingHeader() {
 
 export function LandingMobileCta() {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-[#e1ff00] border-t bg-[#1a1a1a] p-3 sm:hidden">
+    <div className="fixed inset-x-4 bottom-4 z-40 sm:hidden">
       <a href="#apply" className={`${landingCtaClassName} min-h-12 w-full`}>
         Aplicar
       </a>

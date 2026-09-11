@@ -1,7 +1,7 @@
 import {
   LandingContainer,
-  landingFrameClassName,
   LandingSectionHead,
+  landingFrameClassName,
 } from "@/components/landing/shell";
 
 function RidgelineHint() {
@@ -73,35 +73,38 @@ const trackHints = [
 
 export function LandingTracks() {
   return (
-    <section aria-labelledby="tracks-heading" className="bg-[#1a1a1a]">
+    <section
+      aria-labelledby="tracks-heading"
+      className="bg-[#fff3e4] text-[#1f1833]"
+    >
       <LandingContainer className="py-14 sm:py-16">
         <LandingSectionHead title="Tracks" titleId="tracks-heading">
-          <p className="max-w-md text-sm leading-relaxed text-[#d1d5d1] sm:text-base">
+          <p className="max-w-md text-sm leading-relaxed text-[#1f1833]/70 sm:text-base">
             Se revelan el día 1. Cinco minutos para elegir. Cero spoilers. Las
             pistas están a la vista; los nombres, no.
           </p>
         </LandingSectionHead>
 
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           {trackHints.map((track) => {
             const Visual = track.visual;
             return (
               <article
-                className={`flex flex-col gap-5 p-5 ${landingFrameClassName}`}
+                className={`flex flex-col gap-5 p-6 ${landingFrameClassName}`}
                 key={track.code}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs text-[#d1d5d1]">
+                  <span className="text-xs font-medium tracking-[0.16em] text-[#1f1833]/50 uppercase">
                     señal {track.code}
                   </span>
-                  <span className="font-mono text-[11px] tracking-[0.16em] uppercase">
+                  <span className="text-[11px] font-semibold tracking-[0.16em] uppercase">
                     Bloqueado
                   </span>
                 </div>
-                <div className="aspect-16/9 overflow-hidden bg-[#e1ff00]/5">
+                <div className="aspect-16/9 overflow-hidden rounded-2xl bg-[#b9a8f4]/25 text-[#8d78d6]">
                   <Visual />
                 </div>
-                <p className="text-sm leading-relaxed text-[#d1d5d1]">
+                <p className="text-sm leading-relaxed text-[#1f1833]/70">
                   {track.hint}
                 </p>
               </article>

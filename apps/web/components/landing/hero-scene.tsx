@@ -13,9 +13,9 @@ export type HeroSceneProps = {
 
 function HeroSceneFallback() {
   return (
-    <div className="relative size-full overflow-hidden bg-[#1b3044]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_12%,#4d7fa3_0%,#1b3044_46%,#12181c_100%)]" />
-      <div className="hero-scene-moray-hint absolute top-[54%] left-1/2 size-[160vmax] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-80" />
+    <div className="relative size-full overflow-hidden bg-[#3d8fd4]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,#7ec8f0_0%,#3d8fd4_38%,#6b8a4a_72%,#3f5a2e_100%)]" />
+      <div className="hero-scene-moray-hint absolute top-[58%] left-1/2 size-[150vmax] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-90" />
     </div>
   );
 }

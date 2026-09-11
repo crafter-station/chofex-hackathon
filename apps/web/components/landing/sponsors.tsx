@@ -1,21 +1,24 @@
 import { sponsorSlots } from "@/components/landing/content";
 import {
   LandingContainer,
-  landingFrameClassName,
   LandingSectionHead,
+  landingFrameClassName,
 } from "@/components/landing/shell";
 
 export function LandingSponsors() {
   return (
-    <section aria-labelledby="sponsors-heading" className="bg-[#1a1a1a]">
+    <section
+      aria-labelledby="sponsors-heading"
+      className="bg-[#fff3e4] text-[#1f1833]"
+    >
       <LandingContainer className="py-14 sm:py-16">
         <LandingSectionHead title="Sponsors" titleId="sponsors-heading">
-          <p className="max-w-md text-sm leading-relaxed text-[#d1d5d1]">
+          <p className="max-w-md text-sm leading-relaxed text-[#1f1833]/70">
             Sponsored by Chofex. Identidad propia del evento. Chofex patrocina —
             no pinta la paleta.
           </p>
         </LandingSectionHead>
-        <ul className="mx-auto grid max-w-3xl gap-3 sm:grid-cols-2">
+        <ul className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-2">
           {sponsorSlots.map((slot) => {
             const label = slot.confirmed ? slot.name : "Más sponsors pronto";
             return (
@@ -26,8 +29,8 @@ export function LandingSponsors() {
                 <span
                   className={
                     slot.confirmed
-                      ? "font-[family-name:var(--font-landing-led)] text-lg tracking-[0.08em] uppercase"
-                      : "font-mono text-xs tracking-[0.12em] text-[#d1d5d1] lowercase"
+                      ? "font-[family-name:var(--font-landing-display)] text-2xl tracking-[-0.04em] uppercase"
+                      : "text-xs font-medium tracking-[0.12em] text-[#1f1833]/50 uppercase"
                   }
                 >
                   {label}
