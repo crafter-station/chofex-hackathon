@@ -117,6 +117,25 @@
   animation: landing-scan 3.6s ease-in-out infinite;
 }
 
+.landing-scan-box {
+  position: absolute;
+  border: 1px solid #d6ff00;
+  box-shadow: 0 0 0 1px rgb(0 87 255 / 55%);
+  pointer-events: none;
+}
+
+.landing-scan-box__label {
+  position: absolute;
+  top: -1.15rem;
+  left: -1px;
+  background: #d6ff00;
+  color: #0b0d10;
+  padding: 0.1rem 0.35rem;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .landing-scan-beam {
     animation: none;
