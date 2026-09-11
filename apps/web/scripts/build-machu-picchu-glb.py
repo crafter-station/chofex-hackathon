@@ -113,41 +113,80 @@ class MeshBuilder:
 
 
 def ridge_height(x: float, z: float) -> float:
-    huayna = max(0.0, 1.0 - math.hypot(x - 3.2, z + 24.0) / 16.0) ** 1.45 * 28.0
-    saddle = math.exp(-(((x - 1.4) / 18.0) ** 2)) * math.exp(
-        -(((z + 4.0) / 14.0) ** 2)
+    huayna = max(0.0, 1.0 - math.hypot(x - 2.4, z + 22.0) / 14.0) ** 1.25 * 24.0
+    saddle = math.exp(-(((x - 1.2) / 14.0) ** 2)) * math.exp(
+        -(((z + 3.5) / 12.0) ** 2)
     )
-    ridge = saddle * 11.5
-    valley = max(0.0, z - 8.0) * 0.22 + max(0.0, x - 18.0) * 0.16
-    plaza = math.hypot(x - 6.0, z - 8.5)
-    height = 1.8 + ridge + huayna - valley
-    if plaza < 13.0:
-        height = height * 0.18
-    return max(0.12, height)
+    ridge = saddle * 9.8
+    camera_slope = max(0.0, z - 1.0) * 0.55
+    sides = max(0.0, abs(x) - 12.0) * 0.72
+    return max(0.2, 1.2 + ridge + huayna - camera_slope - sides)
 
 
 def build_terrain() -> MeshBuilder:
     mesh = MeshBuilder()
-    size = 86.0
-    segments = 56
-    step = size / segments
-    origin = -size / 2
+    width = 64.0
+    depth = 72.0
+    segments_x = 48
+    segments_z = 52
+    step_x = width / segments_x
+    step_z = depth / segments_z
+    origin_x = -width / 2
+    origin_z = -38.0
     grid: list[list[tuple[float, float, float]]] = []
-    for row in range(segments + 1):
+    for row in range(segments_z + 1):
         line: list[tuple[float, float, float]] = []
-        z = origin + row * step
-        for col in range(segments + 1):
-            x = origin + col * step
+        z = origin_z + row * step_z
+        for col in range(segments_x + 1):
+            x = origin_x + col * step_x
             line.append((x, ridge_height(x, z), z))
         grid.append(line)
-    for row in range(segments):
-        for col in range(segments):
+
+    def drop(point: tuple[float, float, float]) -> tuple[float, float, float]:
+        return (point[0], point[1] - 2.6, point[2])
+
+    def is_mountain(row: int, col: int) -> bool:
+        if row < 0 or col < 0 or row >= segments_z or col >= segments_x:
+            return False
+        a = grid[row][col]
+        b = grid[row][col + 1]
+        c = grid[row + 1][col + 1]
+        d = grid[row + 1][col]
+        return max(a[1], b[1], c[1], d[1]) > 0.35
+
+    for row in range(segments_z):
+        for col in range(segments_x):
             a = grid[row][col]
             b = grid[row][col + 1]
             c = grid[row + 1][col + 1]
             d = grid[row + 1][col]
+            if not is_mountain(row, col):
+                continue
             mesh.add_quad(a, b, c, d)
+            if not is_mountain(row - 1, col):
+                mesh.add_quad(b, a, drop(a), drop(b))
+            if not is_mountain(row + 1, col):
+                mesh.add_quad(d, c, drop(c), drop(d))
+            if not is_mountain(row, col - 1):
+                mesh.add_quad(a, d, drop(d), drop(a))
+            if not is_mountain(row, col + 1):
+                mesh.add_quad(c, b, drop(b), drop(c))
+
     return mesh
+
+
+def place_building(
+    stone: MeshBuilder,
+    deep: MeshBuilder,
+    x: float,
+    z: float,
+    sx: float,
+    sy: float,
+    sz: float,
+) -> None:
+    ground = ridge_height(x, z)
+    stone.add_box(x, ground + sy / 2, z, sx, sy, sz, taper=0.88)
+    deep.add_box(x, ground + sy * 0.36, z + sz * 0.42, min(0.7, sx * 0.28), sy * 0.48, 0.2)
 
 
 def build_citadel() -> tuple[MeshBuilder, MeshBuilder, MeshBuilder, MeshBuilder]:
@@ -155,42 +194,45 @@ def build_citadel() -> tuple[MeshBuilder, MeshBuilder, MeshBuilder, MeshBuilder]
     deep = MeshBuilder()
     grass = MeshBuilder()
 
-    for row in range(7):
-        for col in range(9):
-            if (row + col) % 6 == 0:
+    for row in range(6):
+        for col in range(8):
+            if (row + col) % 7 == 0:
                 continue
-            height = 1.35 + ((row * 3 + col) % 5) * 0.42
-            x = -7.2 + col * 2.05
-            z = -10.4 + row * 1.72
-            y = ridge_height(x, z) + height / 2
-            stone.add_box(x, y, z, 1.55, height, 1.28, taper=0.86)
-            deep.add_box(x, y - height * 0.08, z + 0.52, 0.42, height * 0.42, 0.16)
+            height = 2.6 + ((row * 4 + col) % 5) * 0.7
+            x = -8.8 + col * 2.7
+            z = -11.6 + row * 2.15
+            if ridge_height(x, z) < 3.2:
+                continue
+            place_building(stone, deep, x, z, 2.2, height, 1.85)
 
     temples = (
-        (-1.6, 4.6, -12.2, 4.2, 5.1, 3.1),
-        (3.8, 3.8, -8.6, 3.2, 3.8, 2.6),
-        (7.4, 3.1, -11.0, 2.4, 2.8, 2.2),
-        (-4.8, 3.4, -7.4, 2.8, 3.2, 2.2),
+        (-2.2, -13.6, 5.6, 6.4, 4.2),
+        (4.4, -9.2, 4.2, 4.8, 3.4),
+        (8.6, -12.8, 3.2, 3.6, 2.8),
+        (-6.4, -8.2, 3.6, 4.2, 2.9),
+        (1.2, -6.4, 3.4, 3.2, 2.6),
     )
-    for cx, cy, cz, sx, sy, sz in temples:
-        ground = ridge_height(cx, cz)
-        stone.add_box(cx, ground + sy / 2, cz, sx, sy, sz, taper=0.9)
-        deep.add_box(cx, ground + sy * 0.38, cz + sz * 0.42, 0.7, sy * 0.5, 0.22)
+    for cx, cz, sx, sy, sz in temples:
+        place_building(stone, deep, cx, cz, sx, sy, sz)
+
+    stone.add_box(-0.4, ridge_height(1.2, -7.4) + 0.35, -7.4, 22.0, 0.7, 16.0)
 
     for index in range(8):
-        width = 20.0 - index * 1.35
-        x = 11.5 + index * 1.55
-        z = -3.2 - index * 1.05
-        y = 0.28 + index * 0.55
-        stone.add_box(x, y, z, width, 0.42, 2.15)
-        grass.add_box(x, y + 0.24, z, width * 0.92, 0.12, 1.55)
-
-    stone.add_box(6.0, 0.08, 8.6, 28.0, 0.16, 22.0)
-    grass.add_box(-8.0, 0.18, 14.0, 16.0, 0.1, 10.0)
+        width = 16.5 - index * 0.9
+        x = 2.0
+        z = -1.2 + index * 1.45
+        ground = ridge_height(x, z)
+        if ground < 2.4:
+            continue
+        y = ground + 0.18
+        stone.add_box(x, y, z, width, 0.46, 1.35)
+        grass.add_box(x, y + 0.26, z, width * 0.9, 0.12, 0.95)
 
     peak = MeshBuilder()
-    peak.add_cone(3.2, 8.0, -24.0, 11.5, 26.0, 8)
-    peak.add_box(1.4, 18.5, -21.5, 4.8, 6.2, 3.6, taper=0.7)
+    peak.add_box(2.4, 16.0, -22.4, 16.0, 18.0, 14.0, taper=0.18)
+    peak.add_box(1.1, 24.5, -21.2, 7.4, 10.0, 6.2, taper=0.42)
+    peak.add_box(-1.6, 20.0, -19.4, 5.2, 7.2, 4.4, taper=0.55)
+    peak.add_box(5.4, 19.2, -24.0, 4.6, 6.4, 3.8, taper=0.5)
     return stone, deep, grass, peak
 
 

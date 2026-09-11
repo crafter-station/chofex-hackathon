@@ -5,8 +5,8 @@ export const MACHU_PICCHU_GLB = HERO_SCENE_MODEL_URL;
 
 /** Source-space bbox of the authored citadel (units before scene scale). */
 export const MACHU_SOURCE_BBOX = {
-  min: [-43, 0, -43],
-  max: [43, 34, 43],
+  min: [-18, -3, -38],
+  max: [18, 30, 10],
 } as const;
 
 /** Citadel is authored in hero-world units. */

@@ -24,8 +24,8 @@ test("points the hero model at the public glb path", () => {
 
 test("scales the source bbox into a navigable hero volume", () => {
   const size = scaledSourceSize();
-  expect(size.width).toBeGreaterThan(60);
-  expect(size.width).toBeLessThan(120);
+  expect(size.width).toBeGreaterThan(24);
+  expect(size.width).toBeLessThan(80);
   expect(size.height).toBeGreaterThan(20);
   expect(size.height).toBeLessThan(50);
 });
