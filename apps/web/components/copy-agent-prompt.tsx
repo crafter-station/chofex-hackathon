@@ -49,7 +49,7 @@ export function CopyAgentPrompt() {
 
   return (
     <div className="mt-6">
-      <blockquote className="mb-5 border-current/25 border-l pl-5 text-base leading-relaxed opacity-70">
+      <blockquote className="mb-5 border-current/25 border-l pl-5 text-base leading-relaxed text-[var(--hud-muted,#c5c8d0)]">
         “Help me apply to Hack the Andes using the Chofex CLI. Ask me for every
         answer and get my approval before submitting.”
       </blockquote>
@@ -57,13 +57,16 @@ export function CopyAgentPrompt() {
         type="button"
         size="lg"
         variant="outline"
-        className="h-11 rounded-none border-0 bg-[#d6ff00] px-5 font-[family-name:var(--font-landing-mono)] text-[#0b0d10] uppercase tracking-[0.12em] hover:bg-[#e7ff4d] hover:text-[#0b0d10]"
+        className="landing-cta h-11 rounded-none border-0 bg-[#d6ff00] px-5 font-[family-name:var(--font-landing-mono)] text-[#0b0d10] uppercase tracking-[0.12em] hover:bg-[#e7ff4d] hover:text-[#0b0d10]"
         onClick={copyPrompt}
       >
         {iconForStatus(status)}
         {labelForStatus(status)}
       </Button>
-      <p className="mt-3 text-xs leading-relaxed opacity-50" aria-live="polite">
+      <p
+        className="mt-3 text-xs leading-relaxed text-[var(--hud-muted,#c5c8d0)]"
+        aria-live="polite"
+      >
         Pégalo en tu coding agent. Tú haces el login y la aprobación final.
       </p>
     </div>
