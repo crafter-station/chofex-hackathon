@@ -1,3 +1,28 @@
+.hero-scene-machu-hint {
+  background:
+    linear-gradient(180deg, #4d9adf 0 36%, transparent 36%),
+    repeating-linear-gradient(
+      180deg,
+      #6f7d4a 0 14px,
+      #8d7a4a 14px 22px,
+      #5a6840 22px 30px
+    );
+  clip-path: polygon(
+    0 42%,
+    8% 36%,
+    18% 40%,
+    28% 22%,
+    38% 30%,
+    48% 16%,
+    58% 28%,
+    70% 18%,
+    82% 32%,
+    100% 24%,
+    100% 100%,
+    0 100%
+  );
+}
+
 .landing-hero-title {
   text-shadow: 0 10px 40px rgb(7 18 43 / 35%);
 }

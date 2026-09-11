@@ -1,5 +1,7 @@
-/** Public URL for the Sketchfab glTF export. Binary lands in the same path. */
-export const MACHU_PICCHU_GLB = "/models/machu-picchu.glb";
+import { HERO_SCENE_MODEL_URL } from "@/components/landing/hero-scene";
+
+/** Same public URL the HeroScene mount advertises. */
+export const MACHU_PICCHU_GLB = HERO_SCENE_MODEL_URL;
 
 /** Source-space bbox of the provided export (units before scene scale). */
 export const MACHU_SOURCE_BBOX = {

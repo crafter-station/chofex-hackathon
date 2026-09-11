@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 
+import { HERO_SCENE_MODEL_URL } from "./hero-scene";
 import {
   chapterFromProgress,
   MACHU_MODEL_SCALE,
@@ -11,7 +12,8 @@ import {
 } from "./machu-picchu-geometry";
 
 test("points the hero model at the public glb path", () => {
-  expect(MACHU_PICCHU_GLB).toBe("/models/machu-picchu.glb");
+  expect(MACHU_PICCHU_GLB).toBe(HERO_SCENE_MODEL_URL);
+  expect(HERO_SCENE_MODEL_URL).toBe("/models/machu-picchu.glb");
   expect(MACHU_MODEL_SCALE).toBeGreaterThan(0);
   expect(MACHU_SOURCE_BBOX.max[1]).toBeGreaterThan(MACHU_SOURCE_BBOX.min[1]);
 });

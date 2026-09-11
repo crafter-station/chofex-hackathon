@@ -4,11 +4,11 @@ import { Center, useGLTF } from "@react-three/drei";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 
+import { HERO_SCENE_MODEL_URL } from "@/components/landing/hero-scene";
 import {
   buildCitadelBlocks,
   buildTerraceSteps,
   MACHU_MODEL_SCALE,
-  MACHU_PICCHU_GLB,
   ridgeHeight,
 } from "@/components/landing/machu-picchu-geometry";
 import { ModelErrorBoundary } from "@/components/landing/model-error-boundary";
@@ -42,7 +42,7 @@ function useModelAvailable(url: string): boolean | null {
 }
 
 function MachuPicchuGltf({ quality }: { readonly quality: SceneQuality }) {
-  const { scene } = useGLTF(MACHU_PICCHU_GLB);
+  const { scene } = useGLTF(HERO_SCENE_MODEL_URL);
   const clone = useMemo(() => scene.clone(true), [scene]);
 
   useEffect(() => {
@@ -130,7 +130,7 @@ function GltfOrFallback({
   readonly quality: SceneQuality;
   readonly fallback: ReactNode;
 }) {
-  const available = useModelAvailable(MACHU_PICCHU_GLB);
+  const available = useModelAvailable(HERO_SCENE_MODEL_URL);
 
   if (available !== true) {
     return fallback;
@@ -152,3 +152,5 @@ export function MachuPicchuAsset({
 
   return <GltfOrFallback fallback={fallback} quality={quality} />;
 }
+
+useGLTF.preload(HERO_SCENE_MODEL_URL);
