@@ -1,76 +1,109 @@
+import { facts } from "@/components/landing/content";
 import {
-  facts,
-  marqueePressure,
-  marqueeSignals,
-} from "@/components/landing/content";
+  ClockMark,
+  IconRepeat,
+  PersonMark,
+} from "@/components/landing/graphics";
 import { LandingMarquee } from "@/components/landing/marquee";
 import {
   LandingContainer,
   landingInvertClassName,
+  landingLedClassName,
 } from "@/components/landing/shell";
 
-function MarqueeItems({ items }: { readonly items: readonly string[] }) {
-  return (
-    <>
-      {items.map((item) => (
-        <span
-          className="font-[family-name:var(--font-landing-display)] text-[clamp(3rem,11vw,8rem)] leading-none font-medium tracking-tighter lowercase"
-          key={item}
-        >
-          {item}
-        </span>
-      ))}
-    </>
-  );
-}
+const clockMinutes = [0, 8, 16, 24, 32, 40, 48, 56] as const;
 
 export function LandingFacts() {
   return (
     <section
       aria-labelledby="facts-heading"
-      className={`${landingInvertClassName} w-full`}
+      className={`${landingInvertClassName} w-full overflow-hidden`}
     >
-      <LandingContainer className="flex flex-col justify-evenly gap-8 py-10 md:min-h-dvh md:py-8">
+      <div className="mx-auto flex w-full max-w-[1800px] flex-col justify-evenly gap-6 px-4 py-10 sm:px-8 md:min-h-dvh md:py-8">
         <h2 className="sr-only" id="facts-heading">
           Datos clave
         </h2>
-
-        <div className="flex flex-col gap-2 overflow-hidden">
-          <LandingMarquee>
-            <MarqueeItems items={marqueeSignals} />
-          </LandingMarquee>
-          <LandingMarquee reverse fast>
-            <MarqueeItems items={marqueePressure} />
-          </LandingMarquee>
-        </div>
-
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="font-[family-name:var(--font-landing-display)] text-2xl leading-tight font-medium lowercase sm:text-3xl">
-            Entrar es difícil. Ese es el punto.
-          </p>
-          <p className="mt-3 text-sm leading-relaxed sm:text-base">
-            Un hackathon presencial para el talento que ya está construyendo.
-            Pocas plazas, presión real y ~30 horas para demostrar de qué estás
-            hecho.
-          </p>
-        </div>
-
-        <dl className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <dl className="sr-only">
           {facts.map((fact) => (
-            <div
-              className="flex flex-col gap-2 border-2 border-[#1a1a1a] px-3 py-4"
-              key={fact.label}
-            >
-              <dt className="font-mono text-[11px] lowercase tracking-[0.08em] opacity-70">
-                {fact.label}
-              </dt>
-              <dd className="text-base leading-snug font-medium tracking-tight lowercase sm:text-lg">
-                {fact.value}
-              </dd>
+            <div key={fact.label}>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
             </div>
           ))}
         </dl>
-      </LandingContainer>
+
+        <div className="flex items-center justify-center gap-3 overflow-hidden sm:gap-5">
+          <div className="hidden items-center gap-2 text-[clamp(2.4rem,8vw,6.5rem)] sm:flex">
+            <IconRepeat count={6}>
+              {(index) => <PersonMark key={index} />}
+            </IconRepeat>
+          </div>
+          <PersonMark className="sm:hidden text-[clamp(2.6rem,16vw,4rem)]" />
+          <p
+            className={`${landingLedClassName} text-[clamp(2.4rem,11vw,7rem)] leading-none`}
+          >
+            lima
+          </p>
+        </div>
+
+        <div className="flex items-center justify-center gap-3 overflow-hidden sm:gap-5">
+          <p
+            className={`${landingLedClassName} text-[clamp(2.4rem,11vw,7rem)] leading-none`}
+          >
+            ~30h
+          </p>
+          <div className="flex items-center gap-2 text-[clamp(2.2rem,8vw,6.5rem)]">
+            <IconRepeat count={8}>
+              {(index) => (
+                <ClockMark
+                  className={index > 1 ? "hidden sm:block" : undefined}
+                  key={index}
+                  minutes={clockMinutes[index % clockMinutes.length] ?? 0}
+                />
+              )}
+            </IconRepeat>
+          </div>
+        </div>
+
+        <LandingMarquee>
+          <span
+            className={`${landingLedClassName} text-[clamp(2.2rem,9vw,6.2rem)] leading-none`}
+          >
+            1–4 por equipo
+          </span>
+          <span
+            className={`${landingLedClassName} text-[clamp(2.2rem,9vw,6.2rem)] leading-none`}
+          >
+            1–4 por equipo
+          </span>
+        </LandingMarquee>
+
+        <LandingMarquee reverse fast>
+          <span
+            className={`${landingLedClassName} text-[clamp(2rem,8vw,5.4rem)] leading-none`}
+          >
+            selectivo @ lima
+          </span>
+          <span
+            className={`${landingLedClassName} text-[clamp(2rem,8vw,5.4rem)] leading-none`}
+          >
+            selectivo @ lima
+          </span>
+        </LandingMarquee>
+
+        <LandingContainer className="px-0">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="font-[family-name:var(--font-landing-display)] text-xl leading-tight font-medium lowercase sm:text-2xl">
+              Entrar es difícil. Ese es el punto.
+            </p>
+            <p className="mt-3 text-sm leading-relaxed sm:text-base">
+              Un hackathon presencial para el talento que ya está construyendo.
+              Pocas plazas, presión real y ~30 horas para demostrar de qué estás
+              hecho.
+            </p>
+          </div>
+        </LandingContainer>
+      </div>
     </section>
   );
 }

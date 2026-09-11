@@ -26,7 +26,7 @@ export function LandingSponsors() {
                 <span
                   className={
                     slot.confirmed
-                      ? "font-[family-name:var(--font-landing-title)] text-lg tracking-[0.14em] uppercase"
+                      ? "font-[family-name:var(--font-landing-led)] text-lg tracking-[0.08em] uppercase"
                       : "font-mono text-xs tracking-[0.12em] text-[#d1d5d1] lowercase"
                   }
                 >

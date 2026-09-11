@@ -3,8 +3,8 @@ import { LandingFacts } from "@/components/landing/facts";
 import { LandingFilter } from "@/components/landing/filter";
 import {
   landingDisplay,
+  landingLed,
   landingMono,
-  landingTitle,
 } from "@/components/landing/fonts";
 import { LandingFooter } from "@/components/landing/footer";
 import { LandingHeader, LandingMobileCta } from "@/components/landing/header";
@@ -22,7 +22,7 @@ export default function Home() {
       className={cn(
         landingPageClassName,
         landingDisplay.variable,
-        landingTitle.variable,
+        landingLed.variable,
         landingMono.variable,
         landingMono.className,
       )}

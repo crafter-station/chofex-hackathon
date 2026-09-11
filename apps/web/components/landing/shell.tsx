@@ -9,8 +9,11 @@ export const landingPageClassName =
 export const landingInvertClassName =
   "bg-[#e1ff00] text-[#1a1a1a] selection:bg-[#1a1a1a] selection:text-[#e1ff00]";
 
+export const landingLedClassName =
+  "font-[family-name:var(--font-landing-led)] uppercase tracking-[0.06em]";
+
 export const landingCtaClassName =
-  "inline-flex min-h-12 flex-col items-center justify-center border-2 border-[#e1ff00] bg-[#e1ff00] px-6 py-2.5 text-center font-[family-name:var(--font-landing-title)] text-base font-medium text-[#1a1a1a] uppercase tracking-[0.14em] transition hover:scale-[1.02] md:min-h-14 md:px-10 md:text-xl";
+  "inline-flex min-h-12 flex-col items-center justify-center border-2 border-[#e1ff00] bg-[#e1ff00] px-6 py-2.5 text-center font-[family-name:var(--font-landing-led)] text-base text-[#1a1a1a] uppercase tracking-[0.08em] transition hover:scale-[1.02] md:min-h-14 md:px-10 md:text-xl";
 
 export const landingFrameClassName = "border-2 border-[#e1ff00] bg-[#111111]";
 
@@ -45,7 +48,7 @@ export function LandingTitle({ className, ...props }: ComponentProps<"h2">) {
   return (
     <h2
       className={cn(
-        "text-center font-[family-name:var(--font-landing-title)] text-4xl leading-none font-medium tracking-[0.16em] uppercase sm:text-6xl lg:text-7xl",
+        "text-center font-[family-name:var(--font-landing-led)] text-4xl leading-none tracking-[0.08em] uppercase sm:text-6xl lg:text-7xl",
         className,
       )}
       {...props}

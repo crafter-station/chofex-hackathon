@@ -22,7 +22,7 @@ export function LandingFilter() {
               className={`flex flex-col gap-3 p-5 ${landingFrameClassName}`}
               key={item.title}
             >
-              <h3 className="font-[family-name:var(--font-landing-title)] text-sm font-medium tracking-[0.12em] uppercase sm:text-base">
+              <h3 className="font-[family-name:var(--font-landing-led)] text-sm tracking-[0.08em] uppercase sm:text-base">
                 {item.title}
               </h3>
               <p className="text-sm leading-relaxed text-[#d1d5d1]">

@@ -26,7 +26,7 @@ export function LandingApply() {
                 aria-hidden="true"
               />
             </div>
-            <h3 className="font-[family-name:var(--font-landing-title)] text-lg tracking-[0.1em] uppercase sm:text-xl">
+            <h3 className="font-[family-name:var(--font-landing-led)] text-lg tracking-[0.08em] uppercase sm:text-xl">
               Aplica con la CLI
             </h3>
             <div className="mt-6 overflow-x-auto border-2 border-[#e1ff00]/40 bg-black p-5 font-mono text-sm leading-8">
@@ -46,7 +46,7 @@ export function LandingApply() {
                 agent
               </span>
             </div>
-            <h3 className="font-[family-name:var(--font-landing-title)] text-lg tracking-[0.1em] uppercase sm:text-xl">
+            <h3 className="font-[family-name:var(--font-landing-led)] text-lg tracking-[0.08em] uppercase sm:text-xl">
               O dile a tu agent
             </h3>
             <CopyAgentPrompt />

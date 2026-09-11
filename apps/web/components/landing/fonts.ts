@@ -1,4 +1,4 @@
-import { IBM_Plex_Mono, Orbitron, Oxanium } from "next/font/google";
+import { IBM_Plex_Mono, Oxanium, Zen_Dots } from "next/font/google";
 
 export const landingDisplay = Oxanium({
   subsets: ["latin"],
@@ -6,10 +6,10 @@ export const landingDisplay = Oxanium({
   variable: "--font-landing-display",
 });
 
-export const landingTitle = Orbitron({
+export const landingLed = Zen_Dots({
   subsets: ["latin"],
-  weight: ["400", "500", "700", "900"],
-  variable: "--font-landing-title",
+  weight: "400",
+  variable: "--font-landing-led",
 });
 
 export const landingMono = IBM_Plex_Mono({
