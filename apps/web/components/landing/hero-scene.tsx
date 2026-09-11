@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 
 export const HERO_SCENE_ROOT_ID = "hero-scene";
 
-/** Locked subject for the R3F teammate: Moray, Valle Sagrado. */
-export const HERO_SCENE_THEME = "moray" as const;
+/** Locked subject for the R3F teammate: navigable Machu Picchu world. */
+export const HERO_SCENE_THEME = "machu-picchu" as const;
 
 export type HeroSceneProps = {
   readonly className?: string;
@@ -13,16 +13,16 @@ export type HeroSceneProps = {
 
 function HeroSceneFallback() {
   return (
-    <div className="relative size-full overflow-hidden bg-[#3d8fd4]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,#7ec8f0_0%,#3d8fd4_38%,#6b8a4a_72%,#3f5a2e_100%)]" />
-      <div className="hero-scene-moray-hint absolute top-[58%] left-1/2 size-[150vmax] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-90" />
+    <div className="relative size-full overflow-hidden bg-[#2f6fad]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,#7eb7e8_0%,#2f6fad_42%,#1d3d2a_100%)]" />
+      <div className="hero-scene-machu-hint absolute inset-x-[-10%] bottom-[-8%] h-[78%]" />
     </div>
   );
 }
 
 /**
- * Full-bleed Moray (Valle Sagrado) WebGL slot.
- * Three/R3F owns the concentric-terrace scene. Mount a client Canvas as
+ * Full-bleed Machu Picchu WebGL slot.
+ * Three/R3F owns the navigable citadel/camera. Mount a client Canvas as
  * `children`, or replace the fallback. Do not paint landing type in here.
  */
 export function HeroScene({ className, children }: HeroSceneProps) {

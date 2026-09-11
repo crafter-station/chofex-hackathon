@@ -1,12 +1,12 @@
-import { Archivo_Black, IBM_Plex_Mono, Outfit } from "next/font/google";
+import { Barlow, Barlow_Condensed, IBM_Plex_Mono } from "next/font/google";
 
-export const landingDisplay = Archivo_Black({
+export const landingDisplay = Barlow_Condensed({
   subsets: ["latin"],
-  weight: "400",
+  weight: ["500", "600", "700"],
   variable: "--font-landing-display",
 });
 
-export const landingSans = Outfit({
+export const landingSans = Barlow({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-landing-sans",
