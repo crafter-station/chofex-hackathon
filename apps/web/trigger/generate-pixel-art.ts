@@ -4,6 +4,7 @@ import { db } from "@chofex/db/worker";
 import { fal } from "@fal-ai/client";
 import { logger, task } from "@trigger.dev/sdk";
 
+import { pixelArtModel } from "../lib/badges/config";
 import { downloadImage, uploadPng } from "./badge-assets";
 
 const pixelArtPrompt = [
@@ -23,13 +24,11 @@ export const generatePixelArt = task({
   queue: { concurrencyLimit: 3 },
   maxDuration: 600,
   run: async (payload: GeneratePixelArtPayload) => {
-    const model =
-      process.env.FAL_PIXEL_ART_MODEL ?? "fal-ai/flux/dev/image-to-image";
     logger.info("Generating pixel-art portrait", {
       applicationId: payload.applicationId,
-      model,
+      model: pixelArtModel,
     });
-    const result = await fal.subscribe(model, {
+    const result = await fal.subscribe(pixelArtModel, {
       input: {
         image_url: payload.pictureUrl,
         prompt: pixelArtPrompt,

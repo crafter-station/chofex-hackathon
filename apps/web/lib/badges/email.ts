@@ -1,3 +1,4 @@
+import { badgeEmailFrom, badgeEmailReplyTo } from "./config";
 import { escapeXml } from "./image";
 
 export interface BadgeReadyEmailInput {
@@ -22,10 +23,9 @@ export const sendBadgeReadyEmail = async (
       "idempotency-key": `participant-badge/${input.applicationId}`,
     },
     body: JSON.stringify({
-      from: process.env.BADGE_EMAIL_FROM ?? "hackathons@crafterstation.com",
+      from: badgeEmailFrom,
       to: [input.email],
-      reply_to:
-        process.env.BADGE_EMAIL_REPLY_TO ?? "anthony@crafterstation.com",
+      reply_to: badgeEmailReplyTo,
       subject: "Your Hack the Andes badge is ready",
       text: `Hi ${input.firstName},\n\nYour Hack the Andes badge is ready: ${input.badgeUrl}\n`,
       html: `<p>Hi ${safeFirstName},</p><p>Your Hack the Andes badge is ready.</p><p><a href="${safeBadgeUrl}">View your badge</a></p>`,

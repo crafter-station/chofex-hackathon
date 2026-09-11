@@ -38,6 +38,8 @@ describe("badge-ready email", () => {
     expect(headers.get("idempotency-key")).toBe(
       "participant-badge/application-123",
     );
+    expect(body.from).toBe("hackathons@crafterstation.com");
+    expect(body.reply_to).toBe("anthony@crafterstation.com");
     expect(body.html).toContain("Ada &lt;Admin&gt;");
     expect(body.html).toContain("a=1&amp;b=2");
   });
