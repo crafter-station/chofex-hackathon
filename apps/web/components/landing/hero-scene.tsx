@@ -25,9 +25,10 @@ function HeroSceneFallback() {
 
 /**
  * Full-bleed Machu Picchu WebGL slot.
- * Three/R3F owns the navigable citadel/camera. Load
- * `HERO_SCENE_MODEL_URL` (`/models/machu-picchu.glb`) from a client
- * Canvas mounted as `children`. Do not paint landing type in here.
+ * Three/R3F owns the citadel/camera and a constrained look orbit.
+ * Scroll still drives chapters. Load `HERO_SCENE_MODEL_URL`
+ * (`/models/machu-picchu.glb`) from a client Canvas mounted as
+ * `children`. Do not paint landing type in here.
  */
 export function HeroScene({ className, children }: HeroSceneProps) {
   return (

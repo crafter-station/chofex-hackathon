@@ -72,7 +72,7 @@ export function MachuPicchuFallback({
  *
  * Overlay contract:
  * - Render as children of `#hero-scene`
- * - This layer is `pointer-events: none` and sits at z-0
+ * - Look layer accepts constrained drag; CTAs keep their own hit targets
  * - Landing type / CTAs stay in the scroll overlays
  */
 export function MachuPicchuScene({
