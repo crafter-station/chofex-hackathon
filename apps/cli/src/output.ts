@@ -43,6 +43,7 @@ export const execute = <A, R>(
   mode: OutputMode,
   operation: Effect.Effect<ApiSuccess<A>, CliError, R>,
   human: (value: A) => string,
+  humanError?: (error: CliError) => string | undefined,
 ): Effect.Effect<void, never, R> =>
   operation.pipe(
     Effect.flatMap((response) => {
@@ -64,12 +65,23 @@ export const execute = <A, R>(
           },
         });
       }
+      const customMessage = humanError?.(error);
+      if (customMessage !== undefined) {
+        return Console.error(`${customMessage}\nRequest ID: ${error.requestId}`);
+      }
       const details = humanErrorDetails(error.details);
       return Console.error(
         `Error [${error.code}]: ${error.message}${details}\nRequest ID: ${error.requestId}`,
       );
     }),
   );
+
+export const registrationLookupErrorText = (
+  error: CliError,
+): string | undefined => {
+  if (error.code !== "REGISTRATION_NOT_FOUND") return undefined;
+  return "No registration found.\nNext command: chofex register";
+};
 
 const requirementsText = (result: RegistrationResult): string => {
   const { registration, requirements } = result;

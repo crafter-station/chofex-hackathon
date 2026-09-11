@@ -555,6 +555,50 @@ describe("CLI JSON mode", () => {
     }
   });
 
+  for (const command of ["status", "requirements"] as const) {
+    test(`${command} invites a participant without an application to register`, async () => {
+      const server = Bun.serve({
+        port: 0,
+        fetch() {
+          return Response.json(
+            {
+              version: 1,
+              ok: false,
+              requestId: "request-no-registration",
+              error: {
+                code: "REGISTRATION_NOT_FOUND",
+                message: "Registration not found",
+                retryable: false,
+              },
+            },
+            { status: 404 },
+          );
+        },
+      });
+
+      try {
+        const apiUrl = server.url.toString().replace(/\/$/, "");
+        const result = await runCli(
+          "--api-url",
+          apiUrl,
+          "--token",
+          "oauth-token",
+          command,
+        );
+
+        expect(result.exitCode).toBe(4);
+        expect(result.stdout).toBe("");
+        expect(result.stderr).toContain("No registration found.");
+        expect(result.stderr).toContain("Next command: chofex register");
+        expect(result.stderr).toContain(
+          "Request ID: request-no-registration",
+        );
+      } finally {
+        server.stop(true);
+      }
+    });
+  }
+
   test("requires a computer path when an accepted participant chooses upload", async () => {
     const inputPath = `${cliDirectory}.attendance-${crypto.randomUUID()}.json`;
     let attendanceSubmitted = false;

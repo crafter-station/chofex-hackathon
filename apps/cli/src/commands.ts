@@ -20,6 +20,7 @@ import {
   createdText,
   execute,
   printJson,
+  registrationLookupErrorText,
   registrationText,
   requirementsOnlyText,
 } from "./output.js";
@@ -130,7 +131,12 @@ const statusCommand = Command.make(
       const token = Option.getOrUndefined(options.token);
       return yield* getRegistration({ apiUrl: options.apiUrl, token });
     });
-    yield* execute(options.output, operation, registrationText);
+    yield* execute(
+      options.output,
+      operation,
+      registrationText,
+      registrationLookupErrorText,
+    );
   }),
 ).pipe(Command.withDescription("Show your latest application and next steps"));
 
@@ -143,7 +149,12 @@ const requirementsCommand = Command.make(
       const token = Option.getOrUndefined(options.token);
       return yield* getRegistration({ apiUrl: options.apiUrl, token });
     });
-    yield* execute(options.output, operation, requirementsOnlyText);
+    yield* execute(
+      options.output,
+      operation,
+      requirementsOnlyText,
+      registrationLookupErrorText,
+    );
   }),
 ).pipe(Command.withDescription("Show information you still need to provide"));
 
