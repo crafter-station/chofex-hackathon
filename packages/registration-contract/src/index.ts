@@ -57,7 +57,7 @@ export const ShirtSize = Schema.Literals([
   "prefer_not_to_say",
 ]);
 
-const applicationInputFields = {
+export const applicationInputFields = {
   firstName: nonBlank(100),
   lastName: nonBlank(100),
   pronouns: optionalText(50),
@@ -89,7 +89,7 @@ export const ApplicationInput = Schema.Struct(applicationInputFields);
 
 export type ApplicationInput = typeof ApplicationInput.Type;
 
-const acceptedDetailsInputFields = {
+export const acceptedDetailsInputFields = {
   phone: nonBlank(32),
   dateOfBirth: Schema.String.pipe(
     Schema.check(
@@ -168,6 +168,22 @@ export const applicationSemanticRequirements = (
   return [];
 };
 
+export const dateOfBirthRequirement = (
+  dateOfBirth: string,
+): Requirement | undefined => {
+  const birthDate = DateTime.make(`${dateOfBirth}T00:00:00.000Z`);
+  if (
+    Option.isNone(birthDate) ||
+    DateTime.formatIsoDateUtc(birthDate.value) !== dateOfBirth ||
+    !DateTime.isPastUnsafe(birthDate.value)
+  ) {
+    return {
+      field: "dateOfBirth",
+      reason: "Must be a valid date in the past",
+    };
+  }
+};
+
 export const acceptedDetailsSemanticRequirements = (
   input: AcceptedDetailsInput,
   participationMode: typeof ParticipationMode.Type,
@@ -175,17 +191,8 @@ export const acceptedDetailsSemanticRequirements = (
   const requirements: Array<Requirement> = [];
   addShirtSizeRequirement(requirements, participationMode, input.shirtSize);
 
-  const birthDate = DateTime.make(`${input.dateOfBirth}T00:00:00.000Z`);
-  if (
-    Option.isNone(birthDate) ||
-    DateTime.formatIsoDateUtc(birthDate.value) !== input.dateOfBirth ||
-    !DateTime.isPastUnsafe(birthDate.value)
-  ) {
-    requirements.push({
-      field: "dateOfBirth",
-      reason: "Must be a valid date in the past",
-    });
-  }
+  const invalidDateOfBirth = dateOfBirthRequirement(input.dateOfBirth);
+  if (invalidDateOfBirth) requirements.push(invalidDateOfBirth);
   return requirements;
 };
 

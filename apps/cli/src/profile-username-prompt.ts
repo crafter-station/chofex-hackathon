@@ -102,6 +102,7 @@ const insertInput = (
 const processProfileUsername = (
   input: Terminal.UserInput,
   state: ProfileUsernameState,
+  validate: (value: string) => Effect.Effect<string, string>,
 ): Effect.Effect<Prompt.Action<ProfileUsernameState, string>> => {
   if (input.key.ctrl) {
     if (input.key.name === "u") {
@@ -157,7 +158,12 @@ const processProfileUsername = (
   }
   if (input.key.name === "enter" || input.key.name === "return") {
     if (state.value === "" || /^[A-Za-z0-9._-]+$/.test(state.value)) {
-      return Effect.succeed({ _tag: "Submit", value: state.value });
+      return validate(state.value).pipe(
+        Effect.map((value) => ({ _tag: "Submit" as const, value })),
+        Effect.catch((error) =>
+          Effect.succeed(nextFrame({ ...state, error })),
+        ),
+      );
     }
     return Effect.succeed(
       nextFrame({ ...state, error: "Enter only your username" }),
@@ -175,6 +181,7 @@ const processProfileUsername = (
 export const profileUsernamePrompt = (
   message: string,
   profilePrefix: string,
+  validate: (value: string) => Effect.Effect<string, string> = Effect.succeed,
 ): Prompt.Prompt<string> =>
   Prompt.custom(
     { cursor: 0, value: "" },
@@ -190,7 +197,7 @@ export const profileUsernamePrompt = (
           ),
         );
       },
-      process: processProfileUsername,
+      process: (input, state) => processProfileUsername(input, state, validate),
       clear: (state) => Effect.succeed(clearProfileUsername(state)),
     },
   );

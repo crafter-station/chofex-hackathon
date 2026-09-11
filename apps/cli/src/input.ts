@@ -3,10 +3,13 @@ import { readFile } from "node:fs/promises";
 import {
   AcceptedDetailsInput,
   ApplicationInput,
+  acceptedDetailsInputFields,
   acceptedDetailsInputFieldNames,
   acceptedDetailsSemanticRequirements,
+  applicationInputFields,
   applicationInputFieldNames,
   applicationSemanticRequirements,
+  dateOfBirthRequirement,
 } from "@chofex/registration-contract";
 import { Effect, Schema } from "effect";
 import { Prompt } from "effect/unstable/cli";
@@ -15,17 +18,48 @@ import type * as PromptModule from "effect/unstable/cli/Prompt";
 import { CliError, cliError } from "./errors.js";
 import { profileUsernamePrompt } from "./profile-username-prompt.js";
 
-const requiredText = (message: string): Prompt.Prompt<string> =>
+const validatePromptValue = (
+  schema: Schema.Decoder<unknown, never>,
+  value: unknown,
+): Effect.Effect<void, string> =>
+  Schema.decodeUnknownEffect(schema)(value).pipe(
+    Effect.asVoid,
+    Effect.mapError((error) => error.message),
+  );
+
+const requiredText = (
+  message: string,
+  schema: Schema.Decoder<unknown, never>,
+): Prompt.Prompt<string> =>
   Prompt.text({
     message,
+    validate: (value) =>
+      validatePromptValue(schema, value).pipe(Effect.as(value)),
+  });
+
+const optionalText = (
+  message: string,
+  schema: Schema.Decoder<unknown, never>,
+): Prompt.Prompt<string> =>
+  Prompt.text({
+    message,
+    default: "",
     validate: (value) => {
-      if (value.trim().length > 0) return Effect.succeed(value);
-      return Effect.fail("This value is required");
+      if (value === "") return Effect.succeed(value);
+      return validatePromptValue(schema, value).pipe(Effect.as(value));
     },
   });
 
-const optionalText = (message: string): Prompt.Prompt<string> =>
-  Prompt.text({ message, default: "" });
+export const dateOfBirthPrompt = (): Prompt.Prompt<string> =>
+  Prompt.text({
+    message: "Date of birth (YYYY-MM-DD)",
+    validate: Effect.fn("validateDateOfBirth")(function* (value) {
+      yield* validatePromptValue(acceptedDetailsInputFields.dateOfBirth, value);
+      const requirement = dateOfBirthRequirement(value);
+      if (requirement) return yield* Effect.fail(requirement.reason);
+      return value;
+    }),
+  });
 
 const githubProfilePrefix = "github.com/";
 const linkedInProfilePrefix = "linkedin.com/in/";
@@ -95,28 +129,65 @@ const validateSemantics = <A>(
 };
 
 const applicationDetailsPrompts = Prompt.all({
-  firstName: requiredText("First name"),
-  lastName: requiredText("Last name"),
-  pronouns: optionalText("Pronouns (optional)"),
-  city: requiredText("City of residence in Peru"),
-  organization: optionalText("Organization (optional)"),
-  role: optionalText("Role (optional)"),
-  fieldOfStudy: optionalText("Field of study (optional)"),
-  graduationYear: optionalText("Graduation year (optional)"),
-  shippedProject: requiredText("What have you shipped?"),
+  firstName: requiredText("First name", applicationInputFields.firstName),
+  lastName: requiredText("Last name", applicationInputFields.lastName),
+  pronouns: optionalText("Pronouns (optional)", applicationInputFields.pronouns),
+  city: requiredText("City of residence in Peru", applicationInputFields.city),
+  organization: optionalText(
+    "Organization (optional)",
+    applicationInputFields.organization,
+  ),
+  role: optionalText("Role (optional)", applicationInputFields.role),
+  fieldOfStudy: optionalText(
+    "Field of study (optional)",
+    applicationInputFields.fieldOfStudy,
+  ),
+  graduationYear: Prompt.text({
+    message: "Graduation year (optional)",
+    default: "",
+    validate: (value) => {
+      if (value === "") return Effect.succeed(value);
+      return validatePromptValue(
+        applicationInputFields.graduationYear,
+        Number(value),
+      ).pipe(Effect.as(value));
+    },
+  }),
+  shippedProject: requiredText(
+    "What have you shipped?",
+    applicationInputFields.shippedProject,
+  ),
   hackathonProject: requiredText(
     "What do you want to ship at the hackathon?",
+    applicationInputFields.hackathonProject,
   ),
-  bio: requiredText("Short bio"),
+  bio: requiredText("Short bio", applicationInputFields.bio),
   githubUsername: profileUsernamePrompt(
     "GitHub username (optional)",
     githubProfilePrefix,
+    (value) => {
+      if (value === "") return Effect.succeed(value);
+      return validatePromptValue(
+        applicationInputFields.githubUrl,
+        `${githubProfilePrefix}${value}`,
+      ).pipe(Effect.as(value));
+    },
   ),
   linkedInUsername: profileUsernamePrompt(
     "LinkedIn username (optional)",
     linkedInProfilePrefix,
+    (value) => {
+      if (value === "") return Effect.succeed(value);
+      return validatePromptValue(
+        applicationInputFields.linkedInUrl,
+        `${linkedInProfilePrefix}${value}`,
+      ).pipe(Effect.as(value));
+    },
   ),
-  portfolioUrl: optionalText("Portfolio URL (optional)"),
+  portfolioUrl: optionalText(
+    "Portfolio URL (optional)",
+    applicationInputFields.portfolioUrl,
+  ),
 });
 
 const teamPreferencePrompt = Prompt.select({
@@ -168,7 +239,9 @@ const interactiveApplication = (publicBaseUrl: string) =>
     const teamPreference = yield* Prompt.run(teamPreferencePrompt);
     let teamName: string | undefined;
     if (teamPreference === "have_team") {
-      teamName = yield* Prompt.run(requiredText("Team name"));
+      teamName = yield* Prompt.run(
+        requiredText("Team name", applicationInputFields.teamName),
+      );
     }
     const codeOfConductAccepted = yield* requiredAgreement(
       "Terms and Code of Conduct",
@@ -225,14 +298,29 @@ const interactiveAcceptedDetails = (
 ) =>
   Prompt.run(
     Prompt.all({
-      phone: requiredText("Phone number"),
-      dateOfBirth: requiredText("Date of birth (YYYY-MM-DD)"),
-      nationalIdNumber: requiredText("National ID or passport number"),
+      phone: requiredText("Phone number", acceptedDetailsInputFields.phone),
+      dateOfBirth: dateOfBirthPrompt(),
+      nationalIdNumber: requiredText(
+        "National ID or passport number",
+        acceptedDetailsInputFields.nationalIdNumber,
+      ),
       shirtSize: shirtSizePrompt(participationMode),
-      dietaryRestrictions: optionalText("Dietary restrictions (optional)"),
-      accessibilityNeeds: optionalText("Accessibility needs (optional)"),
-      emergencyContactName: requiredText("Emergency contact name"),
-      emergencyContactPhone: requiredText("Emergency contact phone"),
+      dietaryRestrictions: optionalText(
+        "Dietary restrictions (optional)",
+        acceptedDetailsInputFields.dietaryRestrictions,
+      ),
+      accessibilityNeeds: optionalText(
+        "Accessibility needs (optional)",
+        acceptedDetailsInputFields.accessibilityNeeds,
+      ),
+      emergencyContactName: requiredText(
+        "Emergency contact name",
+        acceptedDetailsInputFields.emergencyContactName,
+      ),
+      emergencyContactPhone: requiredText(
+        "Emergency contact phone",
+        acceptedDetailsInputFields.emergencyContactPhone,
+      ),
       mediaConsent: Prompt.confirm({
         message: "Do you consent to appearing in event media?",
       }),
