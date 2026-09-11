@@ -22,6 +22,13 @@
       "when": 1788934755256,
       "tag": "0002_known_wallop",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789104196794,
+      "tag": "0003_chilly_vampiro",
+      "breakpoints": true
     }
   ]
 }

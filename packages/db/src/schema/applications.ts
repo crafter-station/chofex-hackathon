@@ -42,6 +42,8 @@ export const applications = pgTable(
     graduationYear: integer("graduation_year"),
     experienceLevel: experienceLevel("experience_level"),
     skills: text("skills").array(),
+    shippedProject: text("shipped_project"),
+    hackathonProject: text("hackathon_project"),
     bio: text("bio"),
     githubUrl: text("github_url"),
     linkedInUrl: text("linkedin_url"),

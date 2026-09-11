@@ -329,8 +329,6 @@ const CandidateDrawer = ({
     decisionPanelMessage =
       "The decision was saved, but the email needs attention.";
   }
-  const experience =
-    candidate.experienceLevel && titleCase(candidate.experienceLevel);
   const participation =
     candidate.participationMode && titleCase(candidate.participationMode);
   const teamPreference =
@@ -342,15 +340,6 @@ const CandidateDrawer = ({
   const dateOfBirth =
     candidate.dateOfBirth && formatCalendarDate(candidate.dateOfBirth);
   const idDocument = candidate.nationalIdProvided && "Provided securely";
-  const skillTags = candidate.skills.length > 0 && (
-    <span className="flex flex-wrap gap-1.5">
-      {candidate.skills.map((skill) => (
-        <Badge key={skill} variant="secondary">
-          {skill}
-        </Badge>
-      ))}
-    </span>
-  );
 
   return (
     <Drawer
@@ -551,7 +540,6 @@ const CandidateDrawer = ({
                 <Detail label="Graduation year">
                   {candidate.graduationYear?.toString()}
                 </Detail>
-                <Detail label="Experience">{experience}</Detail>
                 <Detail label="Participation">{participation}</Detail>
                 <Detail label="Team preference">{teamPreference}</Detail>
                 <Detail label="Team name">{candidate.teamName}</Detail>
@@ -565,9 +553,14 @@ const CandidateDrawer = ({
             </div>
 
             <div className="border-t pt-5">
-              <h3 className="text-sm font-semibold">Skills & story</h3>
+              <h3 className="text-sm font-semibold">Projects & story</h3>
               <dl className="mt-4 space-y-5">
-                <Detail label="Skills">{skillTags}</Detail>
+                <Detail label="What they have shipped">
+                  {candidate.shippedProject}
+                </Detail>
+                <Detail label="What they want to ship">
+                  {candidate.hackathonProject}
+                </Detail>
                 <Detail label="Bio">{candidate.bio}</Detail>
               </dl>
             </div>

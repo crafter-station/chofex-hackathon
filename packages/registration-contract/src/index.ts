@@ -41,11 +41,6 @@ export const RegistrationStatus = Schema.Literals([
 export const ParticipationMode = Schema.Literals(["in_person", "remote"]);
 export const hackathonCountryCode = "PE" as const;
 export const hackathonParticipationMode = "in_person" as const;
-export const ExperienceLevel = Schema.Literals([
-  "beginner",
-  "intermediate",
-  "advanced",
-]);
 export const TeamPreference = Schema.Literals([
   "have_team",
   "looking_for_team",
@@ -75,10 +70,8 @@ const applicationInputFields = {
       Schema.check(Schema.isBetween({ minimum: 1950, maximum: 2100 })),
     ),
   ),
-  experienceLevel: ExperienceLevel,
-  skills: Schema.Array(nonBlank(60)).pipe(
-    Schema.check(Schema.isMinLength(1), Schema.isMaxLength(30)),
-  ),
+  shippedProject: nonBlank(2_000),
+  hackathonProject: nonBlank(2_000),
   bio: nonBlank(2_000),
   githubUrl: Schema.optional(url),
   linkedInUrl: Schema.optional(url),
@@ -126,8 +119,8 @@ export const initialRequiredFields = [
   "firstName",
   "lastName",
   "city",
-  "experienceLevel",
-  "skills",
+  "shippedProject",
+  "hackathonProject",
   "bio",
   "teamPreference",
   "codeOfConductAccepted",
@@ -212,8 +205,8 @@ export const RegistrationViewSchema = Schema.Struct({
   role: Schema.optional(Schema.String),
   fieldOfStudy: Schema.optional(Schema.String),
   graduationYear: Schema.optional(Schema.Number),
-  experienceLevel: Schema.optional(ExperienceLevel),
-  skills: Schema.Array(Schema.String),
+  shippedProject: Schema.optional(Schema.String),
+  hackathonProject: Schema.optional(Schema.String),
   bio: Schema.optional(Schema.String),
   githubUrl: Schema.optional(Schema.String),
   linkedInUrl: Schema.optional(Schema.String),

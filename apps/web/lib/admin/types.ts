@@ -30,8 +30,8 @@ export interface Candidate {
   readonly role?: string;
   readonly fieldOfStudy?: string;
   readonly graduationYear?: number;
-  readonly experienceLevel?: "beginner" | "intermediate" | "advanced";
-  readonly skills: ReadonlyArray<string>;
+  readonly shippedProject?: string;
+  readonly hackathonProject?: string;
   readonly bio?: string;
   readonly githubUrl?: string;
   readonly linkedInUrl?: string;

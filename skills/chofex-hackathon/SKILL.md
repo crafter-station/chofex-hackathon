@@ -29,14 +29,12 @@ participant correct it before submission:
 - LinkedIn `cuevaio` or `@cuevaio` becomes
   `https://linkedin.com/in/cuevaio`.
 - A profile URL or bare domain missing a scheme gets `https://`.
-- Comma-separated skills become a trimmed array of skills.
 
 Ask a follow-up only when the input is malformed or has more than one plausible
 meaning that would materially change the application. State low-risk parsing in
 a concise interpretation note immediately before the final summary instead of
 interrupting the interview. For example, map “community at Crafter Station” to
 role `community` and organization `Crafter Station`, and parse recognizable
-technology names in “nextjs react, opencode” as three skills. Preserve
 participant-provided wording and casing for personal answers.
 
 ## Command setup
@@ -108,7 +106,7 @@ can scan and answer it naturally:
 
 - required profile: name, city, and bio;
 - optional profile: pronouns, organization, role, education, and profile URLs;
-- experience level and skills;
+- what they have shipped and what they want to ship at the hackathon;
 - team preference and team name when applicable; and
 - required agreements and optional media consent.
 
@@ -116,8 +114,7 @@ Explain these rules while collecting answers:
 
 - Registration is for the in-person event in Lima, Peru. The application uses
   the authenticated account's primary email and records Peru as the country.
-- `experienceLevel` is `beginner`, `intermediate`, or `advanced`.
-- `skills` contains between 1 and 30 non-empty items.
+- `shippedProject` and `hackathonProject` are required free-text answers.
 - `teamPreference` is `have_team`, `looking_for_team`, or `solo`.
 - `teamName` is required when `teamPreference` is `have_team`.
 - `codeOfConductAccepted` and `privacyPolicyAccepted` must each be the

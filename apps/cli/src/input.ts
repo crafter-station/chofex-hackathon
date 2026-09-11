@@ -103,15 +103,10 @@ const applicationDetailsPrompts = Prompt.all({
   role: optionalText("Role (optional)"),
   fieldOfStudy: optionalText("Field of study (optional)"),
   graduationYear: optionalText("Graduation year (optional)"),
-  experienceLevel: Prompt.select({
-    message: "Experience level",
-    choices: [
-      { title: "Beginner", value: "beginner" as const },
-      { title: "Intermediate", value: "intermediate" as const },
-      { title: "Advanced", value: "advanced" as const },
-    ],
-  }),
-  skills: Prompt.list({ message: "Skills (comma-separated)", delimiter: "," }),
+  shippedProject: requiredText("What have you shipped?"),
+  hackathonProject: requiredText(
+    "What do you want to ship at the hackathon?",
+  ),
   bio: requiredText("Short bio"),
   githubUsername: profileUsernamePrompt(
     "GitHub username (optional)",
