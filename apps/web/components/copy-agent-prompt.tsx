@@ -8,9 +8,9 @@ import { agentApplicationPrompt } from "@/lib/agent-prompt";
 type CopyStatus = "idle" | "copied" | "failed";
 
 const labelForStatus = (status: CopyStatus): string => {
-  if (status === "copied") return "Prompt copied";
-  if (status === "failed") return "Copy failed — try again";
-  return "Copy prompt for your agent";
+  if (status === "copied") return "Prompt copiado";
+  if (status === "failed") return "No se pudo copiar — intenta de nuevo";
+  return "Copiar prompt para tu agent";
 };
 
 const iconForStatus = (status: CopyStatus) => {
@@ -64,7 +64,7 @@ export function CopyAgentPrompt() {
         {labelForStatus(status)}
       </Button>
       <p className="mt-3 text-xs leading-relaxed opacity-50" aria-live="polite">
-        Paste it into your coding agent. You’ll handle login and final approval.
+        Pégalo en tu coding agent. Tú haces el login y la aprobación final.
       </p>
     </div>
   );

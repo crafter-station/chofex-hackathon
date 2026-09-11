@@ -19,7 +19,7 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Hack the Andes",
   description:
-    "Apply to Hack the Andes in Lima via the CLI or with help from your coding agent.",
+    "Hackathon selectivo de IA en Lima, 10–11 de octubre 2026. Aplica con la CLI o con tu agent.",
 };
 
 export default function RootLayout({
