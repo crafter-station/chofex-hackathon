@@ -36,8 +36,8 @@ Connect a public Vercel Blob store and set `BLOB_READ_WRITE_TOKEN` for profile
 picture uploads.
 
 Badge generation runs in Trigger.dev after an accepted participant confirms
-attendance. Set `TRIGGER_PROJECT_REF` and a trigger-only `TRIGGER_SECRET_KEY` in
-the web app, then configure `DATABASE_URL`, `BLOB_READ_WRITE_TOKEN`,
+attendance. Set a trigger-only `TRIGGER_SECRET_KEY` in the web app, then
+configure `DATABASE_URL`, `BLOB_READ_WRITE_TOKEN`,
 `AI_GATEWAY_API_KEY`, and `RESEND_API_KEY` in the matching Trigger.dev environment.
 Run tasks locally with `bun --filter @chofex/web trigger:dev` and deploy them
 with `bun --filter @chofex/web trigger:deploy`.
