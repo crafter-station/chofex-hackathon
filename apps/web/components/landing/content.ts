@@ -63,6 +63,37 @@ export const filterSignals = [
   },
 ] as const;
 
+export const judges = [
+  {
+    id: "j-01",
+    callsign: "QUISPE",
+    name: "Juez 01",
+    role: "IA aplicada · systems",
+    body: "Filtra por rigor. Si el sistema no aguanta, no entra.",
+  },
+  {
+    id: "j-02",
+    callsign: "VALLE",
+    name: "Juez 02",
+    role: "Producto · founders",
+    body: "Busca criterio bajo presión. El pitch no alcanza.",
+  },
+  {
+    id: "j-03",
+    callsign: "CUSCO",
+    name: "Juez 03",
+    role: "Research · agents",
+    body: "Mide si de verdad construyes, no si narras.",
+  },
+] as const;
+
+export const scanLabels = [
+  "BEST OF",
+  "TALENTO",
+  "SIGNAL",
+  "CANDIDATO",
+] as const;
+
 export const sponsorSlots = [
   { id: "chofex", name: "Chofex", confirmed: true },
   { id: "open-1", name: "Próximamente", confirmed: false },

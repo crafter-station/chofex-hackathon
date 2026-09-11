@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 
 import {
   formatSoles,
+  judges,
   prizeAmountsPen,
   prizeAmountsUsd,
   usdToPenRate,
@@ -19,4 +20,10 @@ test("converts published USD prizes to soles at the documented rate", () => {
 test("formats soles with the Peru locale", () => {
   expect(formatSoles(6_700)).toContain("6");
   expect(formatSoles(6_700)).toContain("700");
+});
+
+test("publishes judge profiles for the valley chapter", () => {
+  expect(judges.length).toBeGreaterThanOrEqual(1);
+  expect(judges[0]?.id).toBe("j-01");
+  expect(judges[0]?.callsign).toBe("QUISPE");
 });

@@ -1,0 +1,132 @@
+.landing-hero-title {
+  text-shadow: 0 10px 40px rgb(7 18 43 / 35%);
+}
+
+.landing-jagged {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    #0057ff 0 42%,
+    transparent 42% 58%,
+    #e8ff00 58% 100%
+  );
+  clip-path: polygon(0 0, 18% 0, 0 22%);
+  opacity: 0.92;
+}
+
+.landing-jagged--br {
+  inset: auto 0 0 auto;
+  width: 42%;
+  height: 28%;
+  clip-path: polygon(100% 38%, 100% 100%, 48% 100%);
+  background: #e8ff00;
+}
+
+.landing-ar-window {
+  border: 1px solid rgb(255 255 255 / 85%);
+  background: rgb(7 18 43 / 72%);
+  color: #fff;
+  box-shadow: 0 18px 50px rgb(7 18 43 / 28%);
+  backdrop-filter: blur(10px);
+}
+
+.landing-ar-window__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-bottom: 1px solid rgb(255 255 255 / 18%);
+  padding: 0.35rem 0.55rem;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.landing-device {
+  border: 1px solid rgb(255 255 255 / 28%);
+  background: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 8%),
+    rgb(7 18 43 / 78%)
+  );
+  box-shadow: 0 24px 60px rgb(7 18 43 / 35%);
+  backdrop-filter: blur(14px);
+}
+
+.landing-device__handle {
+  background: #e8ff00;
+}
+
+.landing-halftone {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    rgb(7 18 43 / 28%) 0.7px,
+    transparent 0.8px
+  );
+  background-size: 5px 5px;
+  mix-blend-mode: multiply;
+  opacity: 0.35;
+}
+
+.landing-scanlines {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 3px,
+    rgb(232 255 0 / 8%) 3px 4px
+  );
+  animation: landing-scan 2.8s linear infinite;
+}
+
+.landing-scan-box {
+  position: absolute;
+  border: 1px solid #e8ff00;
+  box-shadow: 0 0 0 1px rgb(0 87 255 / 55%);
+  pointer-events: none;
+}
+
+.landing-scan-box__label {
+  position: absolute;
+  top: -1.15rem;
+  left: -1px;
+  background: #e8ff00;
+  color: #07122b;
+  padding: 0.1rem 0.35rem;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@keyframes landing-scan {
+  to {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes landing-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing-fade-in {
+  animation: landing-fade-in 700ms cubic-bezier(0.22, 1, 0.36, 1) 320ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-scanlines,
+  .landing-fade-in {
+    animation: none;
+  }
+}
