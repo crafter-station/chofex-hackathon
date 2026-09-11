@@ -1,4 +1,5 @@
 import { readFile, stat } from "node:fs/promises";
+import { homedir } from "node:os";
 
 import {
   detectPictureContentType,
@@ -14,9 +15,23 @@ import {
 } from "./api-client.js";
 import { cliError } from "./errors.js";
 
-const readPicture = (path: string) =>
+export const normalizePicturePath = (input: string): string => {
+  let path = input.trim();
+  const first = path.at(0);
+  const last = path.at(-1);
+  const wrappedInQuotes =
+    path.length >= 2 &&
+    ((first === '"' && last === '"') || (first === "'" && last === "'"));
+  if (wrappedInQuotes) path = path.slice(1, -1);
+  if (process.platform === "win32") return path;
+  if (path.startsWith("~/")) path = `${homedir()}${path.slice(1)}`;
+  return path.replace(/\\([\\\s"'()[\]{}&;!#$?*|<>])/g, "$1");
+};
+
+const readPicture = (inputPath: string) =>
   Effect.tryPromise({
     try: async () => {
+      const path = normalizePicturePath(inputPath);
       const metadata = await stat(path);
       if (!metadata.isFile()) throw new Error("Path is not a regular file");
       if (metadata.size < 1 || metadata.size > maximumPictureBytes) {
@@ -30,7 +45,7 @@ const readPicture = (path: string) =>
     catch: (error) =>
       cliError(
         "INVALID_PICTURE_FILE",
-        `Could not use ${path}: ${String(error)}`,
+        `Could not use ${normalizePicturePath(inputPath)}: ${String(error)}`,
       ),
   });
 
