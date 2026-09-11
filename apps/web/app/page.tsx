@@ -13,6 +13,7 @@ import { HERO_MODEL_PRELOAD } from "@/components/landing/machu-picchu-preload";
 import { LandingPrizes } from "@/components/landing/prizes";
 import { LandingScan } from "@/components/landing/scan";
 import { landingPageClassName } from "@/components/landing/shell";
+import { LandingSkipLinks } from "@/components/landing/skip-links";
 import { LandingSponsors } from "@/components/landing/sponsors";
 
 export default function Home() {
@@ -25,7 +26,7 @@ export default function Home() {
         landingMono.variable,
         landingSans.className,
       )}
-      lang="es"
+      id="top"
     >
       <link
         rel="preload"
@@ -34,8 +35,9 @@ export default function Home() {
         crossOrigin={HERO_MODEL_PRELOAD.crossOrigin}
         type={HERO_MODEL_PRELOAD.type}
       />
+      <LandingSkipLinks />
       <LandingHeader />
-      <main id="top">
+      <main id="contenido">
         <LandingHero />
         <LandingJudges />
         <LandingScan />

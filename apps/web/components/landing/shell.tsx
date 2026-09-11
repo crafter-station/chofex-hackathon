@@ -6,14 +6,15 @@ import "@/components/landing/landing.css";
 export const landingPageClassName =
   "landing-page min-h-svh bg-[#0b0d10] text-[#f5f5f5] antialiased selection:bg-[#d6ff00] selection:text-[#0b0d10]";
 
+/** Primary lockup: title-case brand, display condensed. */
 export const landingDisplayClassName =
-  "font-[family-name:var(--font-landing-display)] uppercase leading-[0.82] tracking-[-0.02em]";
+  "font-[family-name:var(--font-landing-display)] leading-[0.82] tracking-[-0.03em]";
 
 export const landingHudClassName =
   "font-[family-name:var(--font-landing-mono)] uppercase tracking-[0.16em]";
 
 export const landingCtaClassName =
-  "inline-flex min-h-12 flex-col items-center justify-center bg-[#d6ff00] px-7 py-2.5 text-center font-[family-name:var(--font-landing-mono)] text-sm font-semibold text-[#0b0d10] uppercase tracking-[0.14em] transition hover:bg-[#e7ff4d] md:min-h-13 md:px-9";
+  "landing-cta inline-flex min-h-12 flex-col items-center justify-center bg-[#d6ff00] px-7 py-2.5 text-center font-[family-name:var(--font-landing-mono)] text-sm font-semibold text-[#0b0d10] uppercase tracking-[0.14em] transition hover:bg-[#e7ff4d] md:min-h-13 md:px-9";
 
 export const landingFrameClassName =
   "border border-[#f5f5f5]/20 bg-[#111318] text-[#f5f5f5]";
@@ -36,10 +37,7 @@ export function LandingContainer({
 export function LandingEyebrow({ className, ...props }: ComponentProps<"p">) {
   return (
     <p
-      className={cn(
-        "font-[family-name:var(--font-landing-mono)] text-[10px] tracking-[0.2em] text-[#d6ff00] uppercase",
-        className,
-      )}
+      className={cn("landing-type-meta text-[#d6ff00]", className)}
       {...props}
     />
   );
@@ -49,7 +47,7 @@ export function LandingTitle({ className, ...props }: ComponentProps<"h2">) {
   return (
     <h2
       className={cn(
-        "font-[family-name:var(--font-landing-display)] text-5xl leading-[0.82] tracking-[-0.02em] uppercase sm:text-7xl",
+        "font-[family-name:var(--font-landing-display)] text-5xl leading-[0.86] tracking-[-0.03em] uppercase sm:text-7xl",
         className,
       )}
       {...props}

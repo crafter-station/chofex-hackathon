@@ -4,6 +4,29 @@
   --hud-white: #f5f5f5;
   --hud-ink: #0b0d10;
   --hud-panel: #111318;
+  /* ~9.6:1 on #0b0d10 — small HUD labels stay AA */
+  --hud-muted: #c5c8d0;
+  /* ~8.4:1 on #f5f5f5 */
+  --hud-muted-on-light: #3a3d44;
+}
+
+.landing-type-meta {
+  font-family: var(--font-landing-mono), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.landing-type-lede {
+  font-size: 1.05rem;
+  line-height: 1.45;
+  color: var(--hud-white);
+}
+
+@media (min-width: 640px) {
+  .landing-type-lede {
+    font-size: 1.2rem;
+  }
 }
 
 .hero-scene-machu-hint {
@@ -151,11 +174,71 @@
   text-transform: uppercase;
 }
 
+.landing-skip {
+  position: absolute;
+  z-index: 70;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.landing-skip a {
+  position: absolute;
+  left: 1rem;
+  top: 0.75rem;
+  transform: translateY(-160%);
+  background: var(--hud-yellow);
+  color: var(--hud-ink);
+  padding: 0.55rem 0.9rem;
+  font-family: var(--font-landing-mono), ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.landing-skip a + a {
+  left: 12.5rem;
+}
+
+.landing-skip a:focus,
+.landing-skip a:focus-visible {
+  transform: none;
+}
+
+.landing-page :is(a, button):focus {
+  outline: none;
+}
+
+.landing-page :is(a, button):focus-visible {
+  outline: 2px solid var(--hud-yellow);
+  outline-offset: 3px;
+}
+
+.landing-page :is(a, button).landing-cta:focus-visible {
+  outline-color: var(--hud-white);
+  box-shadow: 0 0 0 3px var(--hud-ink);
+}
+
+.landing-footer {
+  padding-bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 640px) {
+  .landing-footer {
+    padding-bottom: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .landing-scan-beam {
     animation: none;
     opacity: 0.28;
     transform: translateY(36%);
+  }
+
+  .landing-scan-blob {
+    filter: none;
+    transform: none;
   }
 
   .landing-world-motion {

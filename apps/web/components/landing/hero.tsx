@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { facts } from "@/components/landing/content";
+import { facts, heroCopy, valleySignal } from "@/components/landing/content";
 import { HeroScene } from "@/components/landing/hero-scene";
 import { DeviceCard, HudLabel } from "@/components/landing/hud";
 import {
@@ -87,38 +87,45 @@ export function LandingHero() {
           <MachuPicchuScene onTargets={setTargets} progressRef={progressRef} />
         </HeroScene>
 
-        <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-[#0b0d10]/18 via-transparent to-[#0b0d10]/28" />
-        <div className="pointer-events-none absolute inset-0 z-10 hud-scanlines" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-[#0b0d10]/18 via-transparent to-[#0b0d10]/28"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-10 hud-scanlines"
+        />
 
         <div
-          className={`landing-world-motion pointer-events-none relative z-20 mx-auto flex h-dvh w-full max-w-[1800px] flex-col justify-between px-4 pt-6 pb-8 sm:px-8 ${heroOpacity}`}
+          className={`landing-world-motion pointer-events-none relative z-20 mx-auto flex h-dvh w-full max-w-[1800px] flex-col justify-between px-4 pt-20 pb-8 sm:px-8 ${heroOpacity}`}
         >
           <div className="flex items-start justify-between gap-4">
-            <HudLabel className="text-[#d6ff00]">
-              {"hta / world-01 / machu picchu"}
+            <HudLabel className="text-[#d6ff00]">{heroCopy.channel}</HudLabel>
+            <HudLabel className="hidden text-[var(--hud-muted)] sm:block">
+              {heroCopy.navStatus}
             </HudLabel>
-            <HudLabel className="text-[#f5f5f5]/70">nav unlocked</HudLabel>
           </div>
 
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-4xl">
-              <p className="mb-4 inline-block bg-[#0057ff] px-3 py-1 font-[family-name:var(--font-landing-mono)] text-[10px] tracking-[0.2em] text-[#f5f5f5] uppercase">
-                best of the best · lima
+              <p className="landing-type-meta mb-4 inline-block bg-[#0057ff] px-3 py-1 text-[#f5f5f5]">
+                {heroCopy.eyebrow}
               </p>
               <h1 className="max-w-[12ch]">
                 <span
                   className={`${landingDisplayClassName} block text-[clamp(4.6rem,16vw,12rem)] text-[#f5f5f5]`}
                 >
-                  hack the
+                  {heroCopy.titleLead}
                 </span>
                 <span
                   className={`${landingDisplayClassName} block text-[clamp(4.6rem,16vw,12rem)] text-[#d6ff00]`}
                 >
-                  andes
+                  {heroCopy.titleAccent}
                 </span>
               </h1>
-              <p className="mt-5 max-w-xl text-sm leading-relaxed text-[#f5f5f5]/80 sm:text-base">
-                Hackathon selectivo de IA · Lima, Perú · 10–11 oct 2026
+              <p className="landing-type-lede mt-5 max-w-xl">{heroCopy.lede}</p>
+              <p className="mt-2 text-sm text-[var(--hud-muted)] sm:text-base">
+                {heroCopy.meta}
               </p>
             </div>
 
@@ -126,9 +133,9 @@ export function LandingHero() {
               className={`pointer-events-auto w-full lg:w-auto ${landingCtaClassName}`}
               href="#apply"
             >
-              <span>Aplicar ahora</span>
-              <span className="mt-1 text-[10px] tracking-[0.16em] text-[#0b0d10]/70">
-                10–11 oct 2026 · presencial
+              <span>{heroCopy.cta}</span>
+              <span className="mt-1 text-[10px] tracking-[0.16em] text-[#0b0d10]">
+                {heroCopy.ctaMeta}
               </span>
             </a>
           </div>
@@ -143,7 +150,7 @@ export function LandingHero() {
                   <HudLabel className="mb-1 text-[#d6ff00]">
                     {fact.label}
                   </HudLabel>
-                  <p className="font-[family-name:var(--font-landing-display)] text-xl leading-none uppercase">
+                  <p className="font-[family-name:var(--font-landing-display)] text-xl leading-none">
                     {fact.value}
                   </p>
                 </li>
@@ -151,11 +158,11 @@ export function LandingHero() {
             </ul>
 
             <div className="flex items-end justify-between gap-4">
-              <p className="font-[family-name:var(--font-landing-mono)] text-[10px] tracking-[0.18em] text-[#f5f5f5]/75 uppercase">
-                sponsored by chofex
+              <p className="landing-type-meta text-[var(--hud-muted)]">
+                {heroCopy.sponsor}
               </p>
-              <a className="pointer-events-auto text-[#d6ff00]" href="#judges">
-                <span className="sr-only">Bajar a jueces</span>
+              <a className="pointer-events-auto text-[#d6ff00]" href="#why">
+                <span className="sr-only">{heroCopy.skipToWhy}</span>
                 <span
                   aria-hidden="true"
                   className="block text-3xl leading-none"
@@ -171,11 +178,11 @@ export function LandingHero() {
           className={`landing-world-motion absolute right-4 bottom-24 z-20 w-[min(22rem,calc(100%-2rem))] sm:right-8 ${valleyClass}`}
         >
           <DeviceCard
-            accent="yellow"
-            body="Filtra por rigor. Si el sistema no aguanta, no entra."
-            code="J-01"
-            handle="QUISPE"
-            title="Juez 01 · IA aplicada"
+            accent={valleySignal.accent}
+            body={valleySignal.body}
+            code={valleySignal.code}
+            mark={valleySignal.mark}
+            title={valleySignal.title}
           />
         </aside>
 

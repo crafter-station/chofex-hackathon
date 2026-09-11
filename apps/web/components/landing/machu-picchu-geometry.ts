@@ -91,17 +91,17 @@ const CAMERA_STOPS: ReadonlyArray<{
 ];
 
 export const WORLD_FIGURES: readonly WorldFigure[] = [
-  { id: "j-01", kind: "judge", label: "QUISPE", position: [5.2, 0, 9.1] },
+  { id: "j-01", kind: "judge", label: "FILTRO", position: [5.2, 0, 9.1] },
   { id: "j-02", kind: "judge", label: "VALLE", position: [9.8, 0, 8.4] },
   { id: "c-01", kind: "candidate", label: "TALENTO", position: [7.4, 0, 6.8] },
-  { id: "c-02", kind: "candidate", label: "SIGNAL", position: [2.6, 0, 10.6] },
+  { id: "c-02", kind: "candidate", label: "SEÑAL", position: [2.6, 0, 10.6] },
   {
     id: "c-03",
     kind: "candidate",
-    label: "CANDIDATO",
+    label: "RUTA",
     position: [8.8, 0, 11.4],
   },
-  { id: "c-04", kind: "candidate", label: "BEST OF", position: [3.8, 0, 6.4] },
+  { id: "c-04", kind: "candidate", label: "ÉLITE", position: [3.8, 0, 6.4] },
 ];
 
 export function chapterFromProgress(progress: number): WorldChapter {
