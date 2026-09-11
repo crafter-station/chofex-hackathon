@@ -11,8 +11,7 @@ export function LandingSponsors() {
             Sponsored by Chofex
           </h2>
           <p className="max-w-md text-sm leading-relaxed opacity-55">
-            Identidad propia del evento. Chofex patrocina — no pinta la paleta.
-            Más logos cuando estén confirmados.
+            Sponsored by Chofex. Más logos cuando estén confirmados.
           </p>
         </div>
         <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">

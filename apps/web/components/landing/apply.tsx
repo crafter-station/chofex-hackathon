@@ -1,3 +1,4 @@
+import { TerminalIcon } from "lucide-react";
 import { CopyAgentPrompt } from "@/components/copy-agent-prompt";
 import { cliCommands } from "@/components/landing/content";
 import {
@@ -5,14 +6,15 @@ import {
   LandingEyebrow,
   landingInvertClassName,
 } from "@/components/landing/shell";
-import { TerminalIcon } from "lucide-react";
 
 export function LandingApply() {
   return (
     <section className={landingInvertClassName} id="apply">
       <LandingContainer className="py-20 sm:py-28">
         <div className="grid gap-8 border-current/20 border-b pb-12 md:grid-cols-[1fr_1.5fr]">
-          <LandingEyebrow>Apply now</LandingEyebrow>
+          <LandingEyebrow className="text-[#e8ff00]">
+            Aplica ahora
+          </LandingEyebrow>
           <div>
             <h2 className="max-w-2xl text-4xl leading-tight font-medium tracking-[-0.04em] sm:text-6xl">
               Aplica con la CLI o dile a tu agent.
@@ -32,9 +34,7 @@ export function LandingApply() {
             <div className="mt-6 overflow-x-auto rounded-lg border border-white/15 bg-black/20 p-5 font-mono text-sm leading-8 dark:border-black/15 dark:bg-black/5">
               {cliCommands.map((command) => (
                 <div className="whitespace-nowrap" key={command}>
-                  <span className="mr-3 text-[#b7dc63] dark:text-[#537a1d]">
-                    $
-                  </span>
+                  <span className="mr-3 text-[#e8ff00]">$</span>
                   {command}
                 </div>
               ))}

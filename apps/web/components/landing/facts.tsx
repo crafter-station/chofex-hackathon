@@ -14,7 +14,7 @@ export function LandingFacts() {
         <dl className="grid grid-cols-2 gap-px bg-current/10 md:grid-cols-4">
           {facts.map((fact) => (
             <div
-              className="flex flex-col gap-2 bg-[#f4f1e9] py-6 pr-4 sm:py-8 dark:bg-[#171713]"
+              className="flex flex-col gap-2 bg-white py-6 pr-4 sm:py-8"
               key={fact.label}
             >
               <dt className="font-mono text-[11px] uppercase tracking-[0.16em] opacity-45">

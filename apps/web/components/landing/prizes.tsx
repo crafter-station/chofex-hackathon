@@ -29,7 +29,9 @@ export function LandingPrizes() {
     >
       <LandingContainer className="py-16 sm:py-24">
         <div className="grid gap-8 border-current/20 border-b pb-10 md:grid-cols-[1fr_1.4fr]">
-          <LandingEyebrow id="prizes-heading">Premios</LandingEyebrow>
+          <LandingEyebrow className="text-[#e8ff00]" id="prizes-heading">
+            Premios
+          </LandingEyebrow>
           <div className="flex flex-col gap-4">
             <h2 className="max-w-xl text-4xl leading-[0.95] font-medium tracking-[-0.05em] sm:text-6xl">
               Más de {formatSoles(cashHeadline)} en efectivo.
