@@ -27,7 +27,7 @@ export default function OpenGraphImage() {
         }}
       >
         <div style={{ display: "flex" }}>Hackathon selectivo de IA</div>
-        <div style={{ display: "flex" }}>Lima · 10-11 oct 2026</div>
+        <div style={{ display: "flex" }}>Lima · 17–18 oct 2026</div>
       </div>
       <div style={{ display: "flex", flexDirection: "column" }}>
         <div style={{ display: "flex", fontSize: 108, lineHeight: 1 }}>

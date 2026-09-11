@@ -3,10 +3,12 @@ import { expect, test } from "bun:test";
 import {
   applyCopy,
   expeditionSignals,
+  facts,
   footerCopy,
   formatSoles,
   heroCopy,
   hudChrome,
+  metadataCopy,
   prizeAmountsPen,
   prizeAmountsUsd,
   scanCopy,
@@ -17,6 +19,24 @@ import {
   whyCopy,
   worldChapters,
 } from "./content";
+
+test("publishes the 17–18 octubre 2026 weekend in participant-facing copy", () => {
+  const cuando = facts.find((fact) => fact.label === "Cuándo");
+  expect(cuando?.value).toBe("17–18 oct 2026");
+  expect(metadataCopy.description).toContain("17–18 de octubre 2026");
+  expect(heroCopy.meta).toContain("17–18 oct 2026");
+  expect(heroCopy.ctaMeta).toContain("17–18 oct 2026");
+  expect(footerCopy.meta).toContain("17–18 oct 2026");
+
+  const blob = JSON.stringify({
+    facts,
+    footerCopy,
+    heroCopy,
+    metadataCopy,
+  });
+  expect(blob).not.toMatch(/10–11/);
+  expect(blob).not.toMatch(/10-11/);
+});
 
 test("converts published USD prizes to soles at the documented rate", () => {
   expect(usdToPenRate).toBe(3.35);
