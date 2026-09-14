@@ -357,15 +357,9 @@ describe("CLI JSON mode", () => {
               canSubmitNewApplication: false,
               canSubmitAcceptedDetails: false,
               canSaveDraft: true,
-              canSubmitApplication: false,
+              canSubmitApplication: true,
               parts: [],
-              missing: [
-                {
-                  field: "challenges.black-box",
-                  reason:
-                    "Complete at least one official The Shipping Machine evaluation",
-                },
-              ],
+              missing: [],
             },
           },
         });

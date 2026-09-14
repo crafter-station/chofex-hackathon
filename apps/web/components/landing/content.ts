@@ -192,7 +192,7 @@ export const trackHints = [
 export const applyCopy = {
   kicker: "aplicar / ventana",
   title: "Aplica ahora",
-  lede: "Aplica con la CLI. El formulario se guarda por partes; el Black Box es obligatorio para enviar.",
+  lede: "Aplica con la CLI. El formulario se guarda por partes; el Black Box es una métrica opcional para los jueces.",
   cliTitle: "Aplica con la CLI",
   agentKicker: "agent",
   agentTitle: "O dile a tu agent",
