@@ -13,8 +13,8 @@ export default function OpenGraphImage() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        backgroundColor: "#0b0d10",
-        color: "#f5f5f5",
+        backgroundColor: "#07152b",
+        color: "#efe8de",
         padding: "72px 80px",
       }}
     >
@@ -23,7 +23,7 @@ export default function OpenGraphImage() {
           display: "flex",
           justifyContent: "space-between",
           fontSize: 22,
-          color: "#d6ff00",
+          color: "#ffcad4",
         }}
       >
         <div style={{ display: "flex" }}>Hackathon selectivo de IA</div>
@@ -38,7 +38,7 @@ export default function OpenGraphImage() {
             display: "flex",
             fontSize: 108,
             lineHeight: 1,
-            color: "#d6ff00",
+            color: "#ffcad4",
           }}
         >
           Andes
@@ -55,7 +55,7 @@ export default function OpenGraphImage() {
         <div style={{ display: "flex" }}>
           No vienes a mirar. Vienes a construir.
         </div>
-        <div style={{ display: "flex", color: "#0057ff" }}>
+        <div style={{ display: "flex", color: "#1664b0" }}>
           Con el apoyo de Chofex
         </div>
       </div>

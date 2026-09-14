@@ -9,10 +9,10 @@ export function LandingSponsors() {
   return (
     <section
       aria-labelledby="sponsors-heading"
-      className="bg-[#f5f5f5] text-[#0b0d10]"
+      className="bg-[var(--hud-type)] text-[var(--hud-ink)]"
     >
       <LandingContainer className="py-16 sm:py-20">
-        <HudLabel className="mb-3 text-[#0057ff]">
+        <HudLabel className="mb-3 text-[var(--hud-field)]">
           {sponsorsCopy.kicker}
         </HudLabel>
         <LandingSectionHead
@@ -28,13 +28,13 @@ export function LandingSponsors() {
             const label = slot.confirmed ? slot.name : "Más sponsors pronto";
             return (
               <li
-                className="grid h-28 place-items-center border border-[#0b0d10]/15 bg-white px-3 text-center"
+                className="grid h-28 place-items-center border border-[var(--hud-ink)]/15 bg-white px-3 text-center"
                 key={slot.id}
               >
                 <span
                   className={
                     slot.confirmed
-                      ? "font-[family-name:var(--font-landing-display)] text-3xl tracking-[-0.02em] text-[#0b0d10] uppercase"
+                      ? "font-[family-name:var(--font-landing-display)] text-3xl tracking-[-0.02em] text-[var(--hud-ink)] uppercase"
                       : "font-[family-name:var(--font-landing-mono)] text-[10px] tracking-[0.16em] text-[var(--hud-muted-on-light)] uppercase"
                   }
                 >

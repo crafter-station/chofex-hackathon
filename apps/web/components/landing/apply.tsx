@@ -11,11 +11,11 @@ import {
 export function LandingApply() {
   return (
     <section
-      className="landing-topography bg-[linear-gradient(180deg,#07152b_0%,#0d2949_100%)] text-[#f5f5f5]"
+      className="landing-topography bg-[linear-gradient(180deg,#07152b_0%,#0d2949_100%)] text-[var(--hud-ink)]"
       id="apply"
     >
       <LandingContainer className="py-16 sm:py-20">
-        <HudLabel className="mb-3 text-[#d6ff00]">{applyCopy.kicker}</HudLabel>
+        <HudLabel className="mb-3 text-[var(--hud-action)]">{applyCopy.kicker}</HudLabel>
         <LandingSectionHead title={applyCopy.title}>
           <p className="max-w-xl text-sm leading-relaxed text-[var(--hud-muted)] sm:text-base">
             {applyCopy.lede}
@@ -25,7 +25,7 @@ export function LandingApply() {
         <div className="grid gap-4 md:grid-cols-2">
           <article className={`p-6 ${landingFrameClassName}`}>
             <div className="mb-8 flex items-center justify-between">
-              <HudLabel className="text-[#d6ff00]">01</HudLabel>
+              <HudLabel className="text-[var(--hud-action)]">01</HudLabel>
               <TerminalIcon
                 aria-hidden="true"
                 className="size-5 text-[var(--hud-muted)]"
@@ -37,7 +37,7 @@ export function LandingApply() {
             <div className="hud-box mt-6 overflow-x-auto bg-[#06152c] p-5 font-[family-name:var(--font-landing-mono)] text-sm leading-8">
               {cliCommands.map((command) => (
                 <div className="whitespace-nowrap" key={command}>
-                  <span className="mr-3 text-[#d6ff00]">$</span>
+                  <span className="mr-3 text-[var(--hud-action)]">$</span>
                   {command}
                 </div>
               ))}
@@ -46,7 +46,7 @@ export function LandingApply() {
 
           <article className={`p-6 ${landingFrameClassName}`}>
             <div className="mb-8 flex items-center justify-between">
-              <HudLabel className="text-[#d6ff00]">02</HudLabel>
+              <HudLabel className="text-[var(--hud-action)]">02</HudLabel>
               <HudLabel className="text-[var(--hud-muted)]">
                 {applyCopy.agentKicker}
               </HudLabel>
