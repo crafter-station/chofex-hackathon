@@ -1,0 +1,17 @@
+{
+  "name": "Chofex Hackathon",
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "web",
+      "command": "export PATH=\"$HOME/.bun/bin:$PATH\" && bun --filter @chofex/web dev",
+      "description": "Next.js web app (registration API + landing) on http://localhost:3000. Public pages work with placeholder env; authenticated API routes need real Clerk/DB secrets."
+    }
+  ],
+  "ports": [
+    {
+      "name": "web",
+      "port": 3000
+    }
+  ]
+}
