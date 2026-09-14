@@ -5,6 +5,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
+import { SITE_STRUCTURES_GLB } from "@/components/landing/site-structures-place";
 import { WEST_TERRAIN_GLB } from "@/components/landing/west-terrain-place";
 import { ModelErrorBoundary } from "@/components/landing/model-error-boundary";
 import {
@@ -276,4 +277,52 @@ export function WestTerrainAsset({
   );
 }
 
+function SiteStructuresGltf() {
+  const gltf = useGLTF(SITE_STRUCTURES_GLB, USE_DRACO, USE_MESHOPT);
+  const clone = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
+
+
+  useEffect(() => {
+    clone.traverse((child) => {
+      if (!(child instanceof THREE.Mesh)) {
+        return;
+      }
+      const material = child.material;
+      if (material instanceof THREE.MeshStandardMaterial) {
+        material.metalness = 0;
+        material.roughness = 0.95;
+        /*
+         * Flat shading, matching the terrain's own faceting. Smoothed normals
+         * would round the terrace risers into their treads and lose the very
+         * stepping the geometry exists to show.
+         */
+        material.flatShading = true;
+        material.vertexColors = true;
+        material.needsUpdate = true;
+      }
+    });
+  }, [clone]);
+
+  // Authored in the same scene units as the terrain, at its true position.
+  return <primitive object={clone} />;
+}
+
+/**
+ * Terraces, towns and salt pans at the five sites.
+ *
+ * Under 100 KB, so it loads with the corridor rather than on demand — and it
+ * has to, because a site that pops into existence as the reader arrives would
+ * be worse than one that was never there.
+ */
+export function SiteStructuresAsset() {
+  return (
+    <ModelErrorBoundary fallback={null}>
+      <Suspense fallback={null}>
+        <SiteStructuresGltf />
+      </Suspense>
+    </ModelErrorBoundary>
+  );
+}
+
 useGLTF.preload(SACRED_VALLEY_GLB, USE_DRACO, USE_MESHOPT);
+useGLTF.preload(SITE_STRUCTURES_GLB, USE_DRACO, USE_MESHOPT);

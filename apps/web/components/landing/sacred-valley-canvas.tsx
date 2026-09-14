@@ -36,6 +36,7 @@ import {
 } from "@/components/landing/sacred-valley-look";
 import {
   SacredValleyAsset,
+  SiteStructuresAsset,
   WestTerrainAsset,
 } from "@/components/landing/sacred-valley-model";
 import { worldFrameLoop } from "@/components/landing/world-loop";
@@ -362,6 +363,7 @@ function SacredValleyWorld({
     <>
       <WorldLights />
       <SacredValleyAsset onPresented={onWorldReady} quality={quality} />
+      <SiteStructuresAsset />
       <WestTerrainGate progressRef={progressRef} quality={quality} />
       <FlightCamera
         draggingRef={draggingRef}
