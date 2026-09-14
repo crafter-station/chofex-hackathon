@@ -9,9 +9,9 @@ import {
   lookFromPointerDelta,
   lookSensitivityForPointer,
   REST_LOOK,
-} from "./machu-picchu-look";
+} from "./sacred-valley-look";
 
-test("clamps look orbit so the citadel stays framed", () => {
+test("clamps look orbit so the valley stays framed", () => {
   expect(clampLookOffset({ yaw: 4, pitch: -3 })).toEqual({
     yaw: LOOK_LIMITS.yaw,
     pitch: -LOOK_LIMITS.pitch,
@@ -39,8 +39,11 @@ test("treats horizontal drags as look and vertical swipes as scroll", () => {
   expect(isVerticalScrollGesture(24, 4)).toBe(false);
 });
 
-test("keeps look orbit on the hero chapter and fades it later", () => {
-  expect(lookExploreScale(0)).toBe(1);
-  expect(lookExploreScale(0.12)).toBeGreaterThan(0.4);
-  expect(lookExploreScale(0.4)).toBe(0);
+test("allows look while parked on a site and shuts it off in transit", () => {
+  expect(lookExploreScale(1)).toBe(1);
+  expect(lookExploreScale(0.5)).toBe(0.5);
+  expect(lookExploreScale(0)).toBe(0);
+  // Out-of-range focus must not hand the camera an unbounded orbit.
+  expect(lookExploreScale(1.4)).toBe(1);
+  expect(lookExploreScale(-0.3)).toBe(0);
 });

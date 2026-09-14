@@ -1,4 +1,4 @@
-/** Scene-motion policy for the Machu Picchu hero world. */
+/** Scene-motion policy for the Sacred Valley hero world. */
 
 export function worldMotionScale(reducedMotion: boolean): number {
   if (reducedMotion) {

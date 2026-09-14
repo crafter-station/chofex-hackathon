@@ -5,17 +5,16 @@ import { useEffect, useRef, useState } from "react";
 import {
   facts,
   heroCopy,
-  valleySignal,
   worldChapterCopy,
 } from "@/components/landing/content";
 import { HeroScene } from "@/components/landing/hero-scene";
-import { DeviceCard, HudLabel } from "@/components/landing/hud";
+import { HudLabel } from "@/components/landing/hud";
 import {
-  chapterFromProgress,
-  type ProjectedTarget,
-  type WorldChapter,
-} from "@/components/landing/machu-picchu-geometry";
-import { MachuPicchuScene } from "@/components/landing/machu-picchu-scene";
+  type SiteChapter,
+  stationAt,
+} from "@/components/landing/sacred-valley-flight";
+import type { ProjectedTarget } from "@/components/landing/sacred-valley-geometry";
+import { SacredValleyScene } from "@/components/landing/sacred-valley-scene";
 import { ScanHud } from "@/components/landing/scan-hud";
 import {
   landingCtaClassName,
@@ -34,10 +33,61 @@ function readProgress(section: HTMLElement): number {
   return Math.min(1, Math.max(0, -section.getBoundingClientRect().top / total));
 }
 
+/**
+ * One site's panel.
+ *
+ * `focus` comes straight from the flight: 1 while the camera is parked, 0 in
+ * the middle of a transfer. Driving opacity from it means the copy is tied to
+ * where the camera actually is, rather than to a scroll threshold that would
+ * drift out of step the moment a station moves.
+ */
+function ChapterPanel({
+  chapter,
+  focus,
+}: {
+  readonly chapter: Exclude<SiteChapter, "overlook">;
+  readonly focus: number;
+}) {
+  const copy = worldChapterCopy[chapter];
+
+  return (
+    <div
+      aria-hidden={focus < 0.5}
+      // Left padding clears the chapter rail, which now carries labels.
+      className="landing-world-motion pointer-events-none absolute inset-0 z-20 mx-auto flex h-dvh w-full max-w-[1800px] items-end py-12 pt-24 pr-4 pl-16 sm:pr-8 sm:pl-24 lg:items-center"
+      style={{
+        opacity: focus,
+        transform: `translateY(${(1 - focus) * 12}px)`,
+      }}
+    >
+      <div className="landing-glass-panel max-w-2xl p-5 sm:p-8">
+        <HudLabel className="mb-4 text-[var(--hud-action)]">{copy.eyebrow}</HudLabel>
+        <h2 className="max-w-[11ch] font-[family-name:var(--font-landing-display)] text-[clamp(2.6rem,7vw,5.5rem)] leading-[0.86] tracking-[-0.03em] uppercase">
+          {copy.title}
+        </h2>
+        <div className="mt-6 grid gap-5 border-[var(--hud-ink)]/12 border-t pt-5 sm:grid-cols-[1fr_auto] sm:items-end">
+          <p className="max-w-lg text-base leading-relaxed text-[var(--hud-ink)]/80">
+            {copy.body}
+          </p>
+          <div className="sm:text-right">
+            <p className="font-[family-name:var(--font-landing-display)] text-4xl leading-none text-[var(--hud-status)]">
+              {copy.metric}
+            </p>
+            <HudLabel className="mt-2 text-[var(--hud-ink)]/60">
+              {copy.metricLabel}
+            </HudLabel>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function LandingHero() {
   const sectionRef = useRef<HTMLElement>(null);
   const progressRef = useRef(0);
-  const [chapter, setChapter] = useState<WorldChapter>("hero");
+  const [chapter, setChapter] = useState<SiteChapter>("overlook");
+  const [focus, setFocus] = useState(1);
   const [targets, setTargets] = useState<ProjectedTarget[]>([]);
 
   useEffect(() => {
@@ -49,13 +99,12 @@ export function LandingHero() {
     const update = () => {
       const next = readProgress(section);
       progressRef.current = next;
-      const nextChapter = chapterFromProgress(next);
-      setChapter((current) => {
-        if (current === nextChapter) {
-          return current;
-        }
-        return nextChapter;
-      });
+
+      const station = stationAt(next);
+      setChapter((current) =>
+        current === station.id ? current : station.id,
+      );
+      setFocus(station.focus);
     };
 
     update();
@@ -67,24 +116,7 @@ export function LandingHero() {
     };
   }, []);
 
-  const heroVisible = chapter === "hero";
-  const valleyVisible = chapter === "valley";
-  const scanVisible = chapter === "scan";
-
-  let heroOpacity = "opacity-0";
-  if (heroVisible) {
-    heroOpacity = "opacity-100";
-  }
-
-  let valleyClass = "pointer-events-none opacity-0 translate-y-3";
-  if (valleyVisible) {
-    valleyClass = "opacity-100 translate-y-0";
-  }
-
-  let scanChapterClass = "pointer-events-none opacity-0 translate-y-3";
-  if (scanVisible) {
-    scanChapterClass = "opacity-100 translate-y-0";
-  }
+  const atOverlook = chapter === "overlook";
 
   return (
     <section
@@ -94,7 +126,7 @@ export function LandingHero() {
     >
       <div className="sticky top-0 h-dvh min-h-[42rem] overflow-hidden">
         <HeroScene>
-          <MachuPicchuScene onTargets={setTargets} progressRef={progressRef} />
+          <SacredValleyScene onTargets={setTargets} progressRef={progressRef} />
         </HeroScene>
 
         <div
@@ -107,10 +139,12 @@ export function LandingHero() {
         />
 
         <div
-          className={`landing-world-motion pointer-events-none relative z-20 mx-auto flex h-dvh min-h-[42rem] w-full max-w-[1800px] flex-col justify-between px-4 pt-20 pb-8 sm:px-8 ${heroOpacity}`}
+          className={`landing-world-motion pointer-events-none relative z-20 mx-auto flex h-dvh min-h-[42rem] w-full max-w-[1800px] flex-col justify-between pt-20 pr-4 pb-8 pl-16 sm:pr-8 sm:pl-24 ${
+            atOverlook ? "opacity-100" : "opacity-0"
+          }`}
         >
           <div className="flex items-start justify-between gap-4">
-            <HudLabel className="text-[#d6ff00]">{heroCopy.channel}</HudLabel>
+            <HudLabel className="text-[var(--hud-type)]">{heroCopy.channel}</HudLabel>
             <HudLabel className="hidden text-[var(--hud-muted)] sm:block">
               {heroCopy.navStatus}
             </HudLabel>
@@ -118,17 +152,17 @@ export function LandingHero() {
 
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-4xl">
-              <p className="landing-type-meta mb-4 inline-block bg-[#0057ff] px-3 py-1 text-[#f5f5f5]">
+              <p className="landing-type-meta mb-4 inline-block bg-[var(--hud-field)] px-3 py-1 text-[var(--hud-ink)]">
                 {heroCopy.eyebrow}
               </p>
               <h1 className="max-w-[12ch]">
                 <span
-                  className={`${landingDisplayClassName} block text-[clamp(4.6rem,16vw,12rem)] text-[#f5f5f5]`}
+                  className={`${landingDisplayClassName} block text-[clamp(4.6rem,16vw,12rem)] text-[var(--hud-type)]`}
                 >
                   {heroCopy.titleLead}
                 </span>
                 <span
-                  className={`${landingDisplayClassName} block text-[clamp(4.6rem,16vw,12rem)] text-[#d6ff00]`}
+                  className={`${landingDisplayClassName} block text-[clamp(4.6rem,16vw,12rem)] text-[var(--hud-status)]`}
                 >
                   {heroCopy.titleAccent}
                 </span>
@@ -144,7 +178,7 @@ export function LandingHero() {
               href="#apply"
             >
               <span>{heroCopy.cta}</span>
-              <span className="mt-1 text-[10px] tracking-[0.16em] text-[#0b0d10]">
+              <span className="mt-1 text-[10px] tracking-[0.16em] text-[var(--hud-ink)]">
                 {heroCopy.ctaMeta}
               </span>
             </a>
@@ -157,7 +191,7 @@ export function LandingHero() {
                   className="hud-box bg-[#071a34]/55 px-3 py-3 shadow-[0_14px_40px_rgba(1,8,20,0.12)] backdrop-blur-sm"
                   key={fact.label}
                 >
-                  <HudLabel className="mb-1 text-[#d6ff00]">
+                  <HudLabel className="mb-1 text-[var(--hud-type)]">
                     {fact.label}
                   </HudLabel>
                   <p className="font-[family-name:var(--font-landing-display)] text-xl leading-none">
@@ -171,7 +205,7 @@ export function LandingHero() {
               <p className="landing-type-meta text-[var(--hud-muted)]">
                 {heroCopy.sponsor}
               </p>
-              <a className="pointer-events-auto text-[#d6ff00]" href="#why">
+              <a className="pointer-events-auto text-[var(--hud-type)]" href="#why">
                 <span className="sr-only">{heroCopy.skipToWhy}</span>
                 <span
                   aria-hidden="true"
@@ -184,64 +218,20 @@ export function LandingHero() {
           </div>
         </div>
 
-        <div
-          aria-hidden={!valleyVisible}
-          className={`landing-world-motion absolute inset-0 z-20 mx-auto flex h-dvh w-full max-w-[1800px] items-end px-4 pt-24 pb-12 sm:px-8 lg:items-center ${valleyClass}`}
-        >
-          <div className="grid w-full items-end gap-5 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-12">
-            <div className="landing-glass-panel max-w-2xl p-5 sm:p-8">
-              <HudLabel className="mb-4 text-[#d6ff00]">
-                {worldChapterCopy.valley.eyebrow}
-              </HudLabel>
-              <h2 className="max-w-[9ch] font-[family-name:var(--font-landing-display)] text-[clamp(3.5rem,9vw,7.5rem)] leading-[0.82] tracking-[-0.03em] uppercase">
-                {worldChapterCopy.valley.title}
-              </h2>
-              <div className="mt-6 grid gap-5 border-white/15 border-t pt-5 sm:grid-cols-[1fr_auto] sm:items-end">
-                <p className="max-w-lg text-base leading-relaxed text-white/78">
-                  {worldChapterCopy.valley.body}
-                </p>
-                <div className="sm:text-right">
-                  <p className="font-[family-name:var(--font-landing-display)] text-4xl leading-none text-[#d6ff00]">
-                    {worldChapterCopy.valley.metric}
-                  </p>
-                  <HudLabel className="mt-2 text-white/60">
-                    {worldChapterCopy.valley.metricLabel}
-                  </HudLabel>
-                </div>
-              </div>
-            </div>
-            <div className="hidden lg:block">
-              <DeviceCard
-                accent={valleySignal.accent}
-                body={valleySignal.body}
-                code={valleySignal.code}
-                mark={valleySignal.mark}
-                title={valleySignal.title}
-              />
-            </div>
-          </div>
-        </div>
+        {atOverlook ? null : (
+          <ChapterPanel
+            chapter={chapter as Exclude<SiteChapter, "overlook">}
+            focus={focus}
+          />
+        )}
 
-        <ScanHud targets={targets} visible={scanVisible} />
-        <aside
-          aria-hidden={!scanVisible}
-          className={`landing-world-motion landing-glass-panel absolute right-4 bottom-12 z-30 w-[min(31rem,calc(100%-2rem))] p-5 sm:right-8 sm:p-7 ${scanChapterClass}`}
-        >
-          <div className="flex items-center justify-between gap-4">
-            <HudLabel className="text-[#d6ff00]">
-              {worldChapterCopy.scan.eyebrow}
-            </HudLabel>
-            <HudLabel className="text-white/60">
-              {worldChapterCopy.scan.status}
-            </HudLabel>
-          </div>
-          <h2 className="mt-5 max-w-[11ch] font-[family-name:var(--font-landing-display)] text-4xl leading-[0.88] tracking-[-0.03em] uppercase sm:text-6xl">
-            {worldChapterCopy.scan.title}
-          </h2>
-          <p className="mt-5 max-w-md text-sm leading-relaxed text-white/75 sm:text-base">
-            {worldChapterCopy.scan.body}
-          </p>
-        </aside>
+        <ScanHud
+          focus={focus}
+          station={chapter}
+          targets={targets}
+          visible={!atOverlook}
+        />
+
         <WorldChapterRail
           chapter={chapter}
           onSelect={(next) => {
@@ -249,7 +239,11 @@ export function LandingHero() {
           }}
         />
       </div>
-      <div aria-hidden="true" className="h-[300svh] min-h-[126rem]" />
+      {/*
+       * Six stops, each holding still for a readable beat, need the runway.
+       * At 640svh a site's dwell is roughly half a viewport of scrolling.
+       */}
+      <div aria-hidden="true" className="h-[640svh] min-h-[240rem]" />
     </section>
   );
 }

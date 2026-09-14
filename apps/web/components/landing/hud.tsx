@@ -33,7 +33,7 @@ export function ScanTarget({
   return (
     <article className={cn("hud-box p-4 sm:p-5", className)}>
       <div className="mb-3 flex items-start justify-between gap-3">
-        <HudLabel className="text-[#d6ff00]">{code}</HudLabel>
+        <HudLabel className="text-[var(--hud-action)]">{code}</HudLabel>
         <HudLabel className="text-[var(--hud-muted)]">{status}</HudLabel>
       </div>
       <p className="font-[family-name:var(--font-landing-display)] text-2xl leading-none tracking-[-0.02em] uppercase sm:text-3xl">
@@ -59,11 +59,11 @@ export function DeviceCard({
 }) {
   const markClassName =
     accent === "yellow"
-      ? "bg-[#d6ff00] text-[#0b0d10]"
-      : "bg-[#0057ff] text-[#f5f5f5]";
+      ? "bg-[var(--hud-accent)] text-[var(--hud-ink)]"
+      : "bg-[var(--hud-field)] text-[var(--hud-ink)]";
 
   return (
-    <article className="flex flex-col overflow-hidden border border-white/15 bg-[#0c2344]/92 shadow-[0_20px_60px_rgba(1,8,20,0.2)]">
+    <article className="flex flex-col overflow-hidden border border-[rgb(239_232_222_/_15%)] bg-[var(--hud-panel)]/92 shadow-[0_20px_60px_rgba(1,8,20,0.2)]">
       <div
         className={cn(
           "flex items-center justify-between px-4 py-2 font-[family-name:var(--font-landing-mono)] text-[10px] tracking-[0.16em] uppercase",
@@ -80,14 +80,14 @@ export function DeviceCard({
         />
         <div
           aria-hidden="true"
-          className="absolute inset-4 border border-[#f5f5f5]/35"
+          className="absolute inset-4 border border-[var(--hud-type)]/35"
         />
         <div className="absolute inset-0 grid place-items-center">
-          <p className="font-[family-name:var(--font-landing-display)] text-5xl text-[#f5f5f5] uppercase sm:text-6xl">
+          <p className="font-[family-name:var(--font-landing-display)] text-5xl text-[var(--hud-ink)] uppercase sm:text-6xl">
             {mark}
           </p>
         </div>
-        <HudLabel className="absolute right-5 bottom-5 text-[#d6ff00]">
+        <HudLabel className="absolute right-5 bottom-5 text-[var(--hud-action)]">
           {hudChrome.scan}
         </HudLabel>
       </div>
