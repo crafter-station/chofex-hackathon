@@ -12,6 +12,10 @@ import {
 import * as THREE from "three";
 
 import {
+  followScroll,
+  turnFraction,
+} from "@/components/landing/camera-damping";
+import {
   sampleCameraPath,
   shouldLoadWestTerrain,
   stationAt,
@@ -44,6 +48,8 @@ const LOOK = new THREE.Vector3();
 const PROJECT = new THREE.Vector3();
 const OFFSET = new THREE.Vector3();
 const RIGHT = new THREE.Vector3();
+const AIM = new THREE.Matrix4();
+const FACING = new THREE.Quaternion();
 const UP = new THREE.Vector3(0, 1, 0);
 
 /**
@@ -153,9 +159,35 @@ function FlightCamera({
 }) {
   const { camera, size } = useThree();
   const frame = useRef(0);
+  const smoothed = useRef<number | null>(null);
+  const facing = useRef(false);
 
-  useFrame(({ clock }) => {
-    const progress = progressRef.current;
+  useFrame(({ clock }, delta) => {
+    /*
+     * The camera trails the scroll rather than tracking it.
+     *
+     * It is the scroll *parameter* that is damped, not the camera's position
+     * in space, and that is deliberate. The path was solved offline against
+     * the elevation model, so every point on it is known to stand in open air;
+     * easing the position directly would let the camera cut the chord across a
+     * bend and fly through the ridge the solver went around. Easing the
+     * parameter keeps it on the cleared path at all times and only changes how
+     * fast it travels along it.
+     *
+     * First frame snaps: a reader who lands mid-page, or reloads there, should
+     * open on their own scroll position rather than watch the hero fly in from
+     * the top of the valley.
+     */
+    if (smoothed.current === null || reducedMotion) {
+      smoothed.current = progressRef.current;
+    } else {
+      smoothed.current = followScroll(
+        smoothed.current,
+        progressRef.current,
+        delta,
+      );
+    }
+    const progress = smoothed.current;
     const path = sampleCameraPath(progress);
     const station = stationAt(progress);
     const time = clock.elapsedTime;
@@ -213,7 +245,29 @@ function FlightCamera({
       LOOK.addScaledVector(RIGHT, bias);
     }
 
-    camera.lookAt(LOOK);
+    /*
+     * Rotation is eased and rate-limited, which is a separate problem from the
+     * one above and the one that actually reads as disorder. Even with the
+     * scroll damped, the solved path's aim swings hard at two transfers — Moray
+     * to Maras and Maras to Ollantaytambo, where the framing bearings are
+     * nearly opposed — and slamming the view around there is what makes a
+     * landing feel chaotic rather than flown.
+     *
+     * Slerped rather than eased per axis: interpolating yaw and pitch
+     * separately takes a different route than the shortest one between two
+     * orientations, and tips the horizon on the way.
+     */
+    AIM.lookAt(camera.position, LOOK, UP);
+    FACING.setFromRotationMatrix(AIM);
+    if (!facing.current || reducedMotion) {
+      camera.quaternion.copy(FACING);
+      facing.current = true;
+    } else {
+      camera.quaternion.slerp(
+        FACING,
+        turnFraction(camera.quaternion.angleTo(FACING), delta),
+      );
+    }
 
     if (!onTargets) {
       return;
