@@ -25,7 +25,13 @@ import { isTerrainPresented } from "@/components/landing/world-reveal";
 
 type SceneQuality = "low" | "high";
 
-const USE_DRACO = false;
+/*
+ * The terrain mesh is Draco-compressed — ~35 MB of raw attributes down to about
+ * 4 MB — so the decoder is required, not optional. It is served from
+ * `public/draco/` rather than drei's default CDN so the hero has no
+ * third-party runtime dependency.
+ */
+const USE_DRACO = "/draco/";
 const USE_MESHOPT = false;
 
 function liftStoneColor(color: THREE.Color): void {

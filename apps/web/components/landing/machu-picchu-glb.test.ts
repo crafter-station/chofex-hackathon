@@ -18,9 +18,15 @@ test("ships a loader-safe Sacred Valley terrain GLB", () => {
   expect(isHeroGltfLoaderSafe(manifest)).toBe(true);
   expect(manifest.heroSubject).toBe("terrain");
   expect(manifest.title).toBe("Sacred Valley of Cusco Terrain");
-  expect(manifest.extensionsRequired).toEqual([]);
-  expect(manifest.imageMimeTypes).toEqual([]);
-  expect(manifest.materialNames).toContain("sacred-valley-earth");
+  // The shipped mesh is Draco-compressed now: ~35 MB of raw attributes down to
+  // about 4 MB, which is what lets the grid sample every ~54 m rather than
+  // every ~160 m. The decoder is vendored under public/draco/, so the loader
+  // stays safe without reaching for a CDN.
+  expect(manifest.extensionsRequired).toEqual(["KHR_draco_mesh_compression"]);
+  // And it carries its Sentinel-2 drape baked in, as a plain JPEG on purpose:
+  // WebP and Basis both need loader extensions isHeroGltfLoaderSafe refuses.
+  expect(manifest.imageMimeTypes).toEqual(["image/jpeg"]);
+  expect(manifest.materialNames).toContain("sacred-valley-surface");
 });
 
 test("rejects an unmarked scene as Sacred Valley terrain", () => {
