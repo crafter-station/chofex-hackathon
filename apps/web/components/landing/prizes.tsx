@@ -1,10 +1,4 @@
-import {
-  formatSoles,
-  prizeAmountsPen,
-  prizeAmountsUsd,
-  prizesCopy,
-  usdToPenRate,
-} from "@/components/landing/content";
+import { prizeAmountsPen, prizesCopy } from "@/components/landing/content";
 import { HudLabel } from "@/components/landing/hud";
 import { PrizeCounter } from "@/components/landing/prize-counter";
 import {
@@ -13,68 +7,50 @@ import {
 } from "@/components/landing/shell";
 
 export function LandingPrizes() {
-  const cashHeadline =
-    Math.floor((prizeAmountsPen.first + prizeAmountsPen.second) / 1_000) *
-    1_000;
-
   return (
     <section
       aria-labelledby="prizes-heading"
-      className="bg-[var(--hud-field)] text-[var(--hud-ink)]"
+      className="bg-[var(--hud-field)] text-[var(--hud-type)]"
       id="prizes"
     >
-      <LandingContainer className="flex flex-col justify-center gap-12 py-16 md:min-h-dvh md:py-20">
+      <LandingContainer className="py-20 sm:py-28">
+        <HudLabel className="mb-4 text-[var(--hud-accent)]">
+          {prizesCopy.kicker}
+        </HudLabel>
         <LandingSectionHead title={prizesCopy.title} titleId="prizes-heading">
-          <p className="max-w-lg text-sm leading-relaxed text-[var(--hud-ink)] sm:text-base">
-            Más de {formatSoles(cashHeadline)} en efectivo. Convertidos de USD{" "}
-            {prizeAmountsUsd.first.toLocaleString("es-PE")} /{" "}
-            {prizeAmountsUsd.second.toLocaleString("es-PE")} al tipo ~S/.{" "}
-            {usdToPenRate.toLocaleString("es-PE")}.
+          <p className="max-w-lg text-lg leading-relaxed text-[var(--hud-type)]/70">
+            {prizesCopy.lede}
           </p>
         </LandingSectionHead>
 
-        <div className="grid items-end gap-10 lg:grid-cols-[1.1fr_auto_1fr] lg:items-center">
-          <div className="flex flex-col gap-2">
-            <HudLabel className="text-[var(--hud-action)]">{prizesCopy.pozo}</HudLabel>
-            <p className="font-[family-name:var(--font-landing-display)] text-[clamp(4.6rem,16vw,10rem)] leading-[0.78] tracking-[-0.03em] text-[var(--hud-status)]">
-              <PrizeCounter amount={prizeAmountsPen.first} format="number" />
-            </p>
-            <p className="font-[family-name:var(--font-landing-mono)] text-xs tracking-[0.16em] uppercase">
+        <div className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
+          <article className="flex min-h-80 flex-col justify-between border border-[var(--hud-type)]/18 p-6 sm:p-8">
+            <HudLabel className="text-[var(--hud-type)]/55">
               {prizesCopy.firstPlace}
-            </p>
-            <p className="mt-1 text-sm text-[var(--hud-ink)]">
-              2do lugar{" "}
-              <span className="font-semibold text-[var(--hud-action)]">
-                <PrizeCounter amount={prizeAmountsPen.second} />
-              </span>
-            </p>
-          </div>
-
-          <p className="hidden font-[family-name:var(--font-landing-display)] text-6xl leading-none text-[var(--hud-status)] lg:block">
-            +
-          </p>
-
-          <div className="flex flex-col gap-2 lg:text-right">
-            <HudLabel className="text-[var(--hud-action)] lg:ml-auto">
-              {prizesCopy.travel}
             </HudLabel>
-            <p className="font-[family-name:var(--font-landing-display)] text-[clamp(3.4rem,8vw,6rem)] leading-[0.86] tracking-[-0.03em]">
-              <PrizeCounter
-                amount={prizeAmountsPen.travelPool}
-                format="number"
-              />
+            <p className="font-[family-name:var(--font-landing-display)] text-[clamp(4.25rem,12vw,8.5rem)] leading-[0.8] tracking-[-0.03em] text-[var(--hud-accent)]">
+              <PrizeCounter amount={prizeAmountsPen.first} />
             </p>
-            <p className="max-w-md text-sm leading-snug text-[var(--hud-ink)] sm:text-base lg:ml-auto">
-              Pool extra de ~{formatSoles(prizeAmountsPen.travelPool)} para
-              minijuegos y/o viaje de provincia.
+          </article>
+
+          <article className="flex min-h-80 flex-col justify-between border border-[var(--hud-type)]/18 bg-[var(--hud-type)]/[0.04] p-6 sm:p-8">
+            <HudLabel className="text-[var(--hud-type)]/55">
+              {prizesCopy.secondPlace}
+            </HudLabel>
+            <p className="font-[family-name:var(--font-landing-display)] text-[clamp(3.75rem,8vw,6.5rem)] leading-[0.82] tracking-[-0.03em] text-[var(--hud-type)]">
+              <PrizeCounter amount={prizeAmountsPen.second} />
             </p>
-          </div>
+          </article>
         </div>
 
-        <p className="text-sm leading-relaxed text-[#e8eaf0]">
-          * Los equipos top podrían ser invitados a un work trial de dos semanas
-          en Monterrey o San Francisco. No es una oferta de trabajo.
-        </p>
+        <div className="mt-10 grid gap-3 border-[var(--hud-type)]/18 border-t pt-7 sm:grid-cols-[14rem_1fr]">
+          <HudLabel className="text-[var(--hud-accent)]">
+            {prizesCopy.opportunity}
+          </HudLabel>
+          <p className="max-w-2xl text-sm leading-relaxed text-[var(--hud-type)]/65">
+            {prizesCopy.opportunityBody}
+          </p>
+        </div>
       </LandingContainer>
     </section>
   );
