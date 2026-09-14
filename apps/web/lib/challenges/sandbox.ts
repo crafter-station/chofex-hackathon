@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import * as childProcess from "node:child_process";
 
 import type { Shipment } from "@chofex/challenges-contract";
 
@@ -7,6 +7,14 @@ import { HttpError } from "../registration/http";
 const evaluationTimeoutMs = 1_500;
 const workerExitGraceMs = 500;
 const maximumWorkerOutputBytes = 64 * 1_024;
+
+// Next's output tracer treats direct spawn(..., ["--eval", source]) calls as
+// asset references. Keep the process API indirect so the inline worker remains
+// runtime data rather than a build-time module path.
+const spawnIsolatedProcess = Reflect.get(
+  childProcess,
+  "spawn",
+) as typeof childProcess.spawn;
 
 const workerSource = String.raw`
 import vm from "node:vm";
@@ -104,7 +112,7 @@ export const runShippingSolution = (
   shipments: ReadonlyArray<Shipment>,
 ): Promise<Array<number>> =>
   new Promise((resolve, reject) => {
-    const child = spawn(
+    const child = spawnIsolatedProcess(
       "node",
       [
         "--permission",
