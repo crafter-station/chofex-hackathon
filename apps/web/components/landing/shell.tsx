@@ -14,10 +14,10 @@ export const landingHudClassName =
   "font-[family-name:var(--font-landing-mono)] uppercase tracking-[0.16em]";
 
 export const landingCtaClassName =
-  "landing-cta inline-flex min-h-12 flex-col items-center justify-center bg-[var(--hud-action)] px-7 py-2.5 text-center font-[family-name:var(--font-landing-mono)] text-sm font-semibold text-[var(--hud-paper)] uppercase tracking-[0.14em] transition hover:bg-[var(--hud-action-hover)] md:min-h-13 md:px-9";
+  "landing-cta inline-flex min-h-12 flex-col items-center justify-center bg-[var(--hud-action)] px-7 py-2.5 text-center font-[family-name:var(--font-landing-mono)] text-sm font-semibold text-[var(--hud-paper)] uppercase tracking-[0.12em] transition-colors duration-150 hover:bg-[var(--hud-action-hover)] active:scale-[0.98] md:min-h-13 md:px-9";
 
 export const landingFrameClassName =
-  "border border-[rgb(239_232_222_/_15%)] bg-[var(--hud-panel)]/90 text-[var(--hud-ink)] shadow-[0_24px_80px_rgba(1,8,20,0.24)] backdrop-blur-sm";
+  "border border-[var(--hud-ink)]/10 bg-[var(--hud-card)] text-[var(--hud-ink)]";
 
 export function LandingContainer({
   className,
@@ -26,7 +26,7 @@ export function LandingContainer({
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-[1800px] px-5 sm:px-8 lg:px-10",
+        "mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10",
         className,
       )}
       {...props}
@@ -47,7 +47,7 @@ export function LandingTitle({ className, ...props }: ComponentProps<"h2">) {
   return (
     <h2
       className={cn(
-        "font-[family-name:var(--font-landing-display)] text-5xl leading-[0.86] tracking-[-0.03em] uppercase sm:text-7xl",
+        "text-balance font-[family-name:var(--font-landing-display)] text-5xl leading-[0.88] tracking-[-0.025em] uppercase sm:text-7xl",
         className,
       )}
       {...props}

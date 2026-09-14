@@ -11,50 +11,51 @@
    * role it should have had all along.
    */
 
-  /* Sandy Linen — the page itself. */
-  --hud-paper: #efe8de;
-  /* Mist Linen — cards lifted off the page. 16.07:1 with the ink. */
-  --hud-card: #fff5ee;
+  /* Warm mineral paper — the page itself. */
+  --hud-paper: #f3efe7;
+  /* Raised paper, used sparingly. */
+  --hud-card: #fbf8f2;
   /* Type on paper. */
-  --hud-ink: #101c26;
+  --hud-ink: #0b1726;
   /* Type over the terrain, where the ground is the mountain and not the page. */
-  --hud-type: #efe8de;
+  --hud-type: #f3efe7;
 
-  /* Aegean Sky — actions: buttons, links, labels. 4.96:1 both ways on paper. */
-  --hud-action: #1664b0;
-  --hud-action-hover: #12559a;
-  /* Scarlet Bikini — accent: large numerals, rules, the current stop. */
-  --hud-status: #d21624;
-  /* Blossom Silk — tints and fills only. It cannot hold type on paper. */
-  --hud-accent: #ffcad4;
+  /* Chofex cobalt — actions and brand connection. */
+  --hud-action: #2459c9;
+  --hud-action-hover: #1b47a6;
+  /* Burnt mineral red — one restrained accent. */
+  --hud-status: #b83e35;
+  /* Sandstone tint — selections and subtle fills. */
+  --hud-accent: #ddcfbd;
 
-  --hud-field: #1664b0;
-  --hud-panel: #fff5ee;
+  --hud-field: #0b1726;
+  --hud-panel: #fbf8f2;
   /*
    * The one dark surface left, anchoring the foot of a light page. It keeps
    * light type, which is why --hud-muted cannot serve it: that value is tuned
    * for paper and reads 1.6:1 here.
    */
-  --hud-footer: #101c26;
-  /* ~6.2:1 on paper */
-  --hud-muted: #5a5349;
-  --hud-muted-on-light: #5a5349;
+  --hud-footer: #0b1726;
+  --hud-muted: #5b5f65;
+  --hud-muted-on-light: #5b5f65;
 }
 
 .landing-page {
-  background:
-    radial-gradient(circle at 85% 12%, rgb(255 202 212 / 38%), transparent 34rem),
-    var(--hud-paper);
+  background: var(--hud-paper);
   color: var(--hud-ink);
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: rgb(36 89 201 / 16%);
+}
+
+.landing-page :is(section, footer)[id] {
+  scroll-margin-top: 4.5rem;
 }
 
 .landing-glass-panel {
-  /* A cream card laid over the mountain, rather than a dark pane cut into it. */
-  border: 1px solid rgb(16 28 38 / 10%);
-  background: linear-gradient(145deg, rgb(255 245 238 / 95%), rgb(239 232 222 / 88%));
-  box-shadow: 0 28px 100px rgb(16 28 38 / 28%);
-  backdrop-filter: blur(14px);
-  color: var(--hud-ink);
+  border: 1px solid rgb(243 239 231 / 18%);
+  background: rgb(11 23 38 / 82%);
+  backdrop-filter: blur(18px);
+  color: var(--hud-type);
 }
 
 .landing-topography {
@@ -77,10 +78,10 @@
 .landing-type-lede {
   font-size: 1.05rem;
   line-height: 1.45;
-  color: inherit;
+  text-wrap: pretty;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 768px) {
   .landing-type-lede {
     font-size: 1.2rem;
   }
@@ -174,8 +175,8 @@
 
 .landing-world-motion {
   transition:
-    opacity 500ms ease,
-    transform 500ms ease;
+    opacity 360ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 360ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .landing-world-fallback {
@@ -248,19 +249,25 @@
   outline-offset: 3px;
 }
 
+.landing-page :is(a, button) {
+  touch-action: manipulation;
+}
+
+.landing-dossier::before {
+  position: absolute;
+  inset: 0;
+  background: repeating-radial-gradient(
+    ellipse at 82% 18%,
+    transparent 0 15px,
+    rgb(11 23 38 / 7%) 16px 17px
+  );
+  content: "";
+  mask-image: linear-gradient(to bottom left, black, transparent 70%);
+}
+
 .landing-page :is(a, button).landing-cta:focus-visible {
   outline-color: var(--hud-ink);
   box-shadow: 0 0 0 3px var(--hud-ink);
-}
-
-.landing-footer {
-  padding-bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));
-}
-
-@media (min-width: 640px) {
-  .landing-footer {
-    padding-bottom: 0;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
