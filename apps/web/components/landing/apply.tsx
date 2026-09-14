@@ -11,18 +11,44 @@ import {
 export function LandingApply() {
   return (
     <section
-      className="landing-topography bg-[linear-gradient(180deg,#07152b_0%,#0d2949_100%)] text-[var(--hud-ink)]"
+      aria-labelledby="apply-heading"
+      className="bg-[var(--hud-card)] text-[var(--hud-ink)]"
       id="apply"
     >
-      <LandingContainer className="py-16 sm:py-20">
-        <HudLabel className="mb-3 text-[var(--hud-action)]">{applyCopy.kicker}</HudLabel>
-        <LandingSectionHead title={applyCopy.title}>
-          <p className="max-w-xl text-sm leading-relaxed text-[var(--hud-muted)] sm:text-base">
-            {applyCopy.lede}
-          </p>
+      <LandingContainer className="py-20 sm:py-28">
+        <HudLabel className="mb-4 text-[var(--hud-action)]">
+          {applyCopy.kicker}
+        </HudLabel>
+        <LandingSectionHead title={applyCopy.title} titleId="apply-heading">
+          <div className="max-w-xl">
+            <p className="text-lg leading-relaxed text-[var(--hud-ink)]/75">
+              {applyCopy.lede}
+            </p>
+            <div className="mt-7 border-[var(--hud-ink)]/15 border-t pt-5">
+              <HudLabel className="mb-4 text-[var(--hud-muted)]">
+                {applyCopy.criteriaTitle}
+              </HudLabel>
+              <ul className="space-y-3">
+                {applyCopy.criteria.map((criterion) => (
+                  <li
+                    className="grid grid-cols-[1rem_1fr] gap-3 text-sm leading-relaxed text-[var(--hud-muted)]"
+                    key={criterion}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="text-[var(--hud-action)]"
+                    >
+                      +
+                    </span>
+                    {criterion}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </LandingSectionHead>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
           <article className={`p-6 ${landingFrameClassName}`}>
             <div className="mb-8 flex items-center justify-between">
               <HudLabel className="text-[var(--hud-action)]">01</HudLabel>
@@ -34,14 +60,22 @@ export function LandingApply() {
             <h3 className="font-[family-name:var(--font-landing-display)] text-3xl leading-none uppercase">
               {applyCopy.cliTitle}
             </h3>
-            <div className="hud-box mt-6 overflow-x-auto bg-[#06152c] p-5 font-[family-name:var(--font-landing-mono)] text-sm leading-8">
-              {cliCommands.map((command) => (
-                <div className="whitespace-nowrap" key={command}>
-                  <span className="mr-3 text-[var(--hud-action)]">$</span>
-                  {command}
-                </div>
+            <ol className="mt-6 overflow-hidden border border-[var(--hud-ink)]/10 bg-[var(--hud-ink)] font-[family-name:var(--font-landing-mono)] text-sm text-[var(--hud-type)]">
+              {cliCommands.map((command, index) => (
+                <li
+                  className="grid grid-cols-[2rem_1fr] border-white/10 border-b p-4 last:border-b-0"
+                  key={command}
+                >
+                  <span className="text-[var(--hud-type)]/45">
+                    0{index + 1}
+                  </span>
+                  <code className="overflow-x-auto whitespace-nowrap">
+                    <span className="mr-3 text-[var(--hud-accent)]">$</span>
+                    {command}
+                  </code>
+                </li>
               ))}
-            </div>
+            </ol>
           </article>
 
           <article className={`p-6 ${landingFrameClassName}`}>

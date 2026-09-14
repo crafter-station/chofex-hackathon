@@ -1,17 +1,19 @@
 import { cn } from "@chofex/ui/lib/utils";
 import { LandingApply } from "@/components/landing/apply";
+import { LandingAudience } from "@/components/landing/audience";
+import { LandingChallenges } from "@/components/landing/challenges";
+import { LandingExperience } from "@/components/landing/experience";
 import {
   landingDisplay,
   landingMono,
   landingSans,
 } from "@/components/landing/fonts";
 import { LandingFooter } from "@/components/landing/footer";
-import { LandingHeader, LandingMobileCta } from "@/components/landing/header";
+import { LandingHeader } from "@/components/landing/header";
 import { LandingHero } from "@/components/landing/hero";
-import { LandingJudges } from "@/components/landing/judges";
+import { LandingPeople } from "@/components/landing/people";
 import { HERO_MODEL_PRELOAD } from "@/components/landing/sacred-valley-preload";
 import { LandingPrizes } from "@/components/landing/prizes";
-import { LandingScan } from "@/components/landing/scan";
 import { landingPageClassName } from "@/components/landing/shell";
 import { LandingSkipLinks } from "@/components/landing/skip-links";
 import { LandingSponsors } from "@/components/landing/sponsors";
@@ -39,14 +41,15 @@ export default function Home() {
       <LandingHeader />
       <main id="contenido">
         <LandingHero />
-        <LandingJudges />
-        <LandingScan />
+        <LandingAudience />
+        <LandingChallenges />
+        <LandingPeople />
         <LandingPrizes />
+        <LandingExperience />
         <LandingApply />
         <LandingSponsors />
       </main>
       <LandingFooter />
-      <LandingMobileCta />
     </div>
   );
 }

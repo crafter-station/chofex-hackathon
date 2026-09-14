@@ -3,7 +3,7 @@ import { shadcn } from "@clerk/ui/themes";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { DocumentLang } from "@/components/document-lang";
-import { metadataCopy } from "@/components/landing/content";
+import { brandName, metadataCopy } from "@/components/landing/content";
 import { QueryProvider } from "@/components/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import "@chofex/ui/globals.css";
@@ -19,13 +19,14 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://andes.crafter.run"),
   title: metadataCopy.title,
   description: metadataCopy.description,
   openGraph: {
     title: metadataCopy.title,
     description: metadataCopy.description,
     locale: "es_PE",
-    siteName: metadataCopy.title,
+    siteName: brandName,
     type: "website",
   },
   twitter: {
@@ -35,11 +36,33 @@ export const metadata: Metadata = {
   },
 };
 
+const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const clerkConfigured = Boolean(
+  clerkPublishableKey &&
+    !clerkPublishableKey.includes("replace_me") &&
+    /^pk_(test|live)_/.test(clerkPublishableKey),
+);
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const queryProvider = <QueryProvider>{children}</QueryProvider>;
+  let content = queryProvider;
+
+  if (clerkConfigured) {
+    content = (
+      <ClerkProvider
+        appearance={{ theme: shadcn }}
+        signInFallbackRedirectUrl="/auth/complete"
+        signUpFallbackRedirectUrl="/auth/complete"
+      >
+        {queryProvider}
+      </ClerkProvider>
+    );
+  }
+
   return (
     <html lang="es" suppressHydrationWarning>
       <body
@@ -52,13 +75,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ClerkProvider
-            appearance={{ theme: shadcn }}
-            signInFallbackRedirectUrl="/auth/complete"
-            signUpFallbackRedirectUrl="/auth/complete"
-          >
-            <QueryProvider>{children}</QueryProvider>
-          </ClerkProvider>
+          {content}
         </ThemeProvider>
       </body>
     </html>

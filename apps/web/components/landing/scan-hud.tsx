@@ -1,4 +1,3 @@
-import { scanCopy } from "@/components/landing/content";
 import type { ProjectedTarget } from "@/components/landing/sacred-valley-geometry";
 
 /**
@@ -51,12 +50,6 @@ export function ScanHud({
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 z-[15] overflow-hidden"
     >
-      <div className="hud-scanlines absolute inset-0 opacity-70" />
-      {/* Right-hand side: the chapter panels own the left, and the two were
-          landing on the same line. */}
-      <div className="absolute top-28 right-4 font-[family-name:var(--font-landing-mono)] text-[10px] tracking-[0.2em] text-[var(--hud-type)] uppercase sm:right-8">
-        {scanCopy.overlayKicker}
-      </div>
       {current ? (
         <div
           className="landing-scan-box"

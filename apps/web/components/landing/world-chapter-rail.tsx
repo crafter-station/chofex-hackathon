@@ -83,7 +83,9 @@ export function WorldChapterRail({
                 <span
                   className={cn(
                     "pointer-events-none absolute left-8 whitespace-nowrap font-[family-name:var(--font-landing-mono)] text-[10px] tracking-[0.18em] uppercase opacity-0 transition-opacity group-hover:opacity-100",
-                    active ? "text-[var(--hud-action)]" : "text-[var(--hud-ink)]/70",
+                    active
+                      ? "text-[var(--hud-type)]"
+                      : "text-[var(--hud-type)]/70",
                   )}
                 >
                   {item.label}
