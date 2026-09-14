@@ -62,10 +62,21 @@ export const sectionNav = [
   { href: "#apply", label: "Aplicar" },
 ] as const;
 
+/**
+ * The five stops the scroll makes, plus the overlook it opens on.
+ *
+ * Each site carries a chapter of the pitch, and the pairing is not decorative:
+ * Moray really was an agricultural research station, one microclimate per
+ * ring, which is what a prototyping track is. Ollantaytambo really is still
+ * lived in, on the original Inca street plan. The argument is the place.
+ */
 export const worldChapters = [
-  { id: "hero", label: "Cumbre", progress: 0 },
-  { id: "valley", label: "Valle Sagrado", progress: 0.34 },
-  { id: "scan", label: "Escaneo", progress: 0.64 },
+  { id: "overlook", label: "Cumbre" },
+  { id: "pisac", label: "Písac" },
+  { id: "moray", label: "Moray" },
+  { id: "maras", label: "Maras" },
+  { id: "ollantaytambo", label: "Ollantaytambo" },
+  { id: "machupicchu", label: "Machu Picchu" },
 ] as const;
 
 export const facts = [
@@ -90,18 +101,47 @@ export const heroCopy = {
 } as const;
 
 export const worldChapterCopy = {
-  valley: {
-    eyebrow: "01 / valle sagrado",
+  overlook: {
+    eyebrow: "00 / valle sagrado",
     title: "El terreno selecciona",
-    body: "Una ruta inmersiva por las montañas de Cusco. Explora el valle mientras conoces el nivel de exigencia de esta edición.",
-    metric: "2,800 m",
-    metricLabel: "altura de referencia",
+    body: "Cinco sitios río abajo por el Urubamba, de Písac a Machu Picchu. Terreno real: elevación medida, no decorado.",
+    metric: "62 km",
+    metricLabel: "de corredor",
   },
-  scan: {
-    eyebrow: "02 / señal activa",
-    title: "Encontramos a quienes construyen",
-    body: "El challenge, los golden tickets y tu trabajo público forman una sola señal. La selección empieza antes del evento.",
-    status: "rastreo en curso",
+  pisac: {
+    eyebrow: "01 / písac · 2,972 m",
+    title: "Construir donde no se debería",
+    body: "Terrazas colgadas del filo del cerro, curvándose con el contorno de la montaña. Es el ingreso natural al valle viniendo de Cusco — y la tesis entera de esto: infraestructura en terreno que no la admite.",
+    metric: "2,972 m",
+    metricLabel: "ingreso al valle",
+  },
+  moray: {
+    eyebrow: "02 / moray · 3,500 m",
+    title: "Un laboratorio de piedra",
+    body: "Terrazas concéntricas de 45 a 65 m de radio, cada anillo de 3 a 5 m de alto, con 12–15 °C de gradiente entre el borde y el fondo. Era una estación de investigación agrícola: un microclima por anillo para probar qué cultivo aguanta qué altura. Los tracks salen de aquí porque el sitio ya era esto.",
+    metric: "15 °C",
+    metricLabel: "gradiente por anillo",
+  },
+  maras: {
+    eyebrow: "03 / maras · salineras",
+    title: "Propiedad individual, agua compartida",
+    body: "Miles de pozas de sal en terrazas, cada una con dueño, todas alimentadas por un mismo manantial. El sistema que las llena es de todos. Mentores, sponsors y comunidad funcionan igual.",
+    metric: "1",
+    metricLabel: "manantial para todas",
+  },
+  ollantaytambo: {
+    eyebrow: "04 / ollantaytambo · 2,792 m",
+    title: "Código en producción desde el siglo XV",
+    body: "El Templo del Sol y el Muro de los Seis Monolitos en riolita rosada. En 1537 Manco Inca derrotó aquí a los españoles inundando la planicie. Y sigue habitado: ~3,050 personas viviendo sobre la traza urbana inca original. No es una ruina.",
+    metric: "~3,050",
+    metricLabel: "viviendo sobre la traza",
+  },
+  machupicchu: {
+    eyebrow: "05 / machu picchu · 2,430 m",
+    title: "Se llega caminando",
+    body: "El cierre. Aquí no se llega en scroll.",
+    metric: "2,430 m",
+    metricLabel: "el cierre",
   },
 } as const;
 
@@ -213,7 +253,10 @@ export const sponsorsCopy = {
 export const footerCopy = {
   meta: "lima · 17–18 oct 2026 · con el apoyo de chofex",
   legalLabel: "Legal",
+  // Both terrain sources are attribution-required licences, so these two
+  // credits are a condition of use, not decoration.
   terrainCredit: "Terreno: Mapzen / USGS",
+  imageryCredit: "Imagen: Sentinel-2 cloudless / EOX (CC BY 4.0)",
   terms: "Términos",
   privacy: "Privacidad",
 } as const;

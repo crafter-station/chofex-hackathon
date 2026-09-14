@@ -61,14 +61,21 @@ export function isVerticalScrollGesture(dx: number, dy: number): boolean {
   return Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > LOOK_GESTURE_PX;
 }
 
-/** Look is strongest on the hero chapter and fades as scroll drives later stops. */
-export function lookExploreScale(progress: number): number {
-  const fade = 1 - progress / 0.24;
-  if (fade < 0) {
+/**
+ * How much free look to allow, from the flight's station focus.
+ *
+ * Driven by focus rather than by raw scroll: the tour parks at six sites now,
+ * and letting the reader look around only at the first one wasted the other
+ * five. Full range while the camera is parked, none while it is in transit —
+ * during a transfer the camera is already swinging its aim from one site to
+ * the next, and adding pointer orbit on top of that just reads as drift.
+ */
+export function lookExploreScale(focus: number): number {
+  if (focus < 0) {
     return 0;
   }
-  if (fade > 1) {
+  if (focus > 1) {
     return 1;
   }
-  return fade;
+  return focus;
 }

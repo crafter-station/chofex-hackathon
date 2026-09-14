@@ -23,15 +23,14 @@ test("treats only the presented terrain GLB as a ready world", () => {
   expect(isWorldReadyToReveal("pending")).toBe(false);
   expect(isWorldReadyToReveal("canvas")).toBe(false);
   expect(isWorldReadyToReveal("procedural")).toBe(false);
-  expect(isWorldReadyToReveal("uncentered")).toBe(false);
+  expect(isWorldReadyToReveal("unmarked")).toBe(false);
   expect(isWorldReadyToReveal("terrain")).toBe(true);
 });
 
-test("waits for the terrain to be centered and drawn before reveal", () => {
+test("waits for the terrain to be drawn and identified before reveal", () => {
   expect(
     isTerrainPresented({
-      glbLoaded: true,
-      centered: false,
+      glbLoaded: false,
       presentedFrames: 4,
       heroSubject: "terrain",
     }),
@@ -39,7 +38,6 @@ test("waits for the terrain to be centered and drawn before reveal", () => {
   expect(
     isTerrainPresented({
       glbLoaded: true,
-      centered: true,
       presentedFrames: 1,
       heroSubject: "terrain",
     }),
@@ -47,7 +45,6 @@ test("waits for the terrain to be centered and drawn before reveal", () => {
   expect(
     isTerrainPresented({
       glbLoaded: true,
-      centered: true,
       presentedFrames: 2,
       heroSubject: null,
     }),
@@ -55,7 +52,6 @@ test("waits for the terrain to be centered and drawn before reveal", () => {
   expect(
     isTerrainPresented({
       glbLoaded: true,
-      centered: true,
       presentedFrames: 2,
       heroSubject: "terrain",
     }),

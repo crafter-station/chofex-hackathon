@@ -8,6 +8,26 @@
   --hud-muted: #c5c8d0;
   /* ~8.4:1 on #f5f5f5 */
   --hud-muted-on-light: #3a3d44;
+
+  /*
+   * The same palette again, named by the role each colour plays rather than by
+   * the colour it happens to be. Components ask for the role; the value is
+   * free to change without touching them.
+   *
+   * These are deliberately identical to the values above — this is plumbing,
+   * not a redesign. The tokens existed already and almost nothing used them:
+   * the components carried 62 hardcoded literals between them, which is why a
+   * palette change meant editing 62 places and would have meant it again.
+   */
+  --hud-type: #f5f5f5;
+  --hud-field: #0057ff;
+  --hud-action: #d6ff00;
+  --hud-action-hover: #e7ff4d;
+  --hud-status: #d6ff00;
+  --hud-accent: #d6ff00;
+  --hud-paper: #07152b;
+  --hud-card: #0c2344;
+  --hud-footer: #061226;
 }
 
 .landing-page {

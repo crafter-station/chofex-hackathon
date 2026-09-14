@@ -4,8 +4,8 @@ import { cn } from "@chofex/ui/lib/utils";
 import dynamic from "next/dynamic";
 import { type MutableRefObject, useEffect, useRef, useState } from "react";
 
-import type { ProjectedTarget } from "@/components/landing/machu-picchu-geometry";
-import { startHeroModelPreload } from "@/components/landing/machu-picchu-preload";
+import type { ProjectedTarget } from "@/components/landing/sacred-valley-geometry";
+import { startHeroModelPreload } from "@/components/landing/sacred-valley-preload";
 import {
   detectWebGL,
   prefersReducedMotion,
@@ -21,15 +21,15 @@ import {
 import { subscribePrefersReducedMotion } from "@/components/landing/world-motion";
 import { paintedFallbackClassName } from "@/components/landing/world-reveal";
 
-const MachuPicchuCanvas = dynamic(
+const SacredValleyCanvas = dynamic(
   () =>
-    import("@/components/landing/machu-picchu-canvas").then(
-      (module) => module.MachuPicchuCanvas,
+    import("@/components/landing/sacred-valley-canvas").then(
+      (module) => module.SacredValleyCanvas,
     ),
   { ssr: false },
 );
 
-export type MachuPicchuSceneProps = {
+export type SacredValleySceneProps = {
   readonly className?: string;
   readonly quality?: WorldQuality;
   readonly forceFallback?: boolean;
@@ -55,7 +55,7 @@ function detectPresentation(
   });
 }
 
-export function MachuPicchuFallback({
+export function SacredValleyFallback({
   className,
 }: {
   readonly className?: string;
@@ -77,15 +77,15 @@ export function MachuPicchuFallback({
  * - Render as children of `#hero-scene`
  * - Look layer accepts constrained drag; CTAs keep their own hit targets
  * - Landing type / CTAs stay in the scroll overlays
- * - Painted fallback stays until the citadel GLB is on a presented frame
+ * - Painted fallback stays until the terrain GLB is on a presented frame
  */
-export function MachuPicchuScene({
+export function SacredValleyScene({
   className,
   quality = "auto",
   forceFallback = false,
   progressRef,
   onTargets,
-}: MachuPicchuSceneProps) {
+}: SacredValleySceneProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [presentation, setPresentation] = useState<WorldPresentation>({
     mode: "fallback",
@@ -161,7 +161,7 @@ export function MachuPicchuScene({
       data-world-reveal={terrainReady ? "terrain" : "pending"}
     >
       {webglReady ? (
-        <MachuPicchuCanvas
+        <SacredValleyCanvas
           onContextLost={() => setContextLost(true)}
           onTargets={onTargets}
           onWorldReady={() => setWorldReady(true)}
@@ -171,7 +171,7 @@ export function MachuPicchuScene({
           visible={visible}
         />
       ) : null}
-      <MachuPicchuFallback className={paintedFallbackClassName(terrainReady)} />
+      <SacredValleyFallback className={paintedFallbackClassName(terrainReady)} />
     </div>
   );
 }

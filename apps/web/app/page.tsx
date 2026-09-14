@@ -9,7 +9,7 @@ import { LandingFooter } from "@/components/landing/footer";
 import { LandingHeader, LandingMobileCta } from "@/components/landing/header";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingJudges } from "@/components/landing/judges";
-import { HERO_MODEL_PRELOAD } from "@/components/landing/machu-picchu-preload";
+import { HERO_MODEL_PRELOAD } from "@/components/landing/sacred-valley-preload";
 import { LandingPrizes } from "@/components/landing/prizes";
 import { LandingScan } from "@/components/landing/scan";
 import { landingPageClassName } from "@/components/landing/shell";
