@@ -1,51 +1,65 @@
 .landing-page {
-  --hud-blue: #0057ff;
-  --hud-yellow: #d6ff00;
-  --hud-white: #f5f5f5;
-  --hud-ink: #07152b;
-  --hud-panel: #0c2344;
-  /* ~9.6:1 on #0b0d10 — small HUD labels stay AA */
-  --hud-muted: #c5c8d0;
-  /* ~8.4:1 on #f5f5f5 */
-  --hud-muted-on-light: #3a3d44;
-
   /*
-   * The same palette again, named by the role each colour plays rather than by
-   * the colour it happens to be. Components ask for the role; the value is
-   * free to change without touching them.
+   * The palette, named by role. The page is light: Sandy Linen is the ground
+   * and the dark is reserved for type.
    *
-   * These are deliberately identical to the values above — this is plumbing,
-   * not a redesign. The tokens existed already and almost nothing used them:
-   * the components carried 62 hardcoded literals between them, which is why a
-   * palette change meant editing 62 places and would have meant it again.
+   * Inverting it is what finally lets every colour do a job. On a dark field
+   * Scarlet tops out at 3.88:1 against pure black, so it could never carry
+   * small type; on paper it reads 4.45, and 5.04 on a raised card. Aegean goes
+   * from unusable to 4.96. Blossom goes the other way — 1.18 on paper — which
+   * settles it as a tint rather than a text colour, and that is the secondary
+   * role it should have had all along.
    */
-  --hud-type: #f5f5f5;
-  --hud-field: #0057ff;
-  --hud-action: #d6ff00;
-  --hud-action-hover: #e7ff4d;
-  --hud-status: #d6ff00;
-  --hud-accent: #d6ff00;
-  --hud-paper: #07152b;
-  --hud-card: #0c2344;
-  --hud-footer: #061226;
+
+  /* Sandy Linen — the page itself. */
+  --hud-paper: #efe8de;
+  /* Mist Linen — cards lifted off the page. 16.07:1 with the ink. */
+  --hud-card: #fff5ee;
+  /* Type on paper. */
+  --hud-ink: #101c26;
+  /* Type over the terrain, where the ground is the mountain and not the page. */
+  --hud-type: #efe8de;
+
+  /* Aegean Sky — actions: buttons, links, labels. 4.96:1 both ways on paper. */
+  --hud-action: #1664b0;
+  --hud-action-hover: #12559a;
+  /* Scarlet Bikini — accent: large numerals, rules, the current stop. */
+  --hud-status: #d21624;
+  /* Blossom Silk — tints and fills only. It cannot hold type on paper. */
+  --hud-accent: #ffcad4;
+
+  --hud-field: #1664b0;
+  --hud-panel: #fff5ee;
+  /*
+   * The one dark surface left, anchoring the foot of a light page. It keeps
+   * light type, which is why --hud-muted cannot serve it: that value is tuned
+   * for paper and reads 1.6:1 here.
+   */
+  --hud-footer: #101c26;
+  /* ~6.2:1 on paper */
+  --hud-muted: #5a5349;
+  --hud-muted-on-light: #5a5349;
 }
 
 .landing-page {
   background:
-    radial-gradient(circle at 85% 12%, rgb(0 87 255 / 14%), transparent 32rem),
-    #07152b;
+    radial-gradient(circle at 85% 12%, rgb(255 202 212 / 38%), transparent 34rem),
+    var(--hud-paper);
+  color: var(--hud-ink);
 }
 
 .landing-glass-panel {
-  border: 1px solid rgb(255 255 255 / 18%);
-  background: linear-gradient(145deg, rgb(7 21 43 / 88%), rgb(12 35 68 / 68%));
-  box-shadow: 0 28px 100px rgb(1 8 20 / 32%);
+  /* A cream card laid over the mountain, rather than a dark pane cut into it. */
+  border: 1px solid rgb(16 28 38 / 10%);
+  background: linear-gradient(145deg, rgb(255 245 238 / 95%), rgb(239 232 222 / 88%));
+  box-shadow: 0 28px 100px rgb(16 28 38 / 28%);
   backdrop-filter: blur(14px);
+  color: var(--hud-ink);
 }
 
 .landing-topography {
   background-image:
-    radial-gradient(circle at 24% 18%, rgb(214 255 0 / 7%), transparent 20rem),
+    radial-gradient(circle at 24% 18%, rgb(210 22 36 / 8%), transparent 20rem),
     repeating-radial-gradient(
       ellipse at 80% 20%,
       transparent 0 20px,
@@ -63,7 +77,7 @@
 .landing-type-lede {
   font-size: 1.05rem;
   line-height: 1.45;
-  color: var(--hud-white);
+  color: inherit;
 }
 
 @media (min-width: 640px) {
@@ -74,7 +88,7 @@
 
 .hud-halftone {
   background-image: radial-gradient(
-    rgb(245 245 245 / 28%) 0.7px,
+    rgb(16 28 38 / 20%) 0.7px,
     transparent 0.8px
   );
   background-size: 5px 5px;
@@ -83,14 +97,14 @@
 .hud-scanlines {
   background-image: repeating-linear-gradient(
     180deg,
-    rgb(245 245 245 / 6%) 0 1px,
+    rgb(16 28 38 / 5%) 0 1px,
     transparent 1px 4px
   );
 }
 
 .hud-box {
   position: relative;
-  border: 1px solid rgb(245 245 245 / 85%);
+  border: 1px solid rgb(16 28 38 / 22%);
 }
 
 .hud-box::before,
@@ -99,7 +113,7 @@
   position: absolute;
   width: 12px;
   height: 12px;
-  border: 2px solid var(--hud-yellow);
+  border: 2px solid var(--hud-status);
 }
 
 .hud-box::before {
@@ -124,7 +138,7 @@
 .hud-cross::after {
   content: "";
   position: absolute;
-  background: var(--hud-yellow);
+  background: var(--hud-status);
 }
 
 .hud-cross::before {
@@ -175,8 +189,8 @@
 
 .landing-scan-box {
   position: absolute;
-  border: 1px solid #d6ff00;
-  box-shadow: 0 0 0 1px rgb(0 87 255 / 55%);
+  border: 1px solid var(--hud-status);
+  box-shadow: 0 0 0 1px rgb(16 28 38 / 45%);
   pointer-events: none;
 }
 
@@ -184,8 +198,10 @@
   position: absolute;
   top: -1.15rem;
   left: -1px;
-  background: #d6ff00;
-  color: #0b0d10;
+  /* Deepened scarlet so 9px type on it clears AA at 5.48:1; the brand value
+     would land at 4.45 and the label is the smallest type on the page. */
+  background: var(--hud-status);
+  color: var(--hud-paper);
   padding: 0.1rem 0.35rem;
   font-size: 9px;
   letter-spacing: 0.14em;
@@ -205,8 +221,8 @@
   left: 1rem;
   top: 0.75rem;
   transform: translateY(-160%);
-  background: var(--hud-yellow);
-  color: var(--hud-ink);
+  background: var(--hud-action);
+  color: var(--hud-paper);
   padding: 0.55rem 0.9rem;
   font-family: var(--font-landing-mono), ui-monospace, monospace;
   font-size: 12px;
@@ -228,12 +244,12 @@
 }
 
 .landing-page :is(a, button):focus-visible {
-  outline: 2px solid var(--hud-yellow);
+  outline: 2px solid var(--hud-action);
   outline-offset: 3px;
 }
 
 .landing-page :is(a, button).landing-cta:focus-visible {
-  outline-color: var(--hud-white);
+  outline-color: var(--hud-ink);
   box-shadow: 0 0 0 3px var(--hud-ink);
 }
 

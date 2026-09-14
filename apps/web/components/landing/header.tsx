@@ -38,7 +38,7 @@ export function LandingHeader() {
     <header className="pointer-events-none absolute inset-x-0 top-0 z-30">
       <div className="mx-auto flex w-full max-w-[1800px] items-center justify-between gap-4 px-4 py-4 sm:px-8">
         <a
-          className="pointer-events-auto font-[family-name:var(--font-landing-display)] text-lg tracking-[-0.03em] text-[#d6ff00] sm:text-xl"
+          className="pointer-events-auto font-[family-name:var(--font-landing-display)] text-lg tracking-[-0.03em] text-[var(--hud-action)] sm:text-xl"
           href="#top"
         >
           {brandName}
@@ -58,7 +58,7 @@ export function LandingHeader() {
         <button
           aria-controls={menuId}
           aria-expanded={open}
-          className={`pointer-events-auto sm:hidden ${landingHudClassName} bg-[#0c2344] px-3 py-2 text-[10px] text-[#d6ff00]`}
+          className={`pointer-events-auto sm:hidden ${landingHudClassName} bg-[var(--hud-panel)] px-3 py-2 text-[10px] text-[var(--hud-action)]`}
           onClick={() => setOpen((current) => !current)}
           type="button"
         >
@@ -68,12 +68,12 @@ export function LandingHeader() {
 
       {open ? (
         <div
-          className="pointer-events-auto mx-4 border border-[#f5f5f5]/20 bg-[#071a34]/95 p-4 shadow-2xl backdrop-blur-md sm:hidden"
+          className="pointer-events-auto mx-4 border border-[var(--hud-type)]/20 bg-[#071a34]/95 p-4 shadow-2xl backdrop-blur-md sm:hidden"
           id={menuId}
         >
           <nav
             aria-label={chromeCopy.sections}
-            className={`flex flex-col gap-3 text-sm text-[#f5f5f5] ${landingHudClassName}`}
+            className={`flex flex-col gap-3 text-sm text-[var(--hud-ink)] ${landingHudClassName}`}
           >
             {sectionNav.map((item) => (
               <a href={item.href} key={item.href} onClick={close}>
@@ -82,7 +82,7 @@ export function LandingHeader() {
             ))}
           </nav>
           <LandingChapterNav
-            className={`mt-5 flex flex-wrap gap-3 border-[#f5f5f5]/15 border-t pt-4 text-[10px] text-[var(--hud-muted)] ${landingHudClassName}`}
+            className={`mt-5 flex flex-wrap gap-3 border-[var(--hud-type)]/15 border-t pt-4 text-[10px] text-[var(--hud-muted)] ${landingHudClassName}`}
             onNavigate={close}
           />
         </div>

@@ -23,16 +23,16 @@ export function LandingScan() {
       />
       <div
         aria-hidden="true"
-        className="landing-scan-blob pointer-events-none absolute top-10 right-8 size-40 rounded-full bg-[#0057ff]"
+        className="landing-scan-blob pointer-events-none absolute top-10 right-8 size-40 rounded-full bg-[var(--hud-field)]"
       />
       <div
         aria-hidden="true"
-        className="landing-scan-blob pointer-events-none absolute bottom-16 left-[20%] h-32 w-48 bg-[#d6ff00]"
+        className="landing-scan-blob pointer-events-none absolute bottom-16 left-[20%] h-32 w-48 bg-[var(--hud-status)]"
       />
 
       <LandingContainer className="relative py-16 sm:py-20">
         <div className="mb-6 flex items-center justify-between gap-4">
-          <HudLabel className="text-[#d6ff00]">{scanCopy.kicker}</HudLabel>
+          <HudLabel className="text-[var(--hud-action)]">{scanCopy.kicker}</HudLabel>
           <HudLabel className="text-[var(--hud-muted)]">
             {scanCopy.index}
           </HudLabel>
@@ -65,16 +65,16 @@ export function LandingScan() {
             />
             <div
               aria-hidden="true"
-              className="landing-scan-beam pointer-events-none absolute inset-x-0 h-16 bg-[#d6ff00]/20"
+              className="landing-scan-beam pointer-events-none absolute inset-x-0 h-16 bg-[var(--hud-status)]/20"
             />
             <div className="relative flex flex-col gap-4 p-5">
               <div className="flex items-center justify-between">
-                <HudLabel className="text-[#d6ff00]">
+                <HudLabel className="text-[var(--hud-action)]">
                   {scanCopy.factsWindow}
                 </HudLabel>
                 <span
                   aria-hidden="true"
-                  className="size-3 rounded-full bg-[#d6ff00]"
+                  className="size-3 rounded-full bg-[var(--hud-status)]"
                 />
               </div>
               <p className="font-[family-name:var(--font-landing-display)] text-4xl leading-none uppercase">
@@ -83,7 +83,7 @@ export function LandingScan() {
               <dl className="grid gap-3">
                 {facts.map((fact) => (
                   <div
-                    className="flex items-baseline justify-between gap-4 border-[#f5f5f5]/15 border-b pb-2"
+                    className="flex items-baseline justify-between gap-4 border-[var(--hud-type)]/15 border-b pb-2"
                     key={fact.label}
                   >
                     <dt>

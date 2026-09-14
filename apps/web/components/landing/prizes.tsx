@@ -20,12 +20,12 @@ export function LandingPrizes() {
   return (
     <section
       aria-labelledby="prizes-heading"
-      className="bg-[#0057ff] text-[#f5f5f5]"
+      className="bg-[var(--hud-field)] text-[var(--hud-ink)]"
       id="prizes"
     >
       <LandingContainer className="flex flex-col justify-center gap-12 py-16 md:min-h-dvh md:py-20">
         <LandingSectionHead title={prizesCopy.title} titleId="prizes-heading">
-          <p className="max-w-lg text-sm leading-relaxed text-[#f5f5f5] sm:text-base">
+          <p className="max-w-lg text-sm leading-relaxed text-[var(--hud-ink)] sm:text-base">
             Más de {formatSoles(cashHeadline)} en efectivo. Convertidos de USD{" "}
             {prizeAmountsUsd.first.toLocaleString("es-PE")} /{" "}
             {prizeAmountsUsd.second.toLocaleString("es-PE")} al tipo ~S/.{" "}
@@ -35,27 +35,27 @@ export function LandingPrizes() {
 
         <div className="grid items-end gap-10 lg:grid-cols-[1.1fr_auto_1fr] lg:items-center">
           <div className="flex flex-col gap-2">
-            <HudLabel className="text-[#d6ff00]">{prizesCopy.pozo}</HudLabel>
-            <p className="font-[family-name:var(--font-landing-display)] text-[clamp(4.6rem,16vw,10rem)] leading-[0.78] tracking-[-0.03em] text-[#d6ff00]">
+            <HudLabel className="text-[var(--hud-action)]">{prizesCopy.pozo}</HudLabel>
+            <p className="font-[family-name:var(--font-landing-display)] text-[clamp(4.6rem,16vw,10rem)] leading-[0.78] tracking-[-0.03em] text-[var(--hud-status)]">
               <PrizeCounter amount={prizeAmountsPen.first} format="number" />
             </p>
             <p className="font-[family-name:var(--font-landing-mono)] text-xs tracking-[0.16em] uppercase">
               {prizesCopy.firstPlace}
             </p>
-            <p className="mt-1 text-sm text-[#f5f5f5]">
+            <p className="mt-1 text-sm text-[var(--hud-ink)]">
               2do lugar{" "}
-              <span className="font-semibold text-[#d6ff00]">
+              <span className="font-semibold text-[var(--hud-action)]">
                 <PrizeCounter amount={prizeAmountsPen.second} />
               </span>
             </p>
           </div>
 
-          <p className="hidden font-[family-name:var(--font-landing-display)] text-6xl leading-none text-[#d6ff00] lg:block">
+          <p className="hidden font-[family-name:var(--font-landing-display)] text-6xl leading-none text-[var(--hud-status)] lg:block">
             +
           </p>
 
           <div className="flex flex-col gap-2 lg:text-right">
-            <HudLabel className="text-[#d6ff00] lg:ml-auto">
+            <HudLabel className="text-[var(--hud-action)] lg:ml-auto">
               {prizesCopy.travel}
             </HudLabel>
             <p className="font-[family-name:var(--font-landing-display)] text-[clamp(3.4rem,8vw,6rem)] leading-[0.86] tracking-[-0.03em]">
@@ -64,7 +64,7 @@ export function LandingPrizes() {
                 format="number"
               />
             </p>
-            <p className="max-w-md text-sm leading-snug text-[#f5f5f5] sm:text-base lg:ml-auto">
+            <p className="max-w-md text-sm leading-snug text-[var(--hud-ink)] sm:text-base lg:ml-auto">
               Pool extra de ~{formatSoles(prizeAmountsPen.travelPool)} para
               minijuegos y/o viaje de provincia.
             </p>
