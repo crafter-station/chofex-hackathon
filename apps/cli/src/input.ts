@@ -2,10 +2,12 @@ import { readFile } from "node:fs/promises";
 
 import {
   AcceptedDetailsInput,
+  ApplicationDraftInput,
   ApplicationInput,
   acceptedDetailsInputFieldNames,
   acceptedDetailsInputFields,
   acceptedDetailsSemanticRequirements,
+  applicationDraftInputFieldNames,
   applicationInputFieldNames,
   applicationInputFields,
   applicationSemanticRequirements,
@@ -139,8 +141,8 @@ export const applicationDefaultsFromRegistration = (
   portfolioUrl: registration.portfolioUrl,
   teamPreference: registration.teamPreference,
   teamName: registration.teamName,
-  codeOfConductAccepted: true,
-  privacyPolicyAccepted: true,
+  codeOfConductAccepted: registration.codeOfConductAccepted ? true : undefined,
+  privacyPolicyAccepted: registration.privacyPolicyAccepted ? true : undefined,
   mediaConsent: registration.mediaConsent,
 });
 
@@ -199,7 +201,7 @@ const validateSemantics = <A>(
   );
 };
 
-const applicationDetailsPrompts = (defaults: Partial<ApplicationInput>) =>
+const identityPrompts = (defaults: Partial<ApplicationInput>) =>
   Prompt.all({
     firstName: requiredText(
       "First name",
@@ -247,6 +249,10 @@ const applicationDetailsPrompts = (defaults: Partial<ApplicationInput>) =>
         ).pipe(Effect.as(value));
       },
     }),
+  });
+
+const experiencePrompts = (defaults: Partial<ApplicationInput>) =>
+  Prompt.all({
     shippedProject: requiredText(
       "What have you shipped?",
       applicationInputFields.shippedProject,
@@ -339,12 +345,101 @@ const requiredAgreement = Effect.fn("requiredAgreement")(function* (
   );
 });
 
+const normalizeDraftFields = (
+  input: Record<string, unknown>,
+): Record<string, unknown> => {
+  const normalized = withoutEmptyStrings(input);
+  if (typeof input.graduationYear === "string" && input.graduationYear !== "") {
+    normalized.graduationYear = Number(input.graduationYear);
+  }
+  return normalized;
+};
+
+export const collectIdentityPart = (
+  defaults: Partial<ApplicationInput>,
+): Effect.Effect<Record<string, unknown>, CliError, PromptModule.Environment> =>
+  Prompt.run(identityPrompts(defaults)).pipe(
+    Effect.map(normalizeDraftFields),
+    Effect.mapError(() =>
+      cliError("PROMPT_CANCELLED", "Interactive input was cancelled"),
+    ),
+  );
+
+export const collectExperiencePart = (
+  defaults: Partial<ApplicationInput>,
+): Effect.Effect<Record<string, unknown>, CliError, PromptModule.Environment> =>
+  Prompt.run(experiencePrompts(defaults)).pipe(
+    Effect.map(normalizeDraftFields),
+    Effect.mapError(() =>
+      cliError("PROMPT_CANCELLED", "Interactive input was cancelled"),
+    ),
+  );
+
+export const collectTeamPart = (
+  defaults: Partial<ApplicationInput>,
+): Effect.Effect<Record<string, unknown>, CliError, PromptModule.Environment> =>
+  Effect.gen(function* () {
+    const teamPreference = yield* Prompt.run(
+      teamPreferencePrompt(defaults.teamPreference),
+    );
+    let teamName: string | undefined;
+    if (teamPreference === "have_team") {
+      teamName = yield* Prompt.run(
+        requiredText(
+          "Team name",
+          applicationInputFields.teamName,
+          defaults.teamName,
+        ),
+      );
+    }
+    return withoutEmptyStrings({ teamPreference, teamName });
+  }).pipe(
+    Effect.mapError((error) => {
+      if (error instanceof CliError) return error;
+      return cliError("PROMPT_CANCELLED", "Interactive input was cancelled");
+    }),
+  );
+
+export const collectAgreementsPart = (
+  publicBaseUrl: string,
+  defaults: Partial<ApplicationInput>,
+): Effect.Effect<Record<string, unknown>, CliError, PromptModule.Environment> =>
+  Effect.gen(function* () {
+    const codeOfConductAccepted = yield* requiredAgreement(
+      "Terms and Code of Conduct",
+      publicDocumentUrl(publicBaseUrl, "/terms"),
+      defaults.codeOfConductAccepted,
+    );
+    const privacyPolicyAccepted = yield* requiredAgreement(
+      "Privacy Policy",
+      publicDocumentUrl(publicBaseUrl, "/privacy"),
+      defaults.privacyPolicyAccepted,
+    );
+    const mediaConsent = yield* Prompt.run(
+      Prompt.confirm({
+        message: "Do you consent to appearing in event media? (optional)",
+        initial: defaults.mediaConsent ?? false,
+      }),
+    );
+    return {
+      codeOfConductAccepted,
+      privacyPolicyAccepted,
+      mediaConsent,
+    };
+  }).pipe(
+    Effect.mapError((error) => {
+      if (error instanceof CliError) return error;
+      return cliError("PROMPT_CANCELLED", "Interactive input was cancelled");
+    }),
+  );
+
 const interactiveApplication = (
   publicBaseUrl: string,
   defaults: Partial<ApplicationInput>,
 ) =>
   Effect.gen(function* () {
-    const details = yield* Prompt.run(applicationDetailsPrompts(defaults));
+    const identity = yield* Prompt.run(identityPrompts(defaults));
+    const experience = yield* Prompt.run(experiencePrompts(defaults));
     const teamPreference = yield* Prompt.run(
       teamPreferencePrompt(defaults.teamPreference),
     );
@@ -375,7 +470,8 @@ const interactiveApplication = (
       }),
     );
     return {
-      ...details,
+      ...identity,
+      ...experience,
       teamPreference,
       teamName,
       codeOfConductAccepted,
@@ -530,6 +626,24 @@ export const applicationInput = (
       validateSemantics(input, applicationSemanticRequirements(input)),
     ),
   );
+
+export const applicationDraftInput = (
+  path: string | undefined,
+): Effect.Effect<ApplicationDraftInput, CliError> => {
+  if (!path) {
+    return Effect.fail(
+      cliError(
+        "INPUT_REQUIRED",
+        "Non-interactive use requires --input <file>, or --input - for stdin",
+      ),
+    );
+  }
+  return readJsonInput(path).pipe(
+    Effect.flatMap((input) =>
+      decode(ApplicationDraftInput, input, applicationDraftInputFieldNames),
+    ),
+  );
+};
 
 export const acceptedDetailsInput = (
   path: string | undefined,

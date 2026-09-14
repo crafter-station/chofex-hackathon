@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["three"],
+  agentRules: false,
+  transpilePackages: ["three", "@chofex/challenges-contract"],
   async headers() {
     return [
       {

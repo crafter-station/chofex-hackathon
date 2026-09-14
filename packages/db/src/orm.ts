@@ -1,5 +1,6 @@
 export {
   and,
+  asc,
   count,
   desc,
   eq,
@@ -8,6 +9,6 @@ export {
   isNull,
   lt,
   or,
-  sql,
   type SQL,
+  sql,
 } from "drizzle-orm";

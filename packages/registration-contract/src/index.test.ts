@@ -31,14 +31,20 @@ const registrationView = (
   firstName: "Ada",
   lastName: "Lovelace",
   email: "ada@example.com",
+  city: "Lima",
   participationMode: "in_person",
   shippedProject: "An analytical engine simulator.",
   hackathonProject: "A collaborative programming environment.",
+  bio: "I build analytical engines.",
+  teamPreference: "solo",
   nationalIdProvided: false,
   mediaConsent: false,
+  codeOfConductAccepted: true,
+  privacyPolicyAccepted: true,
   submittedAt: "2026-09-01T12:00:00.000Z",
   createdAt: "2026-09-01T12:00:00.000Z",
   updatedAt: "2026-09-01T12:00:00.000Z",
+  challenges: [],
   ...overrides,
 });
 
@@ -195,45 +201,94 @@ describe("registration contract", () => {
     ).toThrow();
   });
 
-  test("keeps every active application in review", () => {
-    for (const status of [
-      "draft",
-      "submitted",
-      "under_review",
-      "waitlisted",
-    ] as const) {
-      expect(applicationRequirementsFor(registrationView({ status }))).toEqual({
-        stage: "review",
-        canSubmitNewApplication: false,
-        canSubmitAcceptedDetails: false,
-        missing: [],
-      });
+  test("keeps submitted applications in review", () => {
+    for (const status of ["submitted", "under_review", "waitlisted"] as const) {
+      const requirements = applicationRequirementsFor(
+        registrationView({ status }),
+      );
+      expect(requirements.stage).toBe("review");
+      expect(requirements.canSubmitNewApplication).toBe(false);
+      expect(requirements.canSubmitAcceptedDetails).toBe(false);
+      expect(requirements.canSaveDraft).toBe(false);
+      expect(requirements.canSubmitApplication).toBe(false);
+      expect(requirements.missing).toEqual([]);
     }
   });
 
-  test("allows a new application after rejection or withdrawal", () => {
+  test("treats drafts as a resumable application with required parts", () => {
+    const requirements = applicationRequirementsFor(
+      registrationView({
+        status: "draft",
+        firstName: "Ada",
+        lastName: "Lovelace",
+        city: "Lima",
+        teamPreference: "solo",
+      }),
+    );
+    expect(requirements.stage).toBe("draft");
+    expect(requirements.canSaveDraft).toBe(true);
+    expect(requirements.canSubmitApplication).toBe(false);
+    expect(requirements.parts.map((item) => item.id)).toEqual([
+      "identity",
+      "experience",
+      "team",
+      "challenges",
+      "agreements",
+    ]);
     expect(
-      applicationRequirementsFor(
-        registrationView({
-          status: "rejected",
-          rejectionReason: "At capacity",
-        }),
+      requirements.missing.some(
+        (item) => item.field === "challenges.black-box",
       ),
-    ).toEqual({
-      stage: "rejected",
-      canSubmitNewApplication: true,
-      canSubmitAcceptedDetails: false,
-      missing: [],
-      rejectionReason: "At capacity",
-    });
-    expect(
-      applicationRequirementsFor(registrationView({ status: "withdrawn" })),
-    ).toEqual({
-      stage: "review",
-      canSubmitNewApplication: true,
-      canSubmitAcceptedDetails: false,
-      missing: [],
-    });
+    ).toBe(true);
+  });
+
+  test("lets a complete draft submit after an official Black Box evaluation", () => {
+    const requirements = applicationRequirementsFor(
+      registrationView({
+        status: "draft",
+        city: "Lima",
+        teamPreference: "solo",
+        challenges: [
+          {
+            slug: "black-box",
+            title: "The Shipping Machine",
+            theme: "Black Box",
+            status: "evaluated",
+            open: true,
+            playable: true,
+            requiredForApplication: true,
+            queriesUsed: 12,
+            queriesLimit: 25,
+            evaluationsUsed: 1,
+            evaluationsLimit: 3,
+            bestAccuracy: 0.97,
+            shareCode: "7A3F",
+          },
+        ],
+      }),
+    );
+    expect(requirements.canSubmitApplication).toBe(true);
+    expect(requirements.missing).toEqual([]);
+  });
+
+  test("allows a new application after rejection or withdrawal", () => {
+    const rejected = applicationRequirementsFor(
+      registrationView({
+        status: "rejected",
+        rejectionReason: "At capacity",
+      }),
+    );
+    expect(rejected.stage).toBe("rejected");
+    expect(rejected.canSubmitNewApplication).toBe(true);
+    expect(rejected.canSubmitAcceptedDetails).toBe(false);
+    expect(rejected.rejectionReason).toBe("At capacity");
+
+    const withdrawn = applicationRequirementsFor(
+      registrationView({ status: "withdrawn" }),
+    );
+    expect(withdrawn.stage).toBe("review");
+    expect(withdrawn.canSubmitNewApplication).toBe(true);
+    expect(withdrawn.canSubmitAcceptedDetails).toBe(false);
   });
 
   test("requires a completion marker and every acceptance field", () => {
@@ -251,12 +306,12 @@ describe("registration contract", () => {
       acceptanceDetailsCompletedAt: "2026-09-02T12:00:00.000Z",
     });
 
-    expect(applicationRequirementsFor(completed)).toEqual({
-      stage: "complete",
-      canSubmitNewApplication: false,
-      canSubmitAcceptedDetails: true,
-      missing: [],
-    });
+    const completeRequirements = applicationRequirementsFor(completed);
+    expect(completeRequirements.stage).toBe("complete");
+    expect(completeRequirements.canSubmitNewApplication).toBe(false);
+    expect(completeRequirements.canSubmitAcceptedDetails).toBe(true);
+    expect(completeRequirements.missing).toEqual([]);
+    expect(completeRequirements.parts).toEqual([]);
 
     const withoutMarker = {
       ...completed,
@@ -268,17 +323,14 @@ describe("registration contract", () => {
       ...completed,
       shirtSize: undefined,
     };
-    expect(applicationRequirementsFor(malformedCompletion)).toEqual({
-      stage: "accepted",
-      canSubmitNewApplication: false,
-      canSubmitAcceptedDetails: true,
-      missing: [
-        {
-          field: "shirtSize",
-          reason: "Required for in-person participants",
-        },
-      ],
-    });
+    const malformed = applicationRequirementsFor(malformedCompletion);
+    expect(malformed.stage).toBe("accepted");
+    expect(malformed.missing).toEqual([
+      {
+        field: "shirtSize",
+        reason: "Required for in-person participants",
+      },
+    ]);
   });
 
   test("does not require a shirt size for remote acceptance", () => {

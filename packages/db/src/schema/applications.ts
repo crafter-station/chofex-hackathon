@@ -14,8 +14,8 @@ import {
 import { auditTimestamps } from "./common";
 import {
   applicationStatus,
-  pictureSource,
   participationMode,
+  pictureSource,
   teamPreference,
 } from "./enums";
 import { participants } from "./participants";

@@ -43,6 +43,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
     "@effect/platform-node": "4.0.0-rc.112",
+    "@chofex/challenges-contract": "*",
     "@chofex/registration-contract": "*",
     "@chofex/typescript-config": "*",
     "@types/bun": "^1.3.14",

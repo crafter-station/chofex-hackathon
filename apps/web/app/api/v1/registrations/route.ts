@@ -14,5 +14,6 @@ export const POST = (request: Request): Promise<Response> =>
       },
       await readJson(request),
     );
-    return jsonSuccess(requestId, result, 201);
+    const created = result.registration.status === "submitted";
+    return jsonSuccess(requestId, result, created ? 201 : 200);
   });

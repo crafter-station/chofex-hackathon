@@ -39,12 +39,15 @@ describe("CLI registration input", () => {
       portfolioUrl: "https://cueva.io",
       teamPreference: "have_team",
       teamName: "Team Andes",
+      codeOfConductAccepted: true,
+      privacyPolicyAccepted: true,
       nationalIdProvided: false,
       mediaConsent: true,
       rejectionReason: "Clarify the project scope.",
       submittedAt: "2026-09-09T00:00:00.000Z",
       createdAt: "2026-09-09T00:00:00.000Z",
       updatedAt: "2026-09-09T00:00:00.000Z",
+      challenges: [],
     });
 
     expect(defaults).toEqual({
@@ -68,6 +71,27 @@ describe("CLI registration input", () => {
       privacyPolicyAccepted: true,
       mediaConsent: true,
     });
+  });
+
+  test("does not pre-accept agreements that are still missing", () => {
+    const defaults = applicationDefaultsFromRegistration({
+      id: "registration-123",
+      status: "draft",
+      firstName: "Ada",
+      lastName: "Lovelace",
+      email: "ada@example.com",
+      participationMode: "in_person",
+      nationalIdProvided: false,
+      mediaConsent: false,
+      codeOfConductAccepted: false,
+      privacyPolicyAccepted: false,
+      createdAt: "2026-09-09T00:00:00.000Z",
+      updatedAt: "2026-09-09T00:00:00.000Z",
+      challenges: [],
+    });
+
+    expect(defaults.codeOfConductAccepted).toBeUndefined();
+    expect(defaults.privacyPolicyAccepted).toBeUndefined();
   });
 
   test("builds public policy links from API URLs with or without a slash", () => {

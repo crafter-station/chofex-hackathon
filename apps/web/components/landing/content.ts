@@ -41,6 +41,7 @@ export const cliCommands = [
   "npm install --global chofex-cli@latest",
   "chofex login",
   "chofex register",
+  "chofex challenge query",
 ] as const;
 
 export const hudChrome = {
@@ -191,7 +192,7 @@ export const trackHints = [
 export const applyCopy = {
   kicker: "aplicar / ventana",
   title: "Aplica ahora",
-  lede: "Aplica con la CLI o dile a tu agent.",
+  lede: "Aplica con la CLI. El formulario se guarda por partes; el Black Box es obligatorio para enviar.",
   cliTitle: "Aplica con la CLI",
   agentKicker: "agent",
   agentTitle: "O dile a tu agent",
@@ -216,6 +217,7 @@ export const footerCopy = {
   terrainCredit: "Terreno: Mapzen / USGS",
   terms: "Términos",
   privacy: "Privacidad",
+  ranking: "Ranking",
 } as const;
 
 export const chromeCopy = {

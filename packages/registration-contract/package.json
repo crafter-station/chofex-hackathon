@@ -13,6 +13,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@chofex/challenges-contract": "*",
     "effect": "4.0.0-rc.112"
   },
   "devDependencies": {

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
+import { readFileSync } from "node:fs";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import { Console, Effect } from "effect";
 import { Command } from "effect/unstable/cli";
-import { readFileSync } from "node:fs";
 
 import { command } from "./commands.js";
 import { printJson } from "./output.js";

@@ -82,9 +82,11 @@ First, check whether the participant already has an application:
 chofex --output json status
 ```
 
-If one exists, report its status and follow **Next steps**. Create a new
-application only when there is no application or the response says a rejected
-participant may apply again. A rejected application remains in history.
+If one exists, report its status and follow **Next steps**. Create or resume a
+draft when there is no application, the status is `draft`, or a rejected
+participant may apply again. A rejected application remains in history. Drafts
+are stored on the server, so the participant can fill identity today and come
+back tomorrow with a Black Box solution.
 
 Get a fresh input template instead of relying on a memorized schema:
 
@@ -143,8 +145,10 @@ already collected. Ask whether they want to cancel registration or read the
 document and explicitly accept it. Continue from the consent step if they
 accept; do not submit if they cancel.
 
-Once every answer and consent choice is settled, create exactly one mode-600
-temporary application file outside the project. On a POSIX system:
+Once every answer and consent choice is settled, save the application as a
+draft. Do not claim the application is submitted until `registration.status` is
+`submitted`. Create exactly one mode-600 temporary application file outside the
+project. On a POSIX system:
 
 ```sh
 application_file="$(mktemp)"
@@ -158,7 +162,7 @@ shorten, or replace it. One application uses one payload file, one recorded path
 and one cleanup.
 
 Write only participant-provided answers to that file and omit unanswered optional
-fields. Validate it locally before asking for submission approval:
+fields. Validate it locally before asking for a draft save:
 
 ```sh
 chofex --output json validate --stage application --input "$application_file"
@@ -166,18 +170,64 @@ chofex --output json validate --stage application --input "$application_file"
 
 Resolve validation errors before continuing. First state every low-risk
 interpretation or normalization in a concise note. Then show a readable summary
-of the exact validated payload, include every consent, and ask: **Submit this
-application now?** Run the submission only after an explicit yes given at this
+of the exact validated payload, include every consent, and ask: **Save this
+application draft now?** Run the save only after an explicit yes given at this
 point.
 
 ```sh
 chofex --output json register --input "$application_file"
 ```
 
-Keep the mode-600 temporary file through correctable validation failures so a
-retry does not require rebuilding it. Delete it after success, cancellation, or
-an unrecoverable error. Report success only when the envelope has `ok: true`.
-Then proactively read status once and give one concise result with next steps.
+A successful save may still be `status: "draft"` when the Black Box evaluation
+is missing. That is expected. Keep the mode-600 temporary file through
+correctable validation failures so a retry does not require rebuilding it.
+
+## Black Box challenge
+
+Submitting an application requires at least one official evaluation of
+**The Shipping Machine**. List challenges, then inspect the participant's
+personalized Black Box:
+
+```sh
+chofex --output json challenge list
+chofex --output json challenge show --challenge black-box
+```
+
+AI tools are allowed. The oracle is personalized, so a leaked solution will not
+match this participant's function. Design experiments: change one variable at a
+time, look for thresholds, then test combinations such as fragile and express
+together. Each `query` consumes one of 25 requests.
+
+```sh
+chofex --output json challenge query --distance 1 --weight 1 --hour 12 --fragile false --express false
+chofex --output json challenge notebook --format json
+```
+
+After collecting observations, write `function calculateShipping(input)` in a
+local file. Test against the notebook (does not consume an official evaluation),
+then evaluate against the hidden set (limited to 3 official attempts):
+
+```sh
+chofex --output json challenge test --source "$PWD/shipping.js"
+chofex --output json challenge evaluate --source "$PWD/shipping.js"
+```
+
+Never ask the participant to paste a solution that they did not run. After an
+official evaluation, save the application again if needed and submit:
+
+```sh
+chofex --output json register --submit
+```
+
+Report success only when the envelope has `ok: true` and
+`registration.status` is `submitted`. Then proactively read status once and give
+one concise result with next steps.
+
+Public rankings are read-only:
+
+```sh
+chofex --output json challenge ranking --challenge black-box
+```
 
 ## Next steps
 
@@ -193,7 +243,10 @@ asks for requirements alone.
 
 Interpret the returned state as follows:
 
-- `draft`, `submitted`, `under_review`, or `waitlisted`: report the exact
+- `draft`: the application is saved in parts. Show `requirements.parts` and
+  missing fields. Continue collecting answers or playing the Black Box. Submit
+  only when `canSubmitApplication` is true, using `chofex register --submit`.
+- `submitted`, `under_review`, or `waitlisted`: report the exact
   status and requirements. When the requirements stage is `review`, no action
   is needed while organizers review the application.
 - `rejected`: show the review feedback when present. Offer a new application
