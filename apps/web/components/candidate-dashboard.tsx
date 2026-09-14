@@ -39,6 +39,7 @@ import {
   CircleUserRoundIcon,
   CopyIcon,
   ExternalLinkIcon,
+  ImageIcon,
   MailIcon,
   SearchIcon,
   ShieldAlertIcon,
@@ -537,6 +538,11 @@ const CandidateDrawer = ({
                     href={candidate.portfolioUrl}
                     label="Portfolio"
                     icon={<SparklesIcon className="size-3.5" />}
+                  />
+                  <CandidateLink
+                    href={candidate.badgeUrl}
+                    label="View badge"
+                    icon={<ImageIcon className="size-3.5" />}
                   />
                 </div>
               </div>

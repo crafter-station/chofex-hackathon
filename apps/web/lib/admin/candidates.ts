@@ -14,6 +14,7 @@ import {
 import {
   acceptanceDetails,
   applications,
+  participantBadges,
   participants,
 } from "@chofex/db/schema";
 
@@ -62,6 +63,7 @@ const isDecidedApplication = (
 type CandidateRecord = {
   readonly application: ApplicationRecord;
   readonly details: typeof acceptanceDetails.$inferSelect | null;
+  readonly badge: typeof participantBadges.$inferSelect | null;
   readonly clerkUserId: string;
   readonly attemptNumber: number;
   readonly decisionHistory: ReadonlyArray<DecisionRecord>;
@@ -117,6 +119,7 @@ const toCandidate = (
     githubUrl: optional(application.githubUrl),
     linkedInUrl: optional(application.linkedInUrl),
     portfolioUrl: optional(application.portfolioUrl),
+    badgeUrl: optional(record.badge?.badgeUrl),
     teamPreference: optional(application.teamPreference),
     teamName: optional(application.teamName),
     status: application.status,
@@ -244,6 +247,7 @@ const candidateRecordById = async (
     .select({
       application: applications,
       details: acceptanceDetails,
+      badge: participantBadges,
       clerkUserId: participants.clerkUserId,
     })
     .from(applications)
@@ -251,6 +255,10 @@ const candidateRecordById = async (
     .leftJoin(
       acceptanceDetails,
       eq(acceptanceDetails.applicationId, applications.id),
+    )
+    .leftJoin(
+      participantBadges,
+      eq(participantBadges.applicationId, applications.id),
     )
     .where(eq(applications.id, applicationId))
     .limit(1);
@@ -350,6 +358,7 @@ export const listCandidates = async (
     .select({
       application: applications,
       details: acceptanceDetails,
+      badge: participantBadges,
       clerkUserId: participants.clerkUserId,
     })
     .from(applications)
@@ -358,6 +367,10 @@ export const listCandidates = async (
     .leftJoin(
       acceptanceDetails,
       eq(acceptanceDetails.applicationId, applications.id),
+    )
+    .leftJoin(
+      participantBadges,
+      eq(participantBadges.applicationId, applications.id),
     )
     .where(whereCondition)
     .orderBy(desc(applications.createdAt))
