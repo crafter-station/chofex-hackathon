@@ -9,6 +9,70 @@ import {
 
 const percent = (value: number): string => `${(value * 100).toFixed(2)}%`;
 
+const RankingResults = ({
+  entries,
+}: {
+  readonly entries: ChallengeRanking["entries"];
+}) => {
+  if (entries.length === 0) {
+    return (
+      <div className={`p-6 ${landingFrameClassName}`}>
+        <p className="text-sm text-[var(--hud-muted)]">
+          Nadie ha enviado una evaluación oficial todavía. Las soluciones se
+          envían por la CLI; esta página solo muestra el ranking.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`overflow-x-auto ${landingFrameClassName}`}>
+      <table className="min-w-full text-left text-sm">
+        <thead className="font-[family-name:var(--font-landing-mono)] text-[10px] uppercase tracking-[0.16em] text-[var(--hud-muted)]">
+          <tr>
+            <th className="px-4 py-3">Puesto</th>
+            <th className="px-4 py-3">Participante</th>
+            <th className="px-4 py-3">Accuracy</th>
+            <th className="px-4 py-3">Exactas</th>
+            <th className="px-4 py-3">Queries</th>
+            <th className="px-4 py-3">Runtime</th>
+          </tr>
+        </thead>
+        <tbody>
+          {entries.map((entry) => (
+            <tr
+              className="border-white/10 border-t"
+              key={`${entry.shareCode}-${entry.rank}`}
+            >
+              <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)] text-[#d6ff00]">
+                #{entry.rank}
+              </td>
+              <td className="px-4 py-3">
+                <div>{entry.displayName}</div>
+                <div className="font-[family-name:var(--font-landing-mono)] text-[10px] uppercase tracking-[0.14em] text-[var(--hud-muted)]">
+                  #{entry.shareCode}
+                </div>
+              </td>
+              <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)]">
+                {percent(entry.accuracy)}
+              </td>
+              <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)]">
+                {entry.exactCount}/{entry.sampleSize}
+              </td>
+              <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)]">
+                {entry.queriesUsed}
+              </td>
+              <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)]">
+                {entry.runtimeMs} ms
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
 export function ChallengeRankingView({
   ranking,
 }: {
@@ -18,6 +82,10 @@ export function ChallengeRankingView({
   let cliHint = "chofex challenge list";
   if (challenge.playable) {
     cliHint = `chofex challenge query ${challenge.slug}`;
+  }
+  let challengeState = "Abierto";
+  if (!challenge.open) {
+    challengeState = `Abre ${challenge.opensAt.slice(0, 10)}`;
   }
 
   return (
@@ -48,9 +116,7 @@ export function ChallengeRankingView({
           <div>
             <HudLabel className="text-[var(--hud-muted)]">Estado</HudLabel>
             <p className="mt-2 font-[family-name:var(--font-landing-mono)] text-sm uppercase tracking-[0.12em] text-[#d6ff00]">
-              {challenge.open
-                ? "Abierto"
-                : `Abre ${challenge.opensAt.slice(0, 10)}`}
+              {challengeState}
             </p>
           </div>
           <div>
@@ -61,59 +127,7 @@ export function ChallengeRankingView({
           </div>
         </div>
 
-        {entries.length === 0 ? (
-          <div className={`p-6 ${landingFrameClassName}`}>
-            <p className="text-sm text-[var(--hud-muted)]">
-              Nadie ha enviado una evaluación oficial todavía. Las soluciones se
-              envían por la CLI; esta página solo muestra el ranking.
-            </p>
-          </div>
-        ) : (
-          <div className={`overflow-x-auto ${landingFrameClassName}`}>
-            <table className="min-w-full text-left text-sm">
-              <thead className="font-[family-name:var(--font-landing-mono)] text-[10px] uppercase tracking-[0.16em] text-[var(--hud-muted)]">
-                <tr>
-                  <th className="px-4 py-3">Puesto</th>
-                  <th className="px-4 py-3">Participante</th>
-                  <th className="px-4 py-3">Accuracy</th>
-                  <th className="px-4 py-3">Exactas</th>
-                  <th className="px-4 py-3">Queries</th>
-                  <th className="px-4 py-3">Runtime</th>
-                </tr>
-              </thead>
-              <tbody>
-                {entries.map((entry) => (
-                  <tr
-                    className="border-white/10 border-t"
-                    key={`${entry.shareCode}-${entry.rank}`}
-                  >
-                    <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)] text-[#d6ff00]">
-                      #{entry.rank}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div>{entry.displayName}</div>
-                      <div className="font-[family-name:var(--font-landing-mono)] text-[10px] uppercase tracking-[0.14em] text-[var(--hud-muted)]">
-                        #{entry.shareCode}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)]">
-                      {percent(entry.accuracy)}
-                    </td>
-                    <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)]">
-                      {entry.exactCount}/{entry.sampleSize}
-                    </td>
-                    <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)]">
-                      {entry.queriesUsed}
-                    </td>
-                    <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)]">
-                      {entry.runtimeMs} ms
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <RankingResults entries={entries} />
       </LandingContainer>
     </section>
   );

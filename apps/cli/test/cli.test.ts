@@ -101,7 +101,6 @@ describe("CLI JSON mode", () => {
                 opensAt: "2026-09-18T05:00:00.000Z",
                 queryLimit: 25,
                 evaluationLimit: 3,
-                requiredForApplication: true,
                 playable: true,
                 open: true,
                 rankingPath: "/challenges/black-box",

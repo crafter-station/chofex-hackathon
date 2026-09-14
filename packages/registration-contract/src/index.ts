@@ -1,7 +1,4 @@
-import {
-  ParticipantChallengeProgressSchema,
-  requiredApplicationChallenges,
-} from "@chofex/challenges-contract";
+import { ParticipantChallengeProgressSchema } from "@chofex/challenges-contract";
 import { DateTime, Option, Schema, SchemaGetter } from "effect";
 
 const nonBlank = (maximum: number) =>
@@ -156,7 +153,6 @@ export const ApplicationPartId = Schema.Literals([
   "identity",
   "experience",
   "team",
-  "challenges",
   "agreements",
 ]);
 
@@ -452,25 +448,6 @@ export const applicationPartsFor = (
     });
   }
 
-  const challengeMissing: Array<Requirement> = [];
-  for (const challenge of requiredApplicationChallenges) {
-    const progress = registration.challenges.find(
-      (item) => item.slug === challenge.slug,
-    );
-    if (progress?.open && progress.status === "evaluated") continue;
-    if (!progress?.open) {
-      challengeMissing.push({
-        field: `challenges.${challenge.slug}`,
-        reason: `${challenge.title} opens on ${challenge.opensAt.slice(0, 10)}`,
-      });
-      continue;
-    }
-    challengeMissing.push({
-      field: `challenges.${challenge.slug}`,
-      reason: `Complete at least one official ${challenge.title} evaluation`,
-    });
-  }
-
   const agreementMissing: Array<Requirement> = [];
   if (!registration.codeOfConductAccepted) {
     agreementMissing.push({
@@ -489,7 +466,6 @@ export const applicationPartsFor = (
     part("identity", "Identity", identityMissing),
     part("experience", "Experience", experienceMissing),
     part("team", "Team", teamMissing),
-    part("challenges", "Challenges", challengeMissing),
     part("agreements", "Agreements", agreementMissing),
   ];
 };

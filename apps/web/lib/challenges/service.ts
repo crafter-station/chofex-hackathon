@@ -18,7 +18,7 @@ import {
   scoreFromPredictions,
 } from "@chofex/challenges-contract";
 import { db } from "@chofex/db";
-import { and, asc, eq, sql } from "@chofex/db/orm";
+import { and, asc, desc, eq, inArray, sql } from "@chofex/db/orm";
 import {
   challengeAttempts,
   challengeEvaluations,
@@ -31,6 +31,7 @@ import { HttpError } from "../registration/http";
 import { participantIdFor } from "../registration/participants";
 import { catalogItemFor, rankingPathFor } from "./catalog";
 import { challengesForceOpen, currentChallengeTime } from "./clock";
+import { challengeProgressStatus } from "./progress";
 import { rankedEvaluationsFor, rankForAttempt } from "./ranking";
 import { runShippingSolution } from "./sandbox";
 import { attemptSeed, shareCodeFromSeed } from "./seed";
@@ -161,13 +162,13 @@ const attemptFor = async (
 
 const progressStatus = (
   attempt: AttemptRecord | undefined,
+  evaluation: EvaluationRecord | undefined,
 ): ParticipantChallengeProgress["status"] => {
-  if (!attempt) return "not_started";
-  if (attempt.bestEvaluationId || attempt.evaluationsUsed > 0) {
-    return "evaluated";
-  }
-  if (attempt.queriesUsed > 0) return "in_progress";
-  return "not_started";
+  return challengeProgressStatus({
+    hasPersistedEvaluation: Boolean(evaluation),
+    queriesUsed: attempt?.queriesUsed ?? 0,
+    evaluationsUsed: attempt?.evaluationsUsed ?? 0,
+  });
 };
 
 const progressFrom = (
@@ -180,10 +181,9 @@ const progressFrom = (
   slug: challenge.slug,
   title: challenge.title,
   theme: challenge.theme,
-  status: progressStatus(attempt),
+  status: progressStatus(attempt, evaluation),
   open: item.open,
   playable: challenge.playable,
-  requiredForApplication: challenge.requiredForApplication,
   queriesUsed: attempt?.queriesUsed ?? 0,
   queriesLimit: attempt?.queriesLimit ?? challenge.queryLimit,
   evaluationsUsed: attempt?.evaluationsUsed ?? 0,
@@ -246,11 +246,18 @@ const shareTextFor = (
 const loadBestEvaluation = async (
   attempt: AttemptRecord,
 ): Promise<EvaluationRecord | undefined> => {
-  if (!attempt.bestEvaluationId) return undefined;
   const [evaluation] = await db
     .select()
     .from(challengeEvaluations)
-    .where(eq(challengeEvaluations.id, attempt.bestEvaluationId))
+    .where(eq(challengeEvaluations.attemptId, attempt.id))
+    .orderBy(
+      desc(challengeEvaluations.accuracy),
+      desc(challengeEvaluations.exactCount),
+      asc(challengeEvaluations.queriesUsed),
+      asc(challengeEvaluations.runtimeMs),
+      asc(challengeEvaluations.createdAt),
+      asc(challengeEvaluations.id),
+    )
     .limit(1);
   return evaluation;
 };
@@ -266,42 +273,95 @@ const loadObservations = async (
   return rows.map(observationView);
 };
 
-const isBetterScore = (
-  candidate: ChallengeScore,
-  current: ChallengeScore | undefined,
-): boolean => {
-  if (!current) return true;
-  return compareChallengeScores(candidate, current) < 0;
+export const challengeProgressForParticipants = async (
+  participantIds: ReadonlyArray<string>,
+  now: Date = currentChallengeTime(),
+): Promise<
+  ReadonlyMap<string, ReadonlyArray<ParticipantChallengeProgress>>
+> => {
+  const uniqueParticipantIds = [...new Set(participantIds)];
+  if (uniqueParticipantIds.length === 0) return new Map();
+
+  const attempts = await db
+    .select()
+    .from(challengeAttempts)
+    .where(inArray(challengeAttempts.participantId, uniqueParticipantIds));
+
+  const attemptIds = attempts.map((attempt) => attempt.id);
+  let evaluations: ReadonlyArray<EvaluationRecord> = [];
+  if (attemptIds.length > 0) {
+    evaluations = await db
+      .select()
+      .from(challengeEvaluations)
+      .where(inArray(challengeEvaluations.attemptId, attemptIds));
+  }
+  const evaluationByAttemptId = new Map<string, EvaluationRecord>();
+  for (const evaluation of evaluations) {
+    const current = evaluationByAttemptId.get(evaluation.attemptId);
+    if (
+      !current ||
+      compareChallengeScores(
+        scoreFromEvaluation(evaluation),
+        scoreFromEvaluation(current),
+      ) < 0
+    ) {
+      evaluationByAttemptId.set(evaluation.attemptId, evaluation);
+    }
+  }
+
+  const rankedSlugs = [
+    ...new Set(
+      attempts.flatMap((attempt) => {
+        if (evaluationByAttemptId.has(attempt.id))
+          return [attempt.challengeSlug];
+        return [];
+      }),
+    ),
+  ];
+  const rankings = await Promise.all(
+    rankedSlugs.map(
+      async (slug) => [slug, await rankedEvaluationsFor(slug)] as const,
+    ),
+  );
+  const rankByAttemptId = new Map<string, number>();
+  for (const [, ranked] of rankings) {
+    for (const [index, entry] of ranked.entries()) {
+      rankByAttemptId.set(entry.attemptId, index + 1);
+    }
+  }
+
+  const progressByParticipant = new Map<
+    string,
+    ReadonlyArray<ParticipantChallengeProgress>
+  >();
+  for (const participantId of uniqueParticipantIds) {
+    const attemptBySlug = new Map(
+      attempts
+        .filter((attempt) => attempt.participantId === participantId)
+        .map((attempt) => [attempt.challengeSlug, attempt]),
+    );
+    const progress = challengeCatalog.map((challenge) => {
+      const item = catalogItemFor(challenge, now, challengesForceOpen());
+      const attempt = attemptBySlug.get(challenge.slug);
+      let evaluation: EvaluationRecord | undefined;
+      if (attempt) evaluation = evaluationByAttemptId.get(attempt.id);
+      const rank = attempt ? rankByAttemptId.get(attempt.id) : undefined;
+      return progressFrom(challenge, item, attempt, evaluation, rank);
+    });
+    progressByParticipant.set(participantId, progress);
+  }
+  return progressByParticipant;
 };
 
 export const challengeProgressForParticipant = async (
   participantId: string,
   now: Date = currentChallengeTime(),
 ): Promise<Array<ParticipantChallengeProgress>> => {
-  const attempts = await db
-    .select()
-    .from(challengeAttempts)
-    .where(eq(challengeAttempts.participantId, participantId));
-  const attemptBySlug = new Map(
-    attempts.map((attempt) => [attempt.challengeSlug, attempt]),
+  const progressByParticipant = await challengeProgressForParticipants(
+    [participantId],
+    now,
   );
-
-  const evaluationEntries = await Promise.all(
-    attempts.map(async (attempt) => {
-      const evaluation = await loadBestEvaluation(attempt);
-      return [attempt.id, evaluation] as const;
-    }),
-  );
-  const evaluationByAttempt = new Map(evaluationEntries);
-
-  return challengeCatalog.map((challenge) => {
-    const item = catalogItemFor(challenge, now, challengesForceOpen());
-    const attempt = attemptBySlug.get(challenge.slug);
-    const evaluation = attempt
-      ? evaluationByAttempt.get(attempt.id)
-      : undefined;
-    return progressFrom(challenge, item, attempt, evaluation);
-  });
+  return [...(progressByParticipant.get(participantId) ?? [])];
 };
 
 export const getChallengeAttempt = async (
@@ -337,13 +397,15 @@ export const getChallengeAttempt = async (
   if (evaluation && existing) {
     const ranked = await rankedEvaluationsFor(challenge.slug);
     const standing = rankForAttempt(ranked, existing.id);
+    let percentile: number | undefined;
+    if (standing) {
+      percentile = percentileFor(standing.rank, standing.competitorCount);
+    }
     latestEvaluation = {
       ...scoreFromEvaluation(evaluation),
       shareCode: existing.shareCode,
       rank: standing?.rank,
-      percentile: standing
-        ? percentileFor(standing.rank, standing.competitorCount)
-        : undefined,
+      percentile,
       createdAt: evaluation.createdAt.toISOString(),
     };
   }
@@ -439,7 +501,7 @@ export const testChallengeSolution = async (
   const shipments = observations.map((row) =>
     parseInput(ShipmentSchema, row.input),
   );
-  const actual = runShippingSolution(solution.source, shipments);
+  const actual = await runShippingSolution(solution.source, shipments);
   const mismatches: Array<{
     sequence: number;
     expected: unknown;
@@ -516,7 +578,7 @@ export const evaluateChallenge = async (
   const shipments = hiddenShipmentsForSeed(seed, challenge.hiddenSampleSize);
   const expected = shipments.map((input) => oraclePriceForSeed(seed, input));
   const startedAt = Date.now();
-  const actual = runShippingSolution(solution.source, shipments);
+  const actual = await runShippingSolution(solution.source, shipments);
   const runtimeMs = Date.now() - startedAt;
   const score = scoreFromPredictions(
     expected,
@@ -541,16 +603,25 @@ export const evaluateChallenge = async (
     .returning();
   if (!evaluation) throw new Error("Evaluation insert returned no row");
 
-  const currentBest = await loadBestEvaluation(consumed);
-  if (isBetterScore(score, currentBest && scoreFromEvaluation(currentBest))) {
-    await db
-      .update(challengeAttempts)
-      .set({
-        bestEvaluationId: evaluation.id,
-        updatedAt: new Date(),
-      })
-      .where(eq(challengeAttempts.id, attempt.id));
-  }
+  await db.execute(sql`
+    update "challenge_attempts"
+    set
+      "best_evaluation_id" = (
+        select "id"
+        from "challenge_evaluations"
+        where "attempt_id" = ${attempt.id}
+        order by
+          "accuracy" desc,
+          "exact_count" desc,
+          "queries_used" asc,
+          "runtime_ms" asc,
+          "created_at" asc,
+          "id" asc
+        limit 1
+      ),
+      "updated_at" = now()
+    where "id" = ${attempt.id}
+  `);
 
   const ranked = await rankedEvaluationsFor(challenge.slug);
   const standing = rankForAttempt(ranked, attempt.id) ?? {

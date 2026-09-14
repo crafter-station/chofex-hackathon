@@ -178,15 +178,17 @@ point.
 chofex --output json register --input "$application_file"
 ```
 
-A successful save may still be `status: "draft"` when the Black Box evaluation
-is missing. That is expected. Keep the mode-600 temporary file through
-correctable validation failures so a retry does not require rebuilding it.
+A successful save remains `status: "draft"` until the participant explicitly
+submits it. Keep the mode-600 temporary file through correctable validation
+failures so a retry does not require rebuilding it.
 
 ## Black Box challenge
 
-Submitting an application requires at least one official evaluation of
-**The Shipping Machine**. List challenges, then inspect the participant's
-personalized Black Box:
+**The Shipping Machine** is optional and provides organizers with another review
+metric. It does not decide admission and is not required to submit an
+application. Ask whether the participant wants to try it before or after
+submitting. If they do, list challenges, then inspect their personalized Black
+Box:
 
 ```sh
 chofex --output json challenge list
@@ -212,8 +214,8 @@ chofex --output json challenge test --source "$PWD/shipping.js"
 chofex --output json challenge evaluate --source "$PWD/shipping.js"
 ```
 
-Never ask the participant to paste a solution that they did not run. After an
-official evaluation, save the application again if needed and submit:
+Never ask the participant to paste a solution that they did not run. Application
+submission is a separate, explicit step and does not depend on the challenge:
 
 ```sh
 chofex --output json register --submit
@@ -244,8 +246,9 @@ asks for requirements alone.
 Interpret the returned state as follows:
 
 - `draft`: the application is saved in parts. Show `requirements.parts` and
-  missing fields. Continue collecting answers or playing the Black Box. Submit
-  only when `canSubmitApplication` is true, using `chofex register --submit`.
+  missing fields. Continue collecting answers. Offer the Black Box as an
+  optional challenge, but do not delay submission for it. Submit only when
+  `canSubmitApplication` is true, using `chofex register --submit`.
 - `submitted`, `under_review`, or `waitlisted`: report the exact
   status and requirements. When the requirements stage is `review`, no action
   is needed while organizers review the application.

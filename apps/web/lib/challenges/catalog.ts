@@ -26,7 +26,6 @@ export const catalogItemFor = (
   opensAt: challenge.opensAt,
   queryLimit: challenge.queryLimit,
   evaluationLimit: challenge.evaluationLimit,
-  requiredForApplication: challenge.requiredForApplication,
   playable: challenge.playable,
   open: isChallengeOpenAt(challenge, now, forceOpen),
   rankingPath: rankingPathFor(challenge.slug),

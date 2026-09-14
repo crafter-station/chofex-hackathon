@@ -222,6 +222,7 @@ describe("registration contract", () => {
         firstName: "Ada",
         lastName: "Lovelace",
         city: "Lima",
+        bio: undefined,
         teamPreference: "solo",
       }),
     );
@@ -232,43 +233,52 @@ describe("registration contract", () => {
       "identity",
       "experience",
       "team",
-      "challenges",
       "agreements",
     ]);
-    expect(
-      requirements.missing.some(
-        (item) => item.field === "challenges.black-box",
-      ),
-    ).toBe(true);
   });
 
-  test("lets a complete draft submit after an official Black Box evaluation", () => {
-    const requirements = applicationRequirementsFor(
+  test("lets a complete draft submit without a Black Box evaluation", () => {
+    const withoutChallenge = applicationRequirementsFor(
       registrationView({
         status: "draft",
         city: "Lima",
         teamPreference: "solo",
-        challenges: [
-          {
-            slug: "black-box",
-            title: "The Shipping Machine",
-            theme: "Black Box",
-            status: "evaluated",
-            open: true,
-            playable: true,
-            requiredForApplication: true,
-            queriesUsed: 12,
-            queriesLimit: 25,
-            evaluationsUsed: 1,
-            evaluationsLimit: 3,
-            bestAccuracy: 0.97,
-            shareCode: "7A3F",
-          },
-        ],
+        challenges: [],
       }),
     );
-    expect(requirements.canSubmitApplication).toBe(true);
-    expect(requirements.missing).toEqual([]);
+    expect(withoutChallenge.canSubmitApplication).toBe(true);
+    expect(withoutChallenge.missing).toEqual([]);
+  });
+
+  test("keeps challenge performance out of the admissions decision", () => {
+    const challenge = {
+      slug: "black-box" as const,
+      title: "The Shipping Machine",
+      theme: "Black Box",
+      status: "evaluated" as const,
+      open: true,
+      playable: true,
+      queriesUsed: 12,
+      queriesLimit: 25,
+      evaluationsUsed: 1,
+      evaluationsLimit: 3,
+      bestAccuracy: 0,
+      bestExactCount: 0,
+      shareCode: "7A3F",
+    };
+    const unsuccessfulScore = applicationRequirementsFor(
+      registrationView({ status: "draft", challenges: [challenge] }),
+    );
+    const perfectScore = applicationRequirementsFor(
+      registrationView({
+        status: "draft",
+        challenges: [{ ...challenge, bestAccuracy: 1, bestExactCount: 1_000 }],
+      }),
+    );
+    expect(unsuccessfulScore.canSubmitApplication).toBe(true);
+    expect(perfectScore.canSubmitApplication).toBe(true);
+    expect(unsuccessfulScore.stage).toBe("draft");
+    expect(perfectScore.stage).toBe("draft");
   });
 
   test("allows a new application after rejection or withdrawal", () => {

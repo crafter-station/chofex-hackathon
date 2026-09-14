@@ -1,6 +1,6 @@
 import type { ParticipantChallengeProgress } from "@chofex/challenges-contract";
 import { db } from "@chofex/db";
-import { desc, eq } from "@chofex/db/orm";
+import { and, desc, eq } from "@chofex/db/orm";
 import {
   acceptanceDetails,
   applications,
@@ -225,9 +225,13 @@ const draftColumnsFrom = (
     values.mediaConsent = input.mediaConsent;
   if (input.codeOfConductAccepted === true) {
     values.codeOfConductAcceptedAt = now;
+  } else if (input.codeOfConductAccepted === false) {
+    values.codeOfConductAcceptedAt = null;
   }
   if (input.privacyPolicyAccepted === true) {
     values.privacyPolicyAcceptedAt = now;
+  } else if (input.privacyPolicyAccepted === false) {
+    values.privacyPolicyAcceptedAt = null;
   }
   return values;
 };
@@ -288,10 +292,20 @@ export const saveRegistrationDraft = async (
     const [application] = await db
       .update(applications)
       .set(columns)
-      .where(eq(applications.id, current.application.id))
+      .where(
+        and(
+          eq(applications.id, current.application.id),
+          eq(applications.status, "draft"),
+        ),
+      )
       .returning();
-    if (!application)
-      throw new Error("Application draft update returned no row");
+    if (!application) {
+      throw new HttpError(
+        409,
+        "APPLICATION_ALREADY_SUBMITTED",
+        "The application was submitted while this draft was being saved",
+      );
+    }
     return resultFor(application, current.details);
   }
 
@@ -346,7 +360,7 @@ export const submitRegistration = async (
     throw new HttpError(
       422,
       "APPLICATION_INCOMPLETE",
-      "Complete every application part, including the Black Box evaluation, before submitting",
+      "Complete every application field and agreement before submitting",
       false,
       {
         missing: result.requirements.missing,
@@ -363,9 +377,20 @@ export const submitRegistration = async (
       submittedAt: now,
       updatedAt: now,
     })
-    .where(eq(applications.id, current.application.id))
+    .where(
+      and(
+        eq(applications.id, current.application.id),
+        eq(applications.status, "draft"),
+      ),
+    )
     .returning();
-  if (!application) throw new Error("Application submit returned no row");
+  if (!application) {
+    throw new HttpError(
+      409,
+      "APPLICATION_ALREADY_SUBMITTED",
+      "The application was already submitted",
+    );
+  }
   return resultFor(application, current.details);
 };
 

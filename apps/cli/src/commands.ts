@@ -141,7 +141,7 @@ const registerCommand = Command.make(
   }),
 ).pipe(
   Command.withDescription(
-    "Save an application draft in parts, then submit once the Black Box is complete",
+    "Save an application draft in parts, then submit it for review",
   ),
   Command.withExamples([
     {
@@ -150,8 +150,7 @@ const registerCommand = Command.make(
     },
     {
       command: "chofex --output json register --input application.json",
-      description:
-        "Save a draft from JSON; submits when every part is complete",
+      description: "Save a draft from JSON without submitting it",
     },
     {
       command: "chofex register --submit",
@@ -176,9 +175,10 @@ const interactiveRegister = (
           "No draft yet. Choose a part to start. Progress is saved on the server.",
         );
       }
-      const defaults = latest
-        ? applicationDefaultsFromRegistration(latest.registration)
-        : {};
+      let defaults = {};
+      if (latest) {
+        defaults = applicationDefaultsFromRegistration(latest.registration);
+      }
       const choice = yield* Prompt.run(
         Prompt.select({
           message: "What would you like to do?",

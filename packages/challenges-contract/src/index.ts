@@ -29,7 +29,6 @@ export interface ChallengeDefinition {
   readonly queryLimit: number;
   readonly evaluationLimit: number;
   readonly hiddenSampleSize: number;
-  readonly requiredForApplication: boolean;
   readonly playable: boolean;
   readonly solutionKind: "javascript_source" | "json_plan" | "agent_config";
 }
@@ -50,7 +49,6 @@ export const challengeCatalog: ReadonlyArray<ChallengeDefinition> = [
     queryLimit: 25,
     evaluationLimit: 3,
     hiddenSampleSize: 1000,
-    requiredForApplication: true,
     playable: true,
     solutionKind: "javascript_source",
   },
@@ -69,7 +67,6 @@ export const challengeCatalog: ReadonlyArray<ChallengeDefinition> = [
     queryLimit: 0,
     evaluationLimit: 3,
     hiddenSampleSize: 1,
-    requiredForApplication: false,
     playable: false,
     solutionKind: "json_plan",
   },
@@ -88,7 +85,6 @@ export const challengeCatalog: ReadonlyArray<ChallengeDefinition> = [
     queryLimit: 0,
     evaluationLimit: 3,
     hiddenSampleSize: 1,
-    requiredForApplication: false,
     playable: false,
     solutionKind: "javascript_source",
   },
@@ -107,7 +103,6 @@ export const challengeCatalog: ReadonlyArray<ChallengeDefinition> = [
     queryLimit: 0,
     evaluationLimit: 3,
     hiddenSampleSize: 1,
-    requiredForApplication: false,
     playable: false,
     solutionKind: "javascript_source",
   },
@@ -126,7 +121,6 @@ export const challengeCatalog: ReadonlyArray<ChallengeDefinition> = [
     queryLimit: 0,
     evaluationLimit: 3,
     hiddenSampleSize: 1,
-    requiredForApplication: false,
     playable: false,
     solutionKind: "agent_config",
   },
@@ -134,10 +128,6 @@ export const challengeCatalog: ReadonlyArray<ChallengeDefinition> = [
 
 export const playableChallenges = challengeCatalog.filter(
   (challenge) => challenge.playable,
-);
-
-export const requiredApplicationChallenges = challengeCatalog.filter(
-  (challenge) => challenge.requiredForApplication,
 );
 
 export const challengeBySlug = (
@@ -225,7 +215,6 @@ export const ParticipantChallengeProgressSchema = Schema.Struct({
   status: ChallengeProgressStatus,
   open: Schema.Boolean,
   playable: Schema.Boolean,
-  requiredForApplication: Schema.Boolean,
   queriesUsed: Schema.Number,
   queriesLimit: Schema.Number,
   evaluationsUsed: Schema.Number,
@@ -257,7 +246,6 @@ export const ChallengeCatalogItemSchema = Schema.Struct({
   opensAt: Schema.String,
   queryLimit: Schema.Number,
   evaluationLimit: Schema.Number,
-  requiredForApplication: Schema.Boolean,
   playable: Schema.Boolean,
   open: Schema.Boolean,
   rankingPath: Schema.String,

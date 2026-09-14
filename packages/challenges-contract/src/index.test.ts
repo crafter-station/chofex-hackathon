@@ -4,15 +4,11 @@ import {
   challengeBySlug,
   compareChallengeScores,
   isChallengeOpenAt,
-  requiredApplicationChallenges,
   scoreFromPredictions,
 } from "./index.js";
 
 describe("challenge catalog", () => {
-  test("requires Black Box for applications and keeps later challenges locked", () => {
-    expect(requiredApplicationChallenges.map((item) => item.slug)).toEqual([
-      "black-box",
-    ]);
+  test("keeps Black Box playable and later challenges locked", () => {
     expect(challengeBySlug("last-mile")?.playable).toBe(false);
     expect(challengeBySlug("black-box")?.queryLimit).toBe(25);
     expect(challengeBySlug("black-box")?.evaluationLimit).toBe(3);

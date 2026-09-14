@@ -24,9 +24,8 @@ export const challengeListText = (
 ): string => {
   const lines = ["Hack the Andes challenges", ""];
   for (const challenge of catalog.challenges) {
-    const state = challenge.open
-      ? "open"
-      : `opens ${challenge.opensAt.slice(0, 10)}`;
+    let state = "open";
+    if (!challenge.open) state = `opens ${challenge.opensAt.slice(0, 10)}`;
     const playable = challenge.playable ? "" : " (coming later)";
     lines.push(
       `${challenge.code}  ${challenge.theme} — ${challenge.title}${playable}`,

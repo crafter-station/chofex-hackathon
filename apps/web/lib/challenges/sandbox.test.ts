@@ -12,23 +12,29 @@ const shipment = {
 };
 
 describe("shipping solution sandbox", () => {
-  test("runs a named calculateShipping function", () => {
-    const results = runShippingSolution(
+  test("runs a named calculateShipping function", async () => {
+    const results = await runShippingSolution(
       "function calculateShipping(input) { return input.distanceKm + input.weightKg; }",
       [shipment],
     );
     expect(results).toEqual([13]);
   });
 
-  test("rejects missing functions and host access", () => {
-    expect(() => runShippingSolution("const x = 1;", [shipment])).toThrow(
-      HttpError,
-    );
-    expect(() =>
+  test("rejects missing functions and host access", async () => {
+    await expect(
+      runShippingSolution("const x = 1;", [shipment]),
+    ).rejects.toThrow(HttpError);
+    await expect(
       runShippingSolution(
         "function calculateShipping() { return process.exit(0); }",
         [shipment],
       ),
-    ).toThrow(HttpError);
+    ).rejects.toThrow(HttpError);
+    await expect(
+      runShippingSolution(
+        'function calculateShipping() { return Number.constructor("return process")().pid; }',
+        [shipment],
+      ),
+    ).rejects.toThrow(HttpError);
   });
 });

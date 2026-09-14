@@ -1,3 +1,5 @@
+import type { ParticipantChallengeProgress } from "@chofex/challenges-contract";
+
 export const candidateStatuses = [
   "draft",
   "submitted",
@@ -50,7 +52,8 @@ export interface Candidate {
   readonly teamName?: string;
   readonly status: CandidateStatus;
   readonly mediaConsent: boolean;
-  readonly submittedAt: string;
+  readonly createdAt: string;
+  readonly submittedAt?: string;
   readonly decidedAt?: string;
   readonly approvedBy?: string;
   readonly attemptNumber: number;
@@ -73,6 +76,7 @@ export interface Candidate {
   readonly attendanceCompletedAt?: string;
   readonly checkedInAt?: string;
   readonly nationalIdProvided: boolean;
+  readonly challenges: ReadonlyArray<ParticipantChallengeProgress>;
 }
 
 export interface CandidateCounts {

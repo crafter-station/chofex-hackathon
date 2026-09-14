@@ -26,9 +26,10 @@ chofex confirm
 
 `chofex register` saves an application draft in parts. You can stop after
 identity, experience, team, or agreements and continue later; answers are stored
-on the server. Submitting requires a completed draft plus at least one official
-Black Box evaluation (`chofex challenge evaluate`). Use `--input` to save a JSON
-draft and `--submit` to submit a completed draft.
+on the server. Use `--input` to save a JSON draft and `--submit` to submit a
+completed draft. The Black Box is optional: its progress and score give
+organizers another review metric, but never decide admission or block an
+application submission.
 
 The public ranking is read-only at `https://andes.crafter.run/challenges`.
 
