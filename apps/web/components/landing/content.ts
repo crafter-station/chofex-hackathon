@@ -34,8 +34,6 @@ export const brandName = "Hack the Andes";
 
 export const seatCount = 100;
 export const challengeCount = 3;
-export const judgeCount = 5;
-export const mentorCount = 5;
 
 export const metadataCopy = {
   title: `${brandName} — Lima, 17–18 oct 2026`,
@@ -57,7 +55,6 @@ export const skipLinks = [
 export const sectionNav = [
   { href: "#why", label: "Evento" },
   { href: "#challenges", label: "Challenges" },
-  { href: "#people", label: "Consejo" },
   { href: "#prizes", label: "Premios" },
   { href: "#experience", label: "Experiencia" },
   { href: "#apply", label: "Aplicar" },
@@ -191,21 +188,6 @@ export const challengeSeats = [
     hint: "La interfaz es parte del problema. El producto también es la respuesta.",
   },
 ] as const;
-
-export const peopleCopy = {
-  kicker: "el consejo",
-  title: "10 personas para elevar el trabajo",
-  lede: "5 jurados evaluarán producto, ingeniería e impacto. 5 mentores acompañarán a los equipos durante la construcción.",
-  judges: "Jurado",
-  mentors: "Mentores",
-  judgeRole: "Juez",
-  mentorRole: "Mentor",
-  reveal: "Nombre por revelar",
-  announcement: "Anuncios próximamente",
-} as const;
-
-export const judgeSeats = [1, 2, 3, 4, 5] as const;
-export const mentorSeats = [1, 2, 3, 4, 5] as const;
 
 export const applyCopy = {
   kicker: "postulaciones abiertas",
