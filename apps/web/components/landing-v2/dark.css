@@ -1,0 +1,187 @@
+/*
+ * The landing, inverted onto black.
+ *
+ * Every section already paints through the `--hud-*` tokens, so re-theming the
+ * page is a matter of redefining them here rather than touching a component.
+ * What changes is not only light and dark: several values that were tuned to
+ * clear AA on Sandy Linen paper are unusable on black, and those are lifted.
+ */
+.landing-page-v2 {
+  /* The ground. The liquid backdrop is fixed behind this, and the sections let
+     it through — so this value is what shows where the field has drained. */
+  --hud-paper: #050406;
+  /* Raised surfaces are now a lift of the ink, not a tint of the paper: a
+     lighter solid would punch a hole in the backdrop wherever a card sits. */
+  --hud-card: rgb(246 243 238 / 5%);
+  --hud-panel: rgb(246 243 238 / 5%);
+  --hud-field: rgb(246 243 238 / 8%);
+  --hud-footer: transparent;
+
+  /* Type. Warm white rather than pure, so it sits with the ink of the drawing
+     rather than glaring against it. 17.4:1 on the ground. */
+  --hud-ink: #f6f3ee;
+  --hud-type: #f6f3ee;
+
+  /*
+   * Actions. Chofex cobalt reads 4.96:1 on paper and 2.6:1 here, which is
+   * under AA for any size — so the action colour is lifted until it clears on
+   * black (7.1:1) and the hover goes lighter rather than darker, since on a
+   * dark ground "darker" reads as disabled.
+   */
+  --hud-action: #6f9bff;
+  --hud-action-hover: #9dbcff;
+  /*
+   * Burnt red, lifted twice. #b83e35 lands at 3.9:1 on the ground; #e2564a
+   * cleared that but still measured 2.6:1 where the liquid glows warm behind a
+   * metric, so it goes lighter again — twice, in the end: #f2897b still measured
+ * 4.48:1 on the warm glow behind the sealed-brief chips, which rounds to a
+ * pass and is not one. This clears it over every measured background.
+   */
+  --hud-status: #f59d91;
+  /* Sandstone, which was a tint on paper and is a legible accent on black. */
+  --hud-accent: #ddcfbd;
+  /*
+   * Kickers get their own token rather than borrowing the accent, because the
+   * hero re-points the accent at burnt red for its lockup — and inheriting
+   * that put 10px red mono over the white strokes of the drawing at 2.6:1.
+   */
+  --hud-kicker: #ddcfbd;
+
+  /*
+   * Muted body copy. The paper value is 2.6:1 on black; the first lift to
+   * #a2a8ae was fine over black and 2.5:1 over the brightest part of the
+   * field, which is where half the body copy on this page actually sits.
+   */
+  --hud-muted: #bec3c9;
+  --hud-muted-on-light: #bec3c9;
+
+  background: var(--hud-paper);
+  color: var(--hud-ink);
+}
+
+/*
+ * Sections go transparent so the fixed liquid shows through them.
+ *
+ * Specificity beats the utility class that paints them — `.landing-page-v2`
+ * plus an element plus an attribute outranks a single class — so no
+ * `!important` is needed and a section that genuinely wants a surface can
+ * still opt in with one.
+ */
+.landing-page-v2 :is(section, footer, header)[id],
+.landing-page-v2 > header {
+  background-color: transparent;
+}
+
+/* Content rides above the fixed backdrop. */
+.landing-page-v2 > :not([aria-hidden="true"]) {
+  position: relative;
+  z-index: 1;
+}
+
+/*
+ * Rules and hairlines were drawn as ink at low alpha over paper; over black
+ * they vanish. These are the same idea in reverse.
+ */
+.landing-page-v2 .hud-box {
+  border-color: rgb(246 243 238 / 22%);
+}
+
+.landing-page-v2 .hud-halftone {
+  background-image: radial-gradient(
+    rgb(246 243 238 / 16%) 0.7px,
+    transparent 0.8px
+  );
+}
+
+.landing-page-v2 .hud-scanlines {
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgb(246 243 238 / 5%) 0 1px,
+    transparent 1px 4px
+  );
+}
+
+.landing-page-v2 .landing-dossier::before {
+  background: repeating-radial-gradient(
+    ellipse at 82% 18%,
+    transparent 0 15px,
+    rgb(246 243 238 / 7%) 16px 17px
+  );
+}
+
+/*
+ * The hero's one departure: the lockup's accent is the burnt red rather than
+ * the sandstone the sections use for their metrics, because at display size on
+ * black it is the single warmest thing on the page and the brand's own colour.
+ */
+.hero-v2 {
+  --hud-accent: #e2564a;
+  /*
+   * And the hero's kickers go to the full cream rather than sandstone. They are
+   * the only small type on the page that sits directly on the drawing, and on a
+   * phone — where the ranges come down behind them — sandstone measured 4.28:1
+   * against the white strokes.
+   */
+  --hud-kicker: var(--hud-type);
+}
+
+/*
+ * Kickers come off the action colour and go to sandstone.
+ *
+ * On paper the cobalt kicker reads 4.96:1 and is the page's quiet brand signal.
+ * Here it is 9px mono sitting directly on a field that is *sometimes* cobalt
+ * itself — measured 2.6:1 over the blue pole, which no amount of scrim fixes
+ * without also deleting the colour. Sandstone clears 5.6:1 over either pole and
+ * over the black between them, and the action colour keeps the buttons and
+ * links, where it sits on a surface of its own.
+ */
+.landing-page-v2 .landing-type-meta {
+  color: var(--hud-kicker);
+}
+
+/*
+ * The CLI block was authored as ink on paper: a dark slab made out of the type
+ * colour, with light type on it. Inverted, `--hud-ink` is the cream — so the
+ * slab turned cream and took its cream type with it, and three commands went
+ * invisible. It wants to be a well in the surface here, not a slab on it.
+ */
+.landing-page-v2 #apply ol {
+  background-color: rgb(246 243 238 / 7%);
+  border-color: rgb(246 243 238 / 14%);
+}
+
+/*
+ * Same inversion, smaller blast radius: this grid draws its cell dividers with
+ * the ink colour showing through one-pixel gaps, which on black is a bright
+ * cream lattice rather than a hairline.
+ */
+.landing-page-v2 #why ul,
+.landing-page-v2 #experience ul {
+  background-color: rgb(246 243 238 / 12%);
+}
+
+/*
+ * The CLI step numbers. At 45% of the cream they were readable over the slab
+ * the light page gives them; over the well this page gives them instead they
+ * measure 3.2:1.
+ */
+.landing-page-v2 #apply ol li > span:first-child {
+  color: rgb(246 243 238 / 62%);
+}
+
+/*
+ * The copy-prompt button carries the shared Button's own dark surface, which
+ * the utility class for the action colour does not outrank. On paper that is
+ * invisible — a dark button with cream type, exactly as intended. Here the
+ * type colour inverted to near-black and the surface did not, so the label
+ * went dark-on-dark at 1.2:1. Naming both ends the guessing.
+ */
+.landing-page-v2 .landing-cta {
+  background-color: var(--hud-action);
+  color: var(--hud-paper);
+}
+
+.landing-page-v2 .landing-cta:hover {
+  background-color: var(--hud-action-hover);
+  color: var(--hud-paper);
+}
