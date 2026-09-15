@@ -102,43 +102,8 @@ function WorldLights() {
        * lightly hazed while the far cordillera sits above 75%, which is what
        * separates the ridge lines into distinct receding planes.
        */}
-      <fogExp2 attach="fog" args={["#bcd2e2", 0.0055]} />
-      {/*
-       * Bounce light, and the reason the terrain reads green rather than rust.
-       *
-       * The Sentinel drape carries real olive and green in the valley floor
-       * and the lower slopes, but a warm brown ground colour here tints all of
-       * it toward orange. Vegetation is what is actually bouncing light up
-       * into the shadows, so the ground colour is vegetation-coloured.
-       */}
-      <ambientLight color="#f3efe2" intensity={0.3} />
-      <hemisphereLight args={["#cfe8ff", "#4a5a3c", 0.82]} />
-      {/*
-       * Low morning sun from the east, behind and to the side of the camera.
-       *
-       * The flight runs north-west down the river, so a west sun — the obvious
-       * golden-hour choice — backlit every slope the camera faces and sank the
-       * whole foreground into silhouette. Lighting from behind the travel
-       * direction keeps the raking angle, and the modelling, on the faces that
-       * are actually in frame.
-       */}
-      <directionalLight
-        color="#fff0dd"
-        intensity={1.75}
-        position={[210, 58, 130]}
-      />
-      {/*
-       * Cool sky fill, carrying more of the load than a fill light usually
-       * would. High thin air scatters hard, so shadowed Andean slopes go blue
-       * rather than black, and the whole scene sits low in saturation. A hot
-       * warm key against a token fill is what made the terrain read as
-       * saturated rust instead.
-       */}
-      <directionalLight
-        color="#a8c9e8"
-        intensity={1.05}
-        position={[-150, 80, -110]}
-      />
+      <fogExp2 attach="fog" args={["#000000", 0.0042]} />
+      <ambientLight color="#ffffff" intensity={1} />
     </>
   );
 }
@@ -323,10 +288,8 @@ function FlightCamera({
  */
 function WestTerrainGate({
   progressRef,
-  quality,
 }: {
   readonly progressRef: MutableRefObject<number>;
-  readonly quality: SceneQuality;
 }) {
   const [wanted, setWanted] = useState(false);
 
@@ -339,7 +302,7 @@ function WestTerrainGate({
   if (!wanted) {
     return null;
   }
-  return <WestTerrainAsset quality={quality} />;
+  return <WestTerrainAsset />;
 }
 
 function SacredValleyWorld({
@@ -364,7 +327,7 @@ function SacredValleyWorld({
       <WorldLights />
       <SacredValleyAsset onPresented={onWorldReady} quality={quality} />
       <SiteStructuresAsset />
-      <WestTerrainGate progressRef={progressRef} quality={quality} />
+      <WestTerrainGate progressRef={progressRef} />
       <FlightCamera
         draggingRef={draggingRef}
         lookRef={lookRef}
@@ -483,14 +446,14 @@ export function SacredValleyCanvas({
         dpr={quality === "high" ? [1, 1.5] : [1, 1]}
         frameloop={frameLoop}
         gl={{
-          alpha: true,
+          alpha: false,
           antialias: quality === "high",
           powerPreference: "high-performance",
         }}
         onCreated={({ gl }) => {
-          gl.toneMapping = THREE.ACESFilmicToneMapping;
-          gl.toneMappingExposure = 1.04;
-          gl.setClearColor("#000000", 0);
+          gl.toneMapping = THREE.NoToneMapping;
+          gl.toneMappingExposure = 1;
+          gl.setClearColor("#000000", 1);
           gl.domElement.style.pointerEvents = "none";
           gl.domElement.addEventListener(
             "webglcontextlost",
@@ -502,15 +465,7 @@ export function SacredValleyCanvas({
           );
         }}
         style={{
-          /*
-           * Andean sky at 3,000 m: a deep zenith that gives way fast, then a
-           * pale band right at the ridge line. Evenly spaced stops read as a
-           * flat backdrop, so the stops crowd toward the horizon the way real
-           * aerial perspective does — and the last one matches the fog colour
-           * so distant ridges dissolve into the sky instead of ending at it.
-           */
-          background:
-            "linear-gradient(to bottom, #2a6099 0%, #3f7cb4 26%, #6aa0c8 52%, #9dbdd6 72%, #b9cfe0 86%, #cdddE6 100%)",
+          background: "#000000",
           pointerEvents: "none",
         }}
       >
