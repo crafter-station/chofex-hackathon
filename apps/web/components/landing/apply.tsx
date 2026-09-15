@@ -48,7 +48,7 @@ export function LandingApply() {
         <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
           <article className={`p-6 ${landingFrameClassName}`}>
             <div className="mb-8 flex items-center justify-between">
-              <HudLabel className="text-[var(--hud-action)]">01</HudLabel>
+              <HudLabel className="text-[var(--hud-muted)]">01</HudLabel>
               <TerminalIcon
                 aria-hidden="true"
                 className="size-5 text-[var(--hud-muted)]"
@@ -90,7 +90,7 @@ export function LandingApply() {
 
           <article className={`p-6 ${landingFrameClassName}`}>
             <div className="mb-8 flex items-center justify-between">
-              <HudLabel className="text-[var(--hud-action)]">02</HudLabel>
+              <HudLabel className="text-[var(--hud-muted)]">02</HudLabel>
               <HudLabel className="text-[var(--hud-muted)]">
                 {applyCopy.agentKicker}
               </HudLabel>

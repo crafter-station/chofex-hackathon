@@ -151,7 +151,6 @@ export const prizesCopy = {
   title: "Premios",
   lede: "Premios en efectivo para las soluciones que mejor conviertan un problema real en un producto funcionando.",
   totalSuffix: "en premios en efectivo",
-  tripLabel: "Viaje pagado",
   tripTitle: "Chofex Headquarters",
   tripBody:
     "Una persona participante destacada viajará a las oficinas de Chofex en Monterrey o San Francisco.",
