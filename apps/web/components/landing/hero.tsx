@@ -19,7 +19,23 @@ import { Terrain } from "@/components/landing/terrain";
 export function LandingHero() {
   return (
     <>
-      <section className="landing-hero relative h-dvh w-full" id="world">
+      {/*
+       * `svh`, never `dvh`.
+       *
+       * `dvh` is the *dynamic* viewport: on a phone it grows the moment the
+       * browser's URL bar retracts and shrinks when it returns. Sizing a
+       * section in it makes the whole document taller mid-scroll, and
+       * everything below moves down with it — which from inside the page reads
+       * as the content jumping backwards while you scroll forwards. Caught in a
+       * 60fps recording: the jump lands on the exact frame Chrome's bar
+       * collapses.
+       *
+       * `svh` is the small viewport — the height with the chrome shown — and it
+       * does not change when the chrome goes. The cost is that once the bar
+       * hides, the section is a bar's height short of the screen; that is the
+       * trade this unit exists to make.
+       */}
+      <section className="landing-hero relative h-svh w-full" id="world">
         <div className="relative flex h-full flex-col overflow-hidden">
           {/*
            * The drawing dissolves into the ground rather than ending at the edge

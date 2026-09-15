@@ -1,7 +1,4 @@
-import {
-  prizePoolHeadlinePen,
-  prizesCopy,
-} from "@/components/landing/content";
+import { prizePoolHeadlinePen, prizesCopy } from "@/components/landing/content";
 import { HudLabel } from "@/components/landing/hud";
 import { PrizeCounter } from "@/components/landing/prize-counter";
 import { LandingContainer } from "@/components/landing/shell";
@@ -10,7 +7,8 @@ export function LandingPrizes() {
   return (
     <section
       aria-labelledby="prizes-heading"
-      className="flex min-h-dvh flex-col bg-[var(--hud-field)] text-[var(--hud-type)]"
+      // `svh` for the same reason the hero uses it; see the note there.
+      className="flex min-h-svh flex-col bg-[var(--hud-field)] text-[var(--hud-type)]"
       id="prizes"
     >
       <LandingContainer className="flex flex-1 flex-col justify-center py-20 sm:py-24">
