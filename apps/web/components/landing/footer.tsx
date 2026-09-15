@@ -20,12 +20,12 @@ export function LandingFooter() {
           aria-label={footerCopy.legalLabel}
           className="flex flex-wrap items-center gap-5 text-sm"
         >
-          <a
+          <Link
             className="text-[var(--hud-type)]/70 underline-offset-4 hover:underline"
-            href="https://registry.opendata.aws/terrain-tiles/"
+            href="/credits"
           >
-            {footerCopy.terrainCredit}
-          </a>
+            {footerCopy.credits}
+          </Link>
           <Link className="underline-offset-4 hover:underline" href="/terms">
             {footerCopy.terms}
           </Link>

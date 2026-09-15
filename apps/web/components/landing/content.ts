@@ -288,15 +288,7 @@ export const faqItems = [
 export const footerCopy = {
   meta: "Lima, 17–18 oct 2026. Sponsor principal: Chofex",
   legalLabel: "Legal",
-  // Both terrain sources are attribution-required licences, so these two
-  // credits are a condition of use, not decoration.
-  /*
-   * The elevation model, and the only source left to credit. The Sentinel-2
-   * drape was credited here too until the drawing stopped sampling it and the
-   * imagery came out of the mesh: CC BY asks for attribution when the work is
-   * distributed, and it is no longer in anything a visitor downloads.
-   */
-  terrainCredit: "Terreno: Mapzen / USGS",
+  credits: "Créditos",
   terms: "Términos",
   privacy: "Privacidad",
 } as const;
