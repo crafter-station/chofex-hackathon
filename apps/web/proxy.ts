@@ -33,6 +33,13 @@ function isPublicMarketingPath(pathname: string) {
     return true;
   }
 
+  // Sponsorship decks are private-by-obscurity outreach artifacts: sent as a
+  // link to one company, noindex, never behind a login. A recipient has no
+  // account, so routing them through Clerk would just fail the handshake.
+  if (pathname.startsWith("/deck/")) {
+    return true;
+  }
+
   return (
     pathname.startsWith("/terms/") ||
     pathname.startsWith("/privacy/") ||

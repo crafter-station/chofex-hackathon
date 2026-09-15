@@ -1,0 +1,464 @@
+/*
+ * Deck chrome and slide vocabulary.
+ *
+ * The deck wears the Hack the Andes identity, not Chofex's: Sandy Linen ground,
+ * ink type, Aegean for labels and actions, Scarlet for numerals and rules,
+ * Blossom as a tint only (it cannot hold type on paper). Same roles as
+ * `components/landing/landing.css`, redeclared here so a deck renders correctly
+ * on its own route without pulling in the landing shell.
+ */
+
+.deck-pager {
+  --deck-paper: #efe8de;
+  --deck-card: #fff5ee;
+  --deck-ink: #101c26;
+  --deck-action: #1664b0;
+  --deck-status: #d21624;
+  --deck-accent: #ffcad4;
+  --deck-muted: #5a5349;
+  --deck-line: rgb(16 28 38 / 14%);
+  --deck-line-strong: rgb(16 28 38 / 28%);
+
+  --deck-display: var(--font-landing-display), ui-sans-serif, system-ui,
+    sans-serif;
+  --deck-mono: var(--font-landing-mono), ui-monospace, monospace;
+  --deck-body: var(--font-landing-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --deck-stage-padding-x: clamp(1.25rem, 6vw, 4rem);
+  --deck-stage-padding-y: clamp(4.5rem, 9svh, 6rem);
+
+  position: relative;
+  height: 100svh;
+  min-height: 100svh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 85% 12%, rgb(255 202 212 / 34%), transparent 34rem),
+    var(--deck-paper);
+  color: var(--deck-ink);
+  font-family: var(--deck-body);
+}
+
+/*
+ * "plain": one family throughout. Barlow Condensed at heading scale reads as
+ * marketing; for institutional decks (a university venue, a public fund) the
+ * mono carries hierarchy with weight and scale instead.
+ */
+.deck-pager[data-deck-style="plain"] {
+  --deck-display: var(--font-landing-mono), ui-monospace, monospace;
+  background: var(--deck-paper);
+}
+
+/* ---------- chrome ---------- */
+
+.deck-chrome {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.deck-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.deck-topbar > * {
+  pointer-events: auto;
+}
+
+.deck-deck-title {
+  max-width: 60vw;
+  overflow: hidden;
+  font-family: var(--deck-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--deck-muted);
+}
+
+.deck-key {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--deck-line-strong);
+  background-color: var(--deck-card);
+  color: var(--deck-ink);
+  font-family: var(--deck-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  /* Hard shadow, never blur. */
+  box-shadow: 0 2px 0 var(--deck-line-strong);
+  transition:
+    transform 120ms ease-out,
+    box-shadow 120ms ease-out;
+}
+
+.deck-key:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--deck-line-strong);
+}
+
+.deck-key:disabled {
+  opacity: 0.35;
+}
+
+/* ---------- stage ---------- */
+
+.deck-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+
+.deck-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+/* Only animate once hydrated, so the first painted slide appears instantly. */
+.deck-pager[data-mounted="true"] .deck-slide {
+  transition:
+    opacity 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.deck-pager .deck-slide[data-active="true"] {
+  z-index: 1;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.deck-slide-inner {
+  display: flex;
+  align-items: safe center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: var(--deck-stage-padding-y) var(--deck-stage-padding-x)
+    calc(var(--deck-stage-padding-y) + env(safe-area-inset-bottom));
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.deck-slide-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+/* The no-JS fallback lives in the <noscript> style in app/deck/layout.tsx. */
+
+/* ---------- controls ---------- */
+
+.deck-controls {
+  position: fixed;
+  right: calc(1rem + env(safe-area-inset-right));
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.deck-counter {
+  font-family: var(--deck-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  font-variant-numeric: tabular-nums;
+  color: var(--deck-muted);
+}
+
+.deck-keycaps {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ---------- index ---------- */
+
+.deck-index {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.deck-index-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgb(16 28 38 / 72%);
+}
+
+.deck-index-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 520px;
+  max-height: 80svh;
+  border: 1px solid var(--deck-line-strong);
+  background-color: var(--deck-card);
+}
+
+.deck-index-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--deck-line);
+}
+
+.deck-index-label {
+  font-family: var(--deck-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--deck-action);
+}
+
+.deck-index-list {
+  margin: 0;
+  padding: 0.75rem;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.deck-index-button {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--deck-muted);
+  font-family: var(--deck-mono);
+  font-size: 13px;
+  text-align: left;
+  transition:
+    color 150ms ease-out,
+    background-color 150ms ease-out,
+    border-color 150ms ease-out;
+}
+
+.deck-index-button:hover,
+.deck-index-button:focus-visible {
+  border-color: var(--deck-line);
+  background-color: var(--deck-paper);
+  color: var(--deck-ink);
+}
+
+.deck-index-button[aria-current="true"] {
+  border-color: var(--deck-action);
+  background-color: var(--deck-paper);
+  color: var(--deck-action);
+}
+
+.deck-index-number {
+  flex-shrink: 0;
+  width: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- slide vocabulary ---------- */
+
+.deck-label {
+  font-family: var(--deck-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--deck-action);
+}
+
+.deck-title {
+  font-family: var(--deck-display);
+  font-size: clamp(2.25rem, 6vw, 4.25rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.deck-title-sm {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+}
+
+.deck-lead {
+  max-width: 62ch;
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  line-height: 1.5;
+  text-wrap: pretty;
+  color: var(--deck-ink);
+}
+
+.deck-rule {
+  height: 2px;
+  border: 0;
+  background-color: var(--deck-status);
+}
+
+/*
+ * The shared grid: the container draws top and left, each cell draws right and
+ * bottom. One 1px rule between neighbours, no gaps, no radius.
+ */
+.deck-table {
+  display: grid;
+  border-top: 1px solid var(--deck-line-strong);
+  border-left: 1px solid var(--deck-line-strong);
+  background-color: var(--deck-card);
+}
+
+.deck-cell {
+  padding: 1.1rem 1.25rem;
+  border-right: 1px solid var(--deck-line-strong);
+  border-bottom: 1px solid var(--deck-line-strong);
+}
+
+.deck-cell-invert {
+  background-color: var(--deck-ink);
+  color: var(--deck-paper);
+}
+
+.deck-cell-invert .deck-label {
+  color: var(--deck-accent);
+}
+
+.deck-stat-value {
+  display: block;
+  font-family: var(--deck-display);
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.deck-stat-label {
+  display: block;
+  margin-top: 0.5rem;
+  font-family: var(--deck-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--deck-muted);
+}
+
+.deck-cell-invert .deck-stat-label {
+  color: rgb(239 232 222 / 70%);
+}
+
+.deck-copy {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--deck-muted);
+}
+
+.deck-cell-invert .deck-copy {
+  color: rgb(239 232 222 / 78%);
+}
+
+.deck-chip {
+  display: inline-block;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--deck-line-strong);
+  background-color: var(--deck-card);
+  font-family: var(--deck-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.deck-bullet {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.deck-bullet::before {
+  content: "▸";
+  color: var(--deck-status);
+}
+
+.deck-tier-price {
+  font-family: var(--deck-display);
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.deck-wordmark {
+  font-family: var(--deck-display);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- markdown fallbacks ---------- */
+
+.deck-slide-content :where(p) {
+  max-width: 62ch;
+  line-height: 1.55;
+}
+
+.deck-slide-content :where(strong) {
+  font-weight: 600;
+  color: var(--deck-ink);
+}
+
+.deck-slide-content :where(a) {
+  color: var(--deck-action);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------- motion and print ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-pager[data-mounted="true"] .deck-slide {
+    transform: none;
+    transition: none;
+  }
+
+  .deck-index-button,
+  .deck-key {
+    transition: none;
+  }
+}
+
+@media print {
+  @page {
+    size: 16in 9in;
+    margin: 0;
+  }
+
+  .deck-pager .deck-chrome,
+  .deck-pager .deck-controls,
+  .deck-pager .deck-index {
+    display: none;
+  }
+}
