@@ -19,7 +19,24 @@ import { Terrain } from "@/components/landing/terrain";
 export function LandingHero() {
   return (
     <section className="landing-hero relative w-full" id="world">
-      <div className="relative flex min-h-dvh flex-col overflow-hidden">
+      {/*
+       * `svh`, never `dvh`.
+       *
+       * `dvh` is the *dynamic* viewport: on a phone it grows the moment the
+       * browser's URL bar collapses and shrinks when it comes back. Sizing the
+       * hero in it makes the whole document taller mid-scroll, and everything
+       * below the hero moves down with it — which reads, from inside the page,
+       * as the content jumping backwards while you are scrolling forwards.
+       * Filmed at 60fps it is a 44px jump on the frame where Chrome's bar
+       * retracts, and the hero was the only thing on the page still measured
+       * this way.
+       *
+       * `svh` is the small viewport: the height with the browser chrome shown,
+       * which never changes. The cost is that once the bar hides, the hero is a
+       * bar's height short of the screen and the next section peeks in. That is
+       * the trade this unit exists to make.
+       */}
+      <div className="relative flex min-h-svh flex-col overflow-hidden">
         {/*
          * The drawing dissolves into the ground rather than ending at the edge
          * of its box. The reference does the same thing with a pen — the
@@ -89,7 +106,7 @@ export function LandingHero() {
            * children land straight back in the column above, spaced exactly as
            * they were.
            */}
-          <div className="flex min-h-[calc(100dvh-7rem)] flex-col gap-8 lg:contents">
+          <div className="flex min-h-[calc(100svh-7rem)] flex-col gap-8 lg:contents">
             {/*
              * No hint beside the channel any more. It read "drag to move the
              * range", and the range turns on its own now — an instruction for
