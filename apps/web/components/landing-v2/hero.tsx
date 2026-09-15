@@ -48,7 +48,7 @@ export function LandingHeroV2() {
          */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[26%] bg-gradient-to-t from-[#050406]/92 via-[#050406]/38 to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[34%] bg-gradient-to-t from-[#050406]/95 via-[#050406]/58 to-transparent"
         />
         <div
           aria-hidden="true"
@@ -90,14 +90,14 @@ export function LandingHeroV2() {
            * they were.
            */}
           <div className="flex min-h-[calc(100dvh-7rem)] flex-col gap-8 lg:contents">
-            <div className="flex items-start justify-between gap-4">
-              <HudLabel className="text-[var(--hud-type)]/70">
-                {heroCopy.channel}
-              </HudLabel>
-              <HudLabel className="hidden text-[var(--hud-type)]/60 sm:block">
-                {heroCopy.dragHint}
-              </HudLabel>
-            </div>
+            {/*
+             * No hint beside the channel any more. It read "drag to move the
+             * range", and the range turns on its own now — an instruction for
+             * a gesture that does nothing is worse than no instruction.
+             */}
+            <HudLabel className="text-[var(--hud-type)]/70">
+              {heroCopy.channel}
+            </HudLabel>
 
             {/*
              * `max-lg:my-auto` centres the lockup in what the top bar leaves on a

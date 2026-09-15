@@ -2,33 +2,17 @@
 
 import { useGLTF } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import {
-  type PointerEvent,
-  Suspense,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 import { ModelErrorBoundary } from "@/components/landing/model-error-boundary";
 import {
-  isHorizontalLookGesture,
-  isVerticalScrollGesture,
-} from "@/components/landing/sacred-valley-look";
-import {
   SACRED_VALLEY_GLB,
   SCENE_FAR_PLANE,
   TERRAIN_MODEL_SCALE,
+  TERRAIN_SIZE,
 } from "@/components/landing/sacred-valley-geometry";
 import { SITE_STRUCTURES_GLB } from "@/components/landing/site-structures-place";
-import {
-  advancePan,
-  dragPan,
-  type Pan,
-  RESTING_PAN,
-} from "@/components/landing-v2/pan";
 import { applyTerrainInk } from "@/components/landing-v2/terrain-shader";
 
 /** Same Draco decoder the lit hero uses — served locally, no CDN at runtime. */
@@ -36,54 +20,32 @@ const USE_DRACO = "/draco/";
 const USE_MESHOPT = false;
 
 /**
- * The vantage: high, far, and level with the range.
+ * The vantage sits INSIDE the terrain's footprint, and circles its centre.
  *
- * Looking straight down turns a cordillera into a relief map — every peak reads
- * as a contour blob and nothing is silhouetted, because there is no sky in the
- * frame for anything to be silhouetted against. The eye is kept high but the
- * aim is level, so the range meets black sky along the top and the foreground
- * ridges run out of the bottom of the frame.
- *
- * The camera is parked: the reader is looking at an illustration, not flying
- * through it. Dragging turns the whole range about its own centre, which is the
- * difference between turning a model on a table and being taken somewhere.
+ * Two constraints meet here. The camera has to be inside the tile or there is
+ * no foreground: parked outside and looking in, everything between the lens and
+ * the tile's near edge is empty space, and that edge projects as a hard
+ * horizontal cut with black below it. And because the view now turns all the
+ * way round, it has to stay inside at *every* bearing — a circle drawn about
+ * the highest massif leaves the tile on one side, 185 units out against a
+ * boundary at 92. Around the centre, any radius up to 92 holds.
  */
-/*
- * Absolute heights, not an offset from the aim point.
- *
- * The earlier form added the eye height to the target's, which quietly put the
- * camera forty units higher than the number said and tilted the whole view
- * down with it. Naming both ends in world units makes the pitch something you
- * can read off the file.
- */
-/*
- * The vantage sits INSIDE the terrain's footprint, which is the whole reason
- * there is a foreground at all.
- *
- * The corridor is a finite tile, 308 by 184 units. Parked outside it and
- * looking in, everything between the camera and the tile's near edge is empty
- * space, and that edge projects as a hard horizontal cut across the frame with
- * black below it — which is exactly what the first few attempts produced, and
- * no amount of fading or masking fixes a missing surface. From a point inside
- * the footprint the ground runs out from under the camera in every direction
- * and the near ridges sweep out of the bottom of the frame the way they do in
- * the reference.
- */
-const ORBIT_RADIUS = 118;
+const ORBIT_RADIUS = 78;
+
 /**
  * How far above the ground under it the eye rides.
  *
  * The camera is inside the range, not above it — that is the only way a peak
  * can stand against black sky — so its height cannot be a constant. Parked at a
- * fixed 54 units it spent most bearings *inside* a mountain: front faces
- * culled, everything near invisible, and a frame with distant ridges floating
- * over nothing. Riding a clearance above the measured ground keeps it in open
- * air at every bearing, and keeps the peaks elsewhere towering over it.
+ * fixed height it spent whole bearings *inside* a mountain: front faces culled,
+ * everything near invisible, and a frame of distant ridges floating over
+ * nothing. Riding a clearance above the measured ground keeps it in open air
+ * all the way round, and keeps the peaks elsewhere towering over it.
  */
 const EYE_CLEARANCE = 22;
 /** A floor for the valley bottoms, so the eye never scrapes the river. */
 const MIN_EYE = 26;
-/** How far below the eye the aim sits: a shallow look down the valley. */
+/** How far below the eye the aim sits: a shallow look across the valley. */
 const AIM_DROP = 15;
 
 /**
@@ -93,22 +55,24 @@ const AIM_DROP = 15;
  * eight percent rise. Seen from the side that is a crumpled sheet, not a
  * cordillera, and no camera position rescues it — the Andes in a drawing are
  * about as tall as they are wide. The mesh already carries a 2x exaggeration
- * from the build; this takes it to roughly the proportions the eye remembers,
- * which is what an illustration is for.
+ * from the build; this takes it to roughly the proportions the eye remembers.
  *
- * Held to 2.2 rather than pushed further because the camera now stands inside
- * the range: every unit of stretch raises the peaks toward the eye, and past
- * this the vantage ends up inside a mountain on some bearings.
+ * Held here rather than pushed further because the camera stands inside the
+ * range: every unit of stretch raises the peaks toward the eye, and past this
+ * the vantage ends up inside a mountain on some bearings.
  */
 const HEIGHT_GAIN = 2.4;
+
 /**
- * How far a full drag swings the range, in radians.
+ * Seconds for one revolution.
  *
- * Half a radian either side, not a full turn. The corridor was framed from one
- * bearing and it has a good side; letting the reader spin it a hundred degrees
- * hands them views the composition was never checked against.
+ * Slow on purpose. This is the page's only autonomous motion and it never
+ * stops, so it has to be something the eye can ignore while reading the copy
+ * over it — drift, not a carousel. At two and a half minutes a turn the
+ * skyline changes shape without ever catching the eye moving.
  */
-const YAW_RANGE = 0.5;
+const TURN_SECONDS = 150;
+
 /** Opening bearing, chosen so the corridor runs across the frame. */
 const YAW_REST = -0.35;
 
@@ -121,50 +85,25 @@ const PROFILE_BINS = 180;
 /** Half-width of the ring the profile samples, in scene units. */
 const PROFILE_BAND = 10;
 
-export type Vantage = {
-  /** The highest point in the mesh, which is what the camera is aimed at. */
-  readonly summit: THREE.Vector3;
-  /** Ground height around the orbit circle, by bearing. */
-  readonly ground: Float32Array;
-};
+/** Half-extent of the tile, which is where the ink has to dissolve. */
+const TILE_EXTENT: readonly [number, number] = [
+  (TERRAIN_SIZE.width / 2) * TERRAIN_MODEL_SCALE,
+  (TERRAIN_SIZE.depth / 2) * TERRAIN_MODEL_SCALE,
+];
 
 /**
- * Find the range's summit and the ground around the circle drawn about it.
+ * The terrain height around the orbit circle, sampled once from the mesh.
  *
- * Both in one pass over the vertices, and read straight off the position
- * attribute rather than raycast: the pass is milliseconds, where 180 rays
- * against a few hundred thousand un-accelerated triangles is seconds of blocked
- * main thread for the same answer.
- *
- * Orbiting the summit rather than the model's origin is what gives the frame a
- * subject. The origin of this corridor is the valley floor: a camera circling
- * it stands in a bowl with ridges of much the same height all around, which is
- * a claustrophobic frame with no horizon and nothing to look at. Circling the
- * highest massif puts it in the middle of every bearing, with sky above it.
+ * Read straight off the position attribute rather than raycast: one pass over
+ * the vertices is milliseconds, where 180 rays against a few hundred thousand
+ * un-accelerated triangles is seconds of blocked main thread for the same
+ * answer. Vertices carry the mesh's own y, so the exaggeration is applied here.
  */
-function surveyVantage(
+function sampleGroundProfile(
   object: THREE.Object3D,
   radius: number,
   gain: number,
-): Vantage {
-  const summit = new THREE.Vector3(0, -Infinity, 0);
-
-  object.traverse((child) => {
-    if (!(child instanceof THREE.Mesh)) {
-      return;
-    }
-    const position = child.geometry.getAttribute("position");
-    if (!position) {
-      return;
-    }
-    for (let i = 0; i < position.count; i += 1) {
-      VERTEX.fromBufferAttribute(position, i);
-      if (VERTEX.y * gain > summit.y) {
-        summit.set(VERTEX.x, VERTEX.y * gain, VERTEX.z);
-      }
-    }
-  });
-
+): Float32Array {
   const ground = new Float32Array(PROFILE_BINS);
 
   object.traverse((child) => {
@@ -177,13 +116,11 @@ function surveyVantage(
     }
     for (let i = 0; i < position.count; i += 1) {
       VERTEX.fromBufferAttribute(position, i);
-      const dx = VERTEX.x - summit.x;
-      const dz = VERTEX.z - summit.z;
-      if (Math.abs(Math.hypot(dx, dz) - radius) > PROFILE_BAND) {
+      if (Math.abs(Math.hypot(VERTEX.x, VERTEX.z) - radius) > PROFILE_BAND) {
         continue;
       }
       // atan2(x, z), matching how the eye is placed from its yaw below.
-      const yaw = Math.atan2(dx, dz);
+      const yaw = Math.atan2(VERTEX.x, VERTEX.z);
       let bin = Math.floor(((yaw + Math.PI) / (Math.PI * 2)) * PROFILE_BINS);
       bin = ((bin % PROFILE_BINS) + PROFILE_BINS) % PROFILE_BINS;
       const height = VERTEX.y * gain;
@@ -195,7 +132,7 @@ function surveyVantage(
     }
   });
 
-  return { summit, ground };
+  return ground;
 }
 
 /** The sampled ground at a bearing, interpolated between bins. */
@@ -239,14 +176,17 @@ function ValleyInk({
   profileRef,
 }: {
   readonly onDrawn?: () => void;
-  readonly profileRef: { current: Vantage | null };
+  readonly profileRef: { current: Float32Array | null };
 }) {
-  const options = useMemo(() => ({ height: HEIGHT_GAIN }), []);
+  const options = useMemo(
+    () => ({ height: HEIGHT_GAIN, extent: TILE_EXTENT }),
+    [],
+  );
   const clone = useInkedGltf(SACRED_VALLEY_GLB, options);
   const sent = useRef(false);
 
   useEffect(() => {
-    profileRef.current = surveyVantage(clone, ORBIT_RADIUS, HEIGHT_GAIN);
+    profileRef.current = sampleGroundProfile(clone, ORBIT_RADIUS, HEIGHT_GAIN);
   }, [clone, profileRef]);
 
   useFrame(() => {
@@ -274,7 +214,12 @@ function StructuresInk() {
   // their own faceting — which is the point: they read as ruled lines against
   // the mountain's wandering ones.
   const options = useMemo(
-    () => ({ contour: 0.25, height: HEIGHT_GAIN, shade: 0.2 }),
+    () => ({
+      contour: 0.25,
+      height: HEIGHT_GAIN,
+      shade: 0.2,
+      extent: TILE_EXTENT,
+    }),
     [],
   );
   const clone = useInkedGltf(SITE_STRUCTURES_GLB, options);
@@ -282,149 +227,80 @@ function StructuresInk() {
   return <primitive object={clone} scale={[1, HEIGHT_GAIN, 1]} />;
 }
 
-function ParkedCamera({
-  panRef,
+function TurningCamera({
   profileRef,
+  reducedMotion,
 }: {
-  readonly panRef: { current: Pan };
-  readonly profileRef: { current: Vantage | null };
+  readonly profileRef: { current: Float32Array | null };
+  readonly reducedMotion: boolean;
 }) {
   const { camera } = useThree();
   const yaw = useRef(YAW_REST);
   const eyeHeight = useRef(MIN_EYE);
 
-  useFrame(() => {
-    const target = YAW_REST + panRef.current.offset * YAW_RANGE;
-    // Eased, so a flick of the range coasts to a stop rather than snapping to
-    // wherever the pointer was released.
-    yaw.current += (target - yaw.current) * 0.12;
+  useFrame((_, delta) => {
+    /*
+     * Driven by elapsed time, not by frame count, so the range turns at the
+     * same rate on a 120 Hz laptop, a 60 Hz monitor and a throttled background
+     * tab. Reduced motion parks it at the opening bearing rather than slowing
+     * it down: a turn this slow is still a turn, and the setting asks for none.
+     */
+    if (!reducedMotion) {
+      yaw.current += (delta * Math.PI * 2) / TURN_SECONDS;
+    }
 
-    const vantage = profileRef.current;
-    const summit = vantage?.summit;
     const wanted = Math.max(
       MIN_EYE,
-      groundAt(vantage?.ground, yaw.current) + EYE_CLEARANCE,
+      groundAt(profileRef.current, yaw.current) + EYE_CLEARANCE,
     );
-    // Eased as well: the ground under the orbit rises and falls by tens of
-    // units, and tracking it exactly makes the drag feel like a rollercoaster.
+    // Eased: the ground under the orbit rises and falls by tens of units, and
+    // tracking it exactly makes the turn heave.
     eyeHeight.current += (wanted - eyeHeight.current) * 0.08;
 
-    const cx = summit ? summit.x : 0;
-    const cz = summit ? summit.z : 0;
     EYE.set(
-      cx + Math.sin(yaw.current) * ORBIT_RADIUS,
+      Math.sin(yaw.current) * ORBIT_RADIUS,
       eyeHeight.current,
-      cz + Math.cos(yaw.current) * ORBIT_RADIUS,
+      Math.cos(yaw.current) * ORBIT_RADIUS,
     );
     camera.position.copy(EYE);
     /*
-     * Aimed at the massif's shoulder, not its top: pointing at the summit puts
-     * it dead centre with the frame's whole lower half given over to the ground
-     * between here and there. From the shoulder the peak rises into the upper
-     * third and the sky opens above it.
+     * Aimed across the valley at the eye's own height, less a shallow drop. A
+     * turntable pointed at the summit would swing it across the frame once a
+     * revolution, which reads as the mountain sliding rather than the world
+     * turning.
      */
-    AIM.set(cx, summit ? summit.y * 0.42 : eyeHeight.current - AIM_DROP, cz);
+    AIM.set(0, eyeHeight.current - AIM_DROP, 0);
     camera.lookAt(AIM);
   });
 
   return null;
 }
 
-function PanLoop({
-  panRef,
-  draggingRef,
-}: {
-  readonly panRef: { current: Pan };
-  readonly draggingRef: { current: boolean };
-}) {
-  useFrame(() => {
-    panRef.current = advancePan(panRef.current, draggingRef.current);
-  });
-  return null;
-}
-
 export type TerrainCanvasProps = {
   readonly quality: "low" | "high";
+  readonly reducedMotion?: boolean;
+  /** False parks the frame loop: the hero is off screen or the tab is hidden. */
+  readonly running?: boolean;
   readonly onContextLost?: () => void;
   readonly onDrawn?: () => void;
 };
 
 export function TerrainCanvas({
   quality,
+  reducedMotion = false,
+  running = true,
   onContextLost,
   onDrawn,
 }: TerrainCanvasProps) {
-  const panRef = useRef<Pan>(RESTING_PAN);
-  const profileRef = useRef<Vantage | null>(null);
-  const draggingRef = useRef(false);
-  const gestureRef = useRef<{ x: number; y: number; pan: number } | null>(null);
-  const [grabbing, setGrabbing] = useState(false);
-
-  const beginDrag = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.pointerType !== "touch" && event.button !== 0) {
-      return;
-    }
-    gestureRef.current = {
-      x: event.clientX,
-      y: event.clientY,
-      pan: panRef.current.offset,
-    };
-    if (event.pointerType === "touch") {
-      // A touch has not committed to anything yet: it could still be the page
-      // being scrolled, and claiming it here would trap the reader in the hero.
-      return;
-    }
-    draggingRef.current = true;
-    setGrabbing(true);
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
-
-  const moveDrag = (event: PointerEvent<HTMLDivElement>) => {
-    const gesture = gestureRef.current;
-    if (!gesture) {
-      return;
-    }
-
-    const dx = event.clientX - gesture.x;
-    const dy = event.clientY - gesture.y;
-
-    if (!draggingRef.current) {
-      if (isVerticalScrollGesture(dx, dy)) {
-        gestureRef.current = null;
-        return;
-      }
-      if (!isHorizontalLookGesture(dx, dy)) {
-        return;
-      }
-      draggingRef.current = true;
-      setGrabbing(true);
-      event.currentTarget.setPointerCapture(event.pointerId);
-    }
-
-    const rect = event.currentTarget.getBoundingClientRect();
-    const travel = dx / Math.max(1, rect.width);
-    const wanted = gesture.pan + travel * 2.4;
-    panRef.current = dragPan(panRef.current, wanted - panRef.current.offset);
-  };
-
-  const endDrag = (event: PointerEvent<HTMLDivElement>) => {
-    gestureRef.current = null;
-    draggingRef.current = false;
-    setGrabbing(false);
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-  };
+  const profileRef = useRef<Float32Array | null>(null);
 
   return (
-    <div
-      className={`absolute inset-0 size-full ${grabbing ? "cursor-grabbing" : "cursor-grab"}`}
-      onPointerCancel={endDrag}
-      onPointerDown={beginDrag}
-      onPointerMove={moveDrag}
-      onPointerUp={endDrag}
-      style={{ touchAction: "pan-y" }}
-    >
+    /*
+     * Takes no pointer events at all. The range used to be dragged; it turns on
+     * its own now, and a canvas that still swallowed gestures would only mean a
+     * reader on a phone finding a dead zone where the page would not scroll.
+     */
+    <div className="pointer-events-none absolute inset-0 size-full">
       <Canvas
         camera={{
           far: SCENE_FAR_PLANE,
@@ -432,8 +308,15 @@ export function TerrainCanvas({
           near: 1,
           position: [0, MIN_EYE, ORBIT_RADIUS],
         }}
-        className="pointer-events-none absolute inset-0 size-full"
+        className="absolute inset-0 size-full"
         dpr={quality === "high" ? [1, 1.5] : [1, 1]}
+        /*
+         * The turn never ends, so something has to stop it. Left running, a
+         * canvas this size would keep a GPU busy drawing a range nobody is
+         * looking at for the whole length of the page, and go on doing it in a
+         * background tab.
+         */
+        frameloop={running ? "always" : "never"}
         gl={{
           alpha: true,
           antialias: quality === "high",
@@ -454,8 +337,7 @@ export function TerrainCanvas({
           );
         }}
       >
-        <ParkedCamera panRef={panRef} profileRef={profileRef} />
-        <PanLoop draggingRef={draggingRef} panRef={panRef} />
+        <TurningCamera profileRef={profileRef} reducedMotion={reducedMotion} />
         <ModelErrorBoundary fallback={null}>
           <Suspense fallback={null}>
             <ValleyInk onDrawn={onDrawn} profileRef={profileRef} />

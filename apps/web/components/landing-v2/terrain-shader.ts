@@ -68,6 +68,8 @@ uniform vec3 uLightDir;
 uniform float uContour;     // vertical spacing between slices, in scene units
 uniform float uRange;       // distance at which the drawing dissolves
 uniform float uLinePixels;  // stroke width, in device pixels
+uniform vec2 uExtent;       // half-extent of the terrain tile, in scene units
+uniform float uEdgeFade;    // how far in from the tile edge the ink dissolves
 uniform float uEdge;        // weight of the silhouette line
 uniform float uShade;       // how much the light varies the stroke
 uniform float uOpacity;
@@ -116,6 +118,17 @@ void main() {
   // and then stops being drawn at all, rather than ending at a hard edge.
   float fade = 1.0 - smoothstep(uRange * 0.55, uRange, vRange);
 
+  /*
+   * The tile has edges, and a camera that turns all the way round will find
+   * them. The mesh is a rectangle of finite ground: from most bearings its
+   * boundary is behind the viewer or past the fog, but on a full revolution it
+   * swings into frame as a dead straight line across the drawing — the one
+   * shape a mountain range never has. Dissolving the ink over the last stretch
+   * before the boundary turns that cut into a horizon.
+   */
+  fade *= smoothstep(uExtent.x, uExtent.x - uEdgeFade, abs(vWorldPos.x));
+  fade *= smoothstep(uExtent.y, uExtent.y - uEdgeFade, abs(vWorldPos.z));
+
   // A light touch of light. Not shading — the drawing has none — just enough
   // that the faces turned toward the sun draw a shade harder than the others.
   float lambert = clamp(dot(normal, normalize(uLightDir)) * 0.5 + 0.5, 0.0, 1.0);
@@ -141,6 +154,9 @@ export type TerrainInkOptions = {
   readonly contour?: number;
   readonly range?: number;
   readonly linePixels?: number;
+  /** Half-extent of the tile in x and z, so the ink can dissolve at its edge. */
+  readonly extent?: readonly [number, number];
+  readonly edgeFade?: number;
   readonly edge?: number;
   readonly shade?: number;
   readonly opacity?: number;
@@ -182,6 +198,10 @@ export function createTerrainInk(
       uContour: { value: options.contour ?? CONTOUR_SPACING },
       uRange: { value: options.range ?? 620 },
       uLinePixels: { value: options.linePixels ?? 0.95 },
+      uExtent: {
+        value: new THREE.Vector2(...(options.extent ?? [1e6, 1e6])),
+      },
+      uEdgeFade: { value: options.edgeFade ?? 45 },
       uEdge: { value: options.edge ?? 0.85 },
       uShade: { value: options.shade ?? 0.22 },
       uOpacity: { value: options.opacity ?? 1 },
