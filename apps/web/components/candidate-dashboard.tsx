@@ -469,7 +469,7 @@ const CandidateDrawer = ({
                 onClick={onPrevious}
                 disabled={!hasPrevious}
                 aria-label="Previous candidate (K or left arrow)"
-                title="Previous · K or ←"
+                title="Previous (K or ←)"
               >
                 <ChevronLeftIcon />
               </Button>
@@ -479,7 +479,7 @@ const CandidateDrawer = ({
                 onClick={onNext}
                 disabled={!hasNext}
                 aria-label="Next candidate (J or right arrow)"
-                title="Next · J or →"
+                title="Next (J or →)"
               >
                 <ChevronRightIcon />
               </Button>
@@ -971,7 +971,7 @@ export function CandidateDashboard({
                 Chofex Hackathon
               </p>
               <p className="text-[11px] text-muted-foreground">
-                Lima · Participant operations
+                Lima, participant operations
               </p>
             </div>
           </div>
@@ -998,7 +998,7 @@ export function CandidateDashboard({
           <div>
             <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
               <span>CHOFEX 2026</span>
-              <span>·</span>
+              <span aria-hidden="true">—</span>
               <span>Applications</span>
             </div>
             <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -1011,7 +1011,7 @@ export function CandidateDashboard({
           </div>
           <Badge variant="outline">
             <CalendarDaysIcon className="size-4" />
-            On-site · Lima, Peru
+            On-site in Lima, Peru
           </Badge>
         </section>
 
