@@ -458,6 +458,24 @@ export const queryChallenge = async (
   const participantId = await participantIdFor(clerkUserId);
   const attempt = await attemptFor(participantId, challenge);
 
+  if (attempt.queriesUsed >= attempt.queriesLimit) {
+    throw new HttpError(
+      429,
+      "QUERY_LIMIT_REACHED",
+      `No Black Box queries remaining (${attempt.queriesLimit}/${attempt.queriesLimit})`,
+    );
+  }
+
+  let output: number;
+  try {
+    output = await challengeEngine().query(attempt.id, input);
+  } catch (error) {
+    if (error instanceof ChallengeEngineError) {
+      throw engineHttpError(error);
+    }
+    throw error;
+  }
+
   const [consumed] = await db
     .update(challengeAttempts)
     .set({
@@ -480,15 +498,6 @@ export const queryChallenge = async (
     );
   }
 
-  let output: number;
-  try {
-    output = await challengeEngine().query(attempt.id, input);
-  } catch (error) {
-    if (error instanceof ChallengeEngineError) {
-      throw engineHttpError(error);
-    }
-    throw error;
-  }
   const [observation] = await db
     .insert(challengeObservations)
     .values({
@@ -585,6 +594,28 @@ export const evaluateChallenge = async (
   const participantId = await participantIdFor(clerkUserId);
   const attempt = await attemptFor(participantId, challenge);
 
+  if (attempt.evaluationsUsed >= attempt.evaluationsLimit) {
+    throw new HttpError(
+      429,
+      "EVALUATION_LIMIT_REACHED",
+      `No official evaluations remaining (${attempt.evaluationsLimit}/${attempt.evaluationsLimit})`,
+    );
+  }
+
+  let score: ChallengeScore;
+  try {
+    score = await challengeEngine().evaluate(
+      attempt.id,
+      solution.source,
+      attempt.queriesUsed,
+    );
+  } catch (error) {
+    if (error instanceof ChallengeEngineError) {
+      throw engineHttpError(error);
+    }
+    throw error;
+  }
+
   const [consumed] = await db
     .update(challengeAttempts)
     .set({
@@ -607,19 +638,7 @@ export const evaluateChallenge = async (
     );
   }
 
-  let score: ChallengeScore;
-  try {
-    score = await challengeEngine().evaluate(
-      attempt.id,
-      solution.source,
-      consumed.queriesUsed,
-    );
-  } catch (error) {
-    if (error instanceof ChallengeEngineError) {
-      throw engineHttpError(error);
-    }
-    throw error;
-  }
+  score = { ...score, queriesUsed: consumed.queriesUsed };
 
   const [evaluation] = await db
     .insert(challengeEvaluations)
