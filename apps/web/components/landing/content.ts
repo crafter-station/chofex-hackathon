@@ -222,8 +222,8 @@ export const sponsorsCopy = {
   organizer: "Organiza · Crafter Station",
   mark: "Chofex",
   logoSrc: "/sponsors/chofex.png",
-  logoWidth: 840,
-  logoHeight: 220,
+  logoWidth: 965,
+  logoHeight: 316,
 } as const;
 
 export const experienceCopy = {
