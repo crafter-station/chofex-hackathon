@@ -23,8 +23,6 @@ import {
   sectionNav,
   skipLinks,
   sponsorsCopy,
-  worldChapterCopy,
-  worldChapters,
 } from "./content";
 
 test("publishes the 17–18 octubre 2026 weekend in participant-facing copy", () => {
@@ -118,34 +116,4 @@ test("exposes skip links and section jumps for keyboard users", () => {
     "#experience",
     "#apply",
   ]);
-  expect(worldChapters.map((chapter) => chapter.id)).toEqual([
-    "overlook",
-    "pisac",
-    "moray",
-    "maras",
-    "ollantaytambo",
-    "machupicchu",
-  ]);
-});
-
-test("labels every world chapter and gives each one its copy", () => {
-  for (const chapter of worldChapters) {
-    expect(chapter.label.length).toBeGreaterThan(0);
-    const copy = worldChapterCopy[chapter.id];
-    expect(copy).toBeDefined();
-    expect(copy.title.length).toBeGreaterThan(0);
-    expect(copy.body.length).toBeGreaterThan(0);
-    expect(copy.metric.length).toBeGreaterThan(0);
-  }
-});
-
-test("quotes each site's real elevation, not a neighbouring town's", () => {
-  // Both of these were wrong in the brief this came from: the coordinates
-  // given for Moray were the town of Urubamba's, and the 3,380 m quoted for
-  // the Salineras is the elevation of Maras town, 5 km up the hill from the
-  // pans. Numbers on the landing have to match the ground the camera shows.
-  expect(worldChapterCopy.moray.eyebrow).toContain("3,500");
-  expect(worldChapterCopy.ollantaytambo.eyebrow).toContain("2,792");
-  expect(worldChapterCopy.machupicchu.eyebrow).toContain("2,430");
-  expect(worldChapterCopy.maras.eyebrow).not.toContain("3,380");
 });

@@ -63,23 +63,6 @@ export const sectionNav = [
   { href: "#apply", label: "Aplicar" },
 ] as const;
 
-/**
- * The five stops the scroll makes, plus the overlook it opens on.
- *
- * Each site carries a chapter of the pitch, and the pairing is not decorative:
- * Moray really was an agricultural research station, one microclimate per
- * ring, which is what a prototyping track is. Ollantaytambo really is still
- * lived in, on the original Inca street plan. The argument is the place.
- */
-export const worldChapters = [
-  { id: "overlook", label: "Cumbre" },
-  { id: "pisac", label: "Písac" },
-  { id: "moray", label: "Moray" },
-  { id: "maras", label: "Maras" },
-  { id: "ollantaytambo", label: "Ollantaytambo" },
-  { id: "machupicchu", label: "Machu Picchu" },
-] as const;
-
 export const facts = [
   { label: "Cupos", value: String(seatCount) },
   { label: "Fecha", value: "17–18 oct 2026" },
@@ -99,51 +82,6 @@ export const heroCopy = {
   sponsor: "Sponsor principal · Chofex",
   organizer: "Organiza · Crafter Station",
   skipToWhy: "Conocer el evento",
-} as const;
-
-export const worldChapterCopy = {
-  overlook: {
-    eyebrow: "00 / valle sagrado",
-    title: "Construir a otra altura",
-    body: "Un recorrido por cinco lugares del Valle Sagrado. Terreno real para una hackathon hecha desde Perú.",
-    metric: "62 km",
-    metricLabel: "de corredor",
-  },
-  pisac: {
-    eyebrow: "01 / písac · 2,972 m",
-    title: "Resolver el terreno",
-    body: "Písac convirtió una ladera imposible en infraestructura. El reto no era evitar la restricción, sino diseñar con ella.",
-    metric: "2,972 m",
-    metricLabel: "ingreso al valle",
-  },
-  moray: {
-    eyebrow: "02 / moray · 3,500 m",
-    title: "Un laboratorio de piedra",
-    body: "Cada anillo de Moray creaba un microclima distinto. Probar, medir y adaptar: ingeniería experimental siglos antes del software.",
-    metric: "15 °C",
-    metricLabel: "de gradiente",
-  },
-  maras: {
-    eyebrow: "03 / maras · salineras",
-    title: "Un sistema compartido",
-    body: "Miles de pozas, un solo manantial. Cada parte tiene dueño; la infraestructura que hace posible el sistema es compartida.",
-    metric: "1",
-    metricLabel: "fuente para miles",
-  },
-  ollantaytambo: {
-    eyebrow: "04 / ollantaytambo · 2,792 m",
-    title: "Código en producción",
-    body: "Ollantaytambo sigue habitado sobre su traza urbana original. Un sistema valioso no solo se lanza: resiste, evoluciona y permanece.",
-    metric: "~3,050",
-    metricLabel: "habitantes",
-  },
-  machupicchu: {
-    eyebrow: "05 / machu picchu · 2,430 m",
-    title: "La entrega",
-    body: "Una idea ambiciosa solo importa cuando se sostiene. Aquí se viene a convertir criterio técnico en algo real.",
-    metric: "2,430 m",
-    metricLabel: "Machu Picchu",
-  },
 } as const;
 
 export const audienceCopy = {
@@ -321,6 +259,5 @@ export const chromeCopy = {
   menu: "Menú",
   close: "Cerrar",
   sections: "Secciones",
-  worldChapters: "Capítulos del terreno",
   apply: "Aplicar",
 } as const;
