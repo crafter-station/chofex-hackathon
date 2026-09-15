@@ -47,6 +47,17 @@ const EYE_CLEARANCE = 22;
 const MIN_EYE = 26;
 /** How far below the eye the aim sits: a shallow look across the valley. */
 const AIM_DROP = 15;
+/**
+ * And how far below it looks on a portrait screen.
+ *
+ * `fov` is vertical, so a tall narrow window frames the same slice of sky as a
+ * wide one and stacks it above the range — which on a phone left the top forty
+ * percent of the hero as empty black, with every word on the page piled into
+ * what was left. Tilting down raises the horizon and gives that band back to
+ * the drawing. It does not move the camera, so the vantage and its clearance
+ * above the ground are untouched.
+ */
+const AIM_DROP_PORTRAIT = 26;
 
 /**
  * Vertical exaggeration.
@@ -234,7 +245,7 @@ function TurningCamera({
   readonly profileRef: { current: Float32Array | null };
   readonly reducedMotion: boolean;
 }) {
-  const { camera } = useThree();
+  const { camera, size } = useThree();
   const yaw = useRef(YAW_REST);
   const eyeHeight = useRef(MIN_EYE);
 
@@ -269,7 +280,8 @@ function TurningCamera({
      * revolution, which reads as the mountain sliding rather than the world
      * turning.
      */
-    AIM.set(0, eyeHeight.current - AIM_DROP, 0);
+    const drop = size.height > size.width ? AIM_DROP_PORTRAIT : AIM_DROP;
+    AIM.set(0, eyeHeight.current - drop, 0);
     camera.lookAt(AIM);
   });
 
