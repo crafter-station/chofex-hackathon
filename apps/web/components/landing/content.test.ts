@@ -11,11 +11,7 @@ import {
   footerCopy,
   formatSoles,
   heroCopy,
-  judgeCount,
-  judgeSeats,
   metadataCopy,
-  mentorCount,
-  mentorSeats,
   peopleCopy,
   prizeAmountsPen,
   prizeAmountsUsd,
@@ -30,7 +26,8 @@ test("publishes the 17–18 octubre 2026 weekend in participant-facing copy", ()
   const cuando = facts.find((fact) => fact.label === "Fecha");
   expect(cuando?.value).toBe("17–18 oct 2026");
   expect(metadataCopy.title).toContain("17–18 oct 2026");
-  expect(heroCopy.meta).toContain("17–18 de octubre de 2026");
+  expect(heroCopy.metaDate).toBe("17–18 oct 2026");
+  expect(heroCopy.metaLocation).toBe("Lima, Perú");
   expect(footerCopy.meta).toContain("17–18 oct 2026");
 
   const blob = JSON.stringify({
@@ -48,6 +45,9 @@ test("publishes the confirmed prizes directly in soles", () => {
   expect(prizeAmountsUsd.second).toBe(500);
   expect(prizeAmountsPen.first).toBe(6_700);
   expect(prizeAmountsPen.second).toBe(1_675);
+  expect(facts.find((fact) => fact.label === "Premios")?.value).toContain(
+    "8,000",
+  );
 });
 
 test("formats soles with the Peru locale", () => {
@@ -93,13 +93,16 @@ test("keeps the public pitch in Spanish and names Chofex as principal sponsor", 
   expect(heroCopy.sponsor.toLowerCase()).toContain("chofex");
 });
 
-test("reserves unnamed seats instead of inventing a roster", () => {
-  expect(judgeSeats).toHaveLength(judgeCount);
-  expect(mentorSeats).toHaveLength(mentorCount);
-  expect(peopleCopy.reveal.toLowerCase()).toContain("revelar");
-  const blob = JSON.stringify({ peopleCopy, judgeSeats, mentorSeats });
-  expect(blob).not.toMatch(/QUISPE/i);
-  expect(blob).not.toMatch(/Juez 0/i);
+test("withholds panel claims until identities are confirmed", () => {
+  expect(peopleCopy.kicker).toBe("Panel");
+  expect(peopleCopy.lede.toLowerCase()).toContain("confirmada");
+  expect(peopleCopy.status).toBe("Sin nombres ni afiliaciones anunciadas.");
+
+  const blob = JSON.stringify(peopleCopy);
+  expect(blob).not.toMatch(/\b10\b/);
+  expect(blob).not.toMatch(
+    /MIT|Y Combinator|Google|Meta|Stanford|Microsoft|Harvard|University of Toronto|DP World|Hochschild|Palantir/i,
+  );
 });
 
 test("publishes a senior, hundred-seat, three-challenge event", () => {
@@ -110,23 +113,29 @@ test("publishes a senior, hundred-seat, three-challenge event", () => {
     true,
   );
   expect(facts.find((fact) => fact.label === "Cupos")?.value).toBe("100");
-  expect(heroCopy.lede).toContain("100 builders con experiencia");
-  expect(audienceCopy.lede.toLowerCase()).toContain("experiencia demostrable");
+  expect(metadataCopy.description).toContain("100 cupos");
+  expect(audienceCopy.lede.toLowerCase()).toContain("status quo");
   expect(audienceRoles.map((role) => role.title)).toEqual([
-    "AI engineers",
-    "Product engineers",
-    "Software engineers",
+    "Ship mata cartón",
+    "Work hard, Play Hard",
+    "HardCore Mode",
   ]);
+  // Issue #47: body copy tightened by ≥35 %. Total must stay ≤ 47 words.
+  const totalBodyWords = audienceRoles.reduce(
+    (sum, role) => sum + role.body.split(/\s+/).length,
+    0,
+  );
+  expect(totalBodyWords).toBeLessThanOrEqual(47);
 });
 
 test("exposes skip links and section jumps for keyboard users", () => {
   expect(skipLinks[0]?.href).toBe("#contenido");
   expect(skipLinks[1]?.href).toBe("#apply");
   expect(sectionNav.map((item) => item.href)).toEqual([
-    "#why",
+    "#prizes",
     "#challenges",
     "#people",
-    "#prizes",
+    "#why",
     "#experience",
     "#apply",
   ]);

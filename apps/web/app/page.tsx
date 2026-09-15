@@ -11,8 +11,6 @@ import {
   landingSans,
 } from "@/components/landing/fonts";
 import { LandingFooter } from "@/components/landing/footer";
-import { LandingHeader } from "@/components/landing/header";
-import { LandingPeople } from "@/components/landing/people";
 import { LandingPrizes } from "@/components/landing/prizes";
 import { HERO_MODEL_PRELOAD } from "@/components/landing/sacred-valley-preload";
 import { landingPageClassName } from "@/components/landing/shell";
@@ -60,13 +58,11 @@ export default function Home() {
         type={HERO_MODEL_PRELOAD.type}
       />
       <LandingSkipLinks />
-      <LandingHeader />
       <main id="contenido">
         <LandingHero />
-        <LandingAudience />
-        <LandingChallenges />
-        <LandingPeople />
         <LandingPrizes />
+        <LandingChallenges />
+        <LandingAudience />
         <LandingExperience />
         <LandingApply />
         <LandingSponsors />

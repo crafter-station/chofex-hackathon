@@ -39,15 +39,14 @@ export default function OpenGraphImage() {
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "flex-end",
           fontSize: 22,
           color: "#ddcfbd",
           letterSpacing: "0.06em",
           textTransform: "uppercase",
         }}
       >
-        <div style={{ display: "flex" }}>Hackathon presencial · Lima</div>
-        <div style={{ display: "flex" }}>Lima · 17–18 oct 2026</div>
+        <div style={{ display: "flex" }}>Lima, 17–18 oct 2026</div>
       </div>
       <div
         style={{
@@ -87,7 +86,7 @@ export default function OpenGraphImage() {
           <div style={{ display: "flex" }}>Presencial</div>
         </div>
         <div style={{ display: "flex", color: "#6f98f0" }}>
-          Sponsor principal · Chofex
+          Sponsor principal: Chofex
         </div>
       </div>
     </div>,

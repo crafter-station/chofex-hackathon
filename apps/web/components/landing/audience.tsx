@@ -1,4 +1,5 @@
 import { audienceCopy, audienceRoles } from "@/components/landing/content";
+import { ElevationSlice } from "@/components/landing/illustrations";
 import { HudLabel } from "@/components/landing/hud";
 import {
   LandingContainer,
@@ -21,11 +22,17 @@ export function LandingAudience() {
             <p className="text-lg leading-relaxed text-[var(--hud-ink)]/80">
               {audienceCopy.lede}
             </p>
-            <p className="mt-6 border-[var(--hud-action)] border-l-2 pl-4 text-sm leading-relaxed text-[var(--hud-muted)]">
-              {audienceCopy.proof}
-            </p>
           </div>
         </LandingSectionHead>
+
+        {/*
+         * Elevation cross-section: side-view Andean terrain profile drawn in
+         * the style of technical field documentation (baseline, ruler ticks,
+         * summit marker). Bridges the section copy and the roles grid with an
+         * original visual that grounds this section in an Andean identity
+         * without repeating the hero's 3D drawing.
+         */}
+        <ElevationSlice className="mb-10 w-full text-[var(--hud-ink)]" />
 
         <ol className="grid border-[var(--hud-ink)]/15 border-y md:grid-cols-3">
           {audienceRoles.map((role, index) => (

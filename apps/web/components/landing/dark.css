@@ -125,6 +125,144 @@
   --hud-kicker: var(--hud-type);
 }
 
+.landing-glitch {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+}
+
+.landing-glitch::before,
+.landing-glitch::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  color: var(--hud-type);
+  content: attr(data-text);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.landing-glitch::before {
+  text-shadow: -3px 0 var(--hud-status);
+  animation: landing-glitch-before 7s steps(1, end) infinite;
+}
+
+.landing-glitch::after {
+  text-shadow: 3px 0 var(--hud-action);
+  animation: landing-glitch-after 7s steps(1, end) infinite;
+}
+
+@keyframes landing-glitch-before {
+  0%,
+  91%,
+  94%,
+  97%,
+  100% {
+    clip-path: inset(0);
+    opacity: 0;
+    transform: translate(0);
+  }
+
+  92% {
+    clip-path: inset(12% 0 62%);
+    opacity: 0.9;
+    transform: translate(-4px, 1px);
+  }
+
+  93% {
+    clip-path: inset(68% 0 10%);
+    opacity: 0.75;
+    transform: translate(3px, -1px);
+  }
+
+  95% {
+    clip-path: inset(38% 0 38%);
+    opacity: 0.85;
+    transform: translate(-2px);
+  }
+
+  96% {
+    clip-path: inset(78% 0 4%);
+    opacity: 0.65;
+    transform: translate(4px);
+  }
+}
+
+@keyframes landing-glitch-after {
+  0%,
+  90%,
+  93%,
+  96%,
+  100% {
+    clip-path: inset(0);
+    opacity: 0;
+    transform: translate(0);
+  }
+
+  91% {
+    clip-path: inset(54% 0 22%);
+    opacity: 0.8;
+    transform: translate(4px, -1px);
+  }
+
+  92% {
+    clip-path: inset(8% 0 72%);
+    opacity: 0.7;
+    transform: translate(-2px, 1px);
+  }
+
+  94% {
+    clip-path: inset(72% 0 8%);
+    opacity: 0.9;
+    transform: translate(3px);
+  }
+
+  95% {
+    clip-path: inset(28% 0 48%);
+    opacity: 0.75;
+    transform: translate(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-glitch::before,
+  .landing-glitch::after {
+    animation: none;
+  }
+}
+
+.prize-total [data-complete="true"] {
+  display: inline-block;
+  animation: prize-total-lock 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes prize-total-lock {
+  0% {
+    color: var(--hud-type);
+    text-shadow:
+      -10px 0 var(--hud-status),
+      10px 0 var(--hud-action);
+    transform: scale(1.035);
+  }
+
+  35% {
+    text-shadow:
+      4px 0 var(--hud-status),
+      -4px 0 var(--hud-action);
+  }
+
+  100% {
+    text-shadow: 0 0 32px rgb(111 155 255 / 42%);
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prize-total [data-complete="true"] {
+    animation: none;
+  }
+}
+
 /*
  * Kickers come off the action colour and go to sandstone.
  *
