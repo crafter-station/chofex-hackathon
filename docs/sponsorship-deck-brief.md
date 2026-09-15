@@ -29,16 +29,25 @@ debe leer de ahí, no inventar cifras paralelas. Capturas de la landing en
 | Dato | Valor | Dónde vive |
 | --- | --- | --- |
 | Marca del evento | **Hack the Andes** | `brandName` |
-| Fechas | 17–18 oct 2026 (⚠️ ver preguntas abiertas) | `facts`, `heroCopy.meta`, `footerCopy.meta` |
+| Sponsor principal | Chofex · organiza Crafter Station | `sponsorsCopy` |
+| Fechas | 17–18 oct 2026 | `facts`, `heroCopy`, `footerCopy` |
 | Sede | Lima, Perú · presencial | `facts` |
-| Duración | ~30 horas | `facts` |
+| Duración | 30 horas | `experienceCopy` |
+| Cupos | **100** | `seatCount` |
 | Equipos | 1–4 personas, solos OK | `facts` |
-| Premios | US$2.000 (1º) · US$500 (2º) · US$300 pool viajes/minijuegos | `prizeAmountsUsd` |
-| Premios en soles | convertidos a PEN con `usdToPenRate` (3.35) | `prizeAmountsPen` |
+| Premios | US$2.000 (1º) · US$500 (2º) — **$2.500 total** | `prizeAmountsUsd` |
+| Premios en soles | S/ 6,700 · S/ 1,675 | `prizeAmountsPen` |
 | Aplicación | vía CLI (`chofex register`) o vía agent | `applyCopy`, `cliCommands` |
-| Preselección | challenge técnico + golden tickets + juegos entre participantes | `filterSignals` |
-| Jurado | "mentores y jueces de alto calibre", roster **sin anunciar** | `whyCopy.rosterNote` |
-| Tracks | **ocultos a propósito** — solo hints `T-01`/`T-02` | `trackHints` |
+| Selección | lo ya construido, el criterio al explicarlo, la propuesta | `faqCopy` |
+| Consejo | **5 jurados + 5 mentores**, roster sin anunciar | `judgeCount`, `mentorCount`, `peopleCopy` |
+| Challenges | **3, sellados** hasta el kickoff del 17 oct | `challengeCount`, `challengesCopy`, `challengeSeats` |
+
+> **Esta tabla se reescribió tras el rediseño de la landing (#41).** Cambiaron
+> cinco hechos que el brief daba por firmes: desapareció el pool de premios de
+> $300, los 2 tracks `T-01`/`T-02` pasaron a **3 challenges sellados**, el cupo
+> de 100 se hizo público, el jurado pasó a 5+5, y la preselección por challenge
+> técnico y golden tickets **ya no existe**. Si un borrador cita esas cifras,
+> está desactualizado.
 
 ## Regla de marca (ya decidida, no reabrir)
 
@@ -49,38 +58,42 @@ El deck va con identidad **Hack the Andes**. Chofex aparece como sponsor, no com
 dueño de la estética. Esto cierra la tarea Notion "Definir tratamiento *Sponsored
 by Chofex* (sin colores Chofex)".
 
-Paleta y tipografía del evento — **actualizadas por el merge `feat/palette`
-(#39); la versión anterior de este brief citaba el campo azul `#0057ff` y el
-amarillo de estado, que ya no existen**. La fuente real es
-`apps/web/components/landing/landing.css`:
+**Paleta: la fuente es `apps/web/components/landing/palette.css`, y este
+documento no repite los valores.** La paleta ya cambió dos veces en semanas
+(`feat/palette` #39, y otra vez en el rediseño #41), y las dos veces una copia
+escrita a mano quedó atrás sin que nadie se diera cuenta — primero en este
+brief, después en el CSS del deck. Los tokens se leen por rol
+(`--hud-paper`, `--hud-ink`, `--hud-action`, `--hud-status`, `--hud-accent`,
+`--hud-muted`), nunca por hex.
 
-| Rol | Token | Valor |
-| --- | --- | --- |
-| Papel (fondo) | `--hud-paper` | Sandy Linen `#efe8de` |
-| Tarjeta | `--hud-card` | Mist Linen `#fff5ee` |
-| Tipografía | `--hud-ink` | `#101c26` |
-| Acción / etiquetas | `--hud-action` | Aegean Sky `#1664b0` |
-| Estado / numerales / reglas | `--hud-status` | Scarlet Bikini `#d21624` |
-| Tinte (nunca texto) | `--hud-accent` | Blossom Silk `#ffcad4` |
+Lo que sí es estable y conviene tener escrito: **la página es clara**, con el
+papel de fondo y la tinta reservada para tipografía; el accent es un tinte y no
+sostiene texto. Tipografía: Barlow Condensed (display), Barlow (cuerpo), IBM
+Plex Mono (chrome HUD) — ver `components/landing/fonts.ts`.
 
-La página es **clara**, no oscura. Tipografía: Barlow Condensed (display),
-Barlow (cuerpo), IBM Plex Mono (chrome HUD) — ver `components/landing/fonts.ts`.
-El deck replica estos roles en `app/deck/deck.css`.
+El deck importa ese mismo `palette.css`, así que un cambio de paleta en la
+landing llega a los decks en el mismo commit.
 
 ## Estado actual de los slots
 
+⚠️ **La grilla de sponsors ya no existe.** El rediseño (#41) eliminó
+`sponsorSlots` y `sponsors.tsx`. Hoy la landing muestra **una sola marca**:
+
 ```ts
 // apps/web/components/landing/content.ts
-export const sponsorSlots = [
-  { id: "chofex", name: "Chofex", confirmed: true },
-  { id: "open-1", name: "Más sponsors pronto", confirmed: false },
-];
+export const sponsorsCopy = {
+  kicker: "sponsor principal",
+  title: "Chofex",
+  lede: "Hack the Andes se realiza con el respaldo de Chofex y la producción de Crafter Station.",
+  logoSrc: "/sponsors/chofex.png",
+  // …
+};
 ```
 
-Hoy la grilla de la landing tiene **2 slots: Chofex + 1 abierto**. Definir tiers y
-cantidad de slots es parte de este deck; una vez definido, `sponsorSlots` y
-`LandingSponsors` (`apps/web/components/landing/sponsors.tsx`) se actualizan para
-reflejarlo.
+El tier sheet abre **9 slots nombrados** (ver `budget-sponsors.md` §5), así que
+la sección multi-sponsor **hay que construirla de nuevo**. No es actualizar un
+array. Y es bloqueante para cobrar un Silver, porque ese tier promete
+exactamente "logo en la grilla".
 
 ## Qué se le pide a un sponsor devtool
 
@@ -93,7 +106,7 @@ evento — ver las tareas de Plataforma "claim credits" y `#24`.
 
 Lo que el evento ya puede ofrecer, según lo construido y lo planificado:
 
-- Logo en la landing (`sponsorSlots` → grilla en la sección Sponsors)
+- Logo en la landing (⚠️ la grilla está por reconstruirse — ver arriba)
 - Post de anuncio por sponsor confirmado (roadmap: "Plantilla de publicaciones por
   cada patrocinador" + "Publicar publicación por patrocinador confirmado")
 - Plantilla de imagen de anuncio de sponsor (roadmap #15)
@@ -105,36 +118,35 @@ Lo que el evento ya puede ofrecer, según lo construido y lo planificado:
 
 ## Preguntas abiertas
 
-Tres se resolvieron al armar el presupuesto y la doctrina. Quedan tres, y la
-primera sigue bloqueando todo.
+De las seis originales quedan **dos**, y una es nueva. El presupuesto resolvió
+tres; el rediseño de la landing (#41) resolvió dos más por su cuenta.
 
 ### Siguen abiertas
 
-1. **Fechas — conflicto activo.** La landing dice **17–18 oct** (en 5 lugares de
-   `content.ts`: líneas 37, 83, 96, 98, 254). El roadmap de Notion, la página del
-   evento y el plan de entrega dicen **10–11 oct**. Un deck de outreach no puede
-   salir con la fecha equivocada, y si la real es el 17–18, todos los deadlines
-   del roadmap están corridos una semana. **Resolver primero.**
-2. **Qué se puede revelar — ahora es una decisión de producto, no de estilo.**
-   Los tracks están ocultos a propósito en la landing. Pero el slide central de
-   un deck a partner es *el track que el partner posee*, y el tier Track Partner
-   ($1.000 × 2 slots) **no existe como producto si los tracks no se revelan**.
-   El deck es material privado (`robots: noindex`, se manda por link), así que
-   puede revelarlos sin tocar la landing. Ver `deck-best-practices.md` §9.
-3. **Cupo confirmado.** El plan dice 100 asistentes y **todo el presupuesto es
-   lineal sobre esa cifra** ($82,50 de operación por hacker). Confirmarlo antes
-   de ponerlo frente a un sponsor.
+1. **Qué relación tiene un partner con su challenge.** Los 3 briefs están
+   **sellados hasta el kickoff** — eso ya está decidido y publicado, no se
+   reabre. Lo que nadie decidió es si un Challenge Partner lo patrocina a
+   ciegas, lo conoce bajo NDA, o lo co-escribe. **Vale $2.000 del tier sheet**:
+   sin esa definición el tier medio no tiene producto y solo queda vender
+   visibilidad. Las tres opciones y sus costos, en `deck-best-practices.md` §9.
+2. **Reconstruir la sección de sponsors de la landing** (nueva). El rediseño la
+   dejó en una sola marca. El tier Silver promete "logo en la grilla" y la
+   grilla no existe. Bloquea cobrar Silver, no escribir el deck.
 
 ### Resueltas
 
-4. ~~**Tiers y precio.**~~ → `budget-sponsors.md` §5. Title $2.500 ×1 ·
-   Track Partner $1.000 ×2 · Silver $500 ×6 · In-kind ∞. Derivados de un total a
-   financiar de **$11.050**. El ask principal a devtools sigue siendo créditos;
-   el cash es lo que cierra el presupuesto.
-5. ~~**Cuántos slots abre la landing.**~~ → **9 slots nombrados** (1+2+6) más
-   in-kind sin límite. Hoy `sponsorSlots` tiene 2: **falta actualizarlo.**
-6. ~~**Idioma del deck.**~~ → **ambos**. `main` en ES y `en` en EN, como el
+3. ~~**Tiers y precio.**~~ → `budget-sponsors.md` §5. Title $2.500 ×1 ·
+   Challenge Partner $1.000 ×2 · Silver $500 ×6 · In-kind ∞. Derivados de un
+   total a financiar de **$10.750**. El ask principal a devtools sigue siendo
+   créditos; el cash es lo que cierra el presupuesto.
+4. ~~**Cuántos slots.**~~ → **9 nombrados** (1+2+6) más in-kind sin límite.
+5. ~~**Idioma del deck.**~~ → **ambos**. `main` en ES y `en` en EN, como el
    sistema del que se portó. Hoy solo existe `main`.
+6. ~~**Fechas.**~~ → **17–18 oct 2026**, ya consistente en toda `content.ts`
+   (incluido el reveal de los briefs, "se revela en Lima · 17 oct"). Si el
+   roadmap de Notion sigue diciendo 10–11, es el roadmap el que está atrasado.
+7. ~~**Cupo.**~~ → **100**, ahora `seatCount` y publicado en la landing en
+   varios lugares. El presupuesto ($82,50 de operación por hacker) queda firme.
 
 ## Aguas abajo
 

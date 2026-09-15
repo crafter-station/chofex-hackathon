@@ -1,0 +1,50 @@
+/*
+ * The palette, shared by the landing and the sponsorship decks.
+ *
+ * Both surfaces are the same brand, so the roles are declared once here and
+ * imported by `landing.css` and `app/deck/deck.css`. Before this file the deck
+ * carried its own copy of the hex values, and a palette change on the landing
+ * silently left the decks a version behind.
+ */
+.landing-page,
+.deck-pager {
+  /*
+   * The palette, named by role. The page is light: Sandy Linen is the ground
+   * and the dark is reserved for type.
+   *
+   * Inverting it is what finally lets every colour do a job. On a dark field
+   * Scarlet tops out at 3.88:1 against pure black, so it could never carry
+   * small type; on paper it reads 4.45, and 5.04 on a raised card. Aegean goes
+   * from unusable to 4.96. Blossom goes the other way — 1.18 on paper — which
+   * settles it as a tint rather than a text colour, and that is the secondary
+   * role it should have had all along.
+   */
+
+  /* Warm mineral paper — the page itself. */
+  --hud-paper: #f3efe7;
+  /* Raised paper, used sparingly. */
+  --hud-card: #fbf8f2;
+  /* Type on paper. */
+  --hud-ink: #0b1726;
+  /* Type over the terrain, where the ground is the mountain and not the page. */
+  --hud-type: #f3efe7;
+
+  /* Chofex cobalt — actions and brand connection. */
+  --hud-action: #2459c9;
+  --hud-action-hover: #1b47a6;
+  /* Burnt mineral red — one restrained accent. */
+  --hud-status: #b83e35;
+  /* Sandstone tint — selections and subtle fills. */
+  --hud-accent: #ddcfbd;
+
+  --hud-field: #0b1726;
+  --hud-panel: #fbf8f2;
+  /*
+   * The one dark surface left, anchoring the foot of a light page. It keeps
+   * light type, which is why --hud-muted cannot serve it: that value is tuned
+   * for paper and reads 1.6:1 here.
+   */
+  --hud-footer: #0b1726;
+  --hud-muted: #5b5f65;
+  --hud-muted-on-light: #5b5f65;
+}

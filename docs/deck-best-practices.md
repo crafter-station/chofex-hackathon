@@ -22,7 +22,7 @@ jurado. La visibilidad es el envoltorio, no el producto.
 
 ### El marco que se usa
 
-- *"Como Track Partner, [X] es dueño del track de [categoría] durante todo el
+- *"Como Challenge Partner, [X] es dueño del challenge de [categoría] durante todo el
   hackathon."*
 - *"[X] se convierte en el camino rápido para los equipos que construyan
   [categoría]."*
@@ -37,7 +37,7 @@ jurado. La visibilidad es el envoltorio, no el producto.
 > —logo en landing, post de anuncio, plantilla de imagen, banners, badges,
 > menciones en kickoff y premiación— y **las siete son visibilidad**. Sirven como
 > relleno de tier, nunca como la tesis de un deck. Si un deck nuestro no puede
-> nombrar algo que el sponsor *posee* (un track, un workshop, un puesto en el
+> nombrar algo que el sponsor *posee* (un challenge, un workshop, un puesto en el
 > jurado, un premio), todavía no está listo para mandarse.
 
 ---
@@ -56,7 +56,7 @@ devtools en lote. Flujo:
 5. **Cómo se filtra** ← nuestro sustituto del track record (ver §4)
 6. Audiencia: quién llega y cómo se seleccionó
 7. Premios oficiales
-8. Tracks
+8. Los 3 challenges
 9. Agenda de las 30 horas
 10. **Tiers**
 11. Qué cubre el aporte
@@ -72,7 +72,7 @@ Cuando hay una tesis de por qué *esa* empresa. Flujo:
 3. Qué es Hack the Andes
 4. Datos y audiencia
 5. Cómo se filtra
-6. **El track que el partner posee**
+6. **El challenge que el partner posee**
 7. Ejemplos concretos de lo que se construiría con su producto
 8. Stack y starter kit
 9. Plan de activación (workshop / mentor / jurado)
@@ -92,9 +92,9 @@ general con un logo pegado.
 | Situación | Ask |
 | --- | --- |
 | Preferido | **$2.500 Title** |
-| Alternativa | **$1.000 Track Partner** |
+| Alternativa | **$1.000 Challenge Partner** |
 | Devtools en lote | **$500 Silver** + créditos |
-| Siempre, además | créditos, licencias, mentores, jurado, swag, sede, workshops, premios de track |
+| Siempre, además | créditos, licencias, mentores, jurado, swag, sede, workshops, premios de challenge |
 
 Montos y slots vienen de [`budget-sponsors.md`](./budget-sponsors.md), que es la
 única fuente. No los escribas de memoria en un slide.
@@ -115,8 +115,9 @@ Lo que sí tenemos, y que ellos no, es **el filtro**. Úsalo como prueba:
 
 - Aplicación por CLI (`chofex register`) o por agent — el formulario ya es un
   filtro técnico.
-- Challenge técnico de preselección, golden tickets y juegos entre participantes.
-- Selección explícita: no es un evento abierto, es un evento con corte.
+- Se revisa **lo que la persona ya construyó**, no su CV: el criterio con que lo
+  explica y la propuesta que trae al evento.
+- Corte explícito en 100: no es un evento abierto.
 
 El argumento se vuelve: *no podemos mostrarte ediciones pasadas, pero sí podemos
 mostrarte exactamente cómo se filtra quién entra*. Eso es verificable hoy y es
@@ -186,38 +187,53 @@ No inventar cifras fuera de esta lista. La fuente es
 | Dato | Valor |
 | --- | --- |
 | Marca | Hack the Andes |
-| Con el apoyo de | Chofex |
-| Fechas | 17–18 oct 2026 ⚠️ **en conflicto, ver el brief §preguntas abiertas** |
+| Sponsor principal | Chofex · organiza Crafter Station |
+| Fechas | 17–18 oct 2026 |
 | Sede | Lima, Perú · presencial |
-| Duración | ~30 horas |
+| Duración | 30 horas |
 | Equipos | 1–4 personas, se puede aplicar solo |
-| Cupo | ~100 asistentes seleccionados ⚠️ sin confirmar |
-| Premios | US$2.000 (1º) · US$500 (2º) · US$300 pool |
+| Cupo | **100** (`seatCount`, publicado) |
+| Premios | US$2.000 (1º) · US$500 (2º) — **US$2.500 en total** |
 | Aplicación | CLI (`chofex register`) o agent |
-| Preselección | challenge técnico + golden tickets + juegos |
-| Jurado | roster sin anunciar |
-| Tracks | ocultos en la landing (`T-01`/`T-02`) ⚠️ ver §9 |
+| Selección | lo que ya construiste, cómo lo explicas, qué propuesta traes |
+| Consejo | 5 jurados + 5 mentores, roster sin anunciar |
+| Challenges | **3, sellados** hasta el kickoff del 17 oct ⚠️ ver §9 |
 
-**Ningún deck sale con la fecha sin resolver.** Es la primera línea que un
-sponsor verifica contra la landing.
+**Ningún deck sale con una cifra que no esté en esta tabla.** Es lo primero que
+un sponsor verifica contra la landing.
+
+> El pool de viajes de US$300 y los tracks `T-01`/`T-02` **ya no existen**; los
+> premios son $2.500 y los tracks son 3 challenges sellados. Si ves esas cifras
+> en un borrador, está desactualizado.
 
 ---
 
-## 9. Tracks: la decisión pendiente
+## 9. Los challenges: la decisión pendiente
 
-La landing oculta los tracks a propósito. Pero el slide central de un deck a
-partner específico es *el track que el partner posee*. Las dos cosas no pueden
-ser verdad a la vez:
+La landing ahora dice **"3 challenges sellados"**: los equipos aceptados conocen
+los briefs al iniciar la hackathon, el 17 de octubre, y cada equipo elige uno. El
+sellado es parte de la convocatoria, no un accidente.
 
-- **Si los tracks siguen ocultos también en el deck**, lo único vendible es
-  visibilidad — justo el marco prohibido de §1. El tier Track Partner no existe
-  como producto.
-- **Si el deck los revela**, el deck es material privado bajo `robots: noindex`,
-  se manda por link a una empresa, y la landing puede seguir ocultándolos.
+Pero el slide central de un deck a partner es *lo que el partner posee*, y el
+tier sheet asume que eso es un challenge. **Los números calzan sospechosamente
+bien: 3 challenges = 1 Title + 2 Challenge Partner.**
 
-La segunda opción es la que hace funcionar el tier sheet. Pero es una decisión
-de Emmy, no del deck, y hay que tomarla antes de escribir el slide 6 de
-cualquier deck a partner.
+Lo que falta decidir no es si se revelan al público —eso ya está resuelto, no se
+revelan— sino **qué relación tiene un partner con su challenge**:
+
+- **Patrocina a ciegas.** El partner pone dinero sobre un brief que no conoce.
+  Honesto con el sellado, pero casi imposible de vender: nadie compra lo que no
+  puede leer.
+- **Lo conoce bajo NDA.** Ve el brief antes, no lo escribe. El sellado se
+  mantiene frente a los participantes, que es donde importa.
+- **Lo co-escribe.** El partner da el problema y su producto es el camino
+  natural. Es lo más vendible y lo más riesgoso: si se nota, el evento pierde
+  credibilidad técnica.
+
+La segunda es la que hace funcionar el tier sheet sin romper la convocatoria.
+Pero es una decisión de Emmy, no del deck, y **vale $2.000** del sheet — sin ella
+el tier medio no tiene producto y lo único vendible es visibilidad, justo el
+marco prohibido de §1.
 
 ---
 
@@ -226,9 +242,11 @@ cualquier deck a partner.
 Identidad **Hack the Andes**, no Chofex. Chofex aparece como sponsor Title; no
 pinta la paleta. (Regla ya cerrada en el brief, no reabrir.)
 
-- Papel Sandy Linen de fondo, tipografía en tinta. El deck es claro, no oscuro.
-- Aegean (`--deck-action`) para etiquetas y acciones; Scarlet (`--deck-status`)
-  para numerales y reglas; Blossom solo como tinte — no sostiene texto.
+- Papel de fondo, tipografía en tinta. El deck es claro, no oscuro.
+- `--deck-action` para etiquetas y acciones; `--deck-status` para numerales y
+  reglas; `--deck-accent` solo como tinte — no sostiene texto.
+- **Los roles se nombran por token, nunca por color.** Los nombres propios de la
+  paleta cambian con cada rediseño; los roles no.
 - Retícula compartida de 1px, sin gaps y sin radius (`.deck-table` / `.deck-cell`).
 - Sombras duras (`0 2px 0`), nunca blur.
 - Barlow Condensed para títulos, IBM Plex Mono para chrome y etiquetas.
@@ -240,7 +258,7 @@ pinta la paleta. (Regla ya cerrada en el brief, no reabrir.)
 ## 11. Checklist antes de mandar un deck
 
 - [ ] La tesis del slide 2 **falla** el test de intercambiabilidad.
-- [ ] El partner **posee** algo nombrable: un track, un workshop, un premio, un
+- [ ] El partner **posee** algo nombrable: un challenge, un workshop, un premio, un
       puesto en el jurado.
 - [ ] El plan de activación es ejecutable con la gente y el tiempo que hay.
 - [ ] Hay un ask limpio y un fallback.

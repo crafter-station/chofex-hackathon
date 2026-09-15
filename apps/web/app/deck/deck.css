@@ -1,23 +1,29 @@
+@import "../../components/landing/palette.css";
+
 /*
  * Deck chrome and slide vocabulary.
  *
- * The deck wears the Hack the Andes identity, not Chofex's: Sandy Linen ground,
- * ink type, Aegean for labels and actions, Scarlet for numerals and rules,
- * Blossom as a tint only (it cannot hold type on paper). Same roles as
- * `components/landing/landing.css`, redeclared here so a deck renders correctly
- * on its own route without pulling in the landing shell.
+ * The deck wears the Hack the Andes identity, not Chofex's. The palette is
+ * imported, never copied: `palette.css` declares the --hud-* roles for both
+ * `.landing-page` and `.deck-pager`, so a palette change on the landing reaches
+ * the decks in the same commit. It already drifted once — the deck shipped with
+ * the pre-`feat/palette` hexes while the landing had moved on.
+ *
+ * The --deck-* names below are local aliases, so the rest of this file reads in
+ * deck terms and a role rename upstream is a one-line change here.
  */
 
 .deck-pager {
-  --deck-paper: #efe8de;
-  --deck-card: #fff5ee;
-  --deck-ink: #101c26;
-  --deck-action: #1664b0;
-  --deck-status: #d21624;
-  --deck-accent: #ffcad4;
-  --deck-muted: #5a5349;
-  --deck-line: rgb(16 28 38 / 14%);
-  --deck-line-strong: rgb(16 28 38 / 28%);
+  --deck-paper: var(--hud-paper);
+  --deck-card: var(--hud-card);
+  --deck-ink: var(--hud-ink);
+  --deck-action: var(--hud-action);
+  --deck-status: var(--hud-status);
+  --deck-accent: var(--hud-accent);
+  --deck-muted: var(--hud-muted);
+  /* Rules are the ink at low alpha, so they track the ink if it changes. */
+  --deck-line: color-mix(in srgb, var(--hud-ink) 14%, transparent);
+  --deck-line-strong: color-mix(in srgb, var(--hud-ink) 28%, transparent);
 
   --deck-display: var(--font-landing-display), ui-sans-serif, system-ui,
     sans-serif;
@@ -31,9 +37,7 @@
   height: 100svh;
   min-height: 100svh;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 85% 12%, rgb(255 202 212 / 34%), transparent 34rem),
-    var(--deck-paper);
+  background: var(--deck-paper);
   color: var(--deck-ink);
   font-family: var(--deck-body);
 }
@@ -203,7 +207,7 @@
 .deck-index-backdrop {
   position: absolute;
   inset: 0;
-  background-color: rgb(16 28 38 / 72%);
+  background-color: color-mix(in srgb, var(--deck-ink) 72%, transparent);
 }
 
 .deck-index-panel {
@@ -366,7 +370,7 @@
 }
 
 .deck-cell-invert .deck-stat-label {
-  color: rgb(239 232 222 / 70%);
+  color: color-mix(in srgb, var(--deck-paper) 70%, transparent);
 }
 
 .deck-copy {
@@ -376,7 +380,7 @@
 }
 
 .deck-cell-invert .deck-copy {
-  color: rgb(239 232 222 / 78%);
+  color: color-mix(in srgb, var(--deck-paper) 78%, transparent);
 }
 
 .deck-chip {
