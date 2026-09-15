@@ -22,6 +22,7 @@ import {
   seatCount,
   sectionNav,
   skipLinks,
+  partners,
   sponsorsCopy,
 } from "./content";
 
@@ -63,6 +64,7 @@ test("keeps the public pitch in Spanish and names Chofex as principal sponsor", 
     heroCopy,
     peopleCopy,
     sectionNav,
+    partners,
     sponsorsCopy,
   });
   expect(blob).not.toMatch(/nav unlocked/i);
@@ -70,7 +72,19 @@ test("keeps the public pitch in Spanish and names Chofex as principal sponsor", 
   expect(blob).not.toMatch(/window \/ facts/i);
   expect(blob).not.toMatch(/sponsored by/i);
   expect(blob).not.toMatch(/la élite/i);
-  expect(sponsorsCopy.kicker).toBe("sponsor principal");
+  expect(sponsorsCopy.kicker).toBe("quiénes lo hacen");
+  // Three partners, and the principal sponsor in the middle: the hero gives
+  // the centre to Chofex and flanks it, so the order here is the layout.
+  expect(partners.map((partner) => partner.id)).toEqual([
+    "peru-tech-week",
+    "chofex",
+    "crafter-station",
+  ]);
+  // Every mark has to be white on transparent, or it arrives in a box.
+  for (const partner of partners) {
+    expect(partner.logoSrc).toMatch(/^\/sponsors\/[a-z-]+-white\.png$/);
+    expect(partner.role.length).toBeGreaterThan(0);
+  }
   expect(sponsorsCopy.mark).toBe("Chofex");
   // White for the dark page, black kept for light surfaces. Both transparent —
   // the mark is never to be boxed in a plate to make it legible.
