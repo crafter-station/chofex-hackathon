@@ -156,8 +156,6 @@ export const prizesCopy = {
   totalSuffix: "en premios en efectivo",
   tripLabel: "Viaje pagado",
   tripTitle: "Chofex Headquarters",
-  tripBody:
-    "Una persona participante destacada viajará a las oficinas de Chofex en Monterrey o San Francisco.",
 } as const;
 
 export const sponsorsCopy = {

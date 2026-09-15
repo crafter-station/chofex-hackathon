@@ -15,6 +15,7 @@ import {
   peopleCopy,
   prizeAmountsPen,
   prizeAmountsUsd,
+  prizesCopy,
   seatCount,
   sectionNav,
   skipLinks,
@@ -48,6 +49,17 @@ test("publishes the confirmed prizes directly in soles", () => {
   expect(facts.find((fact) => fact.label === "Premios")?.value).toContain(
     "8,000",
   );
+});
+
+test("keeps the headquarters trip prize without a destination paragraph", () => {
+  expect(prizesCopy.tripLabel).toBe("Viaje pagado");
+  expect(prizesCopy.tripTitle).toBe("Chofex Headquarters");
+  expect("tripBody" in prizesCopy).toBe(false);
+
+  const blob = JSON.stringify(prizesCopy);
+  expect(blob).not.toMatch(/Monterrey/);
+  expect(blob).not.toMatch(/San Francisco/);
+  expect(blob).not.toMatch(/viajar/i);
 });
 
 test("formats soles with the Peru locale", () => {

@@ -49,9 +49,6 @@ export function LandingPrizes() {
             <h3 className="font-[family-name:var(--font-landing-display)] text-[clamp(3.5rem,9vw,7.5rem)] uppercase leading-[0.85] tracking-[-0.03em]">
               {prizesCopy.tripTitle}
             </h3>
-            <p className="mt-5 max-w-sm text-sm leading-relaxed text-[var(--hud-type)]/65 sm:text-base">
-              {prizesCopy.tripBody}
-            </p>
           </div>
         </div>
       </LandingContainer>
