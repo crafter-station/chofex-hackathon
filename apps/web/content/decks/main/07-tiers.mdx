@@ -1,0 +1,31 @@
+---
+title: Tiers de patrocinio
+---
+
+<SlideTitle label="Patrocinios" size="sm">Tres lugares en el stack</SlideTitle>
+
+<DataGrid columns={3}>
+  <SponsorTier
+    name="Stack Partner"
+    price="$2.500"
+    slots="1"
+    feature
+    covers={["Herramienta obligatoria", "Exclusividad de capa", "Keynote", "Jurado", "Workshop"]}
+  />
+  <SponsorTier
+    name="Core Partner"
+    price="$1.000"
+    slots="2"
+    available="2"
+    covers={["Herramienta obligatoria", "Exclusividad de capa", "Workshop 45 min", "Mentor en sala"]}
+  />
+  <SponsorTier
+    name="Toolkit"
+    price="$500"
+    slots="6"
+    available="6"
+    covers={["Créditos en el kit", "Uso opcional", "Logo en la grilla", "Mención en kickoff"]}
+  />
+</DataGrid>
+
+<Lead>Solo 3 herramientas pueden ser obligatorias, una por capa del stack.</Lead>

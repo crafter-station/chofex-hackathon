@@ -85,30 +85,36 @@ Cuatro niveles. El ask principal a devtools sigue siendo **créditos de producto
 
 | Tier | Aporte | PEN | Slots | Qué incluye |
 | --- | ---: | ---: | :---: | --- |
-| **Title** | $2.500 | S/ 8,375 | 1 | Lockup junto a la marca del evento, un challenge propio, keynote de apertura, acceso al pool de participantes, workshop, puesto en el jurado |
-| **Challenge Partner** | $1.000 | S/ 3,350 | 2 | Un challenge propio, mentor en sala, workshop de 45 min, demo en premiación |
-| **Silver** | $500 | S/ 1,675 | 6 | Logo en la grilla, mención en kickoff y premiación, logo en el recap |
-| **In-kind** | producto | — | ∞ | Créditos, licencias, sede, comida, swag, mentores, jurado, premios de challenge |
+| **Stack Partner** (title) | $2.500 | S/ 8,375 | 1 | **Herramienta obligatoria** para los 100 · exclusividad de capa · lockup junto a la marca · keynote de apertura · workshop · puesto en el jurado · mentor en sala |
+| **Core Partner** | $1.000 | S/ 3,350 | 2 | **Herramienta obligatoria** para los 100, en otra capa · exclusividad de capa · workshop de 45 min · mentor en sala · demo en premiación |
+| **Toolkit Partner** | $500 | S/ 1,675 | 6 | Créditos en el kit oficial, **uso opcional** · logo en la grilla · mención en kickoff y premiación · logo en el recap |
+| **In-kind** | producto | — | ∞ | Sede, comida, swag, mentores, jurado, premios adicionales |
 
-**Chofex ocupa el slot Title**: la landing ya lo llama "Sponsor principal".
+**Chofex ocupa el slot Stack Partner**: la landing ya lo llama "Sponsor
+principal".
 
-Silver está fijado en **$500 a propósito**: es el umbral que en la mayoría de
+Toolkit está fijado en **$500 a propósito**: es el umbral que en la mayoría de
 devtools entra en presupuesto discrecional de DevRel sin pasar por legal. Bajarlo
 no acelera el sí; subirlo lo manda a un comité.
 
-> **El tier medio se renombró de "Track" a "Challenge Partner"** para seguir a la
-> landing, que ya no habla de tracks sino de **3 challenges sellados**. Y el
-> número calza: 1 Title + 2 Challenge Partner = **3**, uno por challenge. Ver §7.
+> **Los tiers ya no se venden por challenge.** Los 3 challenges son producto de
+> participante y van sin marca. Lo que se vende es **obligatoriedad de uso**: la
+> herramienta del partner entra en los requisitos de entrega.
+>
+> Por eso el sheet abre **exactamente 3 slots obligatorios** (1 Stack + 2 Core),
+> uno por capa del stack. El tope no es comercial, es de producto: cada
+> integración obligatoria cuesta entre 1 y 3 de las 30 horas del equipo. Las
+> cuatro reglas están en `deck-best-practices.md` §9.
 
 ### Cuántos slots abre la landing
 
-**9 slots nombrados** (1 Title + 2 Challenge + 6 Silver), más in-kind sin límite.
+**9 slots nombrados** (1 Stack + 2 Core + 6 Toolkit), más in-kind sin límite.
 
 ⚠️ **La grilla de sponsors ya no existe.** El rediseño de la landing eliminó
 `sponsorSlots`; hoy hay una sola marca ("Sponsor principal · Chofex",
-`sponsorsCopy`). Prometer "logo en la grilla" en el tier Silver exige
+`sponsorsCopy`). Prometer "logo en la grilla" en el tier Toolkit exige
 **reconstruir esa sección**, no actualizar un array. Es trabajo pendiente y hay
-que hacerlo antes de cobrar un Silver.
+que hacerlo antes de cobrar un Toolkit.
 
 ---
 
@@ -135,15 +141,15 @@ un error: la brecha se cierra con in-kind.
 | **Margen** | **+$450** |
 
 Cierra con un margen pequeño. Eso significa que **el sheet tiene poca holgura**:
-si falla una pieza de in-kind o no se venden los 6 Silver, hay déficit.
+si falla una pieza de in-kind o no se venden los 6 Toolkit, hay déficit.
 
 ### Escenario realista (no el lleno)
 
-Si se venden 3 Silver de 6 y falta el in-kind de comida:
+Si se venden 3 Toolkit de 6 y falta el in-kind de comida:
 
 | | USD |
 | --- | ---: |
-| Cash (Title + 2 Challenge + 3 Silver) | $6.000 |
+| Cash (Stack + 2 Core + 3 Toolkit) | $6.000 |
 | In-kind logrado (sede + swag) | $2.200 |
 | Cubierto | $8.200 |
 | **Déficit** | **−$2.550** |
@@ -154,10 +160,10 @@ Si se venden 3 Silver de 6 y falta el in-kind de comida:
    legitimidad institucional). Priorizar universidades antes que cash.
 2. **Reducir el cupo.** Cada 10 hackers menos son $825 de operación. Es la
    palanca más rápida y la menos popular.
-3. **Subir Silver de 6 a 10 slots.** +$2.000. Costo: la grilla de la landing
+3. **Subir Toolkit de 6 a 10 slots.** +$2.000. Costo: la grilla de la landing
    empieza a verse como un directorio, no como un cartel.
-4. **Premios de challenge pagados por el Challenge Partner** en vez de por el
-   evento. No baja el costo, lo traslada.
+4. **Premio adicional pagado por un partner** en vez de por el evento. No baja
+   el costo, lo traslada.
 
 > **Lo que no es palanca: recortar los premios.** Los US$2.500 están publicados
 > en la landing y son argumento de convocatoria.
@@ -167,15 +173,17 @@ Si se venden 3 Silver de 6 y falta el in-kind de comida:
 ## 7. Pendientes que mueven estos números
 
 1. **Reconstruir la grilla de sponsors.** El rediseño la eliminó. Sin ella, el
-   tier Silver promete algo que no existe.
+   tier Toolkit promete algo que no existe.
 2. **Cotizar de verdad** las cinco líneas marcadas ⚠️.
-3. **Definir si el Title tiene exclusividad de categoría.** Hoy no está escrito,
-   y es lo primero que va a preguntar un sponsor que pague $2.500.
-4. **Decidir si un sponsor puede ser dueño de un challenge.** El tier sheet lo
-   asume (3 challenges = 1 Title + 2 Challenge Partner) y es lo que separa esta
-   oferta de vender logos. Pero los briefs están **sellados hasta el kickoff**, y
-   nadie ha decidido si un partner los conoce antes, los co-escribe, o solo
-   patrocina uno a ciegas. **Esto vale $2.000 del sheet.**
+3. **Definir las 3 capas obligatorias antes de vender la primera.** Al cerrar un
+   Stack o un Core se cierra su capa para todo el evento (regla 3 de
+   `deck-best-practices.md` §9). Vender por orden de llegada, sin decidir qué
+   capas se abren, es cómo se termina con dos proveedores de inferencia y una
+   promesa de exclusividad imposible de cumplir.
+4. **Escribir la obligatoriedad en los requisitos de entrega.** Es lo que
+   convierte el tier en producto: sin reglamento, sin verificación del jurado y
+   sin mención en el kickoff, "obligatorio" no existe. **Esto vale $4.500 del
+   sheet** — los tres slots obligatorios completos.
 
 > El cupo de 100 y las fechas ya no son pendientes: `seatCount` está publicado y
 > el 17–18 oct es consistente en toda `content.ts`.

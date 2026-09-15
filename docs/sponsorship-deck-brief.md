@@ -92,7 +92,7 @@ export const sponsorsCopy = {
 
 El tier sheet abre **9 slots nombrados** (ver `budget-sponsors.md` §5), así que
 la sección multi-sponsor **hay que construirla de nuevo**. No es actualizar un
-array. Y es bloqueante para cobrar un Silver, porque ese tier promete
+array. Y es bloqueante para cobrar un Toolkit, porque ese tier promete
 exactamente "logo en la grilla".
 
 ## Qué se le pide a un sponsor devtool
@@ -118,27 +118,35 @@ Lo que el evento ya puede ofrecer, según lo construido y lo planificado:
 
 ## Preguntas abiertas
 
-De las seis originales quedan **dos**, y una es nueva. El presupuesto resolvió
-tres; el rediseño de la landing (#41) resolvió dos más por su cuenta.
+Quedan **tres**, y las tres son de ejecución, no de estrategia: el modelo
+comercial ya está decidido (§4 de las resueltas). El presupuesto resolvió tres
+preguntas, el rediseño de la landing (#41) resolvió dos más por su cuenta, y la
+decisión de vender obligatoriedad en vez de challenges cerró la última.
 
 ### Siguen abiertas
 
-1. **Qué relación tiene un partner con su challenge.** Los 3 briefs están
-   **sellados hasta el kickoff** — eso ya está decidido y publicado, no se
-   reabre. Lo que nadie decidió es si un Challenge Partner lo patrocina a
-   ciegas, lo conoce bajo NDA, o lo co-escribe. **Vale $2.000 del tier sheet**:
-   sin esa definición el tier medio no tiene producto y solo queda vender
-   visibilidad. Las tres opciones y sus costos, en `deck-best-practices.md` §9.
-2. **Reconstruir la sección de sponsors de la landing** (nueva). El rediseño la
-   dejó en una sola marca. El tier Silver promete "logo en la grilla" y la
-   grilla no existe. Bloquea cobrar Silver, no escribir el deck.
+1. **Definir las 3 capas obligatorias antes de vender la primera.** Cerrar un
+   Stack o un Core cierra esa capa para todo el evento. Vender por orden de
+   llegada sin decidir qué capas se abren es cómo se termina con dos proveedores
+   de inferencia y una exclusividad imposible de cumplir.
+2. **Escribir la obligatoriedad en los requisitos de entrega.** Reglamento,
+   mención en kickoff y verificación del jurado. Sin eso "obligatorio" no
+   existe. **Vale $4.500 del sheet** — los tres slots obligatorios.
+3. **Reconstruir la sección de sponsors de la landing.** El rediseño la dejó en
+   una sola marca. El tier Toolkit promete "logo en la grilla" y la grilla no
+   existe. Bloquea cobrar Toolkit, no escribir el deck.
 
 ### Resueltas
 
-3. ~~**Tiers y precio.**~~ → `budget-sponsors.md` §5. Title $2.500 ×1 ·
-   Challenge Partner $1.000 ×2 · Silver $500 ×6 · In-kind ∞. Derivados de un
-   total a financiar de **$10.750**. El ask principal a devtools sigue siendo
-   créditos; el cash es lo que cierra el presupuesto.
+4. ~~**Qué le vendemos a un partner.**~~ → **no challenges, sino
+   obligatoriedad de uso.** La herramienta del partner entra en los requisitos
+   de entrega; el 100% de las soluciones la integra. Los 3 challenges siguen
+   siendo producto de participante, sellados y sin marca. Reglas en
+   `deck-best-practices.md` §9.
+5. ~~**Tiers y precio.**~~ → `budget-sponsors.md` §5. Stack Partner $2.500 ×1 ·
+   Core Partner $1.000 ×2 · Toolkit $500 ×6 · In-kind ∞. Derivados de un
+   total a financiar de **$10.750**. El ask a devtools es créditos **más**
+   obligatoriedad; el cash es lo que cierra el presupuesto.
 4. ~~**Cuántos slots.**~~ → **9 nombrados** (1+2+6) más in-kind sin límite.
 5. ~~**Idioma del deck.**~~ → **ambos**. `main` en ES y `en` en EN, como el
    sistema del que se portó. Hoy solo existe `main`.

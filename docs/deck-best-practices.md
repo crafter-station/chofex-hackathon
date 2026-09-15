@@ -20,25 +20,33 @@ compra visibilidad: compra que 100 personas seleccionadas abran una cuenta,
 lean sus docs y construyan algo con su producto en 30 horas, delante de un
 jurado. La visibilidad es el envoltorio, no el producto.
 
+**Lo que se vende es adopción obligatoria.** La herramienta del partner entra en
+los requisitos de entrega: un proyecto que no la usa no compite. Eso convierte
+la métrica de "esperamos que algunos equipos lo prueben" en **el 100% de las
+soluciones, garantizado por las reglas**. Es la oferta más fuerte que tenemos y
+es la única que no depende de que a la gente le dé la gana.
+
 ### El marco que se usa
 
-- *"Como Challenge Partner, [X] es dueño del challenge de [categoría] durante todo el
-  hackathon."*
-- *"[X] se convierte en el camino rápido para los equipos que construyan
-  [categoría]."*
+- *"[X] es requisito de entrega: los 100 builders lo integran o no compiten."*
+- *"Cada proyecto de Hack the Andes corre sobre [X]."*
+- *"[X] es la capa de [categoría] del stack oficial, en exclusiva."*
 
 ### El marco que está prohibido
 
 - "Logo en la web" como valor principal.
 - "Exposición masiva", "alcance", "visibilidad de marca" como argumento central.
 - Cualquier promesa de ingresos, conversión o pipeline.
+- **"Los equipos podrán usar [X] si quieren."** Un tier de herramienta
+  obligatoria que en la práctica es opcional es la forma más rápida de no
+  vender una segunda edición.
 
 > **Nota sobre nuestro inventario actual.** El brief lista siete contrapartidas
 > —logo en landing, post de anuncio, plantilla de imagen, banners, badges,
 > menciones en kickoff y premiación— y **las siete son visibilidad**. Sirven como
 > relleno de tier, nunca como la tesis de un deck. Si un deck nuestro no puede
-> nombrar algo que el sponsor *posee* (un challenge, un workshop, un puesto en el
-> jurado, un premio), todavía no está listo para mandarse.
+> nombrar **en qué capa del stack entra la herramienta del sponsor y con qué
+> obligatoriedad**, todavía no está listo para mandarse.
 
 ---
 
@@ -51,17 +59,18 @@ devtools en lote. Flujo:
 
 1. Portada
 2. Qué es Hack the Andes
-3. Por qué ahora
+3. **Cómo se filtra** ← nuestro sustituto del track record (ver §4)
 4. Datos del evento
-5. **Cómo se filtra** ← nuestro sustituto del track record (ver §4)
-6. Audiencia: quién llega y cómo se seleccionó
-7. Premios oficiales
-8. Los 3 challenges
-9. Agenda de las 30 horas
-10. **Tiers**
-11. Qué cubre el aporte
-12. Por qué patrocinar
-13. Cierre
+5. Premios oficiales
+6. **El stack obligatorio** ← el producto que se vende (ver §9)
+7. **Tiers**
+8. Por qué patrocinar aquí y no en otro evento
+9. Qué se reporta después
+10. Cierre
+
+Es el orden de `content/decks/main/`. El slide 6 va **antes** de los tiers a
+propósito: sin entender que se venden capas del stack, los precios del 7 no
+significan nada.
 
 ### Deck a partner específico
 
@@ -72,9 +81,11 @@ Cuando hay una tesis de por qué *esa* empresa. Flujo:
 3. Qué es Hack the Andes
 4. Datos y audiencia
 5. Cómo se filtra
-6. **El challenge que el partner posee**
-7. Ejemplos concretos de lo que se construiría con su producto
-8. Stack y starter kit
+6. **La capa del stack que el partner ocupa** — nombrada: "inferencia",
+   "base de datos", "auth". Y qué queda cerrado para la competencia.
+7. Qué significa obligatorio para un equipo: el starter kit, la integración
+   mínima, en qué punto de las 30 horas la resuelven
+8. Ejemplos concretos de lo que se construiría con su producto
 9. Plan de activación (workshop / mentor / jurado)
 10. Métricas que se van a reportar
 11. **Inversión**
@@ -91,10 +102,14 @@ general con un logo pegado.
 
 | Situación | Ask |
 | --- | --- |
-| Preferido | **$2.500 Title** |
-| Alternativa | **$1.000 Challenge Partner** |
-| Devtools en lote | **$500 Silver** + créditos |
-| Siempre, además | créditos, licencias, mentores, jurado, swag, sede, workshops, premios de challenge |
+| Preferido | **$2.500 Stack Partner** — herramienta obligatoria, capa en exclusiva |
+| Alternativa | **$1.000 Core Partner** — herramienta obligatoria en otra capa |
+| Devtools en lote | **$500 Toolkit** — créditos en el kit, uso opcional |
+| Siempre, además | créditos, licencias, mentores, jurado, swag, sede, workshops, premio propio |
+
+**El ask de créditos nunca va solo.** Créditos sin obligatoriedad es un cupón que
+nadie canjea; obligatoriedad sin créditos es pedirle a 100 personas que paguen
+por una herramienta en un fin de semana. Los dos juntos son el producto.
 
 Montos y slots vienen de [`budget-sponsors.md`](./budget-sponsors.md), que es la
 única fuente. No los escribas de memoria en un slide.
@@ -208,38 +223,60 @@ un sponsor verifica contra la landing.
 
 ---
 
-## 9. Los challenges: la decisión pendiente
+## 9. El stack obligatorio
 
-La landing ahora dice **"3 challenges sellados"**: los equipos aceptados conocen
-los briefs al iniciar la hackathon, el 17 de octubre, y cada equipo elige uno. El
-sellado es parte de la convocatoria, no un accidente.
+**Los partners no son dueños de challenges.** Los 3 challenges son producto de
+participante: sellados hasta el kickoff, elegidos por cada equipo, sin marca
+encima. Lo que un partner compra es otra cosa: **que su herramienta sea
+requisito de entrega.**
 
-Pero el slide central de un deck a partner es *lo que el partner posee*, y el
-tier sheet asume que eso es un challenge. **Los números calzan sospechosamente
-bien: 3 challenges = 1 Title + 2 Challenge Partner.**
+### Las cuatro reglas
 
-Lo que falta decidir no es si se revelan al público —eso ya está resuelto, no se
-revelan— sino **qué relación tiene un partner con su challenge**:
+**1. Tope de 3 herramientas obligatorias.** Es el número, no una aspiración.
+Cada integración obligatoria le cuesta a un equipo entre una y tres horas de
+las 30 que tiene. A la cuarta, el evento deja de ser un hackathon y pasa a ser
+un tutorial de integraciones, y lo que se entrega es peor — que es exactamente
+lo que un sponsor no quiere que su logo acompañe.
 
-- **Patrocina a ciegas.** El partner pone dinero sobre un brief que no conoce.
-  Honesto con el sellado, pero casi imposible de vender: nadie compra lo que no
-  puede leer.
-- **Lo conoce bajo NDA.** Ve el brief antes, no lo escribe. El sellado se
-  mantiene frente a los participantes, que es donde importa.
-- **Lo co-escribe.** El partner da el problema y su producto es el camino
-  natural. Es lo más vendible y lo más riesgoso: si se nota, el evento pierde
-  credibilidad técnica.
+**2. Una por capa.** Las tres obligatorias van en capas distintas del stack
+—inferencia, datos, auth, infra, observabilidad, voz— para que compongan en vez
+de competir. Dos herramientas de la misma capa **no pueden ser ambas
+obligatorias**: se pisan, y obligar a usar las dos es pedirle al equipo que
+integre lo mismo dos veces.
 
-La segunda es la que hace funcionar el tier sheet sin romper la convocatoria.
-Pero es una decisión de Emmy, no del deck, y **vale $2.000** del sheet — sin ella
-el tier medio no tiene producto y lo único vendible es visibilidad, justo el
-marco prohibido de §1.
+**3. Exclusividad de categoría, y es estructural.** Se deriva de la regla 2, no
+es un perk que se regala en el tier alto. Si un partner ocupa la capa de
+inferencia, esa capa está cerrada para el resto del evento.
+
+**4. Obligatorio significa verificable.** Entra en los requisitos de entrega,
+se dice en el kickoff, y el jurado lo comprueba antes de evaluar. Sin eso,
+"obligatorio" es una promesa que no podemos cumplir y el sponsor lo va a
+descubrir leyendo las submissions.
+
+### Lo que esto compra, dicho con números
+
+| Oferta | Lo que se puede prometer |
+| --- | --- |
+| Herramienta obligatoria | **100% de las submissions** la integran |
+| Créditos en el kit | cuentas activadas, créditos consumidos |
+| Workshop | asistencia y feedback técnico en sala |
+
+La primera fila es la única cifra que podemos **garantizar por reglamento** en
+vez de estimar. Es el argumento central de cualquier deck nuestro.
+
+### El riesgo que hay que decir en voz alta
+
+Obligar herramientas estrecha lo que los equipos pueden construir. La mitigación
+es elegir **infraestructura de capa** (un proveedor de inferencia, una base de
+datos, un auth) y no producto opinado que decide la forma de la solución. Si una
+obligatoria no encaja con un challenge, el que pierde es el evento — y con él la
+segunda edición.
 
 ---
 
 ## 10. Reglas visuales
 
-Identidad **Hack the Andes**, no Chofex. Chofex aparece como sponsor Title; no
+Identidad **Hack the Andes**, no Chofex. Chofex aparece como sponsor principal; no
 pinta la paleta. (Regla ya cerrada en el brief, no reabrir.)
 
 - Papel de fondo, tipografía en tinta. El deck es claro, no oscuro.
