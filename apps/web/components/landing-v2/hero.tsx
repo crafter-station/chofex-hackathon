@@ -4,10 +4,7 @@ import Image from "next/image";
 
 import { facts, heroCopy, sponsorsCopy } from "@/components/landing/content";
 import { HudLabel } from "@/components/landing/hud";
-import {
-  landingCtaClassName,
-  landingDisplayClassName,
-} from "@/components/landing/shell";
+import { landingCtaClassName } from "@/components/landing/shell";
 import { Terrain } from "@/components/landing-v2/terrain";
 
 /**
@@ -124,7 +121,9 @@ export function LandingHeroV2() {
                * column of copy beside it; this one has a mountain above it.
                */}
               <h1
-                className={`${landingDisplayClassName} max-w-[16ch] text-[clamp(2.9rem,9vw,7.5rem)] uppercase`}
+                className={
+                  "font-[family-name:var(--font-landing-brand)] font-semibold leading-[0.88] tracking-[0.012em] max-w-[16ch] text-[clamp(2.6rem,8vw,6.8rem)] uppercase"
+                }
               >
                 {/*
                  * One colour, the way the poster has it. The burnt red measured

@@ -9,7 +9,7 @@ export function LandingFooter() {
     <footer className="landing-footer border-[var(--hud-type)]/12 border-t bg-[var(--hud-footer)] text-[var(--hud-type)]">
       <LandingContainer className="flex flex-col gap-6 py-8 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
-          <p className="font-[family-name:var(--font-landing-display)] text-2xl tracking-[-0.02em]">
+          <p className="font-[family-name:var(--font-landing-brand)] font-medium text-2xl tracking-[0.012em]">
             {brandName}
           </p>
           <HudLabel className="text-[var(--hud-type)]/70">

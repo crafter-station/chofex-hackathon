@@ -5,6 +5,7 @@ import { LandingAudience } from "@/components/landing/audience";
 import { LandingChallenges } from "@/components/landing/challenges";
 import { LandingExperience } from "@/components/landing/experience";
 import {
+  landingBrand,
   landingDisplay,
   landingMono,
   landingSans,
@@ -40,6 +41,7 @@ export default function Home() {
       className={cn(
         landingPageClassName,
         "landing-page-v2",
+        landingBrand.variable,
         landingDisplay.variable,
         landingSans.variable,
         landingMono.variable,

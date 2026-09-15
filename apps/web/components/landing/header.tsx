@@ -35,7 +35,7 @@ export function LandingHeader() {
     <header className="pointer-events-none fixed inset-x-0 top-0 z-30 border-white/10 border-b bg-[var(--hud-footer)]/92 text-[var(--hud-type)] backdrop-blur-xl">
       <div className="mx-auto flex min-h-14 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-8">
         <a
-          className="pointer-events-auto font-[family-name:var(--font-landing-display)] text-lg tracking-[-0.03em] text-[var(--hud-type)] transition-colors hover:text-white sm:text-xl"
+          className="pointer-events-auto font-[family-name:var(--font-landing-brand)] font-medium text-lg tracking-[0.012em] text-[var(--hud-type)] transition-colors hover:text-white sm:text-xl"
           href="#top"
         >
           {brandName}
