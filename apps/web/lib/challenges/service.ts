@@ -602,20 +602,6 @@ export const evaluateChallenge = async (
     );
   }
 
-  let score: ChallengeScore;
-  try {
-    score = await challengeEngine().evaluate(
-      attempt.id,
-      solution.source,
-      attempt.queriesUsed,
-    );
-  } catch (error) {
-    if (error instanceof ChallengeEngineError) {
-      throw engineHttpError(error);
-    }
-    throw error;
-  }
-
   const [consumed] = await db
     .update(challengeAttempts)
     .set({
@@ -638,7 +624,28 @@ export const evaluateChallenge = async (
     );
   }
 
-  score = { ...score, queriesUsed: consumed.queriesUsed };
+  let score: ChallengeScore;
+  try {
+    score = await challengeEngine().evaluate(
+      attempt.id,
+      solution.source,
+      consumed.queriesUsed,
+    );
+  } catch (error) {
+    if (error instanceof ChallengeEngineError) {
+      if (error.code !== "SOLUTION_EXECUTION_FAILED") {
+        await db
+          .update(challengeAttempts)
+          .set({
+            evaluationsUsed: sql`greatest(${challengeAttempts.evaluationsUsed} - 1, 0)`,
+            updatedAt: new Date(),
+          })
+          .where(eq(challengeAttempts.id, attempt.id));
+      }
+      throw engineHttpError(error);
+    }
+    throw error;
+  }
 
   const [evaluation] = await db
     .insert(challengeEvaluations)
