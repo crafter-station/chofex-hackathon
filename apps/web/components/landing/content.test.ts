@@ -29,6 +29,7 @@ test("publishes the 17–18 octubre 2026 weekend in participant-facing copy", ()
   expect(heroCopy.metaDate).toBe("17–18 oct 2026");
   expect(heroCopy.metaLocation).toBe("Lima, Perú");
   expect(footerCopy.meta).toContain("17–18 oct 2026");
+  expect(footerCopy.credits).toBe("Créditos");
 
   const blob = JSON.stringify({
     facts,
@@ -38,6 +39,7 @@ test("publishes the 17–18 octubre 2026 weekend in participant-facing copy", ()
   });
   expect(blob).not.toMatch(/10–11/);
   expect(blob).not.toMatch(/10-11/);
+  expect(blob).not.toMatch(/Terreno: Mapzen \/ USGS/);
 });
 
 test("publishes the confirmed prizes directly in soles", () => {
