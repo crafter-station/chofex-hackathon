@@ -43,8 +43,28 @@
 .landing-page {
   background: var(--hud-paper);
   color: var(--hud-ink);
+  /*
+   * `clip`, not `hidden`, and the difference is not cosmetic.
+   *
+   * `overflow-x: hidden` cannot be applied on one axis alone: it forces the
+   * other to `auto`, which makes this element a scroll container. The page
+   * then has two nested scrollports — the document and this — and the inner
+   * one becomes the nearest scrolling ancestor of every section, the target of
+   * anchor jumps, and a second place for the browser to correct scroll
+   * position against. It is also what silently disables `position: sticky`
+   * anywhere inside it.
+   *
+   * `clip` clips the same overflow without creating a scrollport. The `hidden`
+   * stays as the fallback for anything that predates it.
+   */
   overflow-x: hidden;
   -webkit-tap-highlight-color: rgb(36 89 201 / 16%);
+}
+
+@supports (overflow: clip) {
+  .landing-page {
+    overflow-x: clip;
+  }
 }
 
 .landing-page :is(section, footer)[id] {
