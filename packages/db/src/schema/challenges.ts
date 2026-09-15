@@ -4,6 +4,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  timestamp,
   uniqueIndex,
   uuid,
   varchar,
@@ -25,8 +26,11 @@ export const challengeAttempts = pgTable(
       .notNull(),
     shareCode: varchar("share_code", { length: 8 }).notNull(),
     queriesUsed: integer("queries_used").default(0).notNull(),
+    querySequence: integer("query_sequence").default(0).notNull(),
+    queriesPending: integer("queries_pending").default(0).notNull(),
     queriesLimit: integer("queries_limit").notNull(),
     evaluationsUsed: integer("evaluations_used").default(0).notNull(),
+    evaluationsPending: integer("evaluations_pending").default(0).notNull(),
     evaluationsLimit: integer("evaluations_limit").notNull(),
     bestEvaluationId: uuid("best_evaluation_id"),
     ...auditTimestamps(),
@@ -39,6 +43,25 @@ export const challengeAttempts = pgTable(
     ),
     uniqueIndex("challenge_attempts_share_code_unique").on(table.shareCode),
     index("challenge_attempts_slug_index").on(table.challengeSlug),
+  ],
+);
+
+export const challengeReservations = pgTable(
+  "challenge_reservations",
+  {
+    id: uuid("id").primaryKey(),
+    attemptId: uuid("attempt_id")
+      .notNull()
+      .references(() => challengeAttempts.id, { onDelete: "cascade" }),
+    kind: varchar("kind", { length: 16 }).notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    ...auditTimestamps(),
+  },
+  (table) => [
+    index("challenge_reservations_attempt_expiry_index").on(
+      table.attemptId,
+      table.expiresAt,
+    ),
   ],
 );
 
@@ -92,6 +115,24 @@ export const challengeEvaluations = pgTable(
   ],
 );
 
+export const challengeBestEvaluations = pgTable("challenge_best_evaluations", {
+  attemptId: uuid("attempt_id")
+    .primaryKey()
+    .references(() => challengeAttempts.id, { onDelete: "cascade" }),
+  evaluationId: uuid("evaluation_id")
+    .notNull()
+    .references(() => challengeEvaluations.id, { onDelete: "cascade" }),
+  accuracy: doublePrecision("accuracy").notNull(),
+  exactCount: integer("exact_count").notNull(),
+  queriesUsed: integer("queries_used").notNull(),
+  runtimeMs: integer("runtime_ms").notNull(),
+  evaluatedAt: timestamp("evaluated_at", { withTimezone: true }).notNull(),
+  ...auditTimestamps(),
+});
+
 export type ChallengeAttempt = typeof challengeAttempts.$inferSelect;
+export type ChallengeReservation = typeof challengeReservations.$inferSelect;
 export type ChallengeObservation = typeof challengeObservations.$inferSelect;
 export type ChallengeEvaluation = typeof challengeEvaluations.$inferSelect;
+export type ChallengeBestEvaluation =
+  typeof challengeBestEvaluations.$inferSelect;

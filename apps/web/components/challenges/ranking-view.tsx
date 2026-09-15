@@ -81,7 +81,7 @@ export function ChallengeRankingView({
   const { challenge, entries, competitorCount } = ranking;
   let cliHint = "chofex challenge list";
   if (challenge.playable) {
-    cliHint = `chofex challenge query ${challenge.slug}`;
+    cliHint = `chofex challenge query --challenge ${challenge.slug}`;
   }
   let challengeState = "Abierto";
   if (!challenge.open) {

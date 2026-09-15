@@ -7,6 +7,8 @@ const nonBlank = (maximum: number) =>
   );
 
 const optionalText = (maximum: number) => Schema.optional(nonBlank(maximum));
+const nullableOptionalText = (maximum: number) =>
+  Schema.optional(Schema.NullOr(nonBlank(maximum)));
 
 const normalizedString = (normalize: (value: string) => string) =>
   Schema.String.pipe(
@@ -27,6 +29,10 @@ const url = normalizedString((value) => {
     }),
     Schema.isMaxLength(2_048),
   ),
+);
+
+const graduationYear = Schema.Int.pipe(
+  Schema.check(Schema.isBetween({ minimum: 1950, maximum: 2100 })),
 );
 
 export const RegistrationStatus = Schema.Literals([
@@ -95,11 +101,7 @@ export const applicationInputFields = {
   organization: optionalText(200),
   role: optionalText(120),
   fieldOfStudy: optionalText(160),
-  graduationYear: Schema.optional(
-    Schema.Int.pipe(
-      Schema.check(Schema.isBetween({ minimum: 1950, maximum: 2100 })),
-    ),
-  ),
+  graduationYear: Schema.optional(graduationYear),
   shippedProject: nonBlank(2_000),
   hackathonProject: nonBlank(2_000),
   bio: nonBlank(2_000),
@@ -122,20 +124,20 @@ export type ApplicationInput = typeof ApplicationInput.Type;
 export const applicationDraftInputFields = {
   firstName: Schema.optional(applicationInputFields.firstName),
   lastName: Schema.optional(applicationInputFields.lastName),
-  pronouns: applicationInputFields.pronouns,
+  pronouns: nullableOptionalText(50),
   city: Schema.optional(applicationInputFields.city),
-  organization: applicationInputFields.organization,
-  role: applicationInputFields.role,
-  fieldOfStudy: applicationInputFields.fieldOfStudy,
-  graduationYear: applicationInputFields.graduationYear,
+  organization: nullableOptionalText(200),
+  role: nullableOptionalText(120),
+  fieldOfStudy: nullableOptionalText(160),
+  graduationYear: Schema.optional(Schema.NullOr(graduationYear)),
   shippedProject: Schema.optional(applicationInputFields.shippedProject),
   hackathonProject: Schema.optional(applicationInputFields.hackathonProject),
   bio: Schema.optional(applicationInputFields.bio),
-  githubUrl: applicationInputFields.githubUrl,
-  linkedInUrl: applicationInputFields.linkedInUrl,
-  portfolioUrl: applicationInputFields.portfolioUrl,
+  githubUrl: Schema.optional(Schema.NullOr(url)),
+  linkedInUrl: Schema.optional(Schema.NullOr(url)),
+  portfolioUrl: Schema.optional(Schema.NullOr(url)),
   teamPreference: Schema.optional(applicationInputFields.teamPreference),
-  teamName: applicationInputFields.teamName,
+  teamName: nullableOptionalText(120),
   codeOfConductAccepted: Schema.optional(Schema.Boolean),
   privacyPolicyAccepted: Schema.optional(Schema.Boolean),
   mediaConsent: Schema.optional(Schema.Boolean),

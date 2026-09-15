@@ -181,18 +181,23 @@ export const challengeTestText = (result: ChallengeLocalTestResult): string => {
 
 export const challengeEvaluateText = (
   result: ChallengeEvaluationResult,
-): string =>
-  [
+): string => {
+  const lines = [
     "BLACK BOX REPLICATION",
     `Accuracy            ${percent(result.accuracy)}`,
     `Exact predictions   ${result.exactCount} / ${result.sampleSize}`,
     `Mean error          ${result.meanError.toFixed(2)}`,
     `Oracle queries used ${result.queriesUsed}`,
-    `Rank                #${result.rank}`,
+  ];
+  if (result.rank !== undefined)
+    lines.push(`Rank                #${result.rank}`);
+  lines.push(
     `Official evaluations remaining ${result.evaluationsRemaining} / ${result.evaluationsLimit}`,
     "",
     result.shareText,
-  ].join("\n");
+  );
+  return lines.join("\n");
+};
 
 export const challengeRankingText = (ranking: ChallengeRanking): string => {
   const lines = [

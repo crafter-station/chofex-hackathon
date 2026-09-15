@@ -71,6 +71,13 @@
       "when": 1789508868609,
       "tag": "0009_serious_praxagora",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1789514547941,
+      "tag": "0010_strong_blackheart",
+      "breakpoints": true
     }
   ]
 }

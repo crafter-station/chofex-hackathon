@@ -17,6 +17,8 @@ import { catalogItemFor } from "./catalog";
 import { challengesForceOpen, currentChallengeTime } from "./clock";
 import { currentChallengeVersion } from "./engine";
 import { rankingDisplayName } from "./names";
+import { competitionRanks } from "./ranking-policy";
+import { scoreFromStored } from "./score";
 
 interface RankedEvaluation {
   readonly attemptId: string;
@@ -25,22 +27,6 @@ interface RankedEvaluation {
   readonly score: ChallengeScore;
   readonly evaluatedAt: Date;
 }
-
-const scoreFromEvaluation = (evaluation: {
-  readonly accuracy: number;
-  readonly exactCount: number;
-  readonly sampleSize: number;
-  readonly meanError: number;
-  readonly queriesUsed: number;
-  readonly runtimeMs: number;
-}): ChallengeScore => ({
-  accuracy: evaluation.accuracy,
-  exactCount: evaluation.exactCount,
-  sampleSize: evaluation.sampleSize,
-  meanError: evaluation.meanError,
-  queriesUsed: evaluation.queriesUsed,
-  runtimeMs: evaluation.runtimeMs,
-});
 
 const compareRanked = (
   left: RankedEvaluation,
@@ -78,7 +64,7 @@ export const rankedEvaluationsFor = async (
       attemptId: row.attemptId,
       participantId: row.participantId,
       shareCode: row.shareCode,
-      score: scoreFromEvaluation(row.evaluation),
+      score: scoreFromStored(row.evaluation),
       evaluatedAt: row.evaluation.createdAt,
     }))
     .sort(compareRanked);
@@ -90,7 +76,8 @@ export const rankForAttempt = (
 ): { rank: number; competitorCount: number } | undefined => {
   const index = ranked.findIndex((row) => row.attemptId === attemptId);
   if (index < 0) return undefined;
-  return { rank: index + 1, competitorCount: ranked.length };
+  const ranks = competitionRanks(ranked.map((row) => row.score));
+  return { rank: ranks[index] ?? 1, competitorCount: ranked.length };
 };
 
 export const getChallengeRanking = async (
@@ -135,10 +122,11 @@ export const getChallengeRanking = async (
     }
   }
 
+  const ranks = competitionRanks(ranked.map((row) => row.score));
   const entries: Array<ChallengeRankingEntry> = ranked.map((row, index) => {
     const identity = identityByParticipant.get(row.participantId);
     return {
-      rank: index + 1,
+      rank: ranks[index] ?? 1,
       displayName: rankingDisplayName({
         firstName: identity?.firstName,
         lastName: identity?.lastName,

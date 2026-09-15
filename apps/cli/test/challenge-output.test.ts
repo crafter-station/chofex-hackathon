@@ -35,4 +35,25 @@ describe("challenge output", () => {
     expect(text).toContain("2 / 3");
     expect(text).toContain("BLACK BOX #7A3F");
   });
+
+  test("still reports a persisted evaluation when ranking is unavailable", () => {
+    const text = challengeEvaluateText({
+      accuracy: 0.9,
+      exactCount: 900,
+      sampleSize: 1000,
+      meanError: 2,
+      queriesUsed: 20,
+      runtimeMs: 10,
+      shareCode: "7A3F",
+      evaluationsUsed: 1,
+      evaluationsRemaining: 2,
+      evaluationsLimit: 3,
+      rankingPath: "/challenges/black-box",
+      shareText: "90.00% replication",
+    });
+
+    expect(text).not.toContain("Rank");
+    expect(text).not.toContain("undefined");
+    expect(text).toContain("2 / 3");
+  });
 });

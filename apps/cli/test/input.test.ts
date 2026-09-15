@@ -7,6 +7,7 @@ import * as Terminal from "effect/Terminal";
 import {
   applicationDefaultsFromRegistration,
   dateOfBirthPrompt,
+  normalizeDraftFields,
   publicDocumentUrl,
 } from "../src/input.js";
 
@@ -101,6 +102,21 @@ describe("CLI registration input", () => {
     expect(publicDocumentUrl("https://apply.chofex.com/", "/privacy")).toBe(
       "https://apply.chofex.com/privacy",
     );
+  });
+
+  test("sends explicit nulls when optional draft fields are cleared", () => {
+    expect(
+      normalizeDraftFields({
+        organization: "",
+        graduationYear: "",
+        githubUrl: "",
+        role: undefined,
+      }),
+    ).toEqual({
+      organization: null,
+      graduationYear: null,
+      githubUrl: null,
+    });
   });
 
   test("rejects an invalid date of birth before advancing", async () => {

@@ -17,7 +17,7 @@ import {
   ShipmentSchema,
 } from "@chofex/challenges-contract";
 import { db } from "@chofex/db";
-import { and, asc, desc, eq, inArray, sql } from "@chofex/db/orm";
+import { and, asc, desc, eq, inArray } from "@chofex/db/orm";
 import {
   challengeAttempts,
   challengeEvaluations,
@@ -31,20 +31,31 @@ import { participantIdFor } from "../registration/participants";
 import { catalogItemFor, rankingPathFor } from "./catalog";
 import { challengesForceOpen, currentChallengeTime } from "./clock";
 import {
-  challengeEngine,
   ChallengeEngineError,
+  challengeEngine,
   currentChallengeVersion,
 } from "./engine";
+import { isConfirmedSolutionExecutionFailure } from "./failure-policy";
 import { challengeProgressStatus } from "./progress";
 import { rankedEvaluationsFor, rankForAttempt } from "./ranking";
+import { competitionRanks } from "./ranking-policy";
+import {
+  type ChallengeReservation,
+  completeEvaluationReservation,
+  completeQueryReservation,
+  consumeFailedEvaluationReservation,
+  releaseChallengeReservation,
+  reserveChallengeUse,
+} from "./reservations";
 import { runShippingSolution } from "./sandbox";
+import { scoreFromStored } from "./score";
 import { attemptSeed, shareCodeFromSeed } from "./seed";
 
 type AttemptRecord = typeof challengeAttempts.$inferSelect;
 type EvaluationRecord = typeof challengeEvaluations.$inferSelect;
 
 const engineHttpError = (error: ChallengeEngineError): HttpError => {
-  if (error.status === 422 && error.code === "SOLUTION_EXECUTION_FAILED") {
+  if (isConfirmedSolutionExecutionFailure(error)) {
     return new HttpError(422, error.code, error.message, false);
   }
   return new HttpError(
@@ -53,6 +64,13 @@ const engineHttpError = (error: ChallengeEngineError): HttpError => {
     "The challenge engine is temporarily unavailable",
   );
 };
+
+const engineUnavailableError = (): HttpError =>
+  new HttpError(
+    503,
+    "CHALLENGE_ENGINE_UNAVAILABLE",
+    "The challenge engine is temporarily unavailable",
+  );
 
 const parseInput = <S extends Schema.ConstraintDecoder<unknown>>(
   schema: S,
@@ -180,6 +198,17 @@ const attemptFor = async (
   return createAttempt(participantId, challenge);
 };
 
+const releaseAfterFailure = async (
+  reservation: ChallengeReservation,
+  kind: "query" | "evaluation",
+): Promise<void> => {
+  try {
+    await releaseChallengeReservation(reservation, kind);
+  } catch (error) {
+    console.error("Could not release challenge reservation", error);
+  }
+};
+
 const progressStatus = (
   attempt: AttemptRecord | undefined,
   evaluation: EvaluationRecord | undefined,
@@ -226,15 +255,6 @@ const observationView = (row: {
   createdAt: row.createdAt.toISOString(),
 });
 
-const scoreFromEvaluation = (evaluation: EvaluationRecord): ChallengeScore => ({
-  accuracy: evaluation.accuracy,
-  exactCount: evaluation.exactCount,
-  sampleSize: evaluation.sampleSize,
-  meanError: evaluation.meanError,
-  queriesUsed: evaluation.queriesUsed,
-  runtimeMs: evaluation.runtimeMs,
-});
-
 const percentileFor = (rank: number, competitorCount: number): number => {
   if (competitorCount <= 0) return 100;
   return (rank / competitorCount) * 100;
@@ -245,22 +265,26 @@ const shareTextFor = (
   result: {
     accuracy: number;
     queriesUsed: number;
-    rank: number;
-    competitorCount: number;
+    rank?: number;
+    competitorCount?: number;
     shareCode: string;
   },
 ): string => {
   const accuracyPercent = (result.accuracy * 100).toFixed(2);
-  const topPercent = percentileFor(result.rank, result.competitorCount).toFixed(
-    1,
-  );
-  return [
+  const lines = [
     `🕵️ BLACK BOX #${result.shareCode}`,
     `${accuracyPercent}% replication`,
     `${result.queriesUsed} / ${challenge.queryLimit} queries used`,
-    `Top ${topPercent}%`,
-    "Can you reverse engineer yours?",
-  ].join("\n");
+  ];
+  if (result.rank !== undefined && result.competitorCount !== undefined) {
+    const topPercent = percentileFor(
+      result.rank,
+      result.competitorCount,
+    ).toFixed(1);
+    lines.push(`Top ${topPercent}%`);
+  }
+  lines.push("Can you reverse engineer yours?");
+  return lines.join("\n");
 };
 
 const loadBestEvaluation = async (
@@ -326,8 +350,8 @@ export const challengeProgressForParticipants = async (
     if (
       !current ||
       compareChallengeScores(
-        scoreFromEvaluation(evaluation),
-        scoreFromEvaluation(current),
+        scoreFromStored(evaluation),
+        scoreFromStored(current),
       ) < 0
     ) {
       evaluationByAttemptId.set(evaluation.attemptId, evaluation);
@@ -350,8 +374,9 @@ export const challengeProgressForParticipants = async (
   );
   const rankByAttemptId = new Map<string, number>();
   for (const [, ranked] of rankings) {
+    const ranks = competitionRanks(ranked.map((entry) => entry.score));
     for (const [index, entry] of ranked.entries()) {
-      rankByAttemptId.set(entry.attemptId, index + 1);
+      rankByAttemptId.set(entry.attemptId, ranks[index] ?? 1);
     }
   }
 
@@ -428,7 +453,7 @@ export const getChallengeAttempt = async (
       percentile = percentileFor(standing.rank, standing.competitorCount);
     }
     latestEvaluation = {
-      ...scoreFromEvaluation(evaluation),
+      ...scoreFromStored(evaluation),
       shareCode: existing.shareCode,
       rank: standing?.rank,
       percentile,
@@ -443,7 +468,7 @@ export const getChallengeAttempt = async (
     latestEvaluation,
     aiAllowed: true,
     localTestHint:
-      "Test against your notebook with `chofex challenge test black-box --source ./shipping.js`. Official evaluation consumes one attempt.",
+      "Test against your notebook with `chofex challenge test --challenge black-box --source ./shipping.js`. Official evaluation consumes one attempt.",
   };
 };
 
@@ -458,7 +483,9 @@ export const queryChallenge = async (
   const participantId = await participantIdFor(clerkUserId);
   const attempt = await attemptFor(participantId, challenge);
 
-  if (attempt.queriesUsed >= attempt.queriesLimit) {
+  const reservation = await reserveChallengeUse(attempt.id, "query");
+
+  if (!reservation) {
     throw new HttpError(
       429,
       "QUERY_LIMIT_REACHED",
@@ -470,50 +497,28 @@ export const queryChallenge = async (
   try {
     output = await challengeEngine().query(attempt.id, input);
   } catch (error) {
+    await releaseAfterFailure(reservation, "query");
     if (error instanceof ChallengeEngineError) {
       throw engineHttpError(error);
     }
+    console.error("Challenge engine query failed", error);
+    throw engineUnavailableError();
+  }
+
+  let completed: Awaited<ReturnType<typeof completeQueryReservation>>;
+  try {
+    completed = await completeQueryReservation(reservation, input, output);
+  } catch (error) {
+    await releaseAfterFailure(reservation, "query");
     throw error;
   }
-
-  const [consumed] = await db
-    .update(challengeAttempts)
-    .set({
-      queriesUsed: sql`${challengeAttempts.queriesUsed} + 1`,
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(challengeAttempts.id, attempt.id),
-        sql`${challengeAttempts.queriesUsed} < ${challengeAttempts.queriesLimit}`,
-      ),
-    )
-    .returning();
-
-  if (!consumed) {
-    throw new HttpError(
-      429,
-      "QUERY_LIMIT_REACHED",
-      `No Black Box queries remaining (${attempt.queriesLimit}/${attempt.queriesLimit})`,
-    );
-  }
-
-  const [observation] = await db
-    .insert(challengeObservations)
-    .values({
-      attemptId: attempt.id,
-      sequence: consumed.queriesUsed,
-      input,
-      output,
-    })
-    .returning();
-  if (!observation) throw new Error("Observation insert returned no row");
+  if (!completed) throw engineUnavailableError();
 
   return {
-    observation: observationView(observation),
-    queriesUsed: consumed.queriesUsed,
-    queriesRemaining: consumed.queriesLimit - consumed.queriesUsed,
-    queriesLimit: consumed.queriesLimit,
+    observation: completed.observation,
+    queriesUsed: completed.queriesUsed,
+    queriesRemaining: completed.queriesLimit - completed.queriesUsed,
+    queriesLimit: completed.queriesLimit,
   };
 };
 
@@ -594,29 +599,9 @@ export const evaluateChallenge = async (
   const participantId = await participantIdFor(clerkUserId);
   const attempt = await attemptFor(participantId, challenge);
 
-  if (attempt.evaluationsUsed >= attempt.evaluationsLimit) {
-    throw new HttpError(
-      429,
-      "EVALUATION_LIMIT_REACHED",
-      `No official evaluations remaining (${attempt.evaluationsLimit}/${attempt.evaluationsLimit})`,
-    );
-  }
+  const reservation = await reserveChallengeUse(attempt.id, "evaluation");
 
-  const [consumed] = await db
-    .update(challengeAttempts)
-    .set({
-      evaluationsUsed: sql`${challengeAttempts.evaluationsUsed} + 1`,
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(challengeAttempts.id, attempt.id),
-        sql`${challengeAttempts.evaluationsUsed} < ${challengeAttempts.evaluationsLimit}`,
-      ),
-    )
-    .returning();
-
-  if (!consumed) {
+  if (!reservation) {
     throw new HttpError(
       429,
       "EVALUATION_LIMIT_REACHED",
@@ -629,82 +614,82 @@ export const evaluateChallenge = async (
     score = await challengeEngine().evaluate(
       attempt.id,
       solution.source,
-      consumed.queriesUsed,
+      reservation.queriesUsed,
     );
   } catch (error) {
     if (error instanceof ChallengeEngineError) {
-      if (error.code !== "SOLUTION_EXECUTION_FAILED") {
-        await db
-          .update(challengeAttempts)
-          .set({
-            evaluationsUsed: sql`greatest(${challengeAttempts.evaluationsUsed} - 1, 0)`,
-            updatedAt: new Date(),
-          })
-          .where(eq(challengeAttempts.id, attempt.id));
+      if (isConfirmedSolutionExecutionFailure(error)) {
+        try {
+          const consumed =
+            await consumeFailedEvaluationReservation(reservation);
+          if (!consumed) throw new Error("Evaluation reservation expired");
+        } catch (persistenceError) {
+          console.error(
+            "Could not persist failed challenge evaluation",
+            persistenceError,
+          );
+          throw engineUnavailableError();
+        }
+        throw engineHttpError(error);
       }
+      await releaseAfterFailure(reservation, "evaluation");
       throw engineHttpError(error);
     }
-    throw error;
+    await releaseAfterFailure(reservation, "evaluation");
+    console.error("Challenge engine evaluation failed", error);
+    throw engineUnavailableError();
   }
 
-  const [evaluation] = await db
-    .insert(challengeEvaluations)
-    .values({
-      attemptId: attempt.id,
-      solutionKind: solution.kind,
+  let completed: Awaited<ReturnType<typeof completeEvaluationReservation>>;
+  try {
+    completed = await completeEvaluationReservation(
+      reservation,
       solution,
-      accuracy: score.accuracy,
-      exactCount: score.exactCount,
-      sampleSize: score.sampleSize,
-      meanError: score.meanError,
-      queriesUsed: score.queriesUsed,
-      runtimeMs: score.runtimeMs,
-    })
-    .returning();
-  if (!evaluation) throw new Error("Evaluation insert returned no row");
+      score,
+    );
+  } catch (error) {
+    await releaseAfterFailure(reservation, "evaluation");
+    throw error;
+  }
+  if (!completed) throw engineUnavailableError();
 
-  await db.execute(sql`
-    update "challenge_attempts"
-    set
-      "best_evaluation_id" = (
-        select "id"
-        from "challenge_evaluations"
-        where "attempt_id" = ${attempt.id}
-        order by
-          "accuracy" desc,
-          "exact_count" desc,
-          "queries_used" asc,
-          "runtime_ms" asc,
-          "created_at" asc,
-          "id" asc
-        limit 1
-      ),
-      "updated_at" = now()
-    where "id" = ${attempt.id}
-  `);
+  let standing: { rank: number; competitorCount: number } | undefined;
+  try {
+    const ranked = await rankedEvaluationsFor(challenge.slug);
+    standing = rankForAttempt(ranked, attempt.id);
+  } catch (error) {
+    console.error("Could not load challenge ranking after evaluation", error);
+  }
 
-  const ranked = await rankedEvaluationsFor(challenge.slug);
-  const standing = rankForAttempt(ranked, attempt.id) ?? {
-    rank: ranked.length + 1,
-    competitorCount: Math.max(ranked.length, 1),
-  };
+  const rankingResult: {
+    rank?: number;
+    competitorCount?: number;
+    percentile?: number;
+  } = {};
+  if (standing) {
+    rankingResult.rank = standing.rank;
+    rankingResult.competitorCount = standing.competitorCount;
+    rankingResult.percentile = percentileFor(
+      standing.rank,
+      standing.competitorCount,
+    );
+  }
 
   return {
     ...score,
-    shareCode: consumed.shareCode,
-    rank: standing.rank,
-    competitorCount: standing.competitorCount,
-    percentile: percentileFor(standing.rank, standing.competitorCount),
-    evaluationsUsed: consumed.evaluationsUsed,
-    evaluationsRemaining: consumed.evaluationsLimit - consumed.evaluationsUsed,
-    evaluationsLimit: consumed.evaluationsLimit,
+    shareCode: completed.shareCode,
+    ...rankingResult,
+    evaluationsUsed: completed.evaluationsUsed,
+    evaluationsRemaining:
+      completed.evaluationsLimit - completed.evaluationsUsed,
+    evaluationsLimit: completed.evaluationsLimit,
     rankingPath: rankingPathFor(challenge.slug),
     shareText: shareTextFor(challenge, {
       accuracy: score.accuracy,
       queriesUsed: score.queriesUsed,
-      rank: standing.rank,
-      competitorCount: standing.competitorCount,
-      shareCode: consumed.shareCode,
+      rank: standing?.rank,
+      competitorCount: standing?.competitorCount,
+      shareCode: completed.shareCode,
     }),
   };
 };

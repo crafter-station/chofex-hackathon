@@ -1,6 +1,6 @@
 import type { ParticipantChallengeProgress } from "@chofex/challenges-contract";
 import { db } from "@chofex/db";
-import { and, desc, eq } from "@chofex/db/orm";
+import { and, desc, eq, sql } from "@chofex/db/orm";
 import {
   acceptanceDetails,
   applications,
@@ -221,6 +221,12 @@ const draftColumnsFrom = (
     values.teamPreference = input.teamPreference;
   }
   if (input.teamName !== undefined) values.teamName = input.teamName;
+  if (
+    input.teamPreference !== undefined &&
+    input.teamPreference !== "have_team"
+  ) {
+    values.teamName = null;
+  }
   if (input.mediaConsent !== undefined)
     values.mediaConsent = input.mediaConsent;
   if (input.codeOfConductAccepted === true) {
@@ -355,20 +361,6 @@ export const submitRegistration = async (
     );
   }
 
-  const result = await resultFor(current.application, current.details);
-  if (!result.requirements.canSubmitApplication) {
-    throw new HttpError(
-      422,
-      "APPLICATION_INCOMPLETE",
-      "Complete every application field and agreement before submitting",
-      false,
-      {
-        missing: result.requirements.missing,
-        parts: result.requirements.parts,
-      },
-    );
-  }
-
   const now = new Date();
   const [application] = await db
     .update(applications)
@@ -381,10 +373,44 @@ export const submitRegistration = async (
       and(
         eq(applications.id, current.application.id),
         eq(applications.status, "draft"),
+        sql`${applications.firstName} is not null`,
+        sql`${applications.lastName} is not null`,
+        sql`${applications.city} is not null`,
+        sql`${applications.shippedProject} is not null`,
+        sql`${applications.hackathonProject} is not null`,
+        sql`${applications.bio} is not null`,
+        sql`${applications.teamPreference} is not null`,
+        sql`(${applications.teamPreference} <> 'have_team' or ${applications.teamName} is not null)`,
+        sql`${applications.codeOfConductAcceptedAt} is not null`,
+        sql`${applications.privacyPolicyAcceptedAt} is not null`,
       ),
     )
     .returning();
   if (!application) {
+    const latest = await latestApplicationRecord(identity.clerkUserId);
+    if (
+      latest?.application.id === current.application.id &&
+      latest.application.status === "draft"
+    ) {
+      const result = await resultFor(latest.application, latest.details);
+      if (!result.requirements.canSubmitApplication) {
+        throw new HttpError(
+          422,
+          "APPLICATION_INCOMPLETE",
+          "Complete every application field and agreement before submitting",
+          false,
+          {
+            missing: result.requirements.missing,
+            parts: result.requirements.parts,
+          },
+        );
+      }
+      throw new HttpError(
+        409,
+        "APPLICATION_DRAFT_CHANGED",
+        "The application changed while it was being submitted; review and submit it again",
+      );
+    }
     throw new HttpError(
       409,
       "APPLICATION_ALREADY_SUBMITTED",

@@ -345,10 +345,14 @@ const requiredAgreement = Effect.fn("requiredAgreement")(function* (
   );
 });
 
-const normalizeDraftFields = (
+export const normalizeDraftFields = (
   input: Record<string, unknown>,
 ): Record<string, unknown> => {
-  const normalized = withoutEmptyStrings(input);
+  const normalized = Object.fromEntries(
+    Object.entries(input)
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => [key, value === "" ? null : value]),
+  );
   if (typeof input.graduationYear === "string" && input.graduationYear !== "") {
     normalized.graduationYear = Number(input.graduationYear);
   }
@@ -382,7 +386,7 @@ export const collectTeamPart = (
     const teamPreference = yield* Prompt.run(
       teamPreferencePrompt(defaults.teamPreference),
     );
-    let teamName: string | undefined;
+    let teamName: string | null = null;
     if (teamPreference === "have_team") {
       teamName = yield* Prompt.run(
         requiredText(
@@ -392,7 +396,7 @@ export const collectTeamPart = (
         ),
       );
     }
-    return withoutEmptyStrings({ teamPreference, teamName });
+    return { teamPreference, teamName };
   }).pipe(
     Effect.mapError((error) => {
       if (error instanceof CliError) return error;

@@ -3,6 +3,7 @@ import { Schema } from "effect";
 
 import {
   AcceptedDetailsInput,
+  ApplicationDraftInput,
   ApplicationInput,
   acceptedDetailsSemanticRequirements,
   applicationRequirementsFor,
@@ -89,6 +90,22 @@ describe("registration contract", () => {
         participationMode: "remote",
       }),
     ).toThrow();
+  });
+
+  test("accepts null to clear optional draft fields", () => {
+    expect(
+      Schema.decodeUnknownSync(ApplicationDraftInput)({
+        organization: null,
+        graduationYear: null,
+        githubUrl: null,
+        teamName: null,
+      }),
+    ).toEqual({
+      organization: null,
+      graduationYear: null,
+      githubUrl: null,
+      teamName: null,
+    });
   });
 
   test("requires a team name for existing teams", () => {
