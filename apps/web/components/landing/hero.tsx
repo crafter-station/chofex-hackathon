@@ -1,255 +1,195 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
-import {
-  facts,
-  heroCopy,
-  valleySignal,
-  worldChapterCopy,
-} from "@/components/landing/content";
-import { HeroScene } from "@/components/landing/hero-scene";
-import { DeviceCard, HudLabel } from "@/components/landing/hud";
-import {
-  chapterFromProgress,
-  type ProjectedTarget,
-  type WorldChapter,
-} from "@/components/landing/machu-picchu-geometry";
-import { MachuPicchuScene } from "@/components/landing/machu-picchu-scene";
-import { ScanHud } from "@/components/landing/scan-hud";
-import {
-  landingCtaClassName,
-  landingDisplayClassName,
-} from "@/components/landing/shell";
-import {
-  scrollWorldToChapter,
-  WorldChapterRail,
-} from "@/components/landing/world-chapter-rail";
+import { facts, heroCopy, partners } from "@/components/landing/content";
+import { HudLabel } from "@/components/landing/hud";
+import { landingCtaClassName } from "@/components/landing/shell";
+import { Terrain } from "@/components/landing/terrain";
 
-function readProgress(section: HTMLElement): number {
-  const total = section.offsetHeight - window.innerHeight;
-  if (total <= 0) {
-    return 0;
-  }
-  return Math.min(1, Math.max(0, -section.getBoundingClientRect().top / total));
-}
-
+/**
+ * The drawn hero.
+ *
+ * Composed as a poster rather than as a page: the range across the top, the
+ * lockup centred beneath it, and the liquid gathered along the line where the
+ * two meet. Nothing to explore and nowhere to fly — the camera is parked, and
+ * the one thing the hero asks for is a sideways drag, which turns the range on
+ * the spot.
+ */
 export function LandingHero() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const progressRef = useRef(0);
-  const [chapter, setChapter] = useState<WorldChapter>("hero");
-  const [targets, setTargets] = useState<ProjectedTarget[]>([]);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) {
-      return;
-    }
-
-    const update = () => {
-      const next = readProgress(section);
-      progressRef.current = next;
-      const nextChapter = chapterFromProgress(next);
-      setChapter((current) => {
-        if (current === nextChapter) {
-          return current;
-        }
-        return nextChapter;
-      });
-    };
-
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
-  }, []);
-
-  const heroVisible = chapter === "hero";
-  const valleyVisible = chapter === "valley";
-  const scanVisible = chapter === "scan";
-
-  let heroOpacity = "opacity-0";
-  if (heroVisible) {
-    heroOpacity = "opacity-100";
-  }
-
-  let valleyClass = "pointer-events-none opacity-0 translate-y-3";
-  if (valleyVisible) {
-    valleyClass = "opacity-100 translate-y-0";
-  }
-
-  let scanChapterClass = "pointer-events-none opacity-0 translate-y-3";
-  if (scanVisible) {
-    scanChapterClass = "opacity-100 translate-y-0";
-  }
-
   return (
-    <section
-      ref={sectionRef}
-      className="relative w-full bg-[#173c52]"
-      id="world"
-    >
-      <div className="sticky top-0 h-dvh min-h-[42rem] overflow-hidden">
-        <HeroScene>
-          <MachuPicchuScene onTargets={setTargets} progressRef={progressRef} />
-        </HeroScene>
+    <>
+      <section className="landing-hero relative h-dvh w-full" id="world">
+        <div className="relative flex h-full flex-col overflow-hidden">
+          {/*
+           * The drawing dissolves into the ground rather than ending at the edge
+           * of its box. The reference does the same thing with a pen — the
+           * foreground ridges thin out to a few strokes and then to nothing — and
+           * a hard cut here reads as a cropped image sitting on the page.
+           */}
+          {/*
+           * Full bleed, and no mask.
+           *
+           * The drawing spent several iterations boxed into the top 56% and faded
+           * out below it, which deleted the one thing the reference leads with: a
+           * foreground that sweeps out of the bottom edge of the frame. The black
+           * under the type is not a wash — it is the valley floor, drawn with the
+           * few widely spaced lines a smooth surface earns.
+           */}
+          <Terrain className="absolute inset-0" />
 
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-[#07152b]/20 via-transparent to-[#07152b]/42"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-10 hud-scanlines"
-        />
+          {/*
+           * Light washes, and they have to stay light.
+           *
+           * An opaque veil over the bottom two fifths is the obvious way to seat
+           * centred type, and it spent several iterations convincing me the
+           * renderer was clipping the foreground: the near ridges were being
+           * drawn correctly and painted over by this. The foreground sweeping out
+           * of the bottom edge is the thing the reference leads with.
+           */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[34%] bg-gradient-to-t from-[#050406]/95 via-[#050406]/58 to-transparent"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 z-10 h-44 bg-gradient-to-b from-[#050406] via-[#050406]/70 to-transparent"
+          />
+          {/*
+           * And one soft ellipse under the lockup.
+           *
+           * Measured, not decorative: the densest contour lines in the drawing
+           * are near-white, and where they pass behind the letterforms the
+           * headline falls to 1.3:1 — white type on white line art. A band across
+           * the frame would fix it by deleting the mountain; an ellipse sits the
+           * letters on ground and leaves the range visible around them.
+           */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_58%_38%_at_50%_49%,rgba(5,4,6,0.93)_0%,rgba(5,4,6,0.68)_46%,transparent_84%)]"
+          />
 
-        <div
-          className={`landing-world-motion pointer-events-none relative z-20 mx-auto flex h-dvh min-h-[42rem] w-full max-w-[1800px] flex-col justify-between px-4 pt-20 pb-8 sm:px-8 ${heroOpacity}`}
-        >
-          <div className="flex items-start justify-between gap-4">
-            <HudLabel className="text-[#d6ff00]">{heroCopy.channel}</HudLabel>
-            <HudLabel className="hidden text-[var(--hud-muted)] sm:block">
-              {heroCopy.navStatus}
-            </HudLabel>
-          </div>
-
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-4xl">
-              <p className="landing-type-meta mb-4 inline-block bg-[#0057ff] px-3 py-1 text-[#f5f5f5]">
-                {heroCopy.eyebrow}
-              </p>
-              <h1 className="max-w-[12ch]">
+          {/*
+           * Pointer events off, so the drag underneath is available across the
+           * whole frame; the CTA and the links switch them back on for
+           * themselves.
+           */}
+          <div className="pointer-events-none relative z-20 mx-auto flex h-full w-full max-w-7xl items-center justify-center px-5 py-8 sm:px-8 lg:px-10">
+            {/* The lockup owns the first viewport; event facts begin after it. */}
+            <div className="flex flex-col items-center gap-6 text-center">
+              {/*
+               * One line, centred, uppercase — the lockup as it appears on the
+               * poster. The two-line ranged-left version belongs to a hero with a
+               * column of copy beside it; this one has a mountain above it.
+               */}
+              <h1
+                className={
+                  "font-[family-name:var(--font-landing-brand)] font-semibold leading-[0.88] tracking-[0.012em] max-w-[16ch] text-[clamp(2.6rem,8vw,6.8rem)] uppercase"
+                }
+              >
+                {/*
+                 * One colour, the way the poster has it. The burnt red measured
+                 * 1.1:1 where the brightest contour lines run behind ANDES — and
+                 * it was competing with the red the liquid is already glowing
+                 * behind the lockup, so the word was reading as a smudge in the
+                 * middle of the colour rather than as the accent. The colour in
+                 * this hero belongs to the field; the type is white on it.
+                 */}
                 <span
-                  className={`${landingDisplayClassName} block text-[clamp(4.6rem,16vw,12rem)] text-[#f5f5f5]`}
+                  className="landing-glitch text-[var(--hud-type)]"
+                  data-text={`${heroCopy.titleLead} ${heroCopy.titleAccent}`}
                 >
-                  {heroCopy.titleLead}
-                </span>
-                <span
-                  className={`${landingDisplayClassName} block text-[clamp(4.6rem,16vw,12rem)] text-[#d6ff00]`}
-                >
-                  {heroCopy.titleAccent}
+                  {heroCopy.titleLead} {heroCopy.titleAccent}
                 </span>
               </h1>
-              <p className="landing-type-lede mt-5 max-w-xl">{heroCopy.lede}</p>
-              <p className="mt-2 text-sm text-[var(--hud-muted)] sm:text-base">
-                {heroCopy.meta}
+
+              <p className="flex flex-col font-[family-name:var(--font-landing-mono)] text-sm text-[var(--hud-type)] uppercase tracking-[0.2em] sm:text-base">
+                <span>{heroCopy.metaDate}</span>
+                <span>{heroCopy.metaLocation}</span>
               </p>
-            </div>
 
-            <a
-              className={`pointer-events-auto w-full lg:w-auto ${landingCtaClassName}`}
-              href="#apply"
-            >
-              <span>{heroCopy.cta}</span>
-              <span className="mt-1 text-[10px] tracking-[0.16em] text-[#0b0d10]">
-                {heroCopy.ctaMeta}
-              </span>
-            </a>
-          </div>
-
-          <div className="flex flex-col gap-5">
-            <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-              {facts.map((fact) => (
-                <li
-                  className="hud-box bg-[#071a34]/55 px-3 py-3 shadow-[0_14px_40px_rgba(1,8,20,0.12)] backdrop-blur-sm"
-                  key={fact.label}
-                >
-                  <HudLabel className="mb-1 text-[#d6ff00]">
-                    {fact.label}
-                  </HudLabel>
-                  <p className="font-[family-name:var(--font-landing-display)] text-xl leading-none">
-                    {fact.value}
-                  </p>
-                </li>
-              ))}
-            </ul>
-
-            <div className="flex items-end justify-between gap-4">
-              <p className="landing-type-meta text-[var(--hud-muted)]">
-                {heroCopy.sponsor}
-              </p>
-              <a className="pointer-events-auto text-[#d6ff00]" href="#why">
-                <span className="sr-only">{heroCopy.skipToWhy}</span>
-                <span
-                  aria-hidden="true"
-                  className="block text-3xl leading-none"
-                >
-                  ⌄
-                </span>
+              <a
+                className={`pointer-events-auto mt-1 w-full sm:w-auto ${landingCtaClassName}`}
+                href="#apply"
+              >
+                <span>{heroCopy.cta}</span>
               </a>
+
+              {/*
+               * The partners as marks, not as a line of type.
+               *
+               * Chofex takes the middle and the most width because it is the
+               * principal sponsor; the other two flank it. Sized by height
+               * rather than width — Peru Tech Week's mark is square and the
+               * other two are four times wider than they are tall, so matching
+               * widths would make it tower over both.
+               *
+               * The role each one plays used to be the visible copy here and is
+               * now in the alt text, which is where it still reaches anyone who
+               * cannot see the marks.
+               */}
+              <ul className="mt-2 flex flex-wrap items-center justify-center gap-x-8 gap-y-5 sm:gap-x-12">
+                {partners.map((partner) => (
+                  <li key={partner.id}>
+                    <Image
+                      alt={`${partner.name}, ${partner.role}`}
+                      className={[
+                        "w-auto",
+                        partner.shape === "stacked"
+                          ? "h-11 sm:h-12"
+                          : "h-6 sm:h-7",
+                        // The principal sponsor at full strength; the other two
+                        // a step back, so the middle of the row reads first.
+                        partner.id === "chofex" ? "sm:h-8" : "opacity-80",
+                      ].join(" ")}
+                      height={partner.logoHeight}
+                      priority
+                      src={partner.logoSrc}
+                      width={partner.logoWidth}
+                    />
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
+      </section>
 
-        <div
-          aria-hidden={!valleyVisible}
-          className={`landing-world-motion absolute inset-0 z-20 mx-auto flex h-dvh w-full max-w-[1800px] items-end px-4 pt-24 pb-12 sm:px-8 lg:items-center ${valleyClass}`}
-        >
-          <div className="grid w-full items-end gap-5 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-12">
-            <div className="landing-glass-panel max-w-2xl p-5 sm:p-8">
-              <HudLabel className="mb-4 text-[#d6ff00]">
-                {worldChapterCopy.valley.eyebrow}
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-5 py-8 sm:px-8 lg:px-10">
+        {/*
+         * The facts strip gets a surface of its own.
+         *
+         * It is the one block of small type that sits on the foreground
+         * ridges, where the lines run brightest, and measured there the
+         * labels came back at 1.3:1. Everything else in the hero is display
+         * size or sits inside the lockup's scrim.
+         */}
+        <ul className="grid grid-cols-2 border-[var(--hud-type)]/20 border-y bg-[#050406]/88 lg:grid-cols-4">
+          {facts.map((fact) => (
+            <li
+              className="border-[var(--hud-type)]/15 border-r px-3 py-3 text-[var(--hud-type)] last:border-r-0"
+              key={fact.label}
+            >
+              <HudLabel className="mb-1 text-[var(--hud-type)]/75">
+                {fact.label}
               </HudLabel>
-              <h2 className="max-w-[9ch] font-[family-name:var(--font-landing-display)] text-[clamp(3.5rem,9vw,7.5rem)] leading-[0.82] tracking-[-0.03em] uppercase">
-                {worldChapterCopy.valley.title}
-              </h2>
-              <div className="mt-6 grid gap-5 border-white/15 border-t pt-5 sm:grid-cols-[1fr_auto] sm:items-end">
-                <p className="max-w-lg text-base leading-relaxed text-white/78">
-                  {worldChapterCopy.valley.body}
-                </p>
-                <div className="sm:text-right">
-                  <p className="font-[family-name:var(--font-landing-display)] text-4xl leading-none text-[#d6ff00]">
-                    {worldChapterCopy.valley.metric}
-                  </p>
-                  <HudLabel className="mt-2 text-white/60">
-                    {worldChapterCopy.valley.metricLabel}
-                  </HudLabel>
-                </div>
-              </div>
-            </div>
-            <div className="hidden lg:block">
-              <DeviceCard
-                accent={valleySignal.accent}
-                body={valleySignal.body}
-                code={valleySignal.code}
-                mark={valleySignal.mark}
-                title={valleySignal.title}
-              />
-            </div>
-          </div>
-        </div>
+              <p className="font-[family-name:var(--font-landing-display)] text-xl leading-none">
+                {fact.value}
+              </p>
+            </li>
+          ))}
+        </ul>
 
-        <ScanHud targets={targets} visible={scanVisible} />
-        <aside
-          aria-hidden={!scanVisible}
-          className={`landing-world-motion landing-glass-panel absolute right-4 bottom-12 z-30 w-[min(31rem,calc(100%-2rem))] p-5 sm:right-8 sm:p-7 ${scanChapterClass}`}
+        <a
+          className="pointer-events-auto self-center text-[var(--hud-type)]"
+          href="#prizes"
         >
-          <div className="flex items-center justify-between gap-4">
-            <HudLabel className="text-[#d6ff00]">
-              {worldChapterCopy.scan.eyebrow}
-            </HudLabel>
-            <HudLabel className="text-white/60">
-              {worldChapterCopy.scan.status}
-            </HudLabel>
-          </div>
-          <h2 className="mt-5 max-w-[11ch] font-[family-name:var(--font-landing-display)] text-4xl leading-[0.88] tracking-[-0.03em] uppercase sm:text-6xl">
-            {worldChapterCopy.scan.title}
-          </h2>
-          <p className="mt-5 max-w-md text-sm leading-relaxed text-white/75 sm:text-base">
-            {worldChapterCopy.scan.body}
-          </p>
-        </aside>
-        <WorldChapterRail
-          chapter={chapter}
-          onSelect={(next) => {
-            scrollWorldToChapter(sectionRef.current, next);
-          }}
-        />
+          <span className="sr-only">{heroCopy.skipToWhy}</span>
+          <span aria-hidden="true" className="block text-3xl leading-none">
+            ⌄
+          </span>
+        </a>
       </div>
-      <div aria-hidden="true" className="h-[300svh] min-h-[126rem]" />
-    </section>
+    </>
   );
 }

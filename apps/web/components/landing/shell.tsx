@@ -4,7 +4,7 @@ import type { ComponentProps, ReactNode } from "react";
 import "@/components/landing/landing.css";
 
 export const landingPageClassName =
-  "landing-page min-h-svh bg-[#07152b] text-[#f8fafc] antialiased selection:bg-[#d6ff00] selection:text-[#07152b]";
+  "landing-page min-h-svh bg-[var(--hud-paper)] text-[var(--hud-ink)] antialiased selection:bg-[var(--hud-accent)] selection:text-[var(--hud-ink)]";
 
 /** Primary lockup: title-case brand, display condensed. */
 export const landingDisplayClassName =
@@ -14,10 +14,10 @@ export const landingHudClassName =
   "font-[family-name:var(--font-landing-mono)] uppercase tracking-[0.16em]";
 
 export const landingCtaClassName =
-  "landing-cta inline-flex min-h-12 flex-col items-center justify-center bg-[#d6ff00] px-7 py-2.5 text-center font-[family-name:var(--font-landing-mono)] text-sm font-semibold text-[#0b0d10] uppercase tracking-[0.14em] transition hover:bg-[#e7ff4d] md:min-h-13 md:px-9";
+  "landing-cta inline-flex min-h-12 flex-col items-center justify-center bg-[var(--hud-action)] px-7 py-2.5 text-center font-[family-name:var(--font-landing-mono)] text-sm font-semibold text-[var(--hud-paper)] uppercase tracking-[0.12em] transition-colors duration-150 hover:bg-[var(--hud-action-hover)] active:scale-[0.98] md:min-h-13 md:px-9";
 
 export const landingFrameClassName =
-  "border border-white/15 bg-[#0c2344]/90 text-[#f8fafc] shadow-[0_24px_80px_rgba(1,8,20,0.24)] backdrop-blur-sm";
+  "border border-[var(--hud-ink)]/10 bg-[var(--hud-card)] text-[var(--hud-ink)]";
 
 export function LandingContainer({
   className,
@@ -26,7 +26,7 @@ export function LandingContainer({
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-[1800px] px-5 sm:px-8 lg:px-10",
+        "mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10",
         className,
       )}
       {...props}
@@ -37,7 +37,7 @@ export function LandingContainer({
 export function LandingEyebrow({ className, ...props }: ComponentProps<"p">) {
   return (
     <p
-      className={cn("landing-type-meta text-[#d6ff00]", className)}
+      className={cn("landing-type-meta text-[var(--hud-action)]", className)}
       {...props}
     />
   );
@@ -47,7 +47,7 @@ export function LandingTitle({ className, ...props }: ComponentProps<"h2">) {
   return (
     <h2
       className={cn(
-        "font-[family-name:var(--font-landing-display)] text-5xl leading-[0.86] tracking-[-0.03em] uppercase sm:text-7xl",
+        "text-balance font-[family-name:var(--font-landing-display)] text-5xl leading-[0.88] tracking-[-0.025em] uppercase sm:text-7xl",
         className,
       )}
       {...props}

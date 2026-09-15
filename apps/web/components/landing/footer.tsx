@@ -6,13 +6,13 @@ import { LandingContainer } from "@/components/landing/shell";
 
 export function LandingFooter() {
   return (
-    <footer className="landing-footer border-[#f5f5f5]/10 border-t bg-[#061226] text-[#f5f5f5]">
+    <footer className="landing-footer border-[var(--hud-type)]/12 border-t bg-[var(--hud-footer)] text-[var(--hud-type)]">
       <LandingContainer className="flex flex-col gap-6 py-8 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
-          <p className="font-[family-name:var(--font-landing-display)] text-2xl tracking-[-0.02em]">
+          <p className="font-[family-name:var(--font-landing-brand)] font-medium text-2xl tracking-[0.012em]">
             {brandName}
           </p>
-          <HudLabel className="text-[var(--hud-muted)]">
+          <HudLabel className="text-[var(--hud-type)]/70">
             {footerCopy.meta}
           </HudLabel>
         </div>
@@ -21,7 +21,7 @@ export function LandingFooter() {
           className="flex flex-wrap items-center gap-5 text-sm"
         >
           <a
-            className="text-[var(--hud-muted)] underline-offset-4 hover:underline"
+            className="text-[var(--hud-type)]/70 underline-offset-4 hover:underline"
             href="https://registry.opendata.aws/terrain-tiles/"
           >
             {footerCopy.terrainCredit}

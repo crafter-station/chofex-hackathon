@@ -1,48 +1,61 @@
-import { sponsorSlots, sponsorsCopy } from "@/components/landing/content";
+import Image from "next/image";
+
+import { partners, sponsorsCopy } from "@/components/landing/content";
 import { HudLabel } from "@/components/landing/hud";
-import {
-  LandingContainer,
-  LandingSectionHead,
-} from "@/components/landing/shell";
+import { LandingContainer } from "@/components/landing/shell";
 
 export function LandingSponsors() {
   return (
     <section
       aria-labelledby="sponsors-heading"
-      className="bg-[#f5f5f5] text-[#0b0d10]"
+      className="bg-[var(--hud-card)] text-[var(--hud-ink)]"
+      id="sponsors"
     >
-      <LandingContainer className="py-16 sm:py-20">
-        <HudLabel className="mb-3 text-[#0057ff]">
+      <LandingContainer className="py-20 sm:py-28">
+        <HudLabel className="mb-8 text-[var(--hud-action)]">
           {sponsorsCopy.kicker}
         </HudLabel>
-        <LandingSectionHead
-          title={sponsorsCopy.title}
-          titleId="sponsors-heading"
-        >
-          <p className="max-w-md text-sm leading-relaxed text-[var(--hud-muted-on-light)]">
-            {sponsorsCopy.lede}
-          </p>
-        </LandingSectionHead>
-        <ul className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-2">
-          {sponsorSlots.map((slot) => {
-            const label = slot.confirmed ? slot.name : "Más sponsors pronto";
-            return (
-              <li
-                className="grid h-28 place-items-center border border-[#0b0d10]/15 bg-white px-3 text-center"
-                key={slot.id}
+        <h2 className="sr-only" id="sponsors-heading">
+          {sponsorsCopy.kicker}
+        </h2>
+        <p className="mb-10 max-w-md text-base leading-relaxed text-[var(--hud-muted)]">
+          {sponsorsCopy.lede}
+        </p>
+        {/*
+         * Named here, unlike in the hero. This is the section a reader comes to
+         * for exactly this, so the role each partner plays is visible copy
+         * rather than alt text, and every mark is a link to whoever it belongs
+         * to.
+         */}
+        <ul className="grid gap-px border-[var(--hud-ink)]/15 border-y bg-[var(--hud-ink)]/10 sm:grid-cols-3">
+          {partners.map((partner) => (
+            <li className="bg-[var(--hud-paper)]" key={partner.id}>
+              <a
+                className="flex h-full flex-col justify-between gap-8 p-6 transition-opacity hover:opacity-80 sm:p-8"
+                href={partner.href}
+                rel="noreferrer"
+                target="_blank"
               >
-                <span
-                  className={
-                    slot.confirmed
-                      ? "font-[family-name:var(--font-landing-display)] text-3xl tracking-[-0.02em] text-[#0b0d10] uppercase"
-                      : "font-[family-name:var(--font-landing-mono)] text-[10px] tracking-[0.16em] text-[var(--hud-muted-on-light)] uppercase"
-                  }
-                >
-                  {label}
-                </span>
-              </li>
-            );
-          })}
+                <HudLabel className="text-[var(--hud-ink)]/60">
+                  {partner.role}
+                </HudLabel>
+                {/*
+                 * `self-start` matters: this is a flex column, and a stretched
+                 * item would have the mark filling the card's width with its
+                 * height pinned — which squashes a square lockup into a smear.
+                 */}
+                <Image
+                  alt={partner.name}
+                  className={`w-auto self-start ${
+                    partner.shape === "stacked" ? "h-16" : "h-9 sm:h-10"
+                  }`}
+                  height={partner.logoHeight}
+                  src={partner.logoSrc}
+                  width={partner.logoWidth}
+                />
+              </a>
+            </li>
+          ))}
         </ul>
       </LandingContainer>
     </section>

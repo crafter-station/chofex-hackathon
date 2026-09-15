@@ -48,6 +48,7 @@ export interface Candidate {
   readonly githubUrl?: string;
   readonly linkedInUrl?: string;
   readonly portfolioUrl?: string;
+  readonly badgeUrl?: string;
   readonly teamPreference?: "have_team" | "looking_for_team" | "solo";
   readonly teamName?: string;
   readonly status: CandidateStatus;

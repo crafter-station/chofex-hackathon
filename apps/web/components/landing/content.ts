@@ -3,38 +3,44 @@
  *
  * Casing:
  * - Brand lockup (header, hero, footer): title case "Hack the Andes"
- * - Section titles: display font + CSS uppercase for HUD rhythm
- * - HUD chrome / meta: IBM Plex Mono, uppercase, wide tracking
- * - Body and supporting lines: sentence-case Spanish
+ * - Section titles: display font + CSS uppercase
+ * - Kickers: IBM Plex Mono, uppercase, wide tracking
+ * - Body: sentence-case Spanish
  * - CLI commands and the agent prompt stay English
  *
- * Color roles: blue field, yellow status/CTA, white type and rules.
+ * Color roles: Sandy Linen paper, Aegean actions, Scarlet accent, ink type.
  */
-
-/** Approximate USD→PEN mid-market rate, early September 2026. */
-export const usdToPenRate = 3.35;
 
 export const prizeAmountsUsd = {
   first: 2_000,
   second: 500,
-  travelPool: 300,
 } as const;
 
 export const prizeAmountsPen = {
-  first: Math.round(prizeAmountsUsd.first * usdToPenRate),
-  second: Math.round(prizeAmountsUsd.second * usdToPenRate),
-  travelPool: Math.round(prizeAmountsUsd.travelPool * usdToPenRate),
+  first: 6_700,
+  second: 1_675,
 } as const;
 
+export const prizePoolHeadlinePen = 8_000;
+
+const solesFormatter = new Intl.NumberFormat("es-PE", {
+  style: "currency",
+  currency: "PEN",
+  maximumFractionDigits: 0,
+});
+
 export const formatSoles = (amount: number): string =>
-  `S/. ${amount.toLocaleString("es-PE")}`;
+  solesFormatter.format(amount);
 
 export const brandName = "Hack the Andes";
 
+export const seatCount = 100;
+export const challengeCount = 3;
+
 export const metadataCopy = {
-  title: brandName,
+  title: `${brandName} — Lima, 17–18 oct 2026`,
   description:
-    "Hackathon selectivo de IA en Lima, 17–18 de octubre 2026. Aplica con la CLI o con tu agent.",
+    "100 cupos para AI, product y software engineers con experiencia. 3 challenges, 30 horas y una entrega funcionando. Sponsor principal: Chofex.",
 } as const;
 
 export const cliCommands = [
@@ -44,176 +50,253 @@ export const cliCommands = [
   "chofex challenge query",
 ] as const;
 
-export const hudChrome = {
-  unit: "unidad",
-  scan: "escaneo",
-  live: "en vivo",
-  locked: "Bloqueado",
-} as const;
-
 export const skipLinks = [
   { href: "#contenido", label: "Saltar al contenido" },
   { href: "#apply", label: "Saltar a aplicar" },
 ] as const;
 
 export const sectionNav = [
-  { href: "#why", label: "Por qué" },
-  { href: "#scan", label: "Preselección" },
   { href: "#prizes", label: "Premios" },
+  { href: "#challenges", label: "Challenges" },
+  { href: "#people", label: "Panel" },
+  { href: "#why", label: "Evento" },
+  { href: "#experience", label: "Experiencia" },
   { href: "#apply", label: "Aplicar" },
 ] as const;
 
-export const worldChapters = [
-  { id: "hero", label: "Cumbre", progress: 0 },
-  { id: "valley", label: "Valle Sagrado", progress: 0.34 },
-  { id: "scan", label: "Escaneo", progress: 0.64 },
-] as const;
-
 export const facts = [
-  { label: "Cuándo", value: "17–18 oct 2026" },
-  { label: "Dónde", value: "Lima, Perú · presencial" },
-  { label: "Equipos", value: "1–4 personas · solos OK" },
-  { label: "Duración", value: "~30 horas" },
+  { label: "Cupos", value: String(seatCount) },
+  { label: "Fecha", value: "17–18 oct 2026" },
+  {
+    label: "Premios",
+    value: `Más de ${formatSoles(prizePoolHeadlinePen)}`,
+  },
+  { label: "Equipos", value: "1–4 personas" },
 ] as const;
 
 export const heroCopy = {
-  channel: "hta / mundo-01 / valle sagrado · cusco",
-  navStatus: "navegación activa",
-  eyebrow: "la élite · lima",
   titleLead: "Hack the",
   titleAccent: "Andes",
-  lede: "No vienes a mirar. Vienes a construir.",
-  meta: "Hackathon selectivo de IA · Lima, Perú · 17–18 oct 2026",
-  cta: "Aplicar ahora",
-  ctaMeta: "17–18 oct 2026 · presencial",
-  sponsor: "con el apoyo de chofex",
-  skipToWhy: "Bajar a por qué entrar",
+  metaDate: "17–18 oct 2026",
+  metaLocation: "Lima, Perú",
+  cta: "Postular",
+  sponsor: "Sponsor principal: Chofex",
+  organizer: "Organiza: Crafter Station",
+  skipToWhy: "Conocer el evento",
 } as const;
 
-export const worldChapterCopy = {
-  valley: {
-    eyebrow: "01 / valle sagrado",
-    title: "El terreno selecciona",
-    body: "Una ruta inmersiva por las montañas de Cusco. Explora el valle mientras conoces el nivel de exigencia de esta edición.",
-    metric: "2,800 m",
-    metricLabel: "altura de referencia",
-  },
-  scan: {
-    eyebrow: "02 / señal activa",
-    title: "Encontramos a quienes construyen",
-    body: "El challenge, los golden tickets y tu trabajo público forman una sola señal. La selección empieza antes del evento.",
-    status: "rastreo en curso",
-  },
+export const audienceCopy = {
+  kicker: "el estándar",
+  title: "Crear soluciones reales para problemas reales",
+  lede: "Los verdaderos retos no siempre son los más trending. Requieren tiempo, esfuerzo y creatividad para resolver lo que los demás aceptan como status quo.",
 } as const;
 
-export const valleySignal = {
-  code: "V-01",
-  mark: "FILTRO",
-  title: "Admisión selectiva",
-  body: "Filtra por rigor. Si el sistema no aguanta, no entra.",
-  accent: "yellow",
-} as const;
-
-export const expeditionSignals = [
+export const audienceRoles = [
   {
-    code: "V-01",
-    mark: "FILTRO",
-    accent: "yellow",
-    title: "Admisión selectiva",
-    body: "No basta con inscribirse. Buscamos al talento que ya está construyendo.",
+    title: "Ship mata cartón",
+    body: "Construyes y lanzas. El filtro es lo que ya pusiste en producción.",
   },
   {
-    code: "V-02",
-    mark: "CONSEJO",
-    accent: "blue",
-    title: "Mentores y jueces de alto calibre",
-    body: "Gente que ha shipped producto real — no un panel decorativo. El roster se anuncia pronto.",
+    title: "Work hard, Play Hard",
+    body: "100 personas, 30 horas, un mismo espacio. Comida incluida, música y zonas de silencio.",
   },
   {
-    code: "V-03",
-    mark: "CAMPUS",
-    accent: "yellow",
-    title: "Comida, espacio y zonas para pensar",
-    body: "Comer bien, silencio, música y un lugar para recargar. El resto del tiempo, shippear.",
-  },
-  {
-    code: "V-04",
-    mark: "PRUEBA",
-    accent: "blue",
-    title: "Badges digitales y fotos al instante",
-    body: "Te llevas prueba de que estuviste. Lista para compartir.",
+    title: "HardCore Mode",
+    body: "30 horas con entrega real. Presencial en Lima, 17–18 de octubre.",
   },
 ] as const;
 
-export const whyCopy = {
-  kicker: "valle / señales",
-  title: "Por qué esta expedición",
-  lede: "Una hackathon para quienes llegan más lejos. Mentores y jueces de alto calibre — el consejo se anuncia pronto.",
-  rosterNote: "Consejo de mentores y jueces: se anuncia pronto.",
+export const challengesCopy = {
+  kicker: "los briefs",
+  title: "3 challenges sellados",
+  lede: "Las personas aceptadas conocerán los 3 briefs al iniciar la hackathon. Cada equipo elegirá uno y tendrá 30 horas para entregar un producto funcionando.",
+  sealed: "Brief sellado",
+  reveal: "Se revela en Lima, 17 oct",
 } as const;
 
-export const filterSignals = [
+export const challengeSeats = [
   {
-    title: "Challenge técnico",
-    body: "Un filtro que se siente. Si puedes, se nota.",
+    index: "01",
+    hint: "Una señal cambia. Tu sistema tiene que entenderla y responder.",
   },
   {
-    title: "Golden tickets",
-    body: "Algunos ya se ganaron el asiento. El resto lo demuestra.",
+    index: "02",
+    hint: "Hay nodos que todavía no se encuentran. Construye el puente.",
   },
   {
-    title: "Juegos entre participantes",
-    body: "La preselección también se juega. Pistas, no manual.",
+    index: "03",
+    hint: "La interfaz es parte del problema. El producto también es la respuesta.",
   },
 ] as const;
 
-export const scanCopy = {
-  kicker: "escaneo / hud",
-  index: "02 / 08",
-  title: "Preselección",
-  lede: "El filtro empieza ahora. Algunos llegan por un challenge. Otros, por un golden ticket. El resto, demostrando en público. Las reglas exactas no caben en una landing.",
-  factsWindow: "ventana / datos",
-  telemetry: "telemetría",
-  overlayKicker: "escaneo / talento",
-  trackLabel: "Pista",
+export const peopleCopy = {
+  kicker: "Panel",
+  title: "Nombres por confirmar",
+  lede: "Publicaremos el panel cuando cada participación esté confirmada.",
+  status: "Sin nombres ni afiliaciones anunciadas.",
 } as const;
-
-export const trackHints = [
-  {
-    code: "T-01",
-    hint: "Una línea que se comporta como montaña — o como señal.",
-  },
-  {
-    code: "T-02",
-    hint: "Nodos que se buscan. El mapa no está publicado.",
-  },
-] as const;
 
 export const applyCopy = {
-  kicker: "aplicar / ventana",
-  title: "Aplica ahora",
-  lede: "Aplica con la CLI. El formulario se guarda por partes; el Black Box es una métrica opcional para los jueces.",
-  cliTitle: "Aplica con la CLI",
+  kicker: "postulaciones abiertas",
+  title: "Postula desde tu terminal",
+  lede: "La postulación es parte del filtro. Cuéntanos qué lanzaste, qué construirías aquí y dónde podemos ver tu trabajo. El Black Box es una métrica opcional para la revisión y no decide la admisión.",
+  criteriaTitle: "Qué revisamos",
+  criteria: [
+    "Un producto o sistema que ya pusiste en manos de usuarios.",
+    "La claridad con la que explicas decisiones y tradeoffs.",
+    "La ambición y viabilidad de lo que quieres construir.",
+  ],
+  cliTitle: "Ruta directa",
   agentKicker: "agent",
-  agentTitle: "O dile a tu agent",
+  agentTitle: "Ruta asistida",
 } as const;
 
 export const prizesCopy = {
   title: "Premios",
-  pozo: "pozo de premios",
-  firstPlace: "S/. en 1er lugar",
-  travel: "viaje / minijuegos",
+  lede: "Premios en efectivo para las soluciones que mejor conviertan un problema real en un producto funcionando.",
+  totalSuffix: "en premios en efectivo",
+  tripLabel: "Viaje pagado",
+  tripTitle: "Chofex Headquarters",
+  tripBody:
+    "Una persona participante destacada viajará a las oficinas de Chofex en Monterrey o San Francisco.",
 } as const;
 
 export const sponsorsCopy = {
-  kicker: "patrocinio / ficha",
-  title: "Sponsors",
-  lede: "Con el apoyo de Chofex. Identidad propia del evento. Chofex patrocina — no pinta la paleta.",
+  kicker: "quiénes lo hacen",
+  title: "Chofex",
+  lede: "Hack the Andes se realiza con el respaldo de Chofex, la producción de Crafter Station y el apoyo de Peru Tech Week.",
+  organizer: "Organiza: Crafter Station",
+  mark: "Chofex",
+  /*
+   * Chofex's two official marks, both on transparent.
+   *
+   * There is no single "the logo": there is one for dark surfaces and one for
+   * light, and picking the wrong one is what forced the old lockup to sit in a
+   * cream plate on a black page. The landing is black, so `logoSrc` is the
+   * white mark; the black one is here for anywhere that goes back to paper.
+   */
+  logoSrc: "/sponsors/chofex-white.png",
+  logoOnLightSrc: "/sponsors/chofex-black.png",
+  logoWidth: 1200,
+  logoHeight: 295,
 } as const;
 
+/**
+ * Who is behind the event, in reading order.
+ *
+ * Chofex sits in the middle because it is the principal sponsor and the hero
+ * gives it the centre; the other two flank it. `role` is not decoration — the
+ * hero shows these as logos alone, so it is what carries "which one of these
+ * is paying for it and which one is running it" to anyone who cannot see the
+ * marks, and it goes into the alt text there.
+ *
+ * Every mark is white on transparent. A sponsor's logo in a box, or inverted
+ * into a colour it does not come in, is the thing their brand guide exists to
+ * prevent.
+ *
+ * `shape` is what lets them be set at one optical size. Two of these are
+ * wordmarks four or five times wider than they are tall; Peru Tech Week's is a
+ * square lockup stacking three words. Matched on height the square one comes
+ * out with type a third the size of the others and unreadable, and matched on
+ * width it towers over both — so the stacked one is given its own height.
+ */
+export const partners = [
+  {
+    id: "peru-tech-week",
+    name: "Peru Tech Week",
+    role: "Aliado",
+    shape: "stacked",
+    href: "https://perutechweek.com",
+    logoSrc: "/sponsors/peru-tech-week-white.png",
+    logoWidth: 730,
+    logoHeight: 600,
+  },
+  {
+    id: "chofex",
+    name: "Chofex",
+    role: "Sponsor principal",
+    shape: "wordmark",
+    href: "https://chofex.com",
+    logoSrc: "/sponsors/chofex-white.png",
+    logoWidth: 1200,
+    logoHeight: 295,
+  },
+  {
+    id: "crafter-station",
+    name: "Crafter Station",
+    role: "Organiza",
+    shape: "wordmark",
+    href: "https://crafter.station",
+    logoSrc: "/sponsors/crafter-station-white.png",
+    logoWidth: 1200,
+    logoHeight: 233,
+  },
+] as const;
+
+export const experienceCopy = {
+  kicker: "la experiencia",
+  title: "30 horas bien cuidadas",
+  lede: "Un entorno presencial diseñado para sostener trabajo exigente, conversaciones útiles y una entrega de alto nivel.",
+} as const;
+
+export const experienceItems = [
+  {
+    title: "Equipos de 1–4",
+    body: "Puedes postular con equipo, buscar uno al ser aceptado o construir solo.",
+  },
+  {
+    title: "Trabajo profundo",
+    body: "Zonas de silencio, música y descanso para elegir cómo quieres avanzar.",
+  },
+  {
+    title: "Comida incluida",
+    body: "La operación está pensada para que el equipo se concentre en construir.",
+  },
+  {
+    title: "Presencial en Lima",
+    body: "Sede exacta por anunciar. El evento será completamente presencial.",
+  },
+] as const;
+
+export const faqCopy = {
+  kicker: "antes de postular",
+  title: "Preguntas frecuentes",
+} as const;
+
+export const faqItems = [
+  {
+    question: "¿Tengo que tener el cargo de senior?",
+    answer:
+      "No. Buscamos evidencia de experiencia y autonomía, no una palabra en LinkedIn.",
+  },
+  {
+    question: "¿Necesito un equipo?",
+    answer:
+      "No. Los equipos pueden tener de 1 a 4 personas y podrás conectar con otros participantes aceptados.",
+  },
+  {
+    question: "¿Cuándo se revelan los challenges?",
+    answer:
+      "Al iniciar la hackathon, el 17 de octubre. Los equipos aceptados conocerán los 3 briefs y elegirán uno.",
+  },
+  {
+    question: "¿Cómo se seleccionan los 100 cupos?",
+    answer:
+      "Revisaremos lo que ya construiste, tu criterio al explicarlo y la propuesta que llevarías a la hackathon.",
+  },
+] as const;
+
 export const footerCopy = {
-  meta: "lima · 17–18 oct 2026 · con el apoyo de chofex",
+  meta: "Lima, 17–18 oct 2026. Sponsor principal: Chofex",
   legalLabel: "Legal",
+  // Both terrain sources are attribution-required licences, so these two
+  // credits are a condition of use, not decoration.
+  /*
+   * The elevation model, and the only source left to credit. The Sentinel-2
+   * drape was credited here too until the drawing stopped sampling it and the
+   * imagery came out of the mesh: CC BY asks for attribution when the work is
+   * distributed, and it is no longer in anything a visitor downloads.
+   */
   terrainCredit: "Terreno: Mapzen / USGS",
   terms: "Términos",
   privacy: "Privacidad",
@@ -224,19 +307,5 @@ export const chromeCopy = {
   menu: "Menú",
   close: "Cerrar",
   sections: "Secciones",
-  worldChapters: "Capítulos del terreno",
   apply: "Aplicar",
 } as const;
-
-export const marqueeSignals = ["selectivo", "Lima", "1–4", "~30h"] as const;
-
-export const marqueePressure = [
-  "pocas plazas",
-  "presión real",
-  "presencial",
-] as const;
-
-export const sponsorSlots = [
-  { id: "chofex", name: "Chofex", confirmed: true },
-  { id: "open-1", name: "Más sponsors pronto", confirmed: false },
-] as const;
