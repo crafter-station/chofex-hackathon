@@ -77,83 +77,105 @@ export function LandingHeroV2() {
          * themselves.
          */}
         <div className="pointer-events-none relative z-20 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-between gap-8 px-5 pt-20 pb-8 sm:px-8 lg:px-10">
-          <div className="flex items-start justify-between gap-4">
-            <HudLabel className="text-[var(--hud-type)]/70">
-              {heroCopy.channel}
-            </HudLabel>
-            <HudLabel className="hidden text-[var(--hud-type)]/60 sm:block">
-              {heroCopy.dragHint}
-            </HudLabel>
-          </div>
+          {/*
+           * A phone gets the first screen to itself, up to the sponsor mark.
+           *
+           * Everything used to share one viewport-height column, and
+           * `justify-between` duly squeezed the lockup, the lede, the CTA, the
+           * sponsor lockup and four figures into 800px — the opening read as a
+           * cramped index card rather than a poster. This holds the top bar and
+           * the lockup to a full screen on their own, so the facts fall below
+           * the fold.
+           *
+           * `lg:contents` is what keeps the desktop layout untouched: from lg
+           * up this element stops generating a box entirely and its two
+           * children land straight back in the column above, spaced exactly as
+           * they were.
+           */}
+          <div className="flex min-h-[calc(100dvh-7rem)] flex-col gap-8 lg:contents">
+            <div className="flex items-start justify-between gap-4">
+              <HudLabel className="text-[var(--hud-type)]/70">
+                {heroCopy.channel}
+              </HudLabel>
+              <HudLabel className="hidden text-[var(--hud-type)]/60 sm:block">
+                {heroCopy.dragHint}
+              </HudLabel>
+            </div>
 
-          <div className="flex flex-col items-center gap-6 text-center">
             {/*
-             * The kicker sits inside the lockup's scrim, which is the only
-             * reason it can be here. On its own over the drawing it measured
-             * 4.3:1 against the brightest contour lines — it is 10px mono, and
-             * the foreground is the densest white in the frame.
+             * `max-lg:my-auto` centres the lockup in what the top bar leaves on a
+             * phone. It is scoped below lg because at lg the wrapper above is
+             * `display: contents` and the desktop column does its own spacing.
              */}
-            <p className="landing-type-meta text-[var(--hud-kicker)]">
-              {heroCopy.eyebrow}
-            </p>
-
-            {/*
-             * One line, centred, uppercase — the lockup as it appears on the
-             * poster. The two-line ranged-left version belongs to a hero with a
-             * column of copy beside it; this one has a mountain above it.
-             */}
-            <h1
-              className={`${landingDisplayClassName} max-w-[16ch] text-[clamp(2.9rem,9vw,7.5rem)] uppercase`}
-            >
+            <div className="flex flex-col items-center gap-6 text-center max-lg:my-auto">
               {/*
-               * One colour, the way the poster has it. The burnt red measured
-               * 1.1:1 where the brightest contour lines run behind ANDES — and
-               * it was competing with the red the liquid is already glowing
-               * behind the lockup, so the word was reading as a smudge in the
-               * middle of the colour rather than as the accent. The colour in
-               * this hero belongs to the field; the type is white on it.
+               * The kicker sits inside the lockup's scrim, which is the only
+               * reason it can be here. On its own over the drawing it measured
+               * 4.3:1 against the brightest contour lines — it is 10px mono, and
+               * the foreground is the densest white in the frame.
                */}
-              <span className="text-[var(--hud-type)]">
-                {heroCopy.titleLead} {heroCopy.titleAccent}
-              </span>
-            </h1>
+              <p className="landing-type-meta text-[var(--hud-kicker)]">
+                {heroCopy.eyebrow}
+              </p>
 
-            <p className="font-[family-name:var(--font-landing-mono)] text-sm text-[var(--hud-type)] uppercase tracking-[0.2em] sm:text-base">
-              {heroCopy.meta}
-            </p>
-
-            <p className="landing-type-lede max-w-xl text-balance text-[var(--hud-type)]/88">
-              {heroCopy.lede}
-            </p>
-
-            <a
-              className={`pointer-events-auto mt-1 w-full sm:w-auto ${landingCtaClassName}`}
-              href="#apply"
-            >
-              <span>{heroCopy.cta}</span>
-              <span className="mt-1 text-[10px] tracking-[0.16em] text-[var(--hud-paper)]/80">
-                {heroCopy.ctaMeta}
-              </span>
-            </a>
-
-            <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
               {/*
-               * No plate behind the mark. The cream box was there because the
-               * only asset to hand was the dark-on-transparent logo, which is
-               * invisible on this page — boxing a sponsor's logo to make it
-               * legible is the thing their brand guide exists to prevent.
+               * One line, centred, uppercase — the lockup as it appears on the
+               * poster. The two-line ranged-left version belongs to a hero with a
+               * column of copy beside it; this one has a mountain above it.
                */}
-              <Image
-                alt={sponsorsCopy.mark}
-                className="h-auto w-28"
-                height={sponsorsCopy.logoHeight}
-                priority
-                src={sponsorsCopy.logoSrc}
-                width={sponsorsCopy.logoWidth}
-              />
-              <div className="landing-type-meta text-left text-[var(--hud-type)]/70">
-                <p>{heroCopy.sponsor}</p>
-                <p className="mt-1">{heroCopy.organizer}</p>
+              <h1
+                className={`${landingDisplayClassName} max-w-[16ch] text-[clamp(2.9rem,9vw,7.5rem)] uppercase`}
+              >
+                {/*
+                 * One colour, the way the poster has it. The burnt red measured
+                 * 1.1:1 where the brightest contour lines run behind ANDES — and
+                 * it was competing with the red the liquid is already glowing
+                 * behind the lockup, so the word was reading as a smudge in the
+                 * middle of the colour rather than as the accent. The colour in
+                 * this hero belongs to the field; the type is white on it.
+                 */}
+                <span className="text-[var(--hud-type)]">
+                  {heroCopy.titleLead} {heroCopy.titleAccent}
+                </span>
+              </h1>
+
+              <p className="font-[family-name:var(--font-landing-mono)] text-sm text-[var(--hud-type)] uppercase tracking-[0.2em] sm:text-base">
+                {heroCopy.meta}
+              </p>
+
+              <p className="landing-type-lede max-w-xl text-balance text-[var(--hud-type)]/88">
+                {heroCopy.lede}
+              </p>
+
+              <a
+                className={`pointer-events-auto mt-1 w-full sm:w-auto ${landingCtaClassName}`}
+                href="#apply"
+              >
+                <span>{heroCopy.cta}</span>
+                <span className="mt-1 text-[10px] tracking-[0.16em] text-[var(--hud-paper)]/80">
+                  {heroCopy.ctaMeta}
+                </span>
+              </a>
+
+              <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
+                {/*
+                 * No plate behind the mark. The cream box was there because the
+                 * only asset to hand was the dark-on-transparent logo, which is
+                 * invisible on this page — boxing a sponsor's logo to make it
+                 * legible is the thing their brand guide exists to prevent.
+                 */}
+                <Image
+                  alt={sponsorsCopy.mark}
+                  className="h-auto w-28"
+                  height={sponsorsCopy.logoHeight}
+                  priority
+                  src={sponsorsCopy.logoSrc}
+                  width={sponsorsCopy.logoWidth}
+                />
+                <div className="landing-type-meta text-left text-[var(--hud-type)]/70">
+                  <p>{heroCopy.sponsor}</p>
+                  <p className="mt-1">{heroCopy.organizer}</p>
+                </div>
               </div>
             </div>
           </div>
