@@ -8,7 +8,7 @@
  * - Body: sentence-case Spanish
  * - CLI commands and the agent prompt stay English
  *
- * Color roles: Sandy Linen paper, Aegean actions, Scarlet accent, ink type.
+ * Color roles: black field, white type, white contour terrain.
  */
 
 export const prizeAmountsUsd = {
@@ -34,8 +34,6 @@ export const brandName = "Hack the Andes";
 
 export const seatCount = 100;
 export const challengeCount = 3;
-export const judgeCount = 5;
-export const mentorCount = 5;
 
 export const metadataCopy = {
   title: `${brandName} — Lima, 17–18 oct 2026`,
@@ -57,7 +55,6 @@ export const skipLinks = [
 export const sectionNav = [
   { href: "#why", label: "Evento" },
   { href: "#challenges", label: "Challenges" },
-  { href: "#people", label: "Consejo" },
   { href: "#prizes", label: "Premios" },
   { href: "#experience", label: "Experiencia" },
   { href: "#apply", label: "Aplicar" },
@@ -192,21 +189,6 @@ export const challengeSeats = [
   },
 ] as const;
 
-export const peopleCopy = {
-  kicker: "el consejo",
-  title: "10 personas para elevar el trabajo",
-  lede: "5 jurados evaluarán producto, ingeniería e impacto. 5 mentores acompañarán a los equipos durante la construcción.",
-  judges: "Jurado",
-  mentors: "Mentores",
-  judgeRole: "Juez",
-  mentorRole: "Mentor",
-  reveal: "Nombre por revelar",
-  announcement: "Anuncios próximamente",
-} as const;
-
-export const judgeSeats = [1, 2, 3, 4, 5] as const;
-export const mentorSeats = [1, 2, 3, 4, 5] as const;
-
 export const applyCopy = {
   kicker: "postulaciones abiertas",
   title: "Postula desde tu terminal",
@@ -240,8 +222,8 @@ export const sponsorsCopy = {
   organizer: "Organiza · Crafter Station",
   mark: "Chofex",
   logoSrc: "/sponsors/chofex.png",
-  logoWidth: 840,
-  logoHeight: 220,
+  logoWidth: 965,
+  logoHeight: 316,
 } as const;
 
 export const experienceCopy = {

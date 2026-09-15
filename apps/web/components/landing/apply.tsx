@@ -60,7 +60,7 @@ export function LandingApply() {
             <h3 className="font-[family-name:var(--font-landing-display)] text-3xl leading-none uppercase">
               {applyCopy.cliTitle}
             </h3>
-            <ol className="mt-6 overflow-hidden border border-[var(--hud-ink)]/10 bg-[var(--hud-ink)] font-[family-name:var(--font-landing-mono)] text-sm text-[var(--hud-type)]">
+            <ol className="mt-6 overflow-hidden border border-white/15 bg-black font-[family-name:var(--font-landing-mono)] text-sm text-white">
               {cliCommands.map((command, index) => (
                 <li
                   className="grid grid-cols-[2rem_1fr] border-white/10 border-b p-4 last:border-b-0"

@@ -14,8 +14,8 @@ export default function OpenGraphImage() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        backgroundColor: "#0b1726",
-        color: "#f3efe7",
+        backgroundColor: "#000000",
+        color: "#ffffff",
         padding: "72px 80px",
         overflow: "hidden",
         position: "relative",
@@ -30,7 +30,7 @@ export default function OpenGraphImage() {
             width: diameter,
             height: diameter,
             borderRadius: 999,
-            border: "2px solid rgba(243,239,231,0.10)",
+            border: "2px solid rgba(255,255,255,0.14)",
             right: 120 - diameter / 2,
             top: 315 - diameter / 2,
           }}
@@ -41,7 +41,7 @@ export default function OpenGraphImage() {
           display: "flex",
           justifyContent: "space-between",
           fontSize: 22,
-          color: "#ddcfbd",
+          color: "rgba(255,255,255,0.62)",
           letterSpacing: "0.06em",
           textTransform: "uppercase",
         }}
@@ -66,7 +66,7 @@ export default function OpenGraphImage() {
             maxWidth: 700,
             fontSize: 32,
             lineHeight: 1.25,
-            color: "#ddcfbd",
+            color: "rgba(255,255,255,0.62)",
           }}
         >
           100 builders con experiencia. 3 challenges. 30 horas.
@@ -78,7 +78,7 @@ export default function OpenGraphImage() {
           justifyContent: "space-between",
           alignItems: "flex-end",
           fontSize: 22,
-          color: "rgba(243,239,231,0.72)",
+          color: "rgba(255,255,255,0.62)",
         }}
       >
         <div style={{ display: "flex", gap: 32 }}>
@@ -86,7 +86,7 @@ export default function OpenGraphImage() {
           <div style={{ display: "flex" }}>Equipos de 1–4</div>
           <div style={{ display: "flex" }}>Presencial</div>
         </div>
-        <div style={{ display: "flex", color: "#6f98f0" }}>
+        <div style={{ display: "flex", color: "#ffffff" }}>
           Sponsor principal · Chofex
         </div>
       </div>

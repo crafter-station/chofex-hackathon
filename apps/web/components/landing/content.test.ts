@@ -11,12 +11,7 @@ import {
   footerCopy,
   formatSoles,
   heroCopy,
-  judgeCount,
-  judgeSeats,
   metadataCopy,
-  mentorCount,
-  mentorSeats,
-  peopleCopy,
   prizeAmountsPen,
   prizeAmountsUsd,
   seatCount,
@@ -63,7 +58,6 @@ test("keeps the public pitch in Spanish and names Chofex as principal sponsor", 
     chromeCopy,
     footerCopy,
     heroCopy,
-    peopleCopy,
     sectionNav,
     sponsorsCopy,
   });
@@ -78,13 +72,12 @@ test("keeps the public pitch in Spanish and names Chofex as principal sponsor", 
   expect(heroCopy.sponsor.toLowerCase()).toContain("chofex");
 });
 
-test("reserves unnamed seats instead of inventing a roster", () => {
-  expect(judgeSeats).toHaveLength(judgeCount);
-  expect(mentorSeats).toHaveLength(mentorCount);
-  expect(peopleCopy.reveal.toLowerCase()).toContain("revelar");
-  const blob = JSON.stringify({ peopleCopy, judgeSeats, mentorSeats });
-  expect(blob).not.toMatch(/QUISPE/i);
-  expect(blob).not.toMatch(/Juez 0/i);
+test("does not reserve unnamed mentor or judge seats", () => {
+  const blob = JSON.stringify({ sectionNav, prizeAmountsPen });
+  expect(blob).not.toMatch(/#people/);
+  expect(blob).not.toMatch(/jurad/i);
+  expect(blob).not.toMatch(/mentor/i);
+  expect(sectionNav.map((item) => item.href)).not.toContain("#people");
 });
 
 test("publishes a senior, hundred-seat, three-challenge event", () => {
@@ -110,7 +103,6 @@ test("exposes skip links and section jumps for keyboard users", () => {
   expect(sectionNav.map((item) => item.href)).toEqual([
     "#why",
     "#challenges",
-    "#people",
     "#prizes",
     "#experience",
     "#apply",

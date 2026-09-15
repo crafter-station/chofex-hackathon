@@ -50,7 +50,7 @@ export function WorldChapterRail({
       <ol className="relative flex flex-col gap-4">
         <span
           aria-hidden="true"
-          className="absolute top-1.5 bottom-1.5 left-[5px] w-px bg-[rgb(239_232_222_/_40%)]"
+          className="absolute top-1.5 bottom-1.5 left-[5px] w-px bg-[var(--hud-type)]/40"
         />
         {worldChapters.map((item) => {
           const active = item.id === chapter;

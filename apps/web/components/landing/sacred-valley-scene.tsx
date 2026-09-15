@@ -62,10 +62,8 @@ export function SacredValleyFallback({
 }) {
   return (
     <div
-      className={cn("absolute inset-0 overflow-hidden bg-[#3f83c9]", className)}
+      className={cn("landing-contour-field absolute inset-0 overflow-hidden", className)}
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_68%_12%,#bfe4f7_0%,#5598c9_35%,#173c52_72%,#07152b_100%)]" />
-      <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(115deg,transparent_0_48%,rgba(255,255,255,.18)_49%,transparent_50%)] [background-size:42px_42px]" />
     </div>
   );
 }

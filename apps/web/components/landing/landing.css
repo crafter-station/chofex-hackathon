@@ -1,43 +1,22 @@
 .landing-page {
   /*
-   * The palette, named by role. The page is light: Sandy Linen is the ground
-   * and the dark is reserved for type.
-   *
-   * Inverting it is what finally lets every colour do a job. On a dark field
-   * Scarlet tops out at 3.88:1 against pure black, so it could never carry
-   * small type; on paper it reads 4.45, and 5.04 on a raised card. Aegean goes
-   * from unusable to 4.96. Blossom goes the other way — 1.18 on paper — which
-   * settles it as a tint rather than a text colour, and that is the secondary
-   * role it should have had all along.
+   * Poster field: ink ground, chalk type, no second colour.
+   * Actions, status and accent all resolve to white so the contour
+   * mountains stay the only drawing on the page.
    */
-
-  /* Warm mineral paper — the page itself. */
-  --hud-paper: #f3efe7;
-  /* Raised paper, used sparingly. */
-  --hud-card: #fbf8f2;
-  /* Type on paper. */
-  --hud-ink: #0b1726;
-  /* Type over the terrain, where the ground is the mountain and not the page. */
-  --hud-type: #f3efe7;
-
-  /* Chofex cobalt — actions and brand connection. */
-  --hud-action: #2459c9;
-  --hud-action-hover: #1b47a6;
-  /* Burnt mineral red — one restrained accent. */
-  --hud-status: #b83e35;
-  /* Sandstone tint — selections and subtle fills. */
-  --hud-accent: #ddcfbd;
-
-  --hud-field: #0b1726;
-  --hud-panel: #fbf8f2;
-  /*
-   * The one dark surface left, anchoring the foot of a light page. It keeps
-   * light type, which is why --hud-muted cannot serve it: that value is tuned
-   * for paper and reads 1.6:1 here.
-   */
-  --hud-footer: #0b1726;
-  --hud-muted: #5b5f65;
-  --hud-muted-on-light: #5b5f65;
+  --hud-paper: #000000;
+  --hud-card: #050505;
+  --hud-ink: #ffffff;
+  --hud-type: #ffffff;
+  --hud-action: #ffffff;
+  --hud-action-hover: #d6d6d6;
+  --hud-status: #ffffff;
+  --hud-accent: #ffffff;
+  --hud-field: #000000;
+  --hud-panel: #050505;
+  --hud-footer: #000000;
+  --hud-muted: #a3a3a3;
+  --hud-muted-on-light: #a3a3a3;
 }
 
 .landing-page {
@@ -52,20 +31,29 @@
 }
 
 .landing-glass-panel {
-  border: 1px solid rgb(243 239 231 / 18%);
-  background: rgb(11 23 38 / 82%);
+  border: 1px solid rgb(255 255 255 / 16%);
+  background: rgb(0 0 0 / 72%);
   backdrop-filter: blur(18px);
   color: var(--hud-type);
 }
 
-.landing-topography {
-  background-image:
-    radial-gradient(circle at 24% 18%, rgb(210 22 36 / 8%), transparent 20rem),
-    repeating-radial-gradient(
-      ellipse at 80% 20%,
-      transparent 0 20px,
-      rgb(255 255 255 / 4%) 21px 22px
+.landing-topography,
+.landing-contour-field {
+  background-color: #000;
+  background-image: repeating-linear-gradient(
+      180deg,
+      transparent 0 11px,
+      rgb(255 255 255 / 14%) 11px 12px
+    ),
+    repeating-linear-gradient(
+      12deg,
+      transparent 0 28px,
+      rgb(255 255 255 / 7%) 28px 29px
     );
+}
+
+.landing-logo-invert {
+  filter: brightness(0) invert(1);
 }
 
 .landing-type-meta {
@@ -245,7 +233,7 @@
 }
 
 .landing-page :is(a, button):focus-visible {
-  outline: 2px solid var(--hud-action);
+  outline: 2px solid #fff;
   outline-offset: 3px;
 }
 
@@ -266,8 +254,8 @@
 }
 
 .landing-page :is(a, button).landing-cta:focus-visible {
-  outline-color: var(--hud-ink);
-  box-shadow: 0 0 0 3px var(--hud-ink);
+  outline-color: #fff;
+  box-shadow: 0 0 0 3px #fff;
 }
 
 @media (prefers-reduced-motion: reduce) {
