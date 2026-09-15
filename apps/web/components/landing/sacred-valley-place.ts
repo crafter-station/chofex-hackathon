@@ -23,7 +23,17 @@ export const TERRAIN_BBOX = [
 ] as const;
 
 /** Cache-busting public URL: changes only when the mesh bytes change. */
-export const SACRED_VALLEY_GLB_URL = "/models/sacred-valley.glb?v=d72e775b16";
+/**
+ * The mesh's public path, without the content stamp.
+ *
+ * Kept as its own constant so the stamped URL below can be checked against it:
+ * the two have to agree, and a typo in either is otherwise a 404 that only
+ * shows up as a hero that never draws. It used to live on the scene component
+ * that mounted the flight, which is gone.
+ */
+export const SACRED_VALLEY_MODEL_PATH = "/models/sacred-valley.glb";
+
+export const SACRED_VALLEY_GLB_URL = `${SACRED_VALLEY_MODEL_PATH}?v=3844d88dba`;
 
 /** Metres of real ground per scene unit, for readouts that quote distances. */
 export const METERS_PER_UNIT = 200;

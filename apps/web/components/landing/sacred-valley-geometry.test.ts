@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import { HERO_SCENE_MODEL_URL } from "./hero-scene";
+import { SACRED_VALLEY_MODEL_PATH } from "./sacred-valley-place";
 import {
   clamp01,
   lerp,
@@ -19,8 +19,8 @@ import {
 } from "./sacred-valley-geometry";
 
 test("points the hero model at the public glb path, content-stamped", () => {
-  expect(HERO_SCENE_MODEL_URL).toBe("/models/sacred-valley.glb");
-  expect(SACRED_VALLEY_GLB.startsWith(HERO_SCENE_MODEL_URL)).toBe(true);
+  expect(SACRED_VALLEY_MODEL_PATH).toBe("/models/sacred-valley.glb");
+  expect(SACRED_VALLEY_GLB.startsWith(SACRED_VALLEY_MODEL_PATH)).toBe(true);
   /*
    * The stamp is asserted by shape, never by value. Its whole job is to change
    * with the bytes, so pinning the digest would turn every terrain rebuild

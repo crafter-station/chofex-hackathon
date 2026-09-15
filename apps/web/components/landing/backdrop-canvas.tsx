@@ -6,7 +6,7 @@ import {
   LENS_RADIUS,
   LIQUID_FRAGMENT,
   LIQUID_VERTEX,
-} from "@/components/landing-v2/liquid-shader";
+} from "@/components/landing/liquid-shader";
 import {
   advancePointer,
   magnetTarget,
@@ -14,12 +14,12 @@ import {
   pointerSpeed,
   RESTING_POINTER,
   springDistort,
-} from "@/components/landing-v2/magnet";
+} from "@/components/landing/magnet";
 import {
   PALETTE_EASE,
   paletteAt,
   scrollPalettePosition,
-} from "@/components/landing-v2/palette";
+} from "@/components/landing/palette";
 
 /**
  * Plain WebGL, no Three.

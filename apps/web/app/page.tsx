@@ -18,9 +18,9 @@ import { HERO_MODEL_PRELOAD } from "@/components/landing/sacred-valley-preload";
 import { landingPageClassName } from "@/components/landing/shell";
 import { LandingSkipLinks } from "@/components/landing/skip-links";
 import { LandingSponsors } from "@/components/landing/sponsors";
-import { LandingHeroV2 } from "@/components/landing-v2/hero";
+import { LandingHero } from "@/components/landing/hero";
 
-import "@/components/landing-v2/dark.css";
+import "@/components/landing/dark.css";
 
 /**
  * The landing.
@@ -28,10 +28,10 @@ import "@/components/landing-v2/dark.css";
  * Black, and opening on the Sacred Valley drawn in white contour lines from a
  * parked vantage inside the range — turned by dragging, not flown through. The
  * sections below are unchanged; what carries them is the dark theme in
- * `components/landing-v2/dark.css`, which re-points the `--hud-*` tokens rather
+ * `components/landing/dark.css`, which re-points the `--hud-*` tokens rather
  * than touching a single section component.
  *
- * The liquid colour field is off: `components/landing-v2/backdrop.tsx` still
+ * The liquid colour field is off: `components/landing/backdrop.tsx` still
  * works and is one element away from coming back, but against a drawing that is
  * pure white line on pure black it was the loudest thing in the frame.
  */
@@ -40,7 +40,7 @@ export default function Home() {
     <div
       className={cn(
         landingPageClassName,
-        "landing-page-v2",
+        "landing-dark",
         landingBrand.variable,
         landingDisplay.variable,
         landingSans.variable,
@@ -62,7 +62,7 @@ export default function Home() {
       <LandingSkipLinks />
       <LandingHeader />
       <main id="contenido">
-        <LandingHeroV2 />
+        <LandingHero />
         <LandingAudience />
         <LandingChallenges />
         <LandingPeople />

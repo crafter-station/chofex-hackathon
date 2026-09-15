@@ -21,8 +21,17 @@ the first to redo just the TypeScript without re-baking a 4 MB mesh.
 | Ground | 61.7 x 36.7 km | 28.2 x 31.2 km |
 | Grid | 1152 x 686 | 526 x 583 |
 | Mesh sampling | ~54 m | ~54 m |
-| Drape | 4096 px, ~15 m/texel | 2048 px, ~14 m/texel |
-| Shipped | 4.08 MB | 1.71 MB |
+| Drape | stripped after baking | stripped after baking |
+| Shipped | 2.61 MB | not shipped |
+
+The drape is baked and then removed. The hero draws the valley in contour
+lines and samples no texture, so the imagery was 1.67 MB of JPEG riding inside
+the one asset the page preloads; `scripts/strip-glb-drape.py` takes it out
+after a rebuild. Bake it, strip it, and stamp the URL in
+`components/landing/sacred-valley-place.ts` with the new digest.
+
+`west-terrain.glb` is no longer shipped at all: it existed for the last leg of
+the scroll flight, and nothing loads it since the drawn hero replaced that.
 
 Accessed September 13, 2026.
 

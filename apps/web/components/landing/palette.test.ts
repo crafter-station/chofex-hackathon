@@ -4,7 +4,7 @@ import {
   hexToLinear,
   paletteAt,
   scrollPalettePosition,
-} from "@/components/landing-v2/palette";
+} from "@/components/landing/palette";
 
 describe("hexToLinear", () => {
   test("maps a hex channel onto 0..1", () => {

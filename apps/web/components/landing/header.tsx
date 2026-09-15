@@ -2,7 +2,6 @@
 
 import { useEffect, useId, useState } from "react";
 
-import { LandingChapterNav } from "@/components/landing/chapter-nav";
 import {
   brandName,
   chromeCopy,
@@ -82,10 +81,6 @@ export function LandingHeader() {
               </a>
             ))}
           </nav>
-          <LandingChapterNav
-            className={`mt-5 flex flex-wrap gap-3 border-[var(--hud-type)]/15 border-t pt-4 text-[10px] text-[var(--hud-type)]/60 ${landingHudClassName}`}
-            onNavigate={close}
-          />
         </div>
       ) : null}
     </header>

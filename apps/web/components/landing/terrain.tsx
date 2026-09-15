@@ -19,7 +19,7 @@ import { subscribePrefersReducedMotion } from "@/components/landing/world-motion
 
 const TerrainCanvas = dynamic(
   () =>
-    import("@/components/landing-v2/terrain-canvas").then(
+    import("@/components/landing/terrain-canvas").then(
       (module) => module.TerrainCanvas,
     ),
   { ssr: false },

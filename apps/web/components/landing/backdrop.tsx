@@ -14,7 +14,7 @@ import { subscribePrefersReducedMotion } from "@/components/landing/world-motion
 
 const BackdropCanvas = dynamic(
   () =>
-    import("@/components/landing-v2/backdrop-canvas").then(
+    import("@/components/landing/backdrop-canvas").then(
       (module) => module.BackdropCanvas,
     ),
   { ssr: false },
