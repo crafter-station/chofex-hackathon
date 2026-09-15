@@ -99,6 +99,7 @@ export const heroCopy = {
   sponsor: "Sponsor principal · Chofex",
   organizer: "Organiza · Crafter Station",
   skipToWhy: "Conocer el evento",
+  dragHint: "Arrastrá para mover la cordillera",
 } as const;
 
 export const worldChapterCopy = {
