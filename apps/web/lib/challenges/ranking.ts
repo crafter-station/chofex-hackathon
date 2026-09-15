@@ -6,7 +6,7 @@ import {
   compareChallengeScores,
 } from "@chofex/challenges-contract";
 import { db } from "@chofex/db";
-import { desc, eq, inArray } from "@chofex/db/orm";
+import { and, desc, eq, inArray } from "@chofex/db/orm";
 import {
   applications,
   challengeAttempts,
@@ -15,6 +15,7 @@ import {
 import { HttpError } from "../registration/http";
 import { catalogItemFor } from "./catalog";
 import { challengesForceOpen, currentChallengeTime } from "./clock";
+import { currentChallengeVersion } from "./engine";
 import { rankingDisplayName } from "./names";
 
 interface RankedEvaluation {
@@ -65,7 +66,12 @@ export const rankedEvaluationsFor = async (
       challengeEvaluations,
       eq(challengeEvaluations.id, challengeAttempts.bestEvaluationId),
     )
-    .where(eq(challengeAttempts.challengeSlug, slug));
+    .where(
+      and(
+        eq(challengeAttempts.challengeSlug, slug),
+        eq(challengeAttempts.challengeVersion, currentChallengeVersion),
+      ),
+    );
 
   return rows
     .map((row) => ({

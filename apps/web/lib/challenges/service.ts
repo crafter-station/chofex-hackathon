@@ -15,7 +15,6 @@ import {
   type ParticipantChallengeProgress,
   type Shipment,
   ShipmentSchema,
-  scoreFromPredictions,
 } from "@chofex/challenges-contract";
 import { db } from "@chofex/db";
 import { and, asc, desc, eq, inArray, sql } from "@chofex/db/orm";
@@ -31,14 +30,29 @@ import { HttpError } from "../registration/http";
 import { participantIdFor } from "../registration/participants";
 import { catalogItemFor, rankingPathFor } from "./catalog";
 import { challengesForceOpen, currentChallengeTime } from "./clock";
+import {
+  challengeEngine,
+  ChallengeEngineError,
+  currentChallengeVersion,
+} from "./engine";
 import { challengeProgressStatus } from "./progress";
 import { rankedEvaluationsFor, rankForAttempt } from "./ranking";
 import { runShippingSolution } from "./sandbox";
 import { attemptSeed, shareCodeFromSeed } from "./seed";
-import { hiddenShipmentsForSeed, oraclePriceForSeed } from "./shipping";
 
 type AttemptRecord = typeof challengeAttempts.$inferSelect;
 type EvaluationRecord = typeof challengeEvaluations.$inferSelect;
+
+const engineHttpError = (error: ChallengeEngineError): HttpError => {
+  if (error.status === 422 && error.code === "SOLUTION_EXECUTION_FAILED") {
+    return new HttpError(422, error.code, error.message, false);
+  }
+  return new HttpError(
+    503,
+    "CHALLENGE_ENGINE_UNAVAILABLE",
+    "The challenge engine is temporarily unavailable",
+  );
+};
 
 const parseInput = <S extends Schema.ConstraintDecoder<unknown>>(
   schema: S,
@@ -110,7 +124,10 @@ const createAttempt = async (
   participantId: string,
   challenge: ChallengeDefinition,
 ): Promise<AttemptRecord> => {
-  const seed = attemptSeed(participantId, challenge.slug);
+  const seed = attemptSeed(
+    participantId,
+    `${challenge.slug}:${currentChallengeVersion}`,
+  );
   for (let length = 4; length <= 8; length += 1) {
     try {
       const [created] = await db
@@ -118,6 +135,7 @@ const createAttempt = async (
         .values({
           participantId,
           challengeSlug: challenge.slug,
+          challengeVersion: currentChallengeVersion,
           shareCode: shareCodeFromSeed(seed, length),
           queriesLimit: challenge.queryLimit,
           evaluationsLimit: challenge.evaluationLimit,
@@ -133,6 +151,7 @@ const createAttempt = async (
           and(
             eq(challengeAttempts.participantId, participantId),
             eq(challengeAttempts.challengeSlug, challenge.slug),
+            eq(challengeAttempts.challengeVersion, currentChallengeVersion),
           ),
         )
         .limit(1);
@@ -153,6 +172,7 @@ const attemptFor = async (
       and(
         eq(challengeAttempts.participantId, participantId),
         eq(challengeAttempts.challengeSlug, challenge.slug),
+        eq(challengeAttempts.challengeVersion, currentChallengeVersion),
       ),
     )
     .limit(1);
@@ -285,7 +305,12 @@ export const challengeProgressForParticipants = async (
   const attempts = await db
     .select()
     .from(challengeAttempts)
-    .where(inArray(challengeAttempts.participantId, uniqueParticipantIds));
+    .where(
+      and(
+        inArray(challengeAttempts.participantId, uniqueParticipantIds),
+        eq(challengeAttempts.challengeVersion, currentChallengeVersion),
+      ),
+    );
 
   const attemptIds = attempts.map((attempt) => attempt.id);
   let evaluations: ReadonlyArray<EvaluationRecord> = [];
@@ -379,6 +404,7 @@ export const getChallengeAttempt = async (
       and(
         eq(challengeAttempts.participantId, participantId),
         eq(challengeAttempts.challengeSlug, challenge.slug),
+        eq(challengeAttempts.challengeVersion, currentChallengeVersion),
       ),
     )
     .limit(1);
@@ -431,7 +457,6 @@ export const queryChallenge = async (
   const input = parseInput(ShipmentSchema, rawInput) as Shipment;
   const participantId = await participantIdFor(clerkUserId);
   const attempt = await attemptFor(participantId, challenge);
-  const seed = attemptSeed(participantId, challenge.slug);
 
   const [consumed] = await db
     .update(challengeAttempts)
@@ -455,7 +480,15 @@ export const queryChallenge = async (
     );
   }
 
-  const output = oraclePriceForSeed(seed, input);
+  let output: number;
+  try {
+    output = await challengeEngine().query(attempt.id, input);
+  } catch (error) {
+    if (error instanceof ChallengeEngineError) {
+      throw engineHttpError(error);
+    }
+    throw error;
+  }
   const [observation] = await db
     .insert(challengeObservations)
     .values({
@@ -551,7 +584,6 @@ export const evaluateChallenge = async (
   const solution = parseInput(ChallengeSolutionSchema, rawInput);
   const participantId = await participantIdFor(clerkUserId);
   const attempt = await attemptFor(participantId, challenge);
-  const seed = attemptSeed(participantId, challenge.slug);
 
   const [consumed] = await db
     .update(challengeAttempts)
@@ -575,17 +607,19 @@ export const evaluateChallenge = async (
     );
   }
 
-  const shipments = hiddenShipmentsForSeed(seed, challenge.hiddenSampleSize);
-  const expected = shipments.map((input) => oraclePriceForSeed(seed, input));
-  const startedAt = Date.now();
-  const actual = await runShippingSolution(solution.source, shipments);
-  const runtimeMs = Date.now() - startedAt;
-  const score = scoreFromPredictions(
-    expected,
-    actual,
-    consumed.queriesUsed,
-    runtimeMs,
-  );
+  let score: ChallengeScore;
+  try {
+    score = await challengeEngine().evaluate(
+      attempt.id,
+      solution.source,
+      consumed.queriesUsed,
+    );
+  } catch (error) {
+    if (error instanceof ChallengeEngineError) {
+      throw engineHttpError(error);
+    }
+    throw error;
+  }
 
   const [evaluation] = await db
     .insert(challengeEvaluations)

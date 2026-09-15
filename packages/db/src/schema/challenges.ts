@@ -20,6 +20,9 @@ export const challengeAttempts = pgTable(
       .notNull()
       .references(() => participants.id, { onDelete: "cascade" }),
     challengeSlug: varchar("challenge_slug", { length: 64 }).notNull(),
+    challengeVersion: varchar("challenge_version", { length: 64 })
+      .default("black-box-v1")
+      .notNull(),
     shareCode: varchar("share_code", { length: 8 }).notNull(),
     queriesUsed: integer("queries_used").default(0).notNull(),
     queriesLimit: integer("queries_limit").notNull(),
@@ -29,9 +32,10 @@ export const challengeAttempts = pgTable(
     ...auditTimestamps(),
   },
   (table) => [
-    uniqueIndex("challenge_attempts_participant_slug_unique").on(
+    uniqueIndex("challenge_attempts_participant_slug_version_unique").on(
       table.participantId,
       table.challengeSlug,
+      table.challengeVersion,
     ),
     uniqueIndex("challenge_attempts_share_code_unique").on(table.shareCode),
     index("challenge_attempts_slug_index").on(table.challengeSlug),
