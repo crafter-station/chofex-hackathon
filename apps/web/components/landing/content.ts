@@ -75,10 +75,21 @@ export const heroCopy = {
   eyebrow: "Hackathon presencial · Lima",
   titleLead: "Hack the",
   titleAccent: "Andes",
-  lede: "100 builders con experiencia. 3 challenges. 30 horas para entregar algo que funcione.",
+  /*
+   * Three facts, three lines, each with its number carrying the weight.
+   *
+   * It was one sentence — "100 builders con experiencia. 3 challenges. 30
+   * horas para entregar algo que funcione." — which wrapped to two ragged
+   * lines on a phone and asked the reader to parse three claims out of a
+   * paragraph. Split, each one is a glance.
+   */
+  claims: [
+    { figure: "100", label: "builders con experiencia" },
+    { figure: "3", label: "challenges" },
+    { figure: "30", label: "horas para entregar algo que funcione" },
+  ],
   meta: "17–18 de octubre de 2026 · Lima, Perú",
   cta: "Postular",
-  ctaMeta: "Postulaciones abiertas",
   sponsor: "Sponsor principal · Chofex",
   organizer: "Organiza · Crafter Station",
   skipToWhy: "Conocer el evento",

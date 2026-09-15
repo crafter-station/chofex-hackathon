@@ -65,7 +65,7 @@ export function LandingHero() {
          */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[34%] bg-gradient-to-t from-[#050406]/95 via-[#050406]/58 to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[72%] bg-gradient-to-t from-[#050406]/96 via-[#050406]/40 to-transparent lg:h-[34%] lg:via-[#050406]/58"
         />
         <div
           aria-hidden="true"
@@ -80,9 +80,24 @@ export function LandingHero() {
          * the frame would fix it by deleting the mountain; an ellipse sits the
          * letters on ground and leaves the range visible around them.
          */}
+        {/*
+         * An even scrim on phones, and the reason it is even.
+         *
+         * The copy now spans most of a portrait frame and the range turns under
+         * it, so no gradient aimed at one band holds: chasing it moved the
+         * failure around the rotation — the lede, then the date, then a claim.
+         * The worst background measured under the copy was rgb(146); a quarter
+         * of black takes that to 110, which is the floor cream type needs, and
+         * costs the drawing a quarter of its brightness rather than flattening
+         * it. Landscape keeps the gradients alone, where they do hold.
+         */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_58%_38%_at_50%_49%,rgba(5,4,6,0.93)_0%,rgba(5,4,6,0.68)_46%,transparent_84%)]"
+          className="pointer-events-none absolute inset-0 z-10 bg-[#050406]/42 lg:hidden"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_58%_38%_at_50%_49%,rgba(5,4,6,0.93)_0%,rgba(5,4,6,0.68)_46%,transparent_84%)] max-lg:bg-[radial-gradient(ellipse_78%_26%_at_50%_22%,rgba(5,4,6,0.9)_0%,rgba(5,4,6,0.6)_55%,transparent_88%)]"
         />
 
         {/*
@@ -175,26 +190,54 @@ export function LandingHero() {
                * The lockup wants the upper third and the drawing wants the room
                * under it; packing the date, the lede, the button and the marks
                * directly beneath the title filled that room with type and left
-               * the mountains as a strip at the very bottom. Apart, each half
-               * gets a side of the frame and the range is what lies between.
+               * the mountains as a strip at the very bottom.
+               *
+               * So this half takes the rest of the frame and spreads its four
+               * parts through it rather than sitting as a block at the foot —
+               * moving it down as one piece only traded a void under the title
+               * for a void in the middle.
                */}
-              <div className="flex flex-col items-center gap-6 max-lg:w-full max-lg:gap-5 lg:contents">
+              <div className="flex flex-col items-center gap-6 max-lg:w-full max-lg:flex-1 max-lg:justify-evenly max-lg:gap-4 lg:contents">
                 <p className="font-[family-name:var(--font-landing-mono)] text-sm text-[var(--hud-type)] uppercase tracking-[0.2em] sm:text-base">
                   {heroCopy.meta}
                 </p>
 
-                <p className="landing-type-lede max-w-xl text-balance text-[var(--hud-type)]/88">
-                  {heroCopy.lede}
-                </p>
+                {/*
+                 * Three lines, each led by its number.
+                 *
+                 * As one sentence it wrapped to two ragged lines on a phone and
+                 * asked the reader to pull three claims out of a paragraph.
+                 * Split, each is a glance, and the figures carry the weight.
+                 *
+                 * Full strength rather than the 88% it used to be: this is the
+                 * run furthest from either scrim, and the dimming cost it the
+                 * half stop that kept it under AA while a ridge turned behind.
+                 */}
+                <ul className="flex flex-col items-center gap-1.5 text-[var(--hud-type)] lg:gap-1">
+                  {heroCopy.claims.map((claim) => (
+                    <li
+                      className="flex items-baseline justify-center gap-2"
+                      key={claim.figure}
+                    >
+                      <span className="font-[family-name:var(--font-landing-brand)] font-semibold text-xl leading-none tracking-[0.012em] sm:text-2xl">
+                        {claim.figure}
+                      </span>
+                      <span className="text-base text-[var(--hud-type)] sm:text-lg lg:text-[var(--hud-type)]/80">
+                        {claim.label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
 
                 <a
                   className={`pointer-events-auto mt-1 w-full sm:w-auto ${landingCtaClassName}`}
                   href="#apply"
                 >
+                  {/*
+                   * One line. The second read "postulaciones abiertas", which a
+                   * button offering to apply already says.
+                   */}
                   <span>{heroCopy.cta}</span>
-                  <span className="mt-1 text-[10px] tracking-[0.16em] text-[var(--hud-paper)]/80">
-                    {heroCopy.ctaMeta}
-                  </span>
                 </a>
 
                 {/*

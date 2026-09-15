@@ -24,7 +24,7 @@ export function LandingPrizes() {
         </LandingSectionHead>
 
         <div className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
-          <article className="flex min-h-80 flex-col justify-between border border-[var(--hud-type)]/18 p-6 sm:p-8">
+          <article className="flex min-h-44 flex-col justify-between gap-10 border border-[var(--hud-type)]/18 p-6 sm:min-h-80 sm:p-8">
             <HudLabel className="text-[var(--hud-type)]/55">
               {prizesCopy.firstPlace}
             </HudLabel>
@@ -39,7 +39,7 @@ export function LandingPrizes() {
             </p>
           </article>
 
-          <article className="flex min-h-80 flex-col justify-between border border-[var(--hud-type)]/18 bg-[var(--hud-type)]/[0.04] p-6 sm:p-8">
+          <article className="flex min-h-44 flex-col justify-between gap-10 border border-[var(--hud-type)]/18 bg-[var(--hud-type)]/[0.04] p-6 sm:min-h-80 sm:p-8">
             <HudLabel className="text-[var(--hud-type)]/55">
               {prizesCopy.secondPlace}
             </HudLabel>

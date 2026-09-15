@@ -110,7 +110,12 @@ test("publishes a senior, hundred-seat, three-challenge event", () => {
     true,
   );
   expect(facts.find((fact) => fact.label === "Cupos")?.value).toBe("100");
-  expect(heroCopy.lede).toContain("100 builders con experiencia");
+  expect(heroCopy.claims.map((claim) => claim.figure)).toEqual([
+    "100",
+    "3",
+    "30",
+  ]);
+  expect(heroCopy.claims[0]?.label).toBe("builders con experiencia");
   expect(audienceCopy.lede.toLowerCase()).toContain("experiencia demostrable");
   expect(audienceRoles.map((role) => role.title)).toEqual([
     "AI engineers",

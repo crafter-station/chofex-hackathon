@@ -62,14 +62,28 @@ export function LandingApply() {
             </h3>
             <ol className="mt-6 overflow-hidden border border-[var(--hud-ink)]/10 bg-[var(--hud-ink)] font-[family-name:var(--font-landing-mono)] text-sm text-[var(--hud-type)]">
               {cliCommands.map((command, index) => (
+                /*
+                 * `minmax(0, 1fr)`, not `1fr`. A grid track defaults to a
+                 * minimum of its content, so the nowrap command pushed the
+                 * track — and the card, and the section — wider than the
+                 * screen instead of scrolling inside the `overflow-x` below.
+                 * On a phone the commands ran off the right edge, cut off by
+                 * the page's own horizontal clipping.
+                 */
                 <li
-                  className="grid grid-cols-[2rem_1fr] border-white/10 border-b p-4 last:border-b-0"
+                  className="grid grid-cols-[2rem_minmax(0,1fr)] border-white/10 border-b p-4 last:border-b-0"
                   key={command}
                 >
                   <span className="text-[var(--hud-type)]/45">
                     0{index + 1}
                   </span>
-                  <code className="overflow-x-auto whitespace-nowrap">
+                  {/*
+                   * Wraps on a phone rather than scrolling sideways. A
+                   * command hidden behind a horizontal scrollbar is a command
+                   * nobody reads; these are short enough to break at their
+                   * spaces and there is no copy button to mis-copy from.
+                   */}
+                  <code className="min-w-0 break-words whitespace-normal sm:overflow-x-auto sm:whitespace-nowrap">
                     <span className="mr-3 text-[var(--hud-accent)]">$</span>
                     {command}
                   </code>

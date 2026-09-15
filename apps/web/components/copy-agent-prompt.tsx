@@ -57,7 +57,13 @@ export function CopyAgentPrompt() {
         type="button"
         size="lg"
         variant="outline"
-        className="landing-cta h-11 rounded-none border-0 bg-[var(--hud-action)] px-5 font-[family-name:var(--font-landing-mono)] text-[var(--hud-paper)] uppercase tracking-[0.12em] hover:bg-[var(--hud-action-hover)] hover:text-[var(--hud-paper)]"
+        /*
+         * Allowed to wrap and to shrink its tracking on a phone. The shared
+         * Button keeps `whitespace-nowrap`, and this label is long, mono and
+         * letter-spaced — together they made the button wider than the screen
+         * and took the card with it.
+         */
+        className="landing-cta h-auto min-h-11 w-full whitespace-normal rounded-none border-0 bg-[var(--hud-action)] px-5 py-2 font-[family-name:var(--font-landing-mono)] text-[var(--hud-paper)] uppercase tracking-[0.08em] hover:bg-[var(--hud-action-hover)] hover:text-[var(--hud-paper)] sm:w-auto sm:tracking-[0.12em]"
         onClick={copyPrompt}
       >
         {iconForStatus(status)}
