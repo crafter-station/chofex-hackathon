@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev --port 3000",
     "build": "next build",
+    "vercel-build": "bun --cwd ../../packages/db db:migrate && next build",
     "trigger:dev": "trigger dev",
     "trigger:deploy": "trigger deploy",
     "start": "next start",
