@@ -1,61 +1,60 @@
-import { prizeAmountsPen, prizesCopy } from "@/components/landing/content";
+import {
+  prizePoolHeadlinePen,
+  prizesCopy,
+} from "@/components/landing/content";
 import { HudLabel } from "@/components/landing/hud";
 import { PrizeCounter } from "@/components/landing/prize-counter";
-import {
-  LandingContainer,
-  LandingSectionHead,
-} from "@/components/landing/shell";
+import { LandingContainer } from "@/components/landing/shell";
 
 export function LandingPrizes() {
   return (
     <section
       aria-labelledby="prizes-heading"
-      className="bg-[var(--hud-field)] text-[var(--hud-type)]"
+      className="flex min-h-dvh flex-col bg-[var(--hud-field)] text-[var(--hud-type)]"
       id="prizes"
     >
-      <LandingContainer className="py-20 sm:py-28">
-        <HudLabel className="mb-4 text-[var(--hud-type)]">
-          {prizesCopy.kicker}
-        </HudLabel>
-        <LandingSectionHead title={prizesCopy.title} titleId="prizes-heading">
-          <p className="max-w-lg text-lg leading-relaxed text-[var(--hud-type)]/70">
-            {prizesCopy.lede}
-          </p>
-        </LandingSectionHead>
+      <LandingContainer className="flex flex-1 flex-col justify-center py-20 sm:py-24">
+        {/* Section title — small kicker, also the landmark label */}
+        <h2
+          className="mb-10 font-[family-name:var(--font-landing-mono)] text-[10px] uppercase tracking-[0.18em] text-[var(--hud-type)]/60 sm:mb-14"
+          id="prizes-heading"
+        >
+          {prizesCopy.title}
+        </h2>
 
-        <div className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
-          <article className="flex min-h-80 flex-col justify-between border border-[var(--hud-type)]/18 p-6 sm:p-8">
-            <HudLabel className="text-[var(--hud-type)]/55">
-              {prizesCopy.firstPlace}
-            </HudLabel>
-            {/*
-             * Both figures are set in the same white. The sandstone accent was
-             * there to separate first place from second on paper; on black it
-             * reads as a weaker, dimmer number for the larger prize, which is
-             * the wrong way round.
-             */}
-            <p className="font-[family-name:var(--font-landing-display)] text-[clamp(4.25rem,12vw,8.5rem)] leading-[0.8] tracking-[-0.03em] text-[var(--hud-type)]">
-              <PrizeCounter amount={prizeAmountsPen.first} />
+        {/* Editorial two-column layout */}
+        <div className="grid grid-cols-1 items-center gap-14 md:grid-cols-[1fr_auto_1fr] md:gap-10 lg:gap-16">
+          {/* Left: Cash prize with count-up animation */}
+          <div className="prize-total">
+            <p className="font-[family-name:var(--font-landing-display)] text-[clamp(5rem,18vw,14rem)] leading-[0.78] tracking-[-0.045em]">
+              <PrizeCounter amount={prizePoolHeadlinePen} animate />
+              <span aria-hidden="true">+</span>
             </p>
-          </article>
-
-          <article className="flex min-h-80 flex-col justify-between border border-[var(--hud-type)]/18 bg-[var(--hud-type)]/[0.04] p-6 sm:p-8">
-            <HudLabel className="text-[var(--hud-type)]/55">
-              {prizesCopy.secondPlace}
-            </HudLabel>
-            <p className="font-[family-name:var(--font-landing-display)] text-[clamp(3.75rem,8vw,6.5rem)] leading-[0.82] tracking-[-0.03em] text-[var(--hud-type)]">
-              <PrizeCounter amount={prizeAmountsPen.second} />
+            <p className="mt-5 font-[family-name:var(--font-landing-mono)] text-xs uppercase tracking-[0.18em] text-[var(--hud-type)]/60">
+              {prizesCopy.totalSuffix}
             </p>
-          </article>
-        </div>
+          </div>
 
-        <div className="mt-10 grid gap-3 border-[var(--hud-type)]/18 border-t pt-7 sm:grid-cols-[14rem_1fr]">
-          <HudLabel className="text-[var(--hud-type)]">
-            {prizesCopy.opportunity}
-          </HudLabel>
-          <p className="max-w-2xl text-sm leading-relaxed text-[var(--hud-type)]/65">
-            {prizesCopy.opportunityBody}
+          {/* Plus separator — hidden on mobile, visible on md+ */}
+          <p
+            aria-hidden="true"
+            className="hidden font-[family-name:var(--font-landing-display)] text-[clamp(2.5rem,5vw,4rem)] leading-none text-[var(--hud-type)]/30 md:block"
+          >
+            +
           </p>
+
+          {/* Right: Trip prize */}
+          <div>
+            <HudLabel className="mb-4 text-[var(--hud-action)]">
+              {prizesCopy.tripLabel}
+            </HudLabel>
+            <h3 className="font-[family-name:var(--font-landing-display)] text-[clamp(3.5rem,9vw,7.5rem)] uppercase leading-[0.85] tracking-[-0.03em]">
+              {prizesCopy.tripTitle}
+            </h3>
+            <p className="mt-5 max-w-sm text-sm leading-relaxed text-[var(--hud-type)]/65 sm:text-base">
+              {prizesCopy.tripBody}
+            </p>
+          </div>
         </div>
       </LandingContainer>
     </section>
