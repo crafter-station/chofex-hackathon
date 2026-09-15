@@ -132,93 +132,107 @@ export function LandingHero() {
              * Scoped below lg: at lg the wrapper above is `display: contents`
              * and the desktop column does its own spacing.
              */}
-            <div className="flex flex-col items-center gap-6 text-center max-lg:mt-[7vh] max-lg:mb-auto">
+            <div className="flex flex-col items-center gap-6 text-center max-lg:mt-[7vh] max-lg:flex-1 max-lg:justify-between max-lg:gap-0 max-lg:pb-[9vh]">
               {/*
                * The kicker sits inside the lockup's scrim, which is the only
                * reason it can be here. On its own over the drawing it measured
                * 4.3:1 against the brightest contour lines — it is 10px mono, and
                * the foreground is the densest white in the frame.
                */}
-              <p className="landing-type-meta text-[var(--hud-kicker)]">
-                {heroCopy.eyebrow}
-              </p>
+              <div className="flex flex-col items-center gap-6 lg:contents">
+                <p className="landing-type-meta text-[var(--hud-kicker)]">
+                  {heroCopy.eyebrow}
+                </p>
 
-              {/*
-               * One line, centred, uppercase — the lockup as it appears on the
-               * poster. The two-line ranged-left version belongs to a hero with a
-               * column of copy beside it; this one has a mountain above it.
-               */}
-              <h1
-                className={
-                  "font-[family-name:var(--font-landing-brand)] font-semibold leading-[0.88] tracking-[0.012em] max-w-[16ch] text-[clamp(2.6rem,8vw,6.8rem)] uppercase"
-                }
-              >
                 {/*
-                 * One colour, the way the poster has it. The burnt red measured
-                 * 1.1:1 where the brightest contour lines run behind ANDES — and
-                 * it was competing with the red the liquid is already glowing
-                 * behind the lockup, so the word was reading as a smudge in the
-                 * middle of the colour rather than as the accent. The colour in
-                 * this hero belongs to the field; the type is white on it.
+                 * One line, centred, uppercase — the lockup as it appears on the
+                 * poster. The two-line ranged-left version belongs to a hero with a
+                 * column of copy beside it; this one has a mountain above it.
                  */}
-                <span className="text-[var(--hud-type)]">
-                  {heroCopy.titleLead} {heroCopy.titleAccent}
-                </span>
-              </h1>
-
-              <p className="font-[family-name:var(--font-landing-mono)] text-sm text-[var(--hud-type)] uppercase tracking-[0.2em] sm:text-base">
-                {heroCopy.meta}
-              </p>
-
-              <p className="landing-type-lede max-w-xl text-balance text-[var(--hud-type)]/88">
-                {heroCopy.lede}
-              </p>
-
-              <a
-                className={`pointer-events-auto mt-1 w-full sm:w-auto ${landingCtaClassName}`}
-                href="#apply"
-              >
-                <span>{heroCopy.cta}</span>
-                <span className="mt-1 text-[10px] tracking-[0.16em] text-[var(--hud-paper)]/80">
-                  {heroCopy.ctaMeta}
-                </span>
-              </a>
+                <h1
+                  className={
+                    "font-[family-name:var(--font-landing-brand)] font-semibold leading-[0.88] tracking-[0.012em] max-w-[16ch] text-[clamp(2.6rem,8vw,6.8rem)] uppercase"
+                  }
+                >
+                  {/*
+                   * One colour, the way the poster has it. The burnt red measured
+                   * 1.1:1 where the brightest contour lines run behind ANDES — and
+                   * it was competing with the red the liquid is already glowing
+                   * behind the lockup, so the word was reading as a smudge in the
+                   * middle of the colour rather than as the accent. The colour in
+                   * this hero belongs to the field; the type is white on it.
+                   */}
+                  <span className="text-[var(--hud-type)]">
+                    {heroCopy.titleLead} {heroCopy.titleAccent}
+                  </span>
+                </h1>
+              </div>
 
               {/*
-               * The partners as marks, not as a line of type.
+               * Everything under the lockup travels to the foot of the frame on
+               * a phone, spread rather than stacked tight.
                *
-               * Chofex takes the middle and the most width because it is the
-               * principal sponsor; the other two flank it. Sized by height
-               * rather than width — Peru Tech Week's mark is square and the
-               * other two are four times wider than they are tall, so matching
-               * widths would make it tower over both.
-               *
-               * The role each one plays used to be the visible copy here and is
-               * now in the alt text, which is where it still reaches anyone who
-               * cannot see the marks.
+               * The lockup wants the upper third and the drawing wants the room
+               * under it; packing the date, the lede, the button and the marks
+               * directly beneath the title filled that room with type and left
+               * the mountains as a strip at the very bottom. Apart, each half
+               * gets a side of the frame and the range is what lies between.
                */}
-              <ul className="mt-2 flex flex-wrap items-center justify-center gap-x-8 gap-y-5 sm:gap-x-12">
-                {partners.map((partner) => (
-                  <li key={partner.id}>
-                    <Image
-                      alt={`${partner.name} · ${partner.role}`}
-                      className={[
-                        "w-auto",
-                        partner.shape === "stacked"
-                          ? "h-11 sm:h-12"
-                          : "h-6 sm:h-7",
-                        // The principal sponsor at full strength; the other two
-                        // a step back, so the middle of the row reads first.
-                        partner.id === "chofex" ? "sm:h-8" : "opacity-80",
-                      ].join(" ")}
-                      height={partner.logoHeight}
-                      priority
-                      src={partner.logoSrc}
-                      width={partner.logoWidth}
-                    />
-                  </li>
-                ))}
-              </ul>
+              <div className="flex flex-col items-center gap-6 max-lg:w-full max-lg:gap-5 lg:contents">
+                <p className="font-[family-name:var(--font-landing-mono)] text-sm text-[var(--hud-type)] uppercase tracking-[0.2em] sm:text-base">
+                  {heroCopy.meta}
+                </p>
+
+                <p className="landing-type-lede max-w-xl text-balance text-[var(--hud-type)]/88">
+                  {heroCopy.lede}
+                </p>
+
+                <a
+                  className={`pointer-events-auto mt-1 w-full sm:w-auto ${landingCtaClassName}`}
+                  href="#apply"
+                >
+                  <span>{heroCopy.cta}</span>
+                  <span className="mt-1 text-[10px] tracking-[0.16em] text-[var(--hud-paper)]/80">
+                    {heroCopy.ctaMeta}
+                  </span>
+                </a>
+
+                {/*
+                 * The partners as marks, not as a line of type.
+                 *
+                 * Chofex takes the middle and the most width because it is the
+                 * principal sponsor; the other two flank it. Sized by height
+                 * rather than width — Peru Tech Week's mark is square and the
+                 * other two are four times wider than they are tall, so matching
+                 * widths would make it tower over both.
+                 *
+                 * The role each one plays used to be the visible copy here and is
+                 * now in the alt text, which is where it still reaches anyone who
+                 * cannot see the marks.
+                 */}
+                <ul className="mt-2 flex flex-wrap items-center justify-center gap-x-8 gap-y-5 sm:gap-x-12">
+                  {partners.map((partner) => (
+                    <li key={partner.id}>
+                      <Image
+                        alt={`${partner.name} · ${partner.role}`}
+                        className={[
+                          "w-auto",
+                          partner.shape === "stacked"
+                            ? "h-11 sm:h-12"
+                            : "h-6 sm:h-7",
+                          // The principal sponsor at full strength; the other two
+                          // a step back, so the middle of the row reads first.
+                          partner.id === "chofex" ? "sm:h-8" : "opacity-80",
+                        ].join(" ")}
+                        height={partner.logoHeight}
+                        priority
+                        src={partner.logoSrc}
+                        width={partner.logoWidth}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
 
