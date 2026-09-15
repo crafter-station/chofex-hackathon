@@ -240,9 +240,18 @@ export const sponsorsCopy = {
   lede: "Hack the Andes se realiza con el respaldo de Chofex y la producción de Crafter Station.",
   organizer: "Organiza · Crafter Station",
   mark: "Chofex",
-  logoSrc: "/sponsors/chofex.png",
-  logoWidth: 840,
-  logoHeight: 220,
+  /*
+   * The two official marks, both on transparent.
+   *
+   * There is no single "the logo": there is one for dark surfaces and one for
+   * light, and picking the wrong one is what forced the old lockup to sit in a
+   * cream plate on a black page. The landing is black, so `logoSrc` is the
+   * white mark; the black one is here for anywhere that goes back to paper.
+   */
+  logoSrc: "/sponsors/chofex-white.png",
+  logoOnLightSrc: "/sponsors/chofex-black.png",
+  logoWidth: 1200,
+  logoHeight: 295,
 } as const;
 
 export const experienceCopy = {

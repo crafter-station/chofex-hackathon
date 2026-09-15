@@ -74,7 +74,10 @@ test("keeps the public pitch in Spanish and names Chofex as principal sponsor", 
   expect(blob).not.toMatch(/la élite/i);
   expect(sponsorsCopy.kicker).toBe("sponsor principal");
   expect(sponsorsCopy.mark).toBe("Chofex");
-  expect(sponsorsCopy.logoSrc).toBe("/sponsors/chofex.png");
+  // White for the dark page, black kept for light surfaces. Both transparent —
+  // the mark is never to be boxed in a plate to make it legible.
+  expect(sponsorsCopy.logoSrc).toBe("/sponsors/chofex-white.png");
+  expect(sponsorsCopy.logoOnLightSrc).toBe("/sponsors/chofex-black.png");
   expect(heroCopy.sponsor.toLowerCase()).toContain("chofex");
 });
 

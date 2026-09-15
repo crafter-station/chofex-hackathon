@@ -137,16 +137,20 @@ export function LandingHeroV2() {
             </a>
 
             <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
-              <div className="bg-[#f3efe7] px-3 py-2">
-                <Image
-                  alt={sponsorsCopy.mark}
-                  className="h-auto w-24"
-                  height={sponsorsCopy.logoHeight}
-                  priority
-                  src={sponsorsCopy.logoSrc}
-                  width={sponsorsCopy.logoWidth}
-                />
-              </div>
+              {/*
+               * No plate behind the mark. The cream box was there because the
+               * only asset to hand was the dark-on-transparent logo, which is
+               * invisible on this page — boxing a sponsor's logo to make it
+               * legible is the thing their brand guide exists to prevent.
+               */}
+              <Image
+                alt={sponsorsCopy.mark}
+                className="h-auto w-28"
+                height={sponsorsCopy.logoHeight}
+                priority
+                src={sponsorsCopy.logoSrc}
+                width={sponsorsCopy.logoWidth}
+              />
               <div className="landing-type-meta text-left text-[var(--hud-type)]/70">
                 <p>{heroCopy.sponsor}</p>
                 <p className="mt-1">{heroCopy.organizer}</p>
