@@ -40,7 +40,7 @@ export const challengeCount = 3;
 export const metadataCopy = {
   title: `${brandName} — Lima, 17–18 oct 2026`,
   description:
-    "100 cupos para AI, product y software engineers con experiencia. 3 challenges, 30 horas y una entrega funcionando. Sponsor principal: Chofex.",
+    "100 cupos para AI, product y software engineers con experiencia. 3 challenges, 30 horas y una entrega funcionando.",
 } as const;
 
 export const cliCommands = [
@@ -79,7 +79,6 @@ export const heroCopy = {
   metaDate: "17–18 oct 2026",
   metaLocation: "Lima, Perú",
   cta: "Postular",
-  sponsor: "Sponsor principal: Chofex",
   organizer: "Organiza: Crafter Station",
   skipToWhy: "Conocer el evento",
 } as const;
@@ -286,7 +285,7 @@ export const faqItems = [
 ] as const;
 
 export const footerCopy = {
-  meta: "Lima, 17–18 oct 2026. Sponsor principal: Chofex",
+  meta: "Lima, 17–18 oct 2026",
   legalLabel: "Legal",
   // Both terrain sources are attribution-required licences, so these two
   // credits are a condition of use, not decoration.

@@ -74,20 +74,15 @@ export default function OpenGraphImage() {
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          gap: 32,
           alignItems: "flex-end",
           fontSize: 22,
           color: "rgba(243,239,231,0.72)",
         }}
       >
-        <div style={{ display: "flex", gap: 32 }}>
-          <div style={{ display: "flex" }}>100 cupos</div>
-          <div style={{ display: "flex" }}>Equipos de 1–4</div>
-          <div style={{ display: "flex" }}>Presencial</div>
-        </div>
-        <div style={{ display: "flex", color: "#6f98f0" }}>
-          Sponsor principal: Chofex
-        </div>
+        <div style={{ display: "flex" }}>100 cupos</div>
+        <div style={{ display: "flex" }}>Equipos de 1–4</div>
+        <div style={{ display: "flex" }}>Presencial</div>
       </div>
     </div>,
     { ...size },
