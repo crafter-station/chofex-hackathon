@@ -14,7 +14,7 @@ export function LandingPrizes() {
       id="prizes"
     >
       <LandingContainer className="py-20 sm:py-28">
-        <HudLabel className="mb-4 text-[var(--hud-accent)]">
+        <HudLabel className="mb-4 text-[var(--hud-type)]">
           {prizesCopy.kicker}
         </HudLabel>
         <LandingSectionHead title={prizesCopy.title} titleId="prizes-heading">
@@ -28,7 +28,13 @@ export function LandingPrizes() {
             <HudLabel className="text-[var(--hud-type)]/55">
               {prizesCopy.firstPlace}
             </HudLabel>
-            <p className="font-[family-name:var(--font-landing-display)] text-[clamp(4.25rem,12vw,8.5rem)] leading-[0.8] tracking-[-0.03em] text-[var(--hud-accent)]">
+            {/*
+             * Both figures are set in the same white. The sandstone accent was
+             * there to separate first place from second on paper; on black it
+             * reads as a weaker, dimmer number for the larger prize, which is
+             * the wrong way round.
+             */}
+            <p className="font-[family-name:var(--font-landing-display)] text-[clamp(4.25rem,12vw,8.5rem)] leading-[0.8] tracking-[-0.03em] text-[var(--hud-type)]">
               <PrizeCounter amount={prizeAmountsPen.first} />
             </p>
           </article>
@@ -44,7 +50,7 @@ export function LandingPrizes() {
         </div>
 
         <div className="mt-10 grid gap-3 border-[var(--hud-type)]/18 border-t pt-7 sm:grid-cols-[14rem_1fr]">
-          <HudLabel className="text-[var(--hud-accent)]">
+          <HudLabel className="text-[var(--hud-type)]">
             {prizesCopy.opportunity}
           </HudLabel>
           <p className="max-w-2xl text-sm leading-relaxed text-[var(--hud-type)]/65">
