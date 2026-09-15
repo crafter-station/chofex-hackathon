@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { sponsorsCopy } from "@/components/landing/content";
+import { partners, sponsorsCopy } from "@/components/landing/content";
 import { HudLabel } from "@/components/landing/hud";
 import { LandingContainer } from "@/components/landing/shell";
 
@@ -15,24 +15,48 @@ export function LandingSponsors() {
         <HudLabel className="mb-8 text-[var(--hud-action)]">
           {sponsorsCopy.kicker}
         </HudLabel>
-        <figure className="grid gap-12 border-[var(--hud-ink)]/15 border-y py-10 sm:py-14 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
-          <h2 className="sr-only" id="sponsors-heading">
-            {sponsorsCopy.mark}
-          </h2>
-          <Image
-            alt={sponsorsCopy.mark}
-            className="h-auto w-full max-w-xl"
-            height={sponsorsCopy.logoHeight}
-            src={sponsorsCopy.logoSrc}
-            width={sponsorsCopy.logoWidth}
-          />
-          <figcaption className="max-w-md text-base leading-relaxed text-[var(--hud-muted)] lg:justify-self-end">
-            <p>{sponsorsCopy.lede}</p>
-            <HudLabel className="mt-6 text-[var(--hud-ink)]">
-              {sponsorsCopy.organizer}
-            </HudLabel>
-          </figcaption>
-        </figure>
+        <h2 className="sr-only" id="sponsors-heading">
+          {sponsorsCopy.kicker}
+        </h2>
+        <p className="mb-10 max-w-md text-base leading-relaxed text-[var(--hud-muted)]">
+          {sponsorsCopy.lede}
+        </p>
+        {/*
+         * Named here, unlike in the hero. This is the section a reader comes to
+         * for exactly this, so the role each partner plays is visible copy
+         * rather than alt text, and every mark is a link to whoever it belongs
+         * to.
+         */}
+        <ul className="grid gap-px border-[var(--hud-ink)]/15 border-y bg-[var(--hud-ink)]/10 sm:grid-cols-3">
+          {partners.map((partner) => (
+            <li className="bg-[var(--hud-paper)]" key={partner.id}>
+              <a
+                className="flex h-full flex-col justify-between gap-8 p-6 transition-opacity hover:opacity-80 sm:p-8"
+                href={partner.href}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <HudLabel className="text-[var(--hud-ink)]/60">
+                  {partner.role}
+                </HudLabel>
+                {/*
+                 * `self-start` matters: this is a flex column, and a stretched
+                 * item would have the mark filling the card's width with its
+                 * height pinned — which squashes a square lockup into a smear.
+                 */}
+                <Image
+                  alt={partner.name}
+                  className={`w-auto self-start ${
+                    partner.shape === "stacked" ? "h-16" : "h-9 sm:h-10"
+                  }`}
+                  height={partner.logoHeight}
+                  src={partner.logoSrc}
+                  width={partner.logoWidth}
+                />
+              </a>
+            </li>
+          ))}
+        </ul>
       </LandingContainer>
     </section>
   );

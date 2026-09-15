@@ -172,13 +172,13 @@ export const prizesCopy = {
 } as const;
 
 export const sponsorsCopy = {
-  kicker: "sponsor principal",
+  kicker: "quiénes lo hacen",
   title: "Chofex",
-  lede: "Hack the Andes se realiza con el respaldo de Chofex y la producción de Crafter Station.",
+  lede: "Hack the Andes se realiza con el respaldo de Chofex, la producción de Crafter Station y el apoyo de Peru Tech Week.",
   organizer: "Organiza · Crafter Station",
   mark: "Chofex",
   /*
-   * The two official marks, both on transparent.
+   * Chofex's two official marks, both on transparent.
    *
    * There is no single "the logo": there is one for dark surfaces and one for
    * light, and picking the wrong one is what forced the old lockup to sit in a
@@ -190,6 +190,58 @@ export const sponsorsCopy = {
   logoWidth: 1200,
   logoHeight: 295,
 } as const;
+
+/**
+ * Who is behind the event, in reading order.
+ *
+ * Chofex sits in the middle because it is the principal sponsor and the hero
+ * gives it the centre; the other two flank it. `role` is not decoration — the
+ * hero shows these as logos alone, so it is what carries "which one of these
+ * is paying for it and which one is running it" to anyone who cannot see the
+ * marks, and it goes into the alt text there.
+ *
+ * Every mark is white on transparent. A sponsor's logo in a box, or inverted
+ * into a colour it does not come in, is the thing their brand guide exists to
+ * prevent.
+ *
+ * `shape` is what lets them be set at one optical size. Two of these are
+ * wordmarks four or five times wider than they are tall; Peru Tech Week's is a
+ * square lockup stacking three words. Matched on height the square one comes
+ * out with type a third the size of the others and unreadable, and matched on
+ * width it towers over both — so the stacked one is given its own height.
+ */
+export const partners = [
+  {
+    id: "peru-tech-week",
+    name: "Peru Tech Week",
+    role: "Aliado",
+    shape: "stacked",
+    href: "https://perutechweek.com",
+    logoSrc: "/sponsors/peru-tech-week-white.png",
+    logoWidth: 730,
+    logoHeight: 600,
+  },
+  {
+    id: "chofex",
+    name: "Chofex",
+    role: "Sponsor principal",
+    shape: "wordmark",
+    href: "https://chofex.com",
+    logoSrc: "/sponsors/chofex-white.png",
+    logoWidth: 1200,
+    logoHeight: 295,
+  },
+  {
+    id: "crafter-station",
+    name: "Crafter Station",
+    role: "Organiza",
+    shape: "wordmark",
+    href: "https://crafter.station",
+    logoSrc: "/sponsors/crafter-station-white.png",
+    logoWidth: 1200,
+    logoHeight: 233,
+  },
+] as const;
 
 export const experienceCopy = {
   kicker: "la experiencia",

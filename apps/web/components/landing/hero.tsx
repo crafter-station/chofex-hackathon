@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 
-import { facts, heroCopy, sponsorsCopy } from "@/components/landing/content";
+import { facts, heroCopy, partners } from "@/components/landing/content";
 import { HudLabel } from "@/components/landing/hud";
 import { landingCtaClassName } from "@/components/landing/shell";
 import { Terrain } from "@/components/landing/terrain";
@@ -156,26 +156,41 @@ export function LandingHero() {
                 </span>
               </a>
 
-              <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
-                {/*
-                 * No plate behind the mark. The cream box was there because the
-                 * only asset to hand was the dark-on-transparent logo, which is
-                 * invisible on this page — boxing a sponsor's logo to make it
-                 * legible is the thing their brand guide exists to prevent.
-                 */}
-                <Image
-                  alt={sponsorsCopy.mark}
-                  className="h-auto w-28"
-                  height={sponsorsCopy.logoHeight}
-                  priority
-                  src={sponsorsCopy.logoSrc}
-                  width={sponsorsCopy.logoWidth}
-                />
-                <div className="landing-type-meta text-left text-[var(--hud-type)]/70">
-                  <p>{heroCopy.sponsor}</p>
-                  <p className="mt-1">{heroCopy.organizer}</p>
-                </div>
-              </div>
+              {/*
+               * The partners as marks, not as a line of type.
+               *
+               * Chofex takes the middle and the most width because it is the
+               * principal sponsor; the other two flank it. Sized by height
+               * rather than width — Peru Tech Week's mark is square and the
+               * other two are four times wider than they are tall, so matching
+               * widths would make it tower over both.
+               *
+               * The role each one plays used to be the visible copy here and is
+               * now in the alt text, which is where it still reaches anyone who
+               * cannot see the marks.
+               */}
+              <ul className="mt-2 flex flex-wrap items-center justify-center gap-x-8 gap-y-5 sm:gap-x-12">
+                {partners.map((partner) => (
+                  <li key={partner.id}>
+                    <Image
+                      alt={`${partner.name} · ${partner.role}`}
+                      className={[
+                        "w-auto",
+                        partner.shape === "stacked"
+                          ? "h-11 sm:h-12"
+                          : "h-6 sm:h-7",
+                        // The principal sponsor at full strength; the other two
+                        // a step back, so the middle of the row reads first.
+                        partner.id === "chofex" ? "sm:h-8" : "opacity-80",
+                      ].join(" ")}
+                      height={partner.logoHeight}
+                      priority
+                      src={partner.logoSrc}
+                      width={partner.logoWidth}
+                    />
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
