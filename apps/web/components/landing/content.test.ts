@@ -6,6 +6,7 @@ import {
   audienceRoles,
   challengeCount,
   challengeSeats,
+  challengesCopy,
   chromeCopy,
   facts,
   footerCopy,
@@ -108,6 +109,8 @@ test("withholds panel claims until identities are confirmed", () => {
 test("publishes a senior, hundred-seat, three-challenge event", () => {
   expect(seatCount).toBe(100);
   expect(challengeCount).toBe(3);
+  expect(challengesCopy.title).toBe("3 Tracks centrales");
+  expect(challengesCopy.subtitle).toBe("∞ Posibilidades de soluciones");
   expect(challengeSeats).toHaveLength(3);
   expect(challengeSeats.every((challenge) => challenge.hint.length > 0)).toBe(
     true,
