@@ -12,6 +12,10 @@
         "NEXT_PUBLIC_CLERK_*",
         "PARTICIPANT_DATA_ENCRYPTION_KEY",
         "ADMIN_CLERK_USER_IDS",
+        "CHALLENGE_SEED_SECRET",
+        "CHALLENGE_ENGINE_URL",
+        "CHALLENGE_ENGINE_API_SECRET",
+        "CHALLENGES_FORCE_OPEN",
         "RESEND_*"
       ]
     },

@@ -1,5 +1,6 @@
+import type { ParticipantChallengeProgress } from "@chofex/challenges-contract";
 import { db } from "@chofex/db";
-import { desc, eq } from "@chofex/db/orm";
+import { and, desc, eq, sql } from "@chofex/db/orm";
 import {
   acceptanceDetails,
   applications,
@@ -7,6 +8,7 @@ import {
 } from "@chofex/db/schema";
 import {
   AcceptedDetailsInput,
+  ApplicationDraftInput,
   ApplicationInput,
   acceptedDetailsSemanticRequirements,
   applicationRequirementsFor,
@@ -17,9 +19,12 @@ import {
   type RegistrationResult,
   type RegistrationView,
 } from "@chofex/registration-contract";
-import { DateTime, Predicate, Schema } from "effect";
+import { DateTime, Schema } from "effect";
 
+import { challengeProgressForParticipant } from "../challenges/service";
+import { isUniqueViolation } from "../db-errors";
 import { HttpError } from "./http";
+import { participantIdFor } from "./participants";
 import { confirmedPictureUrl } from "./pictures";
 import { encryptSensitiveValue } from "./sensitive";
 
@@ -92,16 +97,6 @@ const assertNoRequirements = (
   }
 };
 
-const isUniqueViolation = (error: unknown): boolean => {
-  if (Predicate.hasProperty(error, "code") && error.code === "23505") {
-    return true;
-  }
-  if (Predicate.hasProperty(error, "cause")) {
-    return isUniqueViolation(error.cause);
-  }
-  return false;
-};
-
 const encryptNationalId = (value: string): string => {
   const encryptionKey = process.env.PARTICIPANT_DATA_ENCRYPTION_KEY;
   if (!encryptionKey) {
@@ -124,7 +119,8 @@ const encryptNationalId = (value: string): string => {
 
 const toView = (
   application: ApplicationRecord,
-  details?: AcceptanceDetailsRecord,
+  details: AcceptanceDetailsRecord | undefined,
+  challenges: ReadonlyArray<ParticipantChallengeProgress>,
 ): RegistrationView => ({
   id: application.id,
   status: application.status,
@@ -160,88 +156,177 @@ const toView = (
   pictureSource: optional(application.pictureSource),
   pictureUrl: optional(application.pictureUrl),
   rejectionReason: optional(application.rejectionReason),
-  submittedAt: instantString(application.submittedAt ?? application.createdAt),
+  codeOfConductAccepted: Boolean(application.codeOfConductAcceptedAt),
+  privacyPolicyAccepted: Boolean(application.privacyPolicyAcceptedAt),
+  submittedAt: optionalInstantString(application.submittedAt),
   acceptanceDetailsCompletedAt: optionalInstantString(details?.completedAt),
   createdAt: instantString(application.createdAt),
   updatedAt: instantString(details?.updatedAt ?? application.updatedAt),
+  challenges: [...challenges],
 });
 
-const resultFor = (
+const resultFor = async (
   application: ApplicationRecord,
   details?: AcceptanceDetailsRecord,
-): RegistrationResult => {
-  const registration = toView(application, details);
+): Promise<RegistrationResult> => {
+  const challenges = await challengeProgressForParticipant(
+    application.participantId,
+  );
+  const registration = toView(application, details, challenges);
   return {
     registration,
     requirements: applicationRequirementsFor(registration),
   };
 };
 
-const participantFor = async (clerkUserId: string): Promise<string> => {
-  const [existing] = await db
-    .select({ id: participants.id })
-    .from(participants)
-    .where(eq(participants.clerkUserId, clerkUserId))
-    .limit(1);
-  if (existing) return existing.id;
+type DraftColumns = Partial<typeof applications.$inferInsert>;
 
-  const [created] = await db
-    .insert(participants)
-    .values({ clerkUserId })
-    .onConflictDoNothing()
-    .returning({ id: participants.id });
-  if (created) return created.id;
-
-  const [concurrent] = await db
-    .select({ id: participants.id })
-    .from(participants)
-    .where(eq(participants.clerkUserId, clerkUserId))
-    .limit(1);
-  if (!concurrent) throw new Error("Participant creation returned no row");
-  return concurrent.id;
+const draftColumnsFrom = (
+  input: ApplicationDraftInput,
+  identity: RegistrationIdentity,
+  now: Date,
+): DraftColumns => {
+  const values: DraftColumns = {
+    email: identity.email,
+    countryCode: hackathonCountryCode,
+    participationMode: hackathonParticipationMode,
+    updatedAt: now,
+  };
+  if (input.firstName !== undefined) values.firstName = input.firstName;
+  if (input.lastName !== undefined) values.lastName = input.lastName;
+  if (input.pronouns !== undefined) values.pronouns = input.pronouns;
+  if (input.city !== undefined) values.city = input.city;
+  if (input.organization !== undefined) {
+    values.organization = input.organization;
+  }
+  if (input.role !== undefined) values.role = input.role;
+  if (input.fieldOfStudy !== undefined)
+    values.fieldOfStudy = input.fieldOfStudy;
+  if (input.graduationYear !== undefined) {
+    values.graduationYear = input.graduationYear;
+  }
+  if (input.shippedProject !== undefined) {
+    values.shippedProject = input.shippedProject;
+  }
+  if (input.hackathonProject !== undefined) {
+    values.hackathonProject = input.hackathonProject;
+  }
+  if (input.bio !== undefined) values.bio = input.bio;
+  if (input.githubUrl !== undefined) values.githubUrl = input.githubUrl;
+  if (input.linkedInUrl !== undefined) values.linkedInUrl = input.linkedInUrl;
+  if (input.portfolioUrl !== undefined) {
+    values.portfolioUrl = input.portfolioUrl;
+  }
+  if (input.teamPreference !== undefined) {
+    values.teamPreference = input.teamPreference;
+  }
+  if (input.teamName !== undefined) values.teamName = input.teamName;
+  if (
+    input.teamPreference !== undefined &&
+    input.teamPreference !== "have_team"
+  ) {
+    values.teamName = null;
+  }
+  if (input.mediaConsent !== undefined)
+    values.mediaConsent = input.mediaConsent;
+  if (input.codeOfConductAccepted === true) {
+    values.codeOfConductAcceptedAt = now;
+  } else if (input.codeOfConductAccepted === false) {
+    values.codeOfConductAcceptedAt = null;
+  }
+  if (input.privacyPolicyAccepted === true) {
+    values.privacyPolicyAcceptedAt = now;
+  } else if (input.privacyPolicyAccepted === false) {
+    values.privacyPolicyAcceptedAt = null;
+  }
+  return values;
 };
 
-export const createRegistration = async (
+const latestApplicationRecord = async (
+  clerkUserId: string,
+): Promise<
+  | {
+      application: ApplicationRecord;
+      details?: AcceptanceDetailsRecord;
+    }
+  | undefined
+> => {
+  const [record] = await db
+    .select({ application: applications, details: acceptanceDetails })
+    .from(participants)
+    .innerJoin(applications, eq(applications.participantId, participants.id))
+    .leftJoin(
+      acceptanceDetails,
+      eq(acceptanceDetails.applicationId, applications.id),
+    )
+    .where(eq(participants.clerkUserId, clerkUserId))
+    .orderBy(desc(applications.createdAt))
+    .limit(1);
+  if (!record) return undefined;
+  return {
+    application: record.application,
+    details: record.details ?? undefined,
+  };
+};
+
+export const saveRegistrationDraft = async (
   identity: RegistrationIdentity,
   rawInput: unknown,
-): Promise<CreatedRegistration> => {
-  const input = parseInput(ApplicationInput, rawInput);
-  assertNoRequirements(applicationSemanticRequirements(input));
-  const participantId = await participantFor(identity.clerkUserId);
+): Promise<RegistrationResult> => {
+  const input = parseInput(ApplicationDraftInput, rawInput);
+  const participantId = await participantIdFor(identity.clerkUserId);
   const now = new Date();
+  const columns = draftColumnsFrom(input, identity, now);
+  const current = await latestApplicationRecord(identity.clerkUserId);
+
+  if (
+    current &&
+    current.application.status !== "draft" &&
+    current.application.status !== "rejected" &&
+    current.application.status !== "withdrawn"
+  ) {
+    throw new HttpError(
+      409,
+      "ACTIVE_APPLICATION_EXISTS",
+      "You already have an active hackathon application",
+      false,
+      { currentStatus: current.application.status },
+    );
+  }
+
+  if (current?.application.status === "draft") {
+    const [application] = await db
+      .update(applications)
+      .set(columns)
+      .where(
+        and(
+          eq(applications.id, current.application.id),
+          eq(applications.status, "draft"),
+        ),
+      )
+      .returning();
+    if (!application) {
+      throw new HttpError(
+        409,
+        "APPLICATION_ALREADY_SUBMITTED",
+        "The application was submitted while this draft was being saved",
+      );
+    }
+    return resultFor(application, current.details);
+  }
 
   try {
     const [application] = await db
       .insert(applications)
       .values({
         participantId,
-        status: "submitted",
-        firstName: input.firstName,
-        lastName: input.lastName,
-        email: identity.email,
-        pronouns: optional(input.pronouns),
-        countryCode: hackathonCountryCode,
-        city: input.city,
-        participationMode: hackathonParticipationMode,
-        organization: optional(input.organization),
-        role: optional(input.role),
-        fieldOfStudy: optional(input.fieldOfStudy),
-        graduationYear: optional(input.graduationYear),
-        shippedProject: input.shippedProject,
-        hackathonProject: input.hackathonProject,
-        bio: input.bio,
-        githubUrl: optional(input.githubUrl),
-        linkedInUrl: optional(input.linkedInUrl),
-        portfolioUrl: optional(input.portfolioUrl),
-        teamPreference: input.teamPreference,
-        teamName: optional(input.teamName),
-        codeOfConductAcceptedAt: now,
-        privacyPolicyAcceptedAt: now,
-        mediaConsent: input.mediaConsent ?? false,
-        submittedAt: now,
+        status: "draft",
+        mediaConsent: false,
+        ...columns,
       })
       .returning();
-    if (!application) throw new Error("Application insert returned no row");
+    if (!application)
+      throw new Error("Application draft insert returned no row");
     return resultFor(application);
   } catch (error) {
     if (isUniqueViolation(error)) {
@@ -255,34 +340,114 @@ export const createRegistration = async (
   }
 };
 
+export const submitRegistration = async (
+  identity: RegistrationIdentity,
+): Promise<CreatedRegistration> => {
+  const current = await latestApplicationRecord(identity.clerkUserId);
+  if (!current) {
+    throw new HttpError(
+      404,
+      "REGISTRATION_NOT_FOUND",
+      "Save an application draft before submitting",
+    );
+  }
+  if (current.application.status !== "draft") {
+    throw new HttpError(
+      409,
+      "ACTIVE_APPLICATION_EXISTS",
+      "You already have an active hackathon application",
+      false,
+      { currentStatus: current.application.status },
+    );
+  }
+
+  const now = new Date();
+  const [application] = await db
+    .update(applications)
+    .set({
+      status: "submitted",
+      submittedAt: now,
+      updatedAt: now,
+    })
+    .where(
+      and(
+        eq(applications.id, current.application.id),
+        eq(applications.status, "draft"),
+        sql`${applications.firstName} is not null`,
+        sql`${applications.lastName} is not null`,
+        sql`${applications.city} is not null`,
+        sql`${applications.shippedProject} is not null`,
+        sql`${applications.hackathonProject} is not null`,
+        sql`${applications.bio} is not null`,
+        sql`${applications.teamPreference} is not null`,
+        sql`(${applications.teamPreference} <> 'have_team' or ${applications.teamName} is not null)`,
+        sql`${applications.codeOfConductAcceptedAt} is not null`,
+        sql`${applications.privacyPolicyAcceptedAt} is not null`,
+      ),
+    )
+    .returning();
+  if (!application) {
+    const latest = await latestApplicationRecord(identity.clerkUserId);
+    if (
+      latest?.application.id === current.application.id &&
+      latest.application.status === "draft"
+    ) {
+      const result = await resultFor(latest.application, latest.details);
+      if (!result.requirements.canSubmitApplication) {
+        throw new HttpError(
+          422,
+          "APPLICATION_INCOMPLETE",
+          "Complete every application field and agreement before submitting",
+          false,
+          {
+            missing: result.requirements.missing,
+            parts: result.requirements.parts,
+          },
+        );
+      }
+      throw new HttpError(
+        409,
+        "APPLICATION_DRAFT_CHANGED",
+        "The application changed while it was being submitted; review and submit it again",
+      );
+    }
+    throw new HttpError(
+      409,
+      "APPLICATION_ALREADY_SUBMITTED",
+      "The application was already submitted",
+    );
+  }
+  return resultFor(application, current.details);
+};
+
+export const createRegistration = async (
+  identity: RegistrationIdentity,
+  rawInput: unknown,
+): Promise<CreatedRegistration> => {
+  const input = parseInput(ApplicationInput, rawInput);
+  assertNoRequirements(applicationSemanticRequirements(input));
+  const draft = await saveRegistrationDraft(identity, input);
+  if (draft.requirements.canSubmitApplication) {
+    return submitRegistration(identity);
+  }
+  return draft;
+};
+
 const latestApplicationFor = async (
   clerkUserId: string,
 ): Promise<{
   application: ApplicationRecord;
   details?: AcceptanceDetailsRecord;
 }> => {
-  const [record] = await db
-    .select({ application: applications, details: acceptanceDetails })
-    .from(participants)
-    .innerJoin(applications, eq(applications.participantId, participants.id))
-    .leftJoin(
-      acceptanceDetails,
-      eq(acceptanceDetails.applicationId, applications.id),
-    )
-    .where(eq(participants.clerkUserId, clerkUserId))
-    .orderBy(desc(applications.createdAt))
-    .limit(1);
-  if (!record) {
+  const current = await latestApplicationRecord(clerkUserId);
+  if (!current) {
     throw new HttpError(
       404,
       "REGISTRATION_NOT_FOUND",
       "Registration not found",
     );
   }
-  return {
-    application: record.application,
-    details: record.details ?? undefined,
-  };
+  return current;
 };
 
 export const getRegistration = async (

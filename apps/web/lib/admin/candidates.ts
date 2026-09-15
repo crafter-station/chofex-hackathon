@@ -19,6 +19,7 @@ import {
 } from "@chofex/db/schema";
 
 import { HttpError } from "@/lib/registration/http";
+import { challengeProgressForParticipants } from "../challenges/service";
 import { candidateAvatarUrl } from "./avatars";
 import { type ApplicationDecision, buildDecisionEmail } from "./decision-email";
 import {
@@ -74,6 +75,7 @@ const toCandidate = (
   clerkPictureUrl: string | undefined,
   approvedBy: string | undefined,
   clerkNames: ReadonlyMap<string, string>,
+  challenges: Candidate["challenges"],
 ): Candidate => {
   const { application, details } = record;
   let dateOfBirth: string | undefined;
@@ -124,9 +126,8 @@ const toCandidate = (
     teamName: optional(application.teamName),
     status: application.status,
     mediaConsent: details?.mediaConsent ?? application.mediaConsent,
-    submittedAt: (
-      application.submittedAt ?? application.createdAt
-    ).toISOString(),
+    createdAt: application.createdAt.toISOString(),
+    submittedAt: instantString(application.submittedAt),
     decidedAt: instantString(application.decidedAt),
     approvedBy,
     attemptNumber: record.attemptNumber,
@@ -142,13 +143,20 @@ const toCandidate = (
     attendanceCompletedAt: instantString(details?.completedAt),
     checkedInAt: instantString(details?.checkedInAt),
     nationalIdProvided: Boolean(details?.nationalIdNumber),
+    challenges,
   };
 };
 
 const toCandidates = async (
   records: ReadonlyArray<CandidateRecord>,
 ): Promise<ReadonlyArray<Candidate>> => {
-  const clerk = await clerkClient();
+  const participantIds = [
+    ...new Set(records.map((record) => record.application.participantId)),
+  ];
+  const [clerk, challengeProgressByParticipant] = await Promise.all([
+    clerkClient(),
+    challengeProgressForParticipants(participantIds),
+  ]);
   const clerkUserIds = [
     ...new Set(records.map((record) => record.clerkUserId)),
   ];
@@ -198,6 +206,8 @@ const toCandidates = async (
       clerkPictures.get(record.clerkUserId),
       approvedBy,
       clerkNames,
+      challengeProgressByParticipant.get(record.application.participantId) ??
+        [],
     );
   });
 };

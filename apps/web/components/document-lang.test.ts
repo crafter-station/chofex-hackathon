@@ -4,6 +4,8 @@ import { isEnglishPath } from "./document-lang";
 
 test("treats the marketing landing as Spanish", () => {
   expect(isEnglishPath("/")).toBe(false);
+  expect(isEnglishPath("/challenges")).toBe(false);
+  expect(isEnglishPath("/challenges/black-box")).toBe(false);
 });
 
 test("keeps admin and legal routes in English", () => {

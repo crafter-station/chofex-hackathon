@@ -1,0 +1,175 @@
+import type { ChallengeScore, Shipment } from "@chofex/challenges-contract";
+
+export const currentChallengeVersion = "black-box-v2" as const;
+
+type Fetch = (
+  input: string | URL | Request,
+  init?: RequestInit,
+) => Promise<Response>;
+
+interface ChallengeEngineOptions {
+  readonly baseUrl: string;
+  readonly apiSecret: string;
+  readonly fetch: Fetch;
+}
+
+export class ChallengeEngineError extends Error {
+  readonly status: number;
+  readonly code: string;
+
+  constructor(status: number, code: string, message: string) {
+    super(message);
+    this.name = "ChallengeEngineError";
+    this.status = status;
+    this.code = code;
+  }
+}
+
+const record = (value: unknown): Record<string, unknown> | undefined => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return;
+  return value as Record<string, unknown>;
+};
+
+const finiteNumber = (value: unknown): number | undefined => {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+};
+
+const parseError = (status: number, value: unknown): ChallengeEngineError => {
+  const response = record(value);
+  const error = record(response?.error);
+  if (typeof error?.code === "string" && typeof error.message === "string") {
+    return new ChallengeEngineError(status, error.code, error.message);
+  }
+  return new ChallengeEngineError(
+    502,
+    "CHALLENGE_ENGINE_ERROR",
+    "The challenge engine returned an invalid response",
+  );
+};
+
+const parseScore = (value: unknown): ChallengeScore | undefined => {
+  const score = record(value);
+  if (!score) return;
+  const accuracy = finiteNumber(score.accuracy);
+  const exactCount = finiteNumber(score.exactCount);
+  const sampleSize = finiteNumber(score.sampleSize);
+  const meanError = finiteNumber(score.meanError);
+  const queriesUsed = finiteNumber(score.queriesUsed);
+  const runtimeMs = finiteNumber(score.runtimeMs);
+  if (
+    accuracy === undefined ||
+    exactCount === undefined ||
+    sampleSize === undefined ||
+    meanError === undefined ||
+    queriesUsed === undefined ||
+    runtimeMs === undefined
+  ) {
+    return;
+  }
+  return {
+    accuracy,
+    exactCount,
+    sampleSize,
+    meanError,
+    queriesUsed,
+    runtimeMs,
+  };
+};
+
+export const createChallengeEngine = (options: ChallengeEngineOptions) => {
+  const baseUrl = options.baseUrl.replace(/\/$/, "");
+  const post = async (path: string, payload: unknown): Promise<unknown> => {
+    let response: Response;
+    try {
+      response = await options.fetch(`${baseUrl}${path}`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${options.apiSecret}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(payload),
+        cache: "no-store",
+        signal: AbortSignal.timeout(8_000),
+      });
+    } catch (error) {
+      console.error("Challenge engine request failed", error);
+      throw new ChallengeEngineError(
+        503,
+        "CHALLENGE_ENGINE_UNAVAILABLE",
+        "The challenge engine is temporarily unavailable",
+      );
+    }
+
+    let result: unknown;
+    try {
+      result = await response.json();
+    } catch {
+      throw new ChallengeEngineError(
+        502,
+        "CHALLENGE_ENGINE_ERROR",
+        "The challenge engine returned an invalid response",
+      );
+    }
+    if (!response.ok) throw parseError(response.status, result);
+    return result;
+  };
+
+  return {
+    query: async (participantKey: string, input: Shipment): Promise<number> => {
+      const result = record(
+        await post("/api/v1/query", {
+          version: 1,
+          challengeVersion: currentChallengeVersion,
+          participantKey,
+          input,
+        }),
+      );
+      const output = finiteNumber(result?.output);
+      if (result?.version !== 1 || output === undefined) {
+        throw new ChallengeEngineError(
+          502,
+          "CHALLENGE_ENGINE_ERROR",
+          "The challenge engine returned an invalid query response",
+        );
+      }
+      return output;
+    },
+    evaluate: async (
+      participantKey: string,
+      source: string,
+      queriesUsed: number,
+    ): Promise<ChallengeScore> => {
+      const result = record(
+        await post("/api/v1/evaluate", {
+          version: 1,
+          challengeVersion: currentChallengeVersion,
+          participantKey,
+          source,
+          queriesUsed,
+        }),
+      );
+      const score = parseScore(result?.score);
+      if (result?.version !== 1 || !score) {
+        throw new ChallengeEngineError(
+          502,
+          "CHALLENGE_ENGINE_ERROR",
+          "The challenge engine returned an invalid evaluation response",
+        );
+      }
+      return score;
+    },
+  };
+};
+
+const requiredEnvironmentValue = (name: string): string => {
+  const value = process.env[name];
+  if (!value) throw new Error(`${name} is required`);
+  return value;
+};
+
+export const challengeEngine = () =>
+  createChallengeEngine({
+    baseUrl: requiredEnvironmentValue("CHALLENGE_ENGINE_URL"),
+    apiSecret: requiredEnvironmentValue("CHALLENGE_ENGINE_API_SECRET"),
+    fetch: globalThis.fetch,
+  });

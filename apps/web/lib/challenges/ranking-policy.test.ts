@@ -1,0 +1,25 @@
+import { describe, expect, test } from "bun:test";
+import type { ChallengeScore } from "@chofex/challenges-contract";
+import { competitionRanks } from "./ranking-policy";
+
+const score = (overrides: Partial<ChallengeScore> = {}): ChallengeScore => ({
+  accuracy: 0.9,
+  exactCount: 900,
+  sampleSize: 1_000,
+  meanError: 0.1,
+  queriesUsed: 10,
+  runtimeMs: 20,
+  ...overrides,
+});
+
+describe("challenge ranking policy", () => {
+  test("gives identical scores the same competition rank", () => {
+    expect(
+      competitionRanks([
+        score(),
+        score(),
+        score({ accuracy: 0.8, exactCount: 800 }),
+      ]),
+    ).toEqual([1, 1, 3]);
+  });
+});

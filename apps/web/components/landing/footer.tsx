@@ -26,6 +26,12 @@ export function LandingFooter() {
           >
             {footerCopy.terrainCredit}
           </a>
+          <Link
+            className="underline-offset-4 hover:underline"
+            href="/challenges"
+          >
+            {footerCopy.ranking}
+          </Link>
           <Link className="underline-offset-4 hover:underline" href="/terms">
             {footerCopy.terms}
           </Link>

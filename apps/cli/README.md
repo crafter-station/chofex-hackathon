@@ -15,8 +15,23 @@ chofex whoami
 chofex register
 chofex status
 chofex requirements
+chofex challenge list
+chofex challenge query
+chofex challenge notebook
+chofex challenge test --source ./shipping.js
+chofex challenge evaluate --source ./shipping.js
+chofex challenge ranking
 chofex confirm
 ```
+
+`chofex register` saves an application draft in parts. You can stop after
+identity, experience, team, or agreements and continue later; answers are stored
+on the server. Use `--input` to save a JSON draft and `--submit` to submit a
+completed draft. The Black Box is optional: its progress and score give
+organizers another review metric, but never decide admission or block an
+application submission.
+
+The public ranking is read-only at `https://andes.crafter.run/challenges`.
 
 For agent or script input, `chofex schema --stage application` and
 `chofex schema --stage acceptance` print complete templates containing every

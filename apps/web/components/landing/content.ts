@@ -47,6 +47,7 @@ export const cliCommands = [
   "npm install --global chofex-cli@latest",
   "chofex login",
   "chofex register",
+  "chofex challenge query",
 ] as const;
 
 export const skipLinks = [
@@ -138,7 +139,7 @@ export const peopleCopy = {
 export const applyCopy = {
   kicker: "postulaciones abiertas",
   title: "Postula desde tu terminal",
-  lede: "La postulación es parte del filtro. Cuéntanos qué lanzaste, qué construirías aquí y dónde podemos ver tu trabajo.",
+  lede: "La postulación es parte del filtro. Cuéntanos qué lanzaste, qué construirías aquí y dónde podemos ver tu trabajo. El Black Box es una métrica opcional para la revisión y no decide la admisión.",
   criteriaTitle: "Qué revisamos",
   criteria: [
     "Un producto o sistema que ya pusiste en manos de usuarios.",
@@ -299,6 +300,7 @@ export const footerCopy = {
   terrainCredit: "Terreno: Mapzen / USGS",
   terms: "Términos",
   privacy: "Privacidad",
+  ranking: "Ranking",
 } as const;
 
 export const chromeCopy = {

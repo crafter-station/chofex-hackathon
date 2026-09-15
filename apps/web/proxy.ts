@@ -8,9 +8,19 @@ function isPublicMarketingPath(pathname: string) {
     pathname === "/" ||
     pathname === "/terms" ||
     pathname === "/privacy" ||
+    pathname === "/challenges" ||
     pathname === "/opengraph-image" ||
-    pathname === "/twitter-image"
+    pathname === "/twitter-image" ||
+    pathname === "/api/v1/challenges"
   ) {
+    return true;
+  }
+
+  if (pathname.startsWith("/challenges/")) {
+    return true;
+  }
+
+  if (/^\/api\/v1\/challenges\/[^/]+\/ranking$/.test(pathname)) {
     return true;
   }
 
