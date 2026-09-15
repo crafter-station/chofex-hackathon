@@ -21,7 +21,7 @@ export function LandingSponsors() {
           </h2>
           <Image
             alt={sponsorsCopy.mark}
-            className="h-auto w-full max-w-xl"
+            className="landing-logo-invert h-auto w-full max-w-xl"
             height={sponsorsCopy.logoHeight}
             src={sponsorsCopy.logoSrc}
             width={sponsorsCopy.logoWidth}

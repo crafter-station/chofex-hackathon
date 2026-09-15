@@ -8,7 +8,7 @@
  * - Body: sentence-case Spanish
  * - CLI commands and the agent prompt stay English
  *
- * Color roles: Sandy Linen paper, Aegean actions, Scarlet accent, ink type.
+ * Color roles: black field, white type, white contour terrain.
  */
 
 export const prizeAmountsUsd = {

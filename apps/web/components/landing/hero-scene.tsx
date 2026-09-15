@@ -16,7 +16,7 @@ export type HeroSceneProps = {
 
 function HeroSceneFallback() {
   return (
-    <div className="size-full bg-[radial-gradient(circle_at_68%_12%,#bfe4f7_0%,#5598c9_35%,#173c52_72%,#07152b_100%)]" />
+    <div className="landing-contour-field size-full" />
   );
 }
 

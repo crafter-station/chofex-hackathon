@@ -120,7 +120,7 @@ export function LandingHero() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-[#173c52]"
+      className="relative w-full bg-black"
       id="world"
     >
       <div className="sticky top-0 h-dvh min-h-[42rem] overflow-hidden">
@@ -130,11 +130,11 @@ export function LandingHero() {
 
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-r from-[#07152b]/70 via-[#07152b]/28 to-transparent"
+          className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-r from-black/55 via-black/20 to-transparent"
         />
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-[#07152b]/50 via-transparent to-[#07152b]/20"
+          className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/40 via-transparent to-black/25"
         />
 
         <div
@@ -153,12 +153,12 @@ export function LandingHero() {
               </p>
               <h1 className="max-w-[12ch]">
                 <span
-                  className={`${landingDisplayClassName} block text-[clamp(3.4rem,11vw,8.5rem)] text-[var(--hud-type)]`}
+                  className={`${landingDisplayClassName} block uppercase text-[clamp(3.4rem,11vw,8.5rem)] text-[var(--hud-type)]`}
                 >
                   {heroCopy.titleLead}
                 </span>
                 <span
-                  className={`${landingDisplayClassName} block text-[clamp(3.4rem,11vw,8.5rem)] text-[var(--hud-accent)]`}
+                  className={`${landingDisplayClassName} block uppercase text-[clamp(3.4rem,11vw,8.5rem)] text-[var(--hud-accent)]`}
                 >
                   {heroCopy.titleAccent}
                 </span>
@@ -201,10 +201,10 @@ export function LandingHero() {
 
             <div className="flex items-end justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="bg-[var(--hud-paper)] px-3 py-2">
+                <div className="px-1 py-2">
                   <Image
                     alt={sponsorsCopy.mark}
-                    className="h-auto w-24"
+                    className="landing-logo-invert h-auto w-24"
                     height={sponsorsCopy.logoHeight}
                     priority
                     src={sponsorsCopy.logoSrc}

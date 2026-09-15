@@ -4,7 +4,7 @@ import type { ComponentProps, ReactNode } from "react";
 import "@/components/landing/landing.css";
 
 export const landingPageClassName =
-  "landing-page min-h-svh bg-[var(--hud-paper)] text-[var(--hud-ink)] antialiased selection:bg-[var(--hud-accent)] selection:text-[var(--hud-ink)]";
+  "landing-page min-h-svh bg-[var(--hud-paper)] text-[var(--hud-ink)] antialiased selection:bg-white selection:text-black";
 
 /** Primary lockup: title-case brand, display condensed. */
 export const landingDisplayClassName =
