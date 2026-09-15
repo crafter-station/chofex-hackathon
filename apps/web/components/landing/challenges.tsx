@@ -34,6 +34,7 @@ export function LandingChallenges() {
         </HudLabel>
         <LandingSectionHead
           title={challengesCopy.title}
+          subtitle={challengesCopy.subtitle}
           titleId="challenges-heading"
         >
           <p className="max-w-xl text-lg leading-relaxed text-[var(--hud-ink)]/75">
@@ -69,7 +70,7 @@ export function LandingChallenges() {
                 <div className="relative z-10 flex w-full flex-col justify-between p-6 sm:p-8">
                   <div className="flex items-start justify-between gap-4">
                     <HudLabel className="text-[var(--hud-muted)]">
-                      Challenge {seat.index}
+                      Track {seat.index}
                     </HudLabel>
                     <HudLabel className="border border-[var(--hud-status)]/35 px-2 py-1 text-[var(--hud-status)]">
                       {challengesCopy.sealed}

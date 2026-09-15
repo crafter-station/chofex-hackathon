@@ -57,11 +57,13 @@ export function LandingTitle({ className, ...props }: ComponentProps<"h2">) {
 
 export function LandingSectionHead({
   title,
+  subtitle,
   titleId,
   children,
   align = "left",
 }: {
   readonly title: string;
+  readonly subtitle?: string;
   readonly titleId?: string;
   readonly children?: ReactNode;
   readonly align?: "left" | "center";
@@ -71,7 +73,10 @@ export function LandingSectionHead({
 
   return (
     <div className={cn("mb-10 flex max-w-3xl flex-col gap-3", alignment)}>
-      <LandingTitle id={titleId}>{title}</LandingTitle>
+      <LandingTitle id={titleId}>
+        <span className="block">{title}</span>
+        {subtitle ? <span className="block">{subtitle}</span> : null}
+      </LandingTitle>
       {children}
     </div>
   );
