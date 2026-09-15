@@ -7,7 +7,7 @@ import {
   pointerSpeed,
   RESTING_POINTER,
   springDistort,
-} from "@/components/landing-v2/magnet";
+} from "@/components/landing/magnet";
 
 describe("advancePointer", () => {
   test("trails the pointer instead of tracking it", () => {

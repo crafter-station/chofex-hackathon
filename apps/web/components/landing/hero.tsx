@@ -5,7 +5,7 @@ import Image from "next/image";
 import { facts, heroCopy, sponsorsCopy } from "@/components/landing/content";
 import { HudLabel } from "@/components/landing/hud";
 import { landingCtaClassName } from "@/components/landing/shell";
-import { Terrain } from "@/components/landing-v2/terrain";
+import { Terrain } from "@/components/landing/terrain";
 
 /**
  * The drawn hero.
@@ -16,9 +16,9 @@ import { Terrain } from "@/components/landing-v2/terrain";
  * the one thing the hero asks for is a sideways drag, which turns the range on
  * the spot.
  */
-export function LandingHeroV2() {
+export function LandingHero() {
   return (
-    <section className="hero-v2 relative w-full" id="world">
+    <section className="landing-hero relative w-full" id="world">
       <div className="relative flex min-h-dvh flex-col overflow-hidden">
         {/*
          * The drawing dissolves into the ground rather than ending at the edge

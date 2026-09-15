@@ -6,7 +6,7 @@
  * What changes is not only light and dark: several values that were tuned to
  * clear AA on Sandy Linen paper are unusable on black, and those are lifted.
  */
-.landing-page-v2 {
+.landing-dark {
   /* The ground. The liquid backdrop is fixed behind this, and the sections let
      it through — so this value is what shows where the field has drained. */
   --hud-paper: #050406;
@@ -62,18 +62,18 @@
 /*
  * Sections go transparent so the fixed liquid shows through them.
  *
- * Specificity beats the utility class that paints them — `.landing-page-v2`
+ * Specificity beats the utility class that paints them — `.landing-dark`
  * plus an element plus an attribute outranks a single class — so no
  * `!important` is needed and a section that genuinely wants a surface can
  * still opt in with one.
  */
-.landing-page-v2 :is(section, footer, header)[id],
-.landing-page-v2 > header {
+.landing-dark :is(section, footer, header)[id],
+.landing-dark > header {
   background-color: transparent;
 }
 
 /* Content rides above the fixed backdrop. */
-.landing-page-v2 > :not([aria-hidden="true"]) {
+.landing-dark > :not([aria-hidden="true"]) {
   position: relative;
   z-index: 1;
 }
@@ -82,18 +82,18 @@
  * Rules and hairlines were drawn as ink at low alpha over paper; over black
  * they vanish. These are the same idea in reverse.
  */
-.landing-page-v2 .hud-box {
+.landing-dark .hud-box {
   border-color: rgb(246 243 238 / 22%);
 }
 
-.landing-page-v2 .hud-halftone {
+.landing-dark .hud-halftone {
   background-image: radial-gradient(
     rgb(246 243 238 / 16%) 0.7px,
     transparent 0.8px
   );
 }
 
-.landing-page-v2 .hud-scanlines {
+.landing-dark .hud-scanlines {
   background-image: repeating-linear-gradient(
     180deg,
     rgb(246 243 238 / 5%) 0 1px,
@@ -101,7 +101,7 @@
   );
 }
 
-.landing-page-v2 .landing-dossier::before {
+.landing-dark .landing-dossier::before {
   background: repeating-radial-gradient(
     ellipse at 82% 18%,
     transparent 0 15px,
@@ -114,7 +114,7 @@
  * the sandstone the sections use for their metrics, because at display size on
  * black it is the single warmest thing on the page and the brand's own colour.
  */
-.hero-v2 {
+.landing-hero {
   --hud-accent: #e2564a;
   /*
    * And the hero's kickers go to the full cream rather than sandstone. They are
@@ -135,7 +135,7 @@
  * over the black between them, and the action colour keeps the buttons and
  * links, where it sits on a surface of its own.
  */
-.landing-page-v2 .landing-type-meta {
+.landing-dark .landing-type-meta {
   color: var(--hud-kicker);
 }
 
@@ -145,7 +145,7 @@
  * slab turned cream and took its cream type with it, and three commands went
  * invisible. It wants to be a well in the surface here, not a slab on it.
  */
-.landing-page-v2 #apply ol {
+.landing-dark #apply ol {
   background-color: rgb(246 243 238 / 7%);
   border-color: rgb(246 243 238 / 14%);
 }
@@ -155,8 +155,8 @@
  * the ink colour showing through one-pixel gaps, which on black is a bright
  * cream lattice rather than a hairline.
  */
-.landing-page-v2 #why ul,
-.landing-page-v2 #experience ul {
+.landing-dark #why ul,
+.landing-dark #experience ul {
   background-color: rgb(246 243 238 / 12%);
 }
 
@@ -165,7 +165,7 @@
  * the light page gives them; over the well this page gives them instead they
  * measure 3.2:1.
  */
-.landing-page-v2 #apply ol li > span:first-child {
+.landing-dark #apply ol li > span:first-child {
   color: rgb(246 243 238 / 62%);
 }
 
@@ -176,12 +176,12 @@
  * type colour inverted to near-black and the surface did not, so the label
  * went dark-on-dark at 1.2:1. Naming both ends the guessing.
  */
-.landing-page-v2 .landing-cta {
+.landing-dark .landing-cta {
   background-color: var(--hud-action);
   color: var(--hud-paper);
 }
 
-.landing-page-v2 .landing-cta:hover {
+.landing-dark .landing-cta:hover {
   background-color: var(--hud-action-hover);
   color: var(--hud-paper);
 }

@@ -13,7 +13,7 @@ import {
   TERRAIN_SIZE,
 } from "@/components/landing/sacred-valley-geometry";
 import { SITE_STRUCTURES_GLB } from "@/components/landing/site-structures-place";
-import { applyTerrainInk } from "@/components/landing-v2/terrain-shader";
+import { applyTerrainInk } from "@/components/landing/terrain-shader";
 
 /** Same Draco decoder the lit hero uses — served locally, no CDN at runtime. */
 const USE_DRACO = "/draco/";
