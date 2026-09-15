@@ -90,7 +90,12 @@ export function LandingHero() {
          * whole frame; the CTA and the links switch them back on for
          * themselves.
          */}
-        <div className="pointer-events-none relative z-20 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-between gap-8 px-5 pt-20 pb-8 sm:px-8 lg:px-10">
+        {/*
+         * The top padding used to reserve a header's height on every screen.
+         * The bar now stays away until the reader scrolls, so at rest there is
+         * nothing up there to clear and the hero starts where the frame does.
+         */}
+        <div className="pointer-events-none relative z-20 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-between gap-8 px-5 pt-10 pb-8 sm:px-8 lg:px-10 lg:pt-20">
           {/*
            * A phone gets the first screen to itself, up to the sponsor mark.
            *
@@ -106,7 +111,7 @@ export function LandingHero() {
            * children land straight back in the column above, spaced exactly as
            * they were.
            */}
-          <div className="flex min-h-[calc(100svh-7rem)] flex-col gap-8 lg:contents">
+          <div className="flex min-h-[calc(100svh-4.5rem)] flex-col gap-8 lg:contents">
             {/*
              * No hint beside the channel any more. It read "drag to move the
              * range", and the range turns on its own now — an instruction for
@@ -117,11 +122,17 @@ export function LandingHero() {
             </HudLabel>
 
             {/*
-             * `max-lg:my-auto` centres the lockup in what the top bar leaves on a
-             * phone. It is scoped below lg because at lg the wrapper above is
-             * `display: contents` and the desktop column does its own spacing.
+             * Biased upward on a phone rather than centred.
+             *
+             * Centred, the lockup sat in the lower half with the drawing behind
+             * it and a band of nothing above — the whole hero read bottom heavy.
+             * A fixed margin above and `auto` below puts it in the upper third
+             * and leaves the slack at the foot, where the mountains are.
+             *
+             * Scoped below lg: at lg the wrapper above is `display: contents`
+             * and the desktop column does its own spacing.
              */}
-            <div className="flex flex-col items-center gap-6 text-center max-lg:my-auto">
+            <div className="flex flex-col items-center gap-6 text-center max-lg:mt-[7vh] max-lg:mb-auto">
               {/*
                * The kicker sits inside the lockup's scrim, which is the only
                * reason it can be here. On its own over the drawing it measured

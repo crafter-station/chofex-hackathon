@@ -33,9 +33,9 @@
   /*
    * Burnt red, lifted twice. #b83e35 lands at 3.9:1 on the ground; #e2564a
    * cleared that but still measured 2.6:1 where the liquid glows warm behind a
-   * metric, so it goes lighter again — twice, in the end: #f2897b still measured
- * 4.48:1 on the warm glow behind the sealed-brief chips, which rounds to a
- * pass and is not one. This clears it over every measured background.
+   * metric, so it goes lighter again — twice, in the end: #f2897b still
+   * measured 4.48:1 on the warm glow behind the sealed-brief chips, which
+   * rounds to a pass and is not one. This clears every measured background.
    */
   --hud-status: #f59d91;
   /* Sandstone, which was a tint on paper and is a legible accent on black. */
@@ -72,8 +72,18 @@
   background-color: transparent;
 }
 
-/* Content rides above the fixed backdrop. */
-.landing-dark > :not([aria-hidden="true"]) {
+/*
+ * Content rides above the fixed backdrop — but only the content.
+ *
+ * This used to select every child that was not the backdrop, which swept up
+ * the header and overrode its `position: fixed` with `relative`: the bar had
+ * not actually been fixed since the dark theme landed, it just scrolled away
+ * with the page. Naming the two elements that need lifting leaves anything
+ * that positions itself alone, and the header carries its own `z-30` so it
+ * still sits above the field if the backdrop comes back.
+ */
+.landing-dark > main,
+.landing-dark > footer {
   position: relative;
   z-index: 1;
 }
