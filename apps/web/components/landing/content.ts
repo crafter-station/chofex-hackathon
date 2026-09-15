@@ -21,6 +21,8 @@ export const prizeAmountsPen = {
   second: 1_675,
 } as const;
 
+export const prizePoolHeadlinePen = 8_000;
+
 const solesFormatter = new Intl.NumberFormat("es-PE", {
   style: "currency",
   currency: "PEN",
@@ -34,8 +36,6 @@ export const brandName = "Hack the Andes";
 
 export const seatCount = 100;
 export const challengeCount = 3;
-export const judgeCount = 5;
-export const mentorCount = 5;
 
 export const metadataCopy = {
   title: `${brandName} — Lima, 17–18 oct 2026`,
@@ -55,10 +55,10 @@ export const skipLinks = [
 ] as const;
 
 export const sectionNav = [
-  { href: "#why", label: "Evento" },
-  { href: "#challenges", label: "Challenges" },
-  { href: "#people", label: "Consejo" },
   { href: "#prizes", label: "Premios" },
+  { href: "#challenges", label: "Challenges" },
+  { href: "#people", label: "Panel" },
+  { href: "#why", label: "Evento" },
   { href: "#experience", label: "Experiencia" },
   { href: "#apply", label: "Aplicar" },
 ] as const;
@@ -66,44 +66,42 @@ export const sectionNav = [
 export const facts = [
   { label: "Cupos", value: String(seatCount) },
   { label: "Fecha", value: "17–18 oct 2026" },
-  { label: "Formato", value: "Presencial · Lima" },
+  {
+    label: "Premios",
+    value: `Más de ${formatSoles(prizePoolHeadlinePen)}`,
+  },
   { label: "Equipos", value: "1–4 personas" },
 ] as const;
 
 export const heroCopy = {
-  channel: "Valle Sagrado · Cusco",
-  eyebrow: "Hackathon presencial · Lima",
   titleLead: "Hack the",
   titleAccent: "Andes",
-  lede: "100 builders con experiencia. 3 challenges. 30 horas para entregar algo que funcione.",
-  meta: "17–18 de octubre de 2026 · Lima, Perú",
+  metaDate: "17–18 oct 2026",
+  metaLocation: "Lima, Perú",
   cta: "Postular",
-  ctaMeta: "Postulaciones abiertas",
-  sponsor: "Sponsor principal · Chofex",
-  organizer: "Organiza · Crafter Station",
+  sponsor: "Sponsor principal: Chofex",
+  organizer: "Organiza: Crafter Station",
   skipToWhy: "Conocer el evento",
 } as const;
 
 export const audienceCopy = {
   kicker: "el estándar",
-  title: "Para quienes ya construyen",
-  lede: "Buscamos experiencia demostrable, criterio técnico y capacidad para llevar una idea hasta producción. El cargo importa menos que lo que ya hiciste.",
-  proof:
-    "La postulación pregunta por un producto que ya lanzaste, lo que construirías en la hackathon y cómo tomas decisiones.",
+  title: "Crear soluciones reales para problemas reales",
+  lede: "Los verdaderos retos no siempre son los más trending. Requieren tiempo, esfuerzo y creatividad para resolver lo que los demás aceptan como status quo.",
 } as const;
 
 export const audienceRoles = [
   {
-    title: "AI engineers",
-    body: "Agents, evaluación, datos e inferencia. Sistemas de IA que resuelven un problema real.",
+    title: "Ship mata cartón",
+    body: "Construyes y lanzas. El filtro es lo que ya pusiste en producción.",
   },
   {
-    title: "Product engineers",
-    body: "Del problema a la interfaz y al código. Criterio de producto en cada decisión técnica.",
+    title: "Work hard, Play Hard",
+    body: "100 personas, 30 horas, un mismo espacio. Comida incluida, música y zonas de silencio.",
   },
   {
-    title: "Software engineers",
-    body: "Arquitectura, plataformas y confiabilidad. Sistemas que funcionan más allá de la demo.",
+    title: "HardCore Mode",
+    body: "30 horas con entrega real. Presencial en Lima, 17–18 de octubre.",
   },
 ] as const;
 
@@ -112,7 +110,7 @@ export const challengesCopy = {
   title: "3 challenges sellados",
   lede: "Las personas aceptadas conocerán los 3 briefs al iniciar la hackathon. Cada equipo elegirá uno y tendrá 30 horas para entregar un producto funcionando.",
   sealed: "Brief sellado",
-  reveal: "Se revela en Lima · 17 oct",
+  reveal: "Se revela en Lima, 17 oct",
 } as const;
 
 export const challengeSeats = [
@@ -131,19 +129,11 @@ export const challengeSeats = [
 ] as const;
 
 export const peopleCopy = {
-  kicker: "el consejo",
-  title: "10 personas para elevar el trabajo",
-  lede: "5 jurados evaluarán producto, ingeniería e impacto. 5 mentores acompañarán a los equipos durante la construcción.",
-  judges: "Jurado",
-  mentors: "Mentores",
-  judgeRole: "Juez",
-  mentorRole: "Mentor",
-  reveal: "Nombre por revelar",
-  announcement: "Anuncios próximamente",
+  kicker: "Panel",
+  title: "Nombres por confirmar",
+  lede: "Publicaremos el panel cuando cada participación esté confirmada.",
+  status: "Sin nombres ni afiliaciones anunciadas.",
 } as const;
-
-export const judgeSeats = [1, 2, 3, 4, 5] as const;
-export const mentorSeats = [1, 2, 3, 4, 5] as const;
 
 export const applyCopy = {
   kicker: "postulaciones abiertas",
@@ -161,21 +151,20 @@ export const applyCopy = {
 } as const;
 
 export const prizesCopy = {
-  kicker: "premios en efectivo",
   title: "Premios",
-  lede: "Dos premios principales. Sin puntos, créditos ni conversión escondida.",
-  firstPlace: "Primer lugar",
-  secondPlace: "Segundo lugar",
-  opportunity: "Oportunidad adicional",
-  opportunityBody:
-    "Chofex podrá invitar a equipos destacados a un work trial pagado de 2 semanas en Monterrey o San Francisco. No constituye una oferta de trabajo.",
+  lede: "Premios en efectivo para las soluciones que mejor conviertan un problema real en un producto funcionando.",
+  totalSuffix: "en premios en efectivo",
+  tripLabel: "Viaje pagado",
+  tripTitle: "Chofex Headquarters",
+  tripBody:
+    "Una persona participante destacada viajará a las oficinas de Chofex en Monterrey o San Francisco.",
 } as const;
 
 export const sponsorsCopy = {
   kicker: "quiénes lo hacen",
   title: "Chofex",
   lede: "Hack the Andes se realiza con el respaldo de Chofex, la producción de Crafter Station y el apoyo de Peru Tech Week.",
-  organizer: "Organiza · Crafter Station",
+  organizer: "Organiza: Crafter Station",
   mark: "Chofex",
   /*
    * Chofex's two official marks, both on transparent.
@@ -270,7 +259,7 @@ export const experienceItems = [
 
 export const faqCopy = {
   kicker: "antes de postular",
-  title: "Lo esencial",
+  title: "Preguntas frecuentes",
 } as const;
 
 export const faqItems = [
@@ -297,7 +286,7 @@ export const faqItems = [
 ] as const;
 
 export const footerCopy = {
-  meta: "Lima · 17–18 oct 2026 · Sponsor principal: Chofex",
+  meta: "Lima, 17–18 oct 2026. Sponsor principal: Chofex",
   legalLabel: "Legal",
   // Both terrain sources are attribution-required licences, so these two
   // credits are a condition of use, not decoration.
