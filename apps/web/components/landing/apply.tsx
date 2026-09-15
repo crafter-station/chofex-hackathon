@@ -16,9 +16,6 @@ export function LandingApply() {
       id="apply"
     >
       <LandingContainer className="py-20 sm:py-28">
-        <HudLabel className="mb-4 text-[var(--hud-action)]">
-          {applyCopy.kicker}
-        </HudLabel>
         <LandingSectionHead title={applyCopy.title} titleId="apply-heading">
           <div className="max-w-xl">
             <p className="text-lg leading-relaxed text-[var(--hud-ink)]/75">
