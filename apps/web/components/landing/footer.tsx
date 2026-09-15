@@ -26,12 +26,6 @@ export function LandingFooter() {
           >
             {footerCopy.terrainCredit}
           </a>
-          <a
-            className="text-[var(--hud-type)]/70 underline-offset-4 hover:underline"
-            href="https://cloudless.eox.at"
-          >
-            {footerCopy.imageryCredit}
-          </a>
           <Link className="underline-offset-4 hover:underline" href="/terms">
             {footerCopy.terms}
           </Link>

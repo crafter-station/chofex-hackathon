@@ -33,7 +33,7 @@ export const TERRAIN_BBOX = [
  */
 export const SACRED_VALLEY_MODEL_PATH = "/models/sacred-valley.glb";
 
-export const SACRED_VALLEY_GLB_URL = `${SACRED_VALLEY_MODEL_PATH}?v=d72e775b16`;
+export const SACRED_VALLEY_GLB_URL = `${SACRED_VALLEY_MODEL_PATH}?v=3844d88dba`;
 
 /** Metres of real ground per scene unit, for readouts that quote distances. */
 export const METERS_PER_UNIT = 200;
