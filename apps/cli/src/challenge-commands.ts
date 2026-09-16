@@ -24,12 +24,27 @@ import {
   notebookCsvText,
   notebookTableText,
 } from "./challenge-output.js";
+import {
+  type ChallengeScaffoldResult,
+  createChallengeScaffold,
+} from "./challenge-scaffold.js";
 import { root } from "./cli-root.js";
 import { execute, printJson } from "./output.js";
 
 const challengeQuickstart = {
-  title: "Black Box quickstart",
-  goal: "Reverse-engineer the shipping price function, then submit a compatible JavaScript replacement.",
+  title: "THE SHIPPING MACHINE",
+  story: [
+    "A delivery company is about to retire the service that prices every shipment.",
+    "There is no documentation and no source code—only five controls and the price the machine returns.",
+  ],
+  mission:
+    "Learn the hidden pricing rules, then replace the machine with your own calculateShipping(input) function.",
+  rules: [
+    "You have 25 oracle queries to gather evidence.",
+    "You have 3 official evaluations against hidden shipments.",
+    "Local notebook tests are free. Accuracy wins, then exact matches, then fewer oracle queries.",
+    "AI tools are welcome, but the hidden rules are personalized to you.",
+  ],
   workflow: [
     {
       step: 1,
@@ -39,38 +54,32 @@ const challengeQuickstart = {
     },
     {
       step: 2,
+      action: "Prepare your field kit",
+      command: "chofex challenge init",
+      note: "Creates a documented shipping.js starter without overwriting existing work.",
+    },
+    {
+      step: 3,
       action: "Check your budget",
       command: "chofex challenge show",
       note: "Shows remaining oracle queries and official evaluations.",
     },
     {
-      step: 3,
+      step: 4,
       action: "Probe the Black Box",
       command:
         "chofex challenge query --distance 10 --weight 3 --hour 14 --fragile false --express false",
       note: "A successful query reveals one shipping price and consumes one query.",
     },
     {
-      step: 4,
+      step: 5,
       action: "Study your observations",
       command: "chofex challenge notebook",
       note: "Compare inputs and outputs to infer the pricing rules.",
     },
     {
-      step: 5,
-      action: "Build shipping.js",
-      file: "shipping.js",
-      source: [
-        "function calculateShipping(input) {",
-        "  // Return your predicted shipping price.",
-        "  return input.distanceKm + input.weightKg;",
-        "}",
-      ].join("\n"),
-      note: "Define calculateShipping and return one finite number.",
-    },
-    {
       step: 6,
-      action: "Test your replacement safely",
+      action: "Edit and test your replacement",
       command: "chofex challenge test --source ./shipping.js",
       note: "Checks your solution against your notebook without consuming an official evaluation.",
     },
@@ -91,13 +100,23 @@ const challengeQuickstart = {
 } as const;
 
 const challengeQuickstartText = (): string => {
-  const lines = [challengeQuickstart.title, challengeQuickstart.goal, ""];
+  const lines = [
+    challengeQuickstart.title,
+    "",
+    ...challengeQuickstart.story,
+    "",
+    "YOUR MISSION",
+    challengeQuickstart.mission,
+    "",
+    "RULES OF THE GAME",
+    ...challengeQuickstart.rules.map((rule) => `• ${rule}`),
+    "",
+    "FIELD GUIDE",
+    "",
+  ];
   for (const item of challengeQuickstart.workflow) {
     lines.push(`${item.step}. ${item.action}`);
-    if ("command" in item) lines.push(`   ${item.command}`);
-    if ("source" in item) {
-      lines.push(...item.source.split("\n").map((line) => `   ${line}`));
-    }
+    lines.push(`   ${item.command}`);
     lines.push(`   ${item.note}`, "");
   }
   lines.push(`More detail: ${challengeQuickstart.helpCommand}`);
@@ -137,6 +156,28 @@ const booleanFromOption = (
   if (value.value === "false") return false;
 };
 
+const challengeInitText = (result: ChallengeScaffoldResult): string => {
+  if (result.status === "exists") {
+    return [
+      `${result.path} already exists. Left it unchanged.`,
+      "",
+      "Next: keep investigating, then test your current solution",
+      "  chofex challenge query",
+      `  chofex challenge test --source ./${result.path}`,
+    ].join("\n");
+  }
+  return [
+    `Created ${result.path}`,
+    "A documented baseline is ready for the rules you discover.",
+    "",
+    "Next: probe the machine",
+    "  chofex challenge query",
+    "",
+    `Then edit ${result.path} and test it safely:`,
+    `  chofex challenge test --source ./${result.path}`,
+  ].join("\n");
+};
+
 const listCommand = Command.make(
   "list",
   {},
@@ -156,6 +197,33 @@ const listCommand = Command.make(
     {
       command: "chofex challenge list",
       description: "See which challenge is currently playable",
+    },
+  ]),
+);
+
+const initCommand = Command.make(
+  "init",
+  {},
+  Effect.fn("challengeInitCommand")(function* () {
+    const options = yield* root;
+    const operation = createChallengeScaffold().pipe(
+      Effect.map((data) => ({
+        version: 1 as const,
+        ok: true as const,
+        requestId: crypto.randomUUID(),
+        data,
+      })),
+    );
+    yield* execute(options.output, operation, challengeInitText);
+  }),
+).pipe(
+  Command.withDescription(
+    "Create a documented shipping.js starter in the current directory. Existing files are never overwritten.",
+  ),
+  Command.withExamples([
+    {
+      command: "chofex challenge init",
+      description: "Prepare a safe JavaScript solution file",
     },
   ]),
 );
@@ -399,6 +467,7 @@ export const challengeCommand = Command.make(
   ]),
   Command.withSubcommands([
     listCommand,
+    initCommand,
     showCommand,
     queryCommand,
     notebookCommand,
