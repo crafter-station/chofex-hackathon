@@ -24,14 +24,12 @@ import "@/components/landing/dark.css";
  * The landing.
  *
  * Black, and opening on the Sacred Valley drawn in white contour lines from a
- * parked vantage inside the range — turned by dragging, not flown through. The
- * sections below are unchanged; what carries them is the dark theme in
- * `components/landing/dark.css`, which re-points the `--hud-*` tokens rather
- * than touching a single section component.
+ * parked vantage inside the range — turned by dragging, not flown through.
+ * Theme tokens live in `components/landing/dark.css`.
  *
- * The liquid colour field is off: `components/landing/backdrop.tsx` still
- * works and is one element away from coming back, but against a drawing that is
- * pure white line on pure black it was the loudest thing in the frame.
+ * Section order after the hero is locked:
+ * Evento (#why) → Panel → Postular → Premios → Tracks.
+ * Sponsors stay last. Do not restore a separate experiencia chapter.
  */
 export default function Home() {
   return (

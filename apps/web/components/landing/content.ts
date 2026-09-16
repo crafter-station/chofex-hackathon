@@ -55,6 +55,7 @@ export const skipLinks = [
   { href: "#apply", label: "Saltar a aplicar" },
 ] as const;
 
+/** Locked jump order: Evento → Panel → Postular → Premios → Tracks. */
 export const sectionNav = [
   { href: "#why", label: "Evento" },
   { href: "#people", label: "Panel" },

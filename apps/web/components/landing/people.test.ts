@@ -14,7 +14,7 @@ test("renders the panel chapter without invented identities", async () => {
   expect(people).not.toMatch(/<img|next\/image|avatarSrc|linkedin/i);
 });
 
-test("keeps existing landing sections in place and inserts the panel in its nav slot", async () => {
+test("locks landing chapters as Evento, Panel, Postular, Premios, Tracks", async () => {
   const page = await Bun.file(
     new URL("../../app/page.tsx", import.meta.url),
   ).text();
