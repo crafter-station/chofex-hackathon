@@ -3,6 +3,7 @@ import { cn } from "@chofex/ui/lib/utils";
 import { LandingApply } from "@/components/landing/apply";
 import { LandingChallenges } from "@/components/landing/challenges";
 import { LandingEvent } from "@/components/landing/event";
+import { LandingFaq } from "@/components/landing/faq";
 import {
   landingBrand,
   landingDisplay,
@@ -28,8 +29,8 @@ import "@/components/landing/dark.css";
  * Theme tokens live in `components/landing/dark.css`.
  *
  * Section order after the hero is locked:
- * Evento (#why) → Panel → Postular → Premios → Tracks.
- * Sponsors stay last. Do not restore a separate experiencia chapter.
+ * Evento (#why) → Premios → Panel → Tracks → Postular → FAQs →
+ * Organizadores. Do not restore a separate experiencia chapter.
  */
 export default function Home() {
   return (
@@ -57,10 +58,11 @@ export default function Home() {
       <main id="contenido">
         <LandingHero />
         <LandingEvent />
-        <LandingPeople />
-        <LandingApply />
         <LandingPrizes />
+        <LandingPeople />
         <LandingChallenges />
+        <LandingApply />
+        <LandingFaq />
         <LandingSponsors />
       </main>
       <LandingFooter />

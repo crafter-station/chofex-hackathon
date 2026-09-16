@@ -23,6 +23,7 @@ test("uses a shared tighter vertical rhythm for content sections", async () => {
     "apply.tsx",
     "challenges.tsx",
     "event.tsx",
+    "faq.tsx",
     "people.tsx",
     "sponsors.tsx",
   ];

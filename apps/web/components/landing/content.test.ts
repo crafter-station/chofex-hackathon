@@ -13,6 +13,7 @@ import {
   formatSoles,
   heroCopy,
   metadataCopy,
+  panelBrands,
   partners,
   peopleCopy,
   prizeAmountsPen,
@@ -121,13 +122,33 @@ test("keeps the public pitch in Spanish and names Chofex as principal sponsor", 
 test("withholds panel claims until identities are confirmed", () => {
   expect(peopleCopy.kicker).toBe("Panel");
   expect(peopleCopy.lede.toLowerCase()).toContain("confirmada");
-  expect(peopleCopy.status).toBe("Sin nombres ni afiliaciones anunciadas.");
+  expect(peopleCopy.status).toBe("Sin nombres anunciados.");
+  expect(peopleCopy.brandsLabel).toBe("Instituciones");
 
   const blob = JSON.stringify(peopleCopy);
   expect(blob).not.toMatch(/\b10\b/);
   expect(blob).not.toMatch(
-    /MIT|Y Combinator|Google|Meta|Stanford|Microsoft|Harvard|University of Toronto|DP World|Hochschild|Palantir/i,
+    /Y Combinator|Stanford|University of Toronto|DP World|Hochschild|Palantir/i,
   );
+  expect(panelBrands.map((brand) => brand.id)).toEqual([
+    "mit",
+    "yc",
+    "meta",
+    "google",
+    "harvard",
+    "microsoft",
+  ]);
+  expect(panelBrands.map((brand) => brand.name)).toEqual([
+    "MIT",
+    "YC",
+    "Meta",
+    "Google",
+    "Harvard",
+    "Microsoft",
+  ]);
+  for (const brand of panelBrands) {
+    expect(brand.logoSrc).toMatch(/^\/panel\/[a-z]+\.svg$/);
+  }
 });
 
 test("publishes a senior, hundred-seat, three-challenge event", () => {
@@ -202,19 +223,25 @@ test("exposes skip links and section jumps for keyboard users", async () => {
   expect(skipLinks[0]?.href).toBe("#contenido");
   expect(skipLinks[1]?.href).toBe("#apply");
   const hero = await Bun.file(new URL("./hero.tsx", import.meta.url)).text();
+  const footer = await Bun.file(new URL("./footer.tsx", import.meta.url)).text();
   expect(hero).toContain('href="#why"');
+  expect(footer).toContain("sectionNav");
   expect(sectionNav.map((item) => item.href)).toEqual([
     "#why",
-    "#people",
-    "#apply",
     "#prizes",
+    "#people",
     "#challenges",
+    "#apply",
+    "#faq",
+    "#sponsors",
   ]);
   expect(sectionNav.map((item) => item.label)).toEqual([
     "Evento",
-    "Panel",
-    "Postular",
     "Premios",
+    "Panel",
     "Tracks",
+    "Postular",
+    "FAQs",
+    "Organizadores",
   ]);
 });
