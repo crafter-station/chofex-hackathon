@@ -1,3 +1,4 @@
+import { challengeBySlug } from "@chofex/challenges-contract";
 import { Console, Effect, Option } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
 
@@ -16,6 +17,7 @@ import {
 } from "./challenge-input.js";
 import {
   challengeEvaluateText,
+  challengeLaunchNotice,
   challengeListText,
   challengeQueryText,
   challengeRankingText,
@@ -99,9 +101,16 @@ const challengeQuickstart = {
   helpCommand: "chofex challenge query --help",
 } as const;
 
-const challengeQuickstartText = (): string => {
-  const lines = [
-    challengeQuickstart.title,
+const launchNoticeFor = (slug: string): string | undefined => {
+  const challenge = challengeBySlug(slug);
+  if (!challenge) return undefined;
+  return challengeLaunchNotice(challenge.theme, challenge.opensAt);
+};
+
+const challengeQuickstartText = (launchNotice?: string): string => {
+  const lines: Array<string> = [challengeQuickstart.title];
+  if (launchNotice) lines.push("", "LAUNCH NOTICE", launchNotice);
+  lines.push(
     "",
     ...challengeQuickstart.story,
     "",
@@ -113,7 +122,7 @@ const challengeQuickstartText = (): string => {
     "",
     "FIELD GUIDE",
     "",
-  ];
+  );
   for (const item of challengeQuickstart.workflow) {
     lines.push(`${item.step}. ${item.action}`);
     lines.push(`   ${item.command}`);
@@ -435,16 +444,21 @@ export const challengeCommand = Command.make(
   {},
   Effect.fn("challengeQuickstartCommand")(function* () {
     const options = yield* root;
+    const launchNotice = launchNoticeFor(defaultChallengeSlug);
     if (options.output === "json") {
+      const data: typeof challengeQuickstart & { notice?: string } = {
+        ...challengeQuickstart,
+      };
+      if (launchNotice) data.notice = launchNotice;
       yield* printJson({
         version: 1,
         ok: true,
         requestId: crypto.randomUUID(),
-        data: challengeQuickstart,
+        data,
       });
       return;
     }
-    yield* Console.log(challengeQuickstartText());
+    yield* Console.log(challengeQuickstartText(launchNotice));
   }),
 ).pipe(
   Command.withDescription(

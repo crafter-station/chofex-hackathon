@@ -45,7 +45,7 @@ export const challengeCatalog: ReadonlyArray<ChallengeDefinition> = [
     coreSkill: "Reverse engineering & experimentation",
     format: "accuracy",
     formatLabel: "Accuracy score",
-    opensAt: "2026-09-18T05:00:00.000Z",
+    opensAt: "2026-09-17T05:00:00.000Z",
     queryLimit: 25,
     evaluationLimit: 3,
     hiddenSampleSize: 1000,
@@ -143,6 +143,41 @@ export const isChallengeOpenAt = (
   if (forceOpen && challenge.playable) return true;
   return now.getTime() >= Date.parse(challenge.opensAt);
 };
+
+const challengeTimeZoneOffsetMs = 5 * 60 * 60 * 1_000;
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+] as const;
+
+export const formatChallengeOpeningInPeru = (opensAt: string): string => {
+  const localTime = new Date(Date.parse(opensAt) - challengeTimeZoneOffsetMs);
+  const month = monthNames[localTime.getUTCMonth()];
+  if (!month || Number.isNaN(localTime.getTime())) {
+    throw new Error("Challenge opening time is invalid");
+  }
+  const day = localTime.getUTCDate();
+  const year = localTime.getUTCFullYear();
+  const hour = String(localTime.getUTCHours()).padStart(2, "0");
+  const minute = String(localTime.getUTCMinutes()).padStart(2, "0");
+  return `${month} ${day}, ${year} at ${hour}:${minute} (UTC-5)`;
+};
+
+export const challengeOpeningNotice = (
+  title: string,
+  opensAt: string,
+): string =>
+  `${title} opens ${formatChallengeOpeningInPeru(opensAt)}. Queries and evaluations are disabled until then; no attempts will be consumed.`;
 
 export const ChallengeSlugSchema = Schema.Literals([
   "black-box",

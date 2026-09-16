@@ -1,8 +1,55 @@
 import { describe, expect, test } from "bun:test";
 
-import { challengeEvaluateText } from "../src/challenge-output.js";
+import {
+  challengeEvaluateText,
+  challengeLaunchNotice,
+  challengeListText,
+} from "../src/challenge-output.js";
 
 describe("challenge output", () => {
+  test("notifies users of the exact local opening time before launch", () => {
+    const opensAt = "2026-09-17T05:00:00.000Z";
+    expect(
+      challengeLaunchNotice(
+        "Black Box",
+        opensAt,
+        new Date("2026-09-17T04:59:59.999Z"),
+      ),
+    ).toBe(
+      "Black Box opens September 17, 2026 at 00:00 (UTC-5). Queries and evaluations are disabled until then; no attempts will be consumed.",
+    );
+    expect(
+      challengeLaunchNotice(
+        "Black Box",
+        opensAt,
+        new Date("2026-09-17T05:00:00.000Z"),
+      ),
+    ).toBeUndefined();
+
+    const text = challengeListText({
+      challenges: [
+        {
+          slug: "black-box",
+          number: 1,
+          code: "01",
+          theme: "Black Box",
+          title: "The Shipping Machine",
+          summary: "Reverse engineer the machine.",
+          coreSkill: "Reverse engineering",
+          format: "accuracy",
+          formatLabel: "Accuracy score",
+          opensAt,
+          queryLimit: 25,
+          evaluationLimit: 3,
+          playable: true,
+          open: false,
+          rankingPath: "/challenges/black-box",
+        },
+      ],
+    });
+    expect(text).toContain("opens September 17, 2026 at 00:00 (UTC-5)");
+  });
+
   test("prints official evaluation score details and a share card", () => {
     const text = challengeEvaluateText({
       accuracy: 0.9742,

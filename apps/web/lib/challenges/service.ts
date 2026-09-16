@@ -10,6 +10,7 @@ import {
   ChallengeSolutionSchema,
   challengeBySlug,
   challengeCatalog,
+  challengeOpeningNotice,
   compareChallengeScores,
   isChallengeOpenAt,
   type ParticipantChallengeProgress,
@@ -124,7 +125,7 @@ const requirePlayableChallenge = (
     throw new HttpError(
       403,
       "CHALLENGE_NOT_OPEN",
-      `${challenge.title} opens on ${challenge.opensAt.slice(0, 10)}`,
+      challengeOpeningNotice(challenge.title, challenge.opensAt),
       false,
       { opensAt: challenge.opensAt },
     );
