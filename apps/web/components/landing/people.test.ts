@@ -38,10 +38,11 @@ test("renders the panel chapter without invented identities", async () => {
   expect(people).toContain("peopleCopy.description");
   expect(people).toContain("panelBrands");
   expect(people).toContain("next/image");
-  expect(people).toContain("grid-cols-2");
-  expect(people).toContain("sm:grid-cols-3");
-  expect(people).toContain("lg:grid-cols-4");
-  expect(people).toContain("xl:grid-cols-6");
+  expect(people).toContain("flex-wrap");
+  expect(people).toContain("w-1/2");
+  expect(people).toContain("sm:w-1/3");
+  expect(people).toContain("lg:w-1/4");
+  expect(people).toContain("xl:w-1/6");
   expect(people).toContain("max-w-full");
   expect(people).not.toMatch(/avatarSrc|linkedin/i);
 });

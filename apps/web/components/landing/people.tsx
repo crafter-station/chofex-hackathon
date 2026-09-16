@@ -38,10 +38,10 @@ export function LandingPeople() {
           <HudLabel className="mb-4 text-[var(--hud-muted)]">
             {peopleCopy.brandsLabel}
           </HudLabel>
-          <ul className="grid grid-cols-2 gap-px border-[var(--hud-ink)]/15 border-y bg-[var(--hud-ink)]/10 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+          <ul className="flex flex-wrap justify-center border-[var(--hud-ink)]/15 border-y">
             {panelBrands.map((brand) => (
               <li
-                className="flex min-w-0 flex-col items-center justify-center gap-3 bg-[var(--hud-paper)] px-3 py-6 sm:px-4 sm:py-7"
+                className="flex min-w-0 w-1/2 flex-col items-center justify-center gap-3 border-[var(--hud-ink)]/10 border-r border-b px-3 py-6 sm:w-1/3 sm:px-4 sm:py-7 lg:w-1/4 xl:w-1/6"
                 key={brand.id}
               >
                 <Image

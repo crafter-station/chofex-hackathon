@@ -1,6 +1,5 @@
-import { inflateSync } from "node:zlib";
-
 import { expect, test } from "bun:test";
+import { inflateSync } from "node:zlib";
 
 import {
   applyCopy,
