@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { panelBrands, peopleCopy } from "@/components/landing/content";
 import { HudLabel } from "@/components/landing/hud";
 import {
@@ -46,7 +48,7 @@ export function LandingPeople() {
                 className="flex flex-col items-center justify-center gap-3 bg-[var(--hud-paper)] px-4 py-7"
                 key={brand.id}
               >
-                <img
+                <Image
                   alt=""
                   className={
                     brand.shape === "wordmark"
@@ -55,6 +57,7 @@ export function LandingPeople() {
                   }
                   height={brand.logoHeight}
                   src={brand.logoSrc}
+                  unoptimized
                   width={brand.logoWidth}
                 />
                 <HudLabel className="text-center text-[var(--hud-muted)]">
