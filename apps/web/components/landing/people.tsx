@@ -29,14 +29,20 @@ export function LandingPeople() {
           </p>
         </LandingSectionHead>
 
-        <p className="flex flex-wrap items-baseline gap-x-6 gap-y-2 border-[var(--hud-ink)]/15 border-y py-5">
+        {/*
+         * A row, not a paragraph. It holds a `HudLabel`, which renders its own
+         * `<p>`, and a `<p>` inside a `<p>` is invalid HTML: the parser closes
+         * the outer one early, so the server's markup and the client's disagree
+         * and React reports a hydration error.
+         */}
+        <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2 border-[var(--hud-ink)]/15 border-y py-5">
           <HudLabel className="text-[var(--hud-muted)]">
             {peopleCopy.kicker}
           </HudLabel>
           <span className="text-sm leading-relaxed text-[var(--hud-muted)] sm:text-base">
             {peopleCopy.status}
           </span>
-        </p>
+        </div>
 
         <div className="mt-8">
           <HudLabel className="mb-4 text-[var(--hud-muted)]">
