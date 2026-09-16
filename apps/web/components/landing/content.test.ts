@@ -223,7 +223,9 @@ test("exposes skip links and section jumps for keyboard users", async () => {
   expect(skipLinks[0]?.href).toBe("#contenido");
   expect(skipLinks[1]?.href).toBe("#apply");
   const hero = await Bun.file(new URL("./hero.tsx", import.meta.url)).text();
+  const footer = await Bun.file(new URL("./footer.tsx", import.meta.url)).text();
   expect(hero).toContain('href="#why"');
+  expect(footer).toContain("sectionNav");
   expect(sectionNav.map((item) => item.href)).toEqual([
     "#why",
     "#prizes",
