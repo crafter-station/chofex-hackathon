@@ -1,5 +1,19 @@
 import { expect, test } from "bun:test";
 
+test("keeps FAQs in their own section instead of inside Evento", async () => {
+  const event = await Bun.file(new URL("./event.tsx", import.meta.url)).text();
+  const faq = await Bun.file(new URL("./faq.tsx", import.meta.url)).text();
+  const page = await Bun.file(
+    new URL("../../app/page.tsx", import.meta.url),
+  ).text();
+
+  expect(page).toContain("LandingFaq");
+  expect(faq).toContain('id="faq"');
+  expect(faq).toContain("faqCopy.title");
+  expect(event).not.toContain("faqCopy");
+  expect(event).not.toContain('id="faq"');
+});
+
 test("renders the panel chapter without invented identities", async () => {
   const people = await Bun.file(
     new URL("./people.tsx", import.meta.url),
