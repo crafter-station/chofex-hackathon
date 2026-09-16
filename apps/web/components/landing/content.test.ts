@@ -159,7 +159,7 @@ test("frames the panel as top Peruvian talent and institutional backgrounds", ()
     "Stanford",
     "Microsoft",
     "Harvard",
-    "U of Toronto",
+    "University of Toronto",
     "DP World",
     "Hochschild",
     "Palantir",

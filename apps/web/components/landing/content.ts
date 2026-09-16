@@ -209,11 +209,11 @@ export const panelBrands = [
   },
   {
     id: "toronto",
-    name: "U of Toronto",
+    name: "University of Toronto",
     shape: "wordmark",
     logoSrc: "/panel/toronto.png",
-    logoWidth: 168,
-    logoHeight: 40,
+    logoWidth: 720,
+    logoHeight: 180,
   },
   {
     id: "dp-world",

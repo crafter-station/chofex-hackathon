@@ -41,24 +41,17 @@ export function LandingPeople() {
           <ul className="flex flex-wrap justify-center border-[var(--hud-ink)]/15 border-y">
             {panelBrands.map((brand) => (
               <li
-                className="flex min-w-0 w-1/2 flex-col items-center justify-center gap-3 border-[var(--hud-ink)]/10 border-r border-b px-3 py-6 sm:w-1/3 sm:px-4 sm:py-7 lg:w-1/4 xl:w-1/6"
+                className="flex min-w-0 w-1/2 items-center justify-center border-[var(--hud-ink)]/10 border-r border-b px-3 py-6 sm:w-1/3 sm:px-4 sm:py-8 lg:w-1/4 xl:w-1/6"
                 key={brand.id}
               >
                 <Image
-                  alt=""
-                  className={
-                    brand.shape === "wordmark"
-                      ? "h-7 w-auto max-w-full object-contain sm:h-8"
-                      : "h-8 w-auto max-w-full object-contain"
-                  }
+                  alt={brand.name}
+                  className="h-8 w-auto max-w-full object-contain sm:h-9"
                   height={brand.logoHeight}
                   src={brand.logoSrc}
                   unoptimized
                   width={brand.logoWidth}
                 />
-                <HudLabel className="text-center text-[var(--hud-muted)]">
-                  {brand.name}
-                </HudLabel>
               </li>
             ))}
           </ul>
