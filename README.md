@@ -95,8 +95,8 @@ interactive mode, the rejected application's answers are shown as editable
 defaults, so pressing Enter keeps an answer and Ctrl+U clears it for a
 replacement.
 Registration is for the on-site event in Lima: the API uses the participant's
-primary Clerk email, records Peru as the country, and only asks for their city
-of residence in Peru.
+primary Clerk email and records Peru as the country. The application asks for
+full name, role, optional LinkedIn and GitHub URLs, and Terms and Conditions.
 
 For agents and scripts, inspect the templates, save completed answers in separate
 JSON files, validate them locally, and request JSON output:

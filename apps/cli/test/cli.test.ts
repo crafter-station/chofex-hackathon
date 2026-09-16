@@ -533,7 +533,10 @@ describe("CLI JSON mode", () => {
     );
     expect(template).toHaveProperty("githubUrl");
     expect(template).toHaveProperty("linkedInUrl");
-    expect(template).toHaveProperty("portfolioUrl");
+    expect(template).toHaveProperty("fullName");
+    expect(template).toHaveProperty("role");
+    expect(template).toHaveProperty("codeOfConductAccepted");
+    expect(template).not.toHaveProperty("portfolioUrl");
     expect(template).not.toHaveProperty("email");
     expect(template).not.toHaveProperty("countryCode");
     expect(template).not.toHaveProperty("participationMode");
@@ -556,15 +559,9 @@ describe("CLI JSON mode", () => {
       await Bun.write(
         inputPath,
         JSON.stringify({
-          firstName: "Anthony",
-          lastName: "Cueva",
-          city: "Lima",
-          shippedProject: "A community event platform.",
-          hackathonProject: "A tool for matching hackathon teammates.",
-          bio: "I build things.",
-          teamPreference: "solo",
+          fullName: "Anthony Cueva",
+          role: "Builder",
           codeOfConductAccepted: true,
-          privacyPolicyAccepted: true,
         }),
       );
       const result = await runCli(
@@ -640,16 +637,10 @@ describe("CLI JSON mode", () => {
       await Bun.write(
         inputPath,
         JSON.stringify({
-          firstName: "Anthony",
-          lastName: "Cueva",
-          city: "Lima",
-          shippedProject: "A community event platform.",
-          hackathonProject: "A tool for matching hackathon teammates.",
-          bio: "I build things.",
+          fullName: "Anthony Cueva",
+          role: "Builder",
           github: "https://github.com/cuevaio",
-          teamPreference: "solo",
           codeOfConductAccepted: true,
-          privacyPolicyAccepted: true,
         }),
       );
       const result = await runCli(
@@ -669,9 +660,10 @@ describe("CLI JSON mode", () => {
           code: "VALIDATION_ERROR",
           details: {
             acceptedFields: expect.arrayContaining([
+              "fullName",
+              "role",
               "githubUrl",
               "linkedInUrl",
-              "portfolioUrl",
             ]),
           },
         },
@@ -713,16 +705,11 @@ describe("CLI JSON mode", () => {
               firstName: "Anthony",
               lastName: "Cueva",
               email: "hi@cueva.io",
-              countryCode: "PE",
-              city: "Lima",
+              role: "Builder",
               participationMode: "in_person",
-              shippedProject: "A community event platform.",
-              hackathonProject: "A tool for matching hackathon teammates.",
-              bio: "I build things.",
               githubUrl: "https://github.com/cuevaio",
-              teamPreference: "solo",
               nationalIdProvided: false,
-              mediaConsent: true,
+              mediaConsent: false,
               codeOfConductAccepted: true,
               privacyPolicyAccepted: true,
               createdAt: "2026-09-09T00:00:00.000Z",
@@ -748,17 +735,10 @@ describe("CLI JSON mode", () => {
       await Bun.write(
         inputPath,
         JSON.stringify({
-          firstName: " Anthony ",
-          lastName: "Cueva",
-          city: "Lima",
-          shippedProject: "A community event platform.",
-          hackathonProject: "A tool for matching hackathon teammates.",
-          bio: "I build things.",
+          fullName: " Anthony Cueva ",
+          role: "Builder",
           githubUrl: "github.com/cuevaio",
-          teamPreference: "solo",
           codeOfConductAccepted: true,
-          privacyPolicyAccepted: true,
-          mediaConsent: true,
         }),
       );
       const apiUrl = server.url.toString().replace(/\/$/, "");
@@ -780,22 +760,16 @@ describe("CLI JSON mode", () => {
         data: { registration: { status: "draft" } },
       });
       expect(submittedBody).toEqual({
-        firstName: "Anthony",
-        lastName: "Cueva",
-        city: "Lima",
-        shippedProject: "A community event platform.",
-        hackathonProject: "A tool for matching hackathon teammates.",
-        bio: "I build things.",
+        fullName: "Anthony Cueva",
+        role: "Builder",
         githubUrl: "https://github.com/cuevaio",
-        teamPreference: "solo",
         codeOfConductAccepted: true,
-        privacyPolicyAccepted: true,
-        mediaConsent: true,
       });
       expect(submittedBody).not.toHaveProperty("email");
       expect(submittedBody).not.toHaveProperty("countryCode");
       expect(submittedBody).not.toHaveProperty("participationMode");
-      expect(submittedBody).not.toHaveProperty("teamName");
+      expect(submittedBody).not.toHaveProperty("firstName");
+      expect(submittedBody).not.toHaveProperty("lastName");
     } finally {
       server.stop(true);
       await unlink(inputPath).catch(() => undefined);
@@ -864,15 +838,10 @@ describe("CLI JSON mode", () => {
                 firstName: "Anthony",
                 lastName: "Cueva",
                 email: "hi@cueva.io",
-                countryCode: "PE",
-                city: "Lima",
+                role: "Builder",
                 participationMode: "in_person",
-                shippedProject: "A community event platform.",
-                hackathonProject: "A tool for matching hackathon teammates.",
-                bio: "I build things.",
-                teamPreference: "solo",
                 nationalIdProvided: false,
-                mediaConsent: true,
+                mediaConsent: false,
                 codeOfConductAccepted: true,
                 privacyPolicyAccepted: true,
                 submittedAt: "2026-09-09T00:00:00.000Z",

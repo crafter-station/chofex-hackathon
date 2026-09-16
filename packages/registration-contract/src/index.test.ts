@@ -5,23 +5,20 @@ import {
   AcceptedDetailsInput,
   ApplicationDraftInput,
   ApplicationInput,
+  ApplicationPartId,
   acceptedDetailsSemanticRequirements,
   applicationRequirementsFor,
   applicationSemanticRequirements,
   CurrentUserSchema,
+  joinFullName,
   type RegistrationView,
+  splitFullName,
 } from "./index.js";
 
 const application = {
-  firstName: " Ada ",
-  lastName: "Lovelace",
-  city: "Lima",
-  shippedProject: "An analytical engine simulator.",
-  hackathonProject: "A collaborative programming environment.",
-  bio: "I build analytical engines.",
-  teamPreference: "solo",
+  fullName: " Ada Lovelace ",
+  role: "Programmer",
   codeOfConductAccepted: true,
-  privacyPolicyAccepted: true,
 } as const;
 
 const registrationView = (
@@ -32,12 +29,8 @@ const registrationView = (
   firstName: "Ada",
   lastName: "Lovelace",
   email: "ada@example.com",
-  city: "Lima",
+  role: "Programmer",
   participationMode: "in_person",
-  shippedProject: "An analytical engine simulator.",
-  hackathonProject: "A collaborative programming environment.",
-  bio: "I build analytical engines.",
-  teamPreference: "solo",
   nationalIdProvided: false,
   mediaConsent: false,
   codeOfConductAccepted: true,
@@ -66,17 +59,17 @@ describe("registration contract", () => {
     });
   });
 
-  test("accepts only applicant-provided fields for the on-site Peru event", () => {
+  test("accepts only the shortened applicant-provided fields", () => {
     const decoded = Schema.decodeUnknownSync(ApplicationInput)({
       ...application,
       githubUrl: "github.com/cuevaio",
     });
-    expect(decoded.firstName).toBe("Ada");
-    expect(decoded.city).toBe("Lima");
+    expect(decoded.fullName).toBe("Ada Lovelace");
+    expect(decoded.role).toBe("Programmer");
     expect(decoded.githubUrl).toBe("https://github.com/cuevaio");
     expect(decoded).not.toHaveProperty("email");
-    expect(decoded).not.toHaveProperty("countryCode");
-    expect(decoded).not.toHaveProperty("participationMode");
+    expect(decoded).not.toHaveProperty("firstName");
+    expect(decoded).not.toHaveProperty("city");
   });
 
   test("rejects identity and event constants supplied by clients", () => {
@@ -92,43 +85,89 @@ describe("registration contract", () => {
     ).toThrow();
   });
 
+  test("rejects removed application fields", () => {
+    expect(() =>
+      Schema.decodeUnknownSync(ApplicationInput, {
+        onExcessProperty: "error",
+      })({
+        ...application,
+        firstName: "Ada",
+        lastName: "Lovelace",
+        city: "Lima",
+        bio: "I build analytical engines.",
+      }),
+    ).toThrow();
+  });
+
   test("accepts null to clear optional draft fields", () => {
     expect(
       Schema.decodeUnknownSync(ApplicationDraftInput)({
-        organization: null,
-        graduationYear: null,
+        role: null,
         githubUrl: null,
-        teamName: null,
+        linkedInUrl: null,
       }),
     ).toEqual({
-      organization: null,
-      graduationYear: null,
+      role: null,
       githubUrl: null,
-      teamName: null,
+      linkedInUrl: null,
     });
   });
 
-  test("requires a team name for existing teams", () => {
+  test("splits a full name across existing given and family name columns", () => {
+    expect(splitFullName("Ada Lovelace")).toEqual({
+      firstName: "Ada",
+      lastName: "Lovelace",
+    });
+    expect(splitFullName("Mary Ann Smith")).toEqual({
+      firstName: "Mary Ann",
+      lastName: "Smith",
+    });
+    expect(splitFullName("Madonna")).toEqual({
+      firstName: "Madonna",
+      lastName: "",
+    });
+    expect(joinFullName("Ada", "Lovelace")).toBe("Ada Lovelace");
+    expect(joinFullName("Madonna", "")).toBe("Madonna");
+  });
+
+  test("splits a long name at a boundary that fits both columns", () => {
+    const given = "A".repeat(60);
+    const middle = "B".repeat(60);
+    const family = "C".repeat(20);
+    const fullName = `${given} ${middle} ${family}`;
+    expect(splitFullName(fullName)).toEqual({
+      firstName: given,
+      lastName: `${middle} ${family}`,
+    });
+    expect(
+      applicationSemanticRequirements(
+        Schema.decodeUnknownSync(ApplicationInput)({
+          ...application,
+          fullName,
+        }),
+      ),
+    ).toEqual([]);
+  });
+
+  test("rejects a full name that cannot fit the existing name columns", () => {
     const decoded = Schema.decodeUnknownSync(ApplicationInput)({
       ...application,
-      teamPreference: "have_team",
+      fullName: `${"A".repeat(101)} ${"B".repeat(10)}`,
     });
     expect(applicationSemanticRequirements(decoded)).toEqual([
       {
-        field: "teamName",
-        reason: "Required when you already have a team",
+        field: "fullName",
+        reason:
+          "Must split into given and family names of 100 characters or fewer",
       },
     ]);
   });
 
-  test("does not require a team name without an existing team", () => {
-    for (const teamPreference of ["looking_for_team", "solo"] as const) {
-      const decoded = Schema.decodeUnknownSync(ApplicationInput)({
-        ...application,
-        teamPreference,
-      });
-      expect(applicationSemanticRequirements(decoded)).toEqual([]);
-    }
+  test("does not require profile URLs", () => {
+    const decoded = Schema.decodeUnknownSync(ApplicationInput)(application);
+    expect(applicationSemanticRequirements(decoded)).toEqual([]);
+    expect(decoded).not.toHaveProperty("githubUrl");
+    expect(decoded).not.toHaveProperty("linkedInUrl");
   });
 
   test("requires shirt size only for in-person attendance", () => {
@@ -232,15 +271,29 @@ describe("registration contract", () => {
     }
   });
 
+  test("keeps published application-part identifiers", () => {
+    expect(Schema.decodeUnknownSync(ApplicationPartId)("identity")).toBe(
+      "identity",
+    );
+    expect(Schema.decodeUnknownSync(ApplicationPartId)("experience")).toBe(
+      "experience",
+    );
+    expect(Schema.decodeUnknownSync(ApplicationPartId)("team")).toBe("team");
+    expect(Schema.decodeUnknownSync(ApplicationPartId)("agreements")).toBe(
+      "agreements",
+    );
+    expect(() =>
+      Schema.decodeUnknownSync(ApplicationPartId)("profile"),
+    ).toThrow();
+  });
+
   test("treats drafts as a resumable application with required parts", () => {
     const requirements = applicationRequirementsFor(
       registrationView({
         status: "draft",
         firstName: "Ada",
         lastName: "Lovelace",
-        city: "Lima",
-        bio: undefined,
-        teamPreference: "solo",
+        role: undefined,
       }),
     );
     expect(requirements.stage).toBe("draft");
@@ -248,9 +301,10 @@ describe("registration contract", () => {
     expect(requirements.canSubmitApplication).toBe(false);
     expect(requirements.parts.map((item) => item.id)).toEqual([
       "identity",
-      "experience",
-      "team",
       "agreements",
+    ]);
+    expect(requirements.missing).toEqual([
+      { field: "role", reason: "Required to submit" },
     ]);
   });
 
@@ -258,8 +312,6 @@ describe("registration contract", () => {
     const withoutChallenge = applicationRequirementsFor(
       registrationView({
         status: "draft",
-        city: "Lima",
-        teamPreference: "solo",
         challenges: [],
       }),
     );

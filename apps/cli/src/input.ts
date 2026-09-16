@@ -12,6 +12,7 @@ import {
   applicationInputFields,
   applicationSemanticRequirements,
   dateOfBirthRequirement,
+  joinFullName,
   type RegistrationView,
 } from "@chofex/registration-contract";
 import { Effect, Schema } from "effect";
@@ -118,32 +119,18 @@ const withoutEmptyStrings = (
 ): Record<string, unknown> =>
   Object.fromEntries(
     Object.entries(input).filter(
-      ([, value]) => value !== "" && value !== undefined,
+      ([, value]) => value !== "" && value !== undefined && value !== null,
     ),
   );
 
 export const applicationDefaultsFromRegistration = (
   registration: RegistrationView,
 ): Partial<ApplicationInput> => ({
-  firstName: registration.firstName,
-  lastName: registration.lastName,
-  pronouns: registration.pronouns,
-  city: registration.city,
-  organization: registration.organization,
+  fullName: joinFullName(registration.firstName, registration.lastName),
   role: registration.role,
-  fieldOfStudy: registration.fieldOfStudy,
-  graduationYear: registration.graduationYear,
-  shippedProject: registration.shippedProject,
-  hackathonProject: registration.hackathonProject,
-  bio: registration.bio,
   githubUrl: registration.githubUrl,
   linkedInUrl: registration.linkedInUrl,
-  portfolioUrl: registration.portfolioUrl,
-  teamPreference: registration.teamPreference,
-  teamName: registration.teamName,
   codeOfConductAccepted: registration.codeOfConductAccepted ? true : undefined,
-  privacyPolicyAccepted: registration.privacyPolicyAccepted ? true : undefined,
-  mediaConsent: registration.mediaConsent,
 });
 
 const readStdin = async (): Promise<string> => {
@@ -201,76 +188,14 @@ const validateSemantics = <A>(
   );
 };
 
-const identityPrompts = (defaults: Partial<ApplicationInput>) =>
+const applicationPrompts = (defaults: Partial<ApplicationInput>) =>
   Prompt.all({
-    firstName: requiredText(
-      "First name",
-      applicationInputFields.firstName,
-      defaults.firstName,
+    fullName: requiredText(
+      "Full name",
+      applicationInputFields.fullName,
+      defaults.fullName,
     ),
-    lastName: requiredText(
-      "Last name",
-      applicationInputFields.lastName,
-      defaults.lastName,
-    ),
-    pronouns: optionalText(
-      "Pronouns (optional)",
-      applicationInputFields.pronouns,
-      defaults.pronouns,
-    ),
-    city: requiredText(
-      "City of residence in Peru",
-      applicationInputFields.city,
-      defaults.city,
-    ),
-    organization: optionalText(
-      "Organization (optional)",
-      applicationInputFields.organization,
-      defaults.organization,
-    ),
-    role: optionalText(
-      "Role (optional)",
-      applicationInputFields.role,
-      defaults.role,
-    ),
-    fieldOfStudy: optionalText(
-      "Field of study (optional)",
-      applicationInputFields.fieldOfStudy,
-      defaults.fieldOfStudy,
-    ),
-    graduationYear: Prompt.text({
-      message: "Graduation year (optional)",
-      default: defaults.graduationYear?.toString() ?? "",
-      validate: (value) => {
-        if (value === "") return Effect.succeed(value);
-        return validatePromptValue(
-          applicationInputFields.graduationYear,
-          Number(value),
-        ).pipe(Effect.as(value));
-      },
-    }),
-  });
-
-const experiencePrompts = (defaults: Partial<ApplicationInput>) =>
-  Prompt.all({
-    shippedProject: requiredText(
-      "What have you shipped?",
-      applicationInputFields.shippedProject,
-      defaults.shippedProject,
-    ),
-    hackathonProject: requiredText(
-      "What do you want to ship at the hackathon?",
-      applicationInputFields.hackathonProject,
-      defaults.hackathonProject,
-    ),
-    bio: requiredText("Short bio", applicationInputFields.bio, defaults.bio),
-    githubUrl: profileUrlPrompt(
-      "GitHub username (optional)",
-      "GitHub URL (optional)",
-      githubProfilePrefix,
-      applicationInputFields.githubUrl,
-      defaults.githubUrl,
-    ),
+    role: requiredText("Role", applicationInputFields.role, defaults.role),
     linkedInUrl: profileUrlPrompt(
       "LinkedIn username (optional)",
       "LinkedIn URL (optional)",
@@ -278,35 +203,13 @@ const experiencePrompts = (defaults: Partial<ApplicationInput>) =>
       applicationInputFields.linkedInUrl,
       defaults.linkedInUrl,
     ),
-    portfolioUrl: optionalText(
-      "Portfolio URL (optional)",
-      applicationInputFields.portfolioUrl,
-      defaults.portfolioUrl,
+    githubUrl: profileUrlPrompt(
+      "GitHub username (optional)",
+      "GitHub URL (optional)",
+      githubProfilePrefix,
+      applicationInputFields.githubUrl,
+      defaults.githubUrl,
     ),
-  });
-
-const teamPreferencePrompt = (
-  defaultValue?: ApplicationInput["teamPreference"],
-) =>
-  Prompt.select({
-    message: "Team preference",
-    choices: [
-      {
-        title: "I have a team",
-        value: "have_team" as const,
-        selected: defaultValue === "have_team",
-      },
-      {
-        title: "I am looking for a team",
-        value: "looking_for_team" as const,
-        selected: defaultValue === "looking_for_team",
-      },
-      {
-        title: "I will participate solo",
-        value: "solo" as const,
-        selected: defaultValue === "solo",
-      },
-    ],
   });
 
 export const publicDocumentUrl = (baseUrl: string, path: string): string =>
@@ -347,148 +250,32 @@ const requiredAgreement = Effect.fn("requiredAgreement")(function* (
 
 export const normalizeDraftFields = (
   input: Record<string, unknown>,
-): Record<string, unknown> => {
-  const normalized = Object.fromEntries(
+): Record<string, unknown> =>
+  Object.fromEntries(
     Object.entries(input)
       .filter(([, value]) => value !== undefined)
       .map(([key, value]) => [key, value === "" ? null : value]),
   );
-  if (typeof input.graduationYear === "string" && input.graduationYear !== "") {
-    normalized.graduationYear = Number(input.graduationYear);
-  }
-  return normalized;
-};
 
-export const collectIdentityPart = (
-  defaults: Partial<ApplicationInput>,
-): Effect.Effect<Record<string, unknown>, CliError, PromptModule.Environment> =>
-  Prompt.run(identityPrompts(defaults)).pipe(
-    Effect.map(normalizeDraftFields),
-    Effect.mapError(() =>
-      cliError("PROMPT_CANCELLED", "Interactive input was cancelled"),
-    ),
-  );
-
-export const collectExperiencePart = (
-  defaults: Partial<ApplicationInput>,
-): Effect.Effect<Record<string, unknown>, CliError, PromptModule.Environment> =>
-  Prompt.run(experiencePrompts(defaults)).pipe(
-    Effect.map(normalizeDraftFields),
-    Effect.mapError(() =>
-      cliError("PROMPT_CANCELLED", "Interactive input was cancelled"),
-    ),
-  );
-
-export const collectTeamPart = (
-  defaults: Partial<ApplicationInput>,
-): Effect.Effect<Record<string, unknown>, CliError, PromptModule.Environment> =>
-  Effect.gen(function* () {
-    const teamPreference = yield* Prompt.run(
-      teamPreferencePrompt(defaults.teamPreference),
-    );
-    let teamName: string | null = null;
-    if (teamPreference === "have_team") {
-      teamName = yield* Prompt.run(
-        requiredText(
-          "Team name",
-          applicationInputFields.teamName,
-          defaults.teamName,
-        ),
-      );
-    }
-    return { teamPreference, teamName };
-  }).pipe(
-    Effect.mapError((error) => {
-      if (error instanceof CliError) return error;
-      return cliError("PROMPT_CANCELLED", "Interactive input was cancelled");
-    }),
-  );
-
-export const collectAgreementsPart = (
+export const collectApplicationFields = (
   publicBaseUrl: string,
   defaults: Partial<ApplicationInput>,
 ): Effect.Effect<Record<string, unknown>, CliError, PromptModule.Environment> =>
   Effect.gen(function* () {
+    const profile = yield* Prompt.run(applicationPrompts(defaults));
     const codeOfConductAccepted = yield* requiredAgreement(
-      "Terms and Code of Conduct",
+      "Terms and Conditions",
       publicDocumentUrl(publicBaseUrl, "/terms"),
       defaults.codeOfConductAccepted,
     );
-    const privacyPolicyAccepted = yield* requiredAgreement(
-      "Privacy Policy",
-      publicDocumentUrl(publicBaseUrl, "/privacy"),
-      defaults.privacyPolicyAccepted,
-    );
-    const mediaConsent = yield* Prompt.run(
-      Prompt.confirm({
-        message: "Do you consent to appearing in event media? (optional)",
-        initial: defaults.mediaConsent ?? false,
-      }),
-    );
-    return {
+    return normalizeDraftFields({
+      ...profile,
       codeOfConductAccepted,
-      privacyPolicyAccepted,
-      mediaConsent,
-    };
+    });
   }).pipe(
     Effect.mapError((error) => {
       if (error instanceof CliError) return error;
       return cliError("PROMPT_CANCELLED", "Interactive input was cancelled");
-    }),
-  );
-
-const interactiveApplication = (
-  publicBaseUrl: string,
-  defaults: Partial<ApplicationInput>,
-) =>
-  Effect.gen(function* () {
-    const identity = yield* Prompt.run(identityPrompts(defaults));
-    const experience = yield* Prompt.run(experiencePrompts(defaults));
-    const teamPreference = yield* Prompt.run(
-      teamPreferencePrompt(defaults.teamPreference),
-    );
-    let teamName: string | undefined;
-    if (teamPreference === "have_team") {
-      teamName = yield* Prompt.run(
-        requiredText(
-          "Team name",
-          applicationInputFields.teamName,
-          defaults.teamName,
-        ),
-      );
-    }
-    const codeOfConductAccepted = yield* requiredAgreement(
-      "Terms and Code of Conduct",
-      publicDocumentUrl(publicBaseUrl, "/terms"),
-      defaults.codeOfConductAccepted,
-    );
-    const privacyPolicyAccepted = yield* requiredAgreement(
-      "Privacy Policy",
-      publicDocumentUrl(publicBaseUrl, "/privacy"),
-      defaults.privacyPolicyAccepted,
-    );
-    const mediaConsent = yield* Prompt.run(
-      Prompt.confirm({
-        message: "Do you consent to appearing in event media? (optional)",
-        initial: defaults.mediaConsent ?? false,
-      }),
-    );
-    return {
-      ...identity,
-      ...experience,
-      teamPreference,
-      teamName,
-      codeOfConductAccepted,
-      privacyPolicyAccepted,
-      mediaConsent,
-    };
-  }).pipe(
-    Effect.map((input) => {
-      const normalized = withoutEmptyStrings(input);
-      if (input.graduationYear !== "") {
-        normalized.graduationYear = Number(input.graduationYear);
-      }
-      return normalized;
     }),
   );
 
@@ -621,7 +408,9 @@ export const applicationInput = (
 ): Effect.Effect<ApplicationInput, CliError, PromptModule.Environment> =>
   inputOrInteractive(
     path,
-    interactiveApplication(publicBaseUrl, defaults),
+    collectApplicationFields(publicBaseUrl, defaults).pipe(
+      Effect.map((input) => withoutEmptyStrings(input)),
+    ),
   ).pipe(
     Effect.flatMap((input) =>
       decode(ApplicationInput, input, applicationInputFieldNames),

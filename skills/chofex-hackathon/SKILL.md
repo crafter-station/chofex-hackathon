@@ -33,9 +33,8 @@ participant correct it before submission:
 Ask a follow-up only when the input is malformed or has more than one plausible
 meaning that would materially change the application. State low-risk parsing in
 a concise interpretation note immediately before the final summary instead of
-interrupting the interview. For example, map “community at Crafter Station” to
-role `community` and organization `Crafter Station`. Preserve participant-provided
-wording and casing for personal answers.
+interrupting the interview. Preserve participant-provided wording and casing for
+personal answers.
 
 ## Command setup
 
@@ -85,8 +84,8 @@ chofex --output json status
 If one exists, report its status and follow **Next steps**. Create or resume a
 draft when there is no application, the status is `draft`, or a rejected
 participant may apply again. A rejected application remains in history. Drafts
-are stored on the server, so the participant can fill identity today and come
-back tomorrow with a Black Box solution.
+are stored on the server, so the participant can fill the short form today and
+come back tomorrow with a Black Box solution.
 
 Get a fresh input template instead of relying on a memorized schema:
 
@@ -95,8 +94,8 @@ chofex schema --stage application
 ```
 
 The output is an example shape, not an application draft. It contains every
-supported JSON key. Copy those keys exactly; for example, use `githubUrl`,
-`linkedInUrl`, and `portfolioUrl`. Never save or submit the example values.
+supported JSON key. Copy those keys exactly; for example, use `fullName`,
+`role`, `githubUrl`, and `linkedInUrl`. Never save or submit the example values.
 
 Collect every field in one compact batch when practical. Accept a natural,
 unlabeled reply and map it using context; numbered formatting is optional. For
@@ -106,44 +105,32 @@ answers” is not an answer and must not be offered. Ask only for fields the
 participant has not already answered. Group the questionnaire so the participant
 can scan and answer it naturally:
 
-- required profile: name, city, and bio;
-- optional profile: pronouns, organization, role, education, and profile URLs;
-- shipping: “What have you shipped?” and “What do you want to ship at the
-  hackathon?”;
-- team preference and team name when applicable; and
-- required agreements and optional media consent.
+- required profile: full name and role;
+- optional profile: LinkedIn and GitHub URLs; and
+- required Terms and Conditions.
 
 Explain these rules while collecting answers:
 
 - Registration is for the in-person event in Lima, Peru. The application uses
   the authenticated account's primary email and records Peru as the country.
-- `shippedProject` and `hackathonProject` are required free-text answers.
-- `teamPreference` is `have_team`, `looking_for_team`, or `solo`.
-- `teamName` is required when `teamPreference` is `have_team`.
-- `codeOfConductAccepted` and `privacyPolicyAccepted` must each be the
-  participant's explicit `true`; an agent cannot consent for them.
-- `mediaConsent` is optional and must reflect the participant's choice.
+- `fullName` and `role` are required.
+- `githubUrl` and `linkedInUrl` are optional.
+- `codeOfConductAccepted` must be the participant's explicit `true`; an agent
+  cannot consent for them.
 
 Treat the fresh schema as authoritative. On local validation errors, use
 `error.details.acceptedFields` to correct payload keys. Inspect CLI source only
 when the schema and error details do not resolve the problem.
 
-Before requesting required consent, give the participant these links:
+Before requesting required consent, give the participant this link:
 
 - `https://andes.crafter.run/terms`
-- `https://andes.crafter.run/privacy`
 
-Ask for the Terms / Code of Conduct and Privacy Policy decisions by name. “Yes
-to both” is explicit consent when it directly answers a prompt naming both
-documents. Keep media consent separate: never derive it from accepting the
-required documents, “agree to all,” or “omit all.” Keep optional-profile
-omissions separate from consent questions, and clarify any answer whose target
-is ambiguous rather than relying on the final submission approval to resolve it.
-
-If they do not accept either required document, do not discard the answers
-already collected. Ask whether they want to cancel registration or read the
-document and explicitly accept it. Continue from the consent step if they
-accept; do not submit if they cancel.
+Ask for the Terms and Conditions decision by name. An agent cannot consent for
+the participant. If they do not accept, do not discard the answers already
+collected. Ask whether they want to cancel registration or read the document and
+explicitly accept it. Continue from the consent step if they accept; do not
+submit if they cancel.
 
 Once every answer and consent choice is settled, save the application as a
 draft. Do not claim the application is submitted until `registration.status` is
@@ -245,7 +232,7 @@ asks for requirements alone.
 
 Interpret the returned state as follows:
 
-- `draft`: the application is saved in parts. Show `requirements.parts` and
+- `draft`: the application is saved. Show `requirements.parts` and
   missing fields. Continue collecting answers. Offer the Black Box as an
   optional challenge, but do not delay submission for it. Submit only when
   `canSubmitApplication` is true, using `chofex register --submit`.

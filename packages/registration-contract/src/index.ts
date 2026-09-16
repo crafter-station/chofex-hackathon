@@ -31,10 +31,6 @@ const url = normalizedString((value) => {
   ),
 );
 
-const graduationYear = Schema.Int.pipe(
-  Schema.check(Schema.isBetween({ minimum: 1950, maximum: 2100 })),
-);
-
 export const RegistrationStatus = Schema.Literals([
   "draft",
   "submitted",
@@ -93,26 +89,53 @@ export const detectPictureContentType = (
   if (isWebp) return "image/webp";
 };
 
+const givenNameMaximum = 100;
+const familyNameMaximum = 100;
+
+export const splitFullName = (
+  fullName: string,
+): { readonly firstName: string; readonly lastName: string } => {
+  const normalized = fullName.trim().replace(/\s+/g, " ");
+  const tokens = normalized.split(" ");
+  if (tokens.length === 1) {
+    return { firstName: normalized, lastName: "" };
+  }
+
+  for (let index = tokens.length - 1; index >= 1; index--) {
+    const firstName = tokens.slice(0, index).join(" ");
+    const lastName = tokens.slice(index).join(" ");
+    if (
+      firstName.length <= givenNameMaximum &&
+      lastName.length <= familyNameMaximum
+    ) {
+      return { firstName, lastName };
+    }
+  }
+
+  const lastSpace = normalized.lastIndexOf(" ");
+  return {
+    firstName: normalized.slice(0, lastSpace),
+    lastName: normalized.slice(lastSpace + 1),
+  };
+};
+
+export const joinFullName = (
+  firstName: string | undefined,
+  lastName: string | undefined,
+): string => {
+  const given = firstName?.trim() ?? "";
+  const family = lastName?.trim() ?? "";
+  if (!family) return given;
+  if (!given) return family;
+  return `${given} ${family}`;
+};
+
 export const applicationInputFields = {
-  firstName: nonBlank(100),
-  lastName: nonBlank(100),
-  pronouns: optionalText(50),
-  city: nonBlank(120),
-  organization: optionalText(200),
-  role: optionalText(120),
-  fieldOfStudy: optionalText(160),
-  graduationYear: Schema.optional(graduationYear),
-  shippedProject: nonBlank(2_000),
-  hackathonProject: nonBlank(2_000),
-  bio: nonBlank(2_000),
+  fullName: nonBlank(givenNameMaximum + familyNameMaximum + 1),
+  role: nonBlank(120),
   githubUrl: Schema.optional(url),
   linkedInUrl: Schema.optional(url),
-  portfolioUrl: Schema.optional(url),
-  teamPreference: TeamPreference,
-  teamName: optionalText(120),
   codeOfConductAccepted: Schema.Literal(true),
-  privacyPolicyAccepted: Schema.Literal(true),
-  mediaConsent: Schema.optional(Schema.Boolean),
 };
 
 export const applicationInputFieldNames = Object.keys(applicationInputFields);
@@ -122,25 +145,11 @@ export const ApplicationInput = Schema.Struct(applicationInputFields);
 export type ApplicationInput = typeof ApplicationInput.Type;
 
 export const applicationDraftInputFields = {
-  firstName: Schema.optional(applicationInputFields.firstName),
-  lastName: Schema.optional(applicationInputFields.lastName),
-  pronouns: nullableOptionalText(50),
-  city: Schema.optional(applicationInputFields.city),
-  organization: nullableOptionalText(200),
+  fullName: Schema.optional(applicationInputFields.fullName),
   role: nullableOptionalText(120),
-  fieldOfStudy: nullableOptionalText(160),
-  graduationYear: Schema.optional(Schema.NullOr(graduationYear)),
-  shippedProject: Schema.optional(applicationInputFields.shippedProject),
-  hackathonProject: Schema.optional(applicationInputFields.hackathonProject),
-  bio: Schema.optional(applicationInputFields.bio),
   githubUrl: Schema.optional(Schema.NullOr(url)),
   linkedInUrl: Schema.optional(Schema.NullOr(url)),
-  portfolioUrl: Schema.optional(Schema.NullOr(url)),
-  teamPreference: Schema.optional(applicationInputFields.teamPreference),
-  teamName: nullableOptionalText(120),
   codeOfConductAccepted: Schema.optional(Schema.Boolean),
-  privacyPolicyAccepted: Schema.optional(Schema.Boolean),
-  mediaConsent: Schema.optional(Schema.Boolean),
 };
 
 export const applicationDraftInputFieldNames = Object.keys(
@@ -189,15 +198,9 @@ export const AcceptedDetailsInput = Schema.Struct(acceptedDetailsInputFields);
 export type AcceptedDetailsInput = typeof AcceptedDetailsInput.Type;
 
 export const initialRequiredFields = [
-  "firstName",
-  "lastName",
-  "city",
-  "shippedProject",
-  "hackathonProject",
-  "bio",
-  "teamPreference",
+  "fullName",
+  "role",
   "codeOfConductAccepted",
-  "privacyPolicyAccepted",
 ] as const;
 
 export const acceptedRequiredFields = [
@@ -232,16 +235,28 @@ const addShirtSizeRequirement = (
   }
 };
 
-export const applicationSemanticRequirements = (
-  input: ApplicationInput,
+export const fullNameColumnRequirements = (
+  fullName: string,
 ): ReadonlyArray<Requirement> => {
-  if (input.teamPreference === "have_team" && !input.teamName) {
+  const { firstName, lastName } = splitFullName(fullName);
+  if (
+    firstName.length > givenNameMaximum ||
+    lastName.length > familyNameMaximum
+  ) {
     return [
-      { field: "teamName", reason: "Required when you already have a team" },
+      {
+        field: "fullName",
+        reason:
+          "Must split into given and family names of 100 characters or fewer",
+      },
     ];
   }
   return [];
 };
+
+export const applicationSemanticRequirements = (
+  input: ApplicationInput,
+): ReadonlyArray<Requirement> => fullNameColumnRequirements(input.fullName);
 
 export const dateOfBirthRequirement = (
   dateOfBirth: string,
@@ -407,47 +422,13 @@ export const applicationPartsFor = (
   registration: RegistrationView,
 ): ReadonlyArray<ApplicationPart> => {
   const identityMissing: Array<Requirement> = [];
-  if (!requiredValue(registration.firstName)) {
-    identityMissing.push({ field: "firstName", reason: "Required to submit" });
-  }
-  if (!requiredValue(registration.lastName)) {
-    identityMissing.push({ field: "lastName", reason: "Required to submit" });
-  }
-  if (!requiredValue(registration.city)) {
-    identityMissing.push({ field: "city", reason: "Required to submit" });
-  }
-
-  const experienceMissing: Array<Requirement> = [];
-  if (!requiredValue(registration.shippedProject)) {
-    experienceMissing.push({
-      field: "shippedProject",
-      reason: "Required to submit",
-    });
-  }
-  if (!requiredValue(registration.hackathonProject)) {
-    experienceMissing.push({
-      field: "hackathonProject",
-      reason: "Required to submit",
-    });
-  }
-  if (!requiredValue(registration.bio)) {
-    experienceMissing.push({ field: "bio", reason: "Required to submit" });
-  }
-
-  const teamMissing: Array<Requirement> = [];
-  if (!registration.teamPreference) {
-    teamMissing.push({
-      field: "teamPreference",
-      reason: "Required to submit",
-    });
-  } else if (
-    registration.teamPreference === "have_team" &&
-    !requiredValue(registration.teamName)
+  if (
+    !requiredValue(joinFullName(registration.firstName, registration.lastName))
   ) {
-    teamMissing.push({
-      field: "teamName",
-      reason: "Required when you already have a team",
-    });
+    identityMissing.push({ field: "fullName", reason: "Required to submit" });
+  }
+  if (!requiredValue(registration.role)) {
+    identityMissing.push({ field: "role", reason: "Required to submit" });
   }
 
   const agreementMissing: Array<Requirement> = [];
@@ -457,18 +438,10 @@ export const applicationPartsFor = (
       reason: "Required to submit",
     });
   }
-  if (!registration.privacyPolicyAccepted) {
-    agreementMissing.push({
-      field: "privacyPolicyAccepted",
-      reason: "Required to submit",
-    });
-  }
 
   return [
-    part("identity", "Identity", identityMissing),
-    part("experience", "Experience", experienceMissing),
-    part("team", "Team", teamMissing),
-    part("agreements", "Agreements", agreementMissing),
+    part("identity", "Profile", identityMissing),
+    part("agreements", "Terms", agreementMissing),
   ];
 };
 
