@@ -40,7 +40,7 @@ export const challengeCount = 3;
 export const metadataCopy = {
   title: `${brandName} — Lima, 17–18 oct 2026`,
   description:
-    "100 cupos para AI, product y software engineers con experiencia. 3 challenges, 30 horas y una entrega funcionando. Sponsor principal: Chofex.",
+    "100 cupos para AI, product y software engineers con experiencia. 3 challenges, 30 horas y una entrega funcionando.",
 } as const;
 
 export const cliCommands = [
@@ -79,7 +79,6 @@ export const heroCopy = {
   metaDate: "17–18 oct 2026",
   metaLocation: "Lima, Perú",
   cta: "Postular",
-  sponsor: "Sponsor principal: Chofex",
   organizer: "Organiza: Crafter Station",
   skipToWhy: "Conocer el evento",
 } as const;
@@ -157,8 +156,6 @@ export const prizesCopy = {
   totalSuffix: "en premios en efectivo",
   tripLabel: "Viaje pagado",
   tripTitle: "Chofex Headquarters",
-  tripBody:
-    "Una persona participante destacada viajará a las oficinas de Chofex en Monterrey o San Francisco.",
 } as const;
 
 export const sponsorsCopy = {
@@ -287,17 +284,9 @@ export const faqItems = [
 ] as const;
 
 export const footerCopy = {
-  meta: "Lima, 17–18 oct 2026. Sponsor principal: Chofex",
+  meta: "Lima, 17–18 oct 2026",
   legalLabel: "Legal",
-  // Both terrain sources are attribution-required licences, so these two
-  // credits are a condition of use, not decoration.
-  /*
-   * The elevation model, and the only source left to credit. The Sentinel-2
-   * drape was credited here too until the drawing stopped sampling it and the
-   * imagery came out of the mesh: CC BY asks for attribution when the work is
-   * distributed, and it is no longer in anything a visitor downloads.
-   */
-  terrainCredit: "Terreno: Mapzen / USGS",
+  credits: "Créditos",
   terms: "Términos",
   privacy: "Privacidad",
 } as const;
