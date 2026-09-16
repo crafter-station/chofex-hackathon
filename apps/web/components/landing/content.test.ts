@@ -6,12 +6,14 @@ import {
   eventItems,
   challengeCount,
   challengeSeats,
+  challengesCopy,
   chromeCopy,
   facts,
   footerCopy,
   formatSoles,
   heroCopy,
   metadataCopy,
+  partners,
   peopleCopy,
   prizeAmountsPen,
   prizeAmountsUsd,
@@ -19,7 +21,6 @@ import {
   seatCount,
   sectionNav,
   skipLinks,
-  partners,
   sponsorsCopy,
 } from "./content";
 
@@ -127,6 +128,8 @@ test("withholds panel claims until identities are confirmed", () => {
 test("publishes a senior, hundred-seat, three-challenge event", () => {
   expect(seatCount).toBe(100);
   expect(challengeCount).toBe(3);
+  expect(challengesCopy.title).toBe("3 Tracks centrales");
+  expect(challengesCopy.subtitle).toBe("∞ Posibilidades de soluciones");
   expect(challengeSeats).toHaveLength(3);
   expect(challengeSeats.every((challenge) => challenge.hint.length > 0)).toBe(
     true,
@@ -155,6 +158,15 @@ test("keeps the social preview lockup free of sponsor-principal phrasing", async
     new URL("../../app/opengraph-image.tsx", import.meta.url),
   ).text();
   expect(og).not.toMatch(/sponsor principal/i);
+});
+
+test("labels challenge cards as tracks", async () => {
+  const source = await Bun.file(
+    new URL("./challenges.tsx", import.meta.url),
+  ).text();
+  expect(source).toContain("challengesCopy.subtitle");
+  expect(source).toContain("Track {seat.index}");
+  expect(source).not.toContain("Challenge {seat.index}");
 });
 
 test("exposes skip links and section jumps for keyboard users", () => {
