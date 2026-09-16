@@ -44,6 +44,7 @@ import {
   completeEvaluationReservation,
   completeQueryReservation,
   consumeFailedEvaluationReservation,
+  findChallengeObservation,
   releaseChallengeReservation,
   reserveChallengeUse,
 } from "./reservations";
@@ -70,6 +71,14 @@ const engineUnavailableError = (): HttpError =>
     503,
     "CHALLENGE_ENGINE_UNAVAILABLE",
     "The challenge engine is temporarily unavailable",
+  );
+
+const duplicateQueryError = (): HttpError =>
+  new HttpError(
+    409,
+    "DUPLICATE_QUERY",
+    "That exact shipment is already in your notebook. Change at least one input; repeated queries do not consume budget.",
+    false,
   );
 
 const parseInput = <S extends Schema.ConstraintDecoder<unknown>>(
@@ -298,7 +307,6 @@ const loadBestEvaluation = async (
       desc(challengeEvaluations.accuracy),
       desc(challengeEvaluations.exactCount),
       asc(challengeEvaluations.queriesUsed),
-      asc(challengeEvaluations.runtimeMs),
       asc(challengeEvaluations.createdAt),
       asc(challengeEvaluations.id),
     )
@@ -483,6 +491,9 @@ export const queryChallenge = async (
   const participantId = await participantIdFor(clerkUserId);
   const attempt = await attemptFor(participantId, challenge);
 
+  const existing = await findChallengeObservation(attempt.id, input);
+  if (existing) throw duplicateQueryError();
+
   const reservation = await reserveChallengeUse(attempt.id, "query");
 
   if (!reservation) {
@@ -510,6 +521,7 @@ export const queryChallenge = async (
     completed = await completeQueryReservation(reservation, input, output);
   } catch (error) {
     await releaseAfterFailure(reservation, "query");
+    if (isUniqueViolation(error)) throw duplicateQueryError();
     throw error;
   }
   if (!completed) throw engineUnavailableError();

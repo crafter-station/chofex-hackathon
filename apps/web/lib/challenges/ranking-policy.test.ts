@@ -13,10 +13,10 @@ const score = (overrides: Partial<ChallengeScore> = {}): ChallengeScore => ({
 });
 
 describe("challenge ranking policy", () => {
-  test("gives identical scores the same competition rank", () => {
+  test("gives otherwise identical scores the same rank despite runtime", () => {
     expect(
       competitionRanks([
-        score(),
+        score({ runtimeMs: 1_000 }),
         score(),
         score({ accuracy: 0.8, exactCount: 800 }),
       ]),

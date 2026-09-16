@@ -44,12 +44,12 @@ export const javascriptSourceFromPath = (
   );
 };
 
-const requiredNumber = (message: string): Prompt.Prompt<string> =>
+const requiredInteger = (message: string): Prompt.Prompt<string> =>
   Prompt.text({
     message,
     validate: (value) => {
-      if (value.trim() === "" || Number.isNaN(Number(value))) {
-        return Effect.fail("Must be a number");
+      if (value.trim() === "" || !Number.isInteger(Number(value))) {
+        return Effect.fail("Must be a whole number");
       }
       return Effect.succeed(value);
     },
@@ -62,9 +62,9 @@ const interactiveShipment = (): Effect.Effect<
 > =>
   Prompt.run(
     Prompt.all({
-      distanceKm: requiredNumber("Distance (km)"),
-      weightKg: requiredNumber("Weight (kg)"),
-      hour: requiredNumber("Hour (0-23)"),
+      distanceKm: requiredInteger("Distance (whole km)"),
+      weightKg: requiredInteger("Weight (whole kg)"),
+      hour: requiredInteger("Hour (0-23)"),
       fragile: Prompt.confirm({ message: "Fragile?" }),
       express: Prompt.confirm({ message: "Express?" }),
     }),

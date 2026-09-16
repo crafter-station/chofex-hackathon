@@ -78,6 +78,13 @@
       "when": 1789514547941,
       "tag": "0010_strong_blackheart",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1789572404088,
+      "tag": "0011_boring_bushwacker",
+      "breakpoints": true
     }
   ]
 }

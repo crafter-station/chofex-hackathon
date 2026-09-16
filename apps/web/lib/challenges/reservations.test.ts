@@ -6,18 +6,21 @@ import {
   completeEvaluationReservation,
   completeQueryReservation,
   consumeFailedEvaluationReservation,
+  findChallengeObservation,
   type ReservationDatabase,
   releaseChallengeReservation,
   reserveChallengeUse,
 } from "./reservations";
 
-const migration = readFileSync(
-  new URL(
-    "../../../../packages/db/drizzle/0010_strong_blackheart.sql",
-    import.meta.url,
-  ),
-  "utf8",
-).replaceAll("--> statement-breakpoint", "");
+const migration = ["0010_strong_blackheart.sql", "0011_boring_bushwacker.sql"]
+  .map((name) =>
+    readFileSync(
+      new URL(`../../../../packages/db/drizzle/${name}`, import.meta.url),
+      "utf8",
+    ),
+  )
+  .join("\n")
+  .replaceAll("--> statement-breakpoint", "");
 
 describe("challenge reservations", () => {
   let client: PGlite;
@@ -60,6 +63,13 @@ describe("challenge reservations", () => {
         runtime_ms integer not null,
         created_at timestamp with time zone default now() not null,
         updated_at timestamp with time zone default now() not null
+      );
+      create index challenge_evaluations_ranking_index on challenge_evaluations (
+        attempt_id,
+        accuracy,
+        exact_count,
+        queries_used,
+        runtime_ms
       );
     `);
     await client.exec(migration);
@@ -129,6 +139,45 @@ describe("challenge reservations", () => {
     await releaseChallengeReservation(reservation, "query", database);
     const replacement = await reserveChallengeUse(attemptId, "query", database);
     expect(replacement).toBeDefined();
+  });
+
+  test("recognizes repeated inputs and keeps their query budget", async () => {
+    const input = {
+      distanceKm: 10,
+      weightKg: 3,
+      hour: 14,
+      fragile: false,
+      express: false,
+    };
+    const first = await reserveChallengeUse(attemptId, "query", database);
+    if (!first) throw new Error("missing reservation");
+    await completeQueryReservation(first, input, 42, database);
+
+    const existing = await findChallengeObservation(attemptId, input, database);
+    expect(existing?.output).toBe(42);
+    expect(
+      await findChallengeObservation(
+        attemptId,
+        { ...input, distanceKm: 11 },
+        database,
+      ),
+    ).toBeUndefined();
+
+    const duplicate = await reserveChallengeUse(attemptId, "query", database);
+    if (!duplicate) throw new Error("missing duplicate reservation");
+    await expect(
+      completeQueryReservation(duplicate, input, 42, database),
+    ).rejects.toThrow();
+    await releaseChallengeReservation(duplicate, "query", database);
+
+    const result = await client.query<{
+      queries_used: number;
+      queries_pending: number;
+    }>(
+      "select queries_used, queries_pending from challenge_attempts where id = $1",
+      [attemptId],
+    );
+    expect(result.rows[0]).toEqual({ queries_used: 1, queries_pending: 0 });
   });
 
   test("keeps sequences monotonic while old workers are still running", async () => {
@@ -309,5 +358,49 @@ describe("challenge reservations", () => {
       [attemptId],
     );
     expect(result.rows[0]?.accuracy).toBe(1);
+  });
+
+  test("does not promote an otherwise tied evaluation because of runtime", async () => {
+    const first = await reserveChallengeUse(attemptId, "evaluation", database);
+    if (!first) throw new Error("missing first reservation");
+    await completeEvaluationReservation(
+      first,
+      { kind: "javascript_source", source: "return 1" },
+      {
+        accuracy: 1,
+        exactCount: 1_000,
+        sampleSize: 1_000,
+        meanError: 0,
+        queriesUsed: 10,
+        runtimeMs: 100,
+      },
+      database,
+    );
+
+    const second = await reserveChallengeUse(attemptId, "evaluation", database);
+    if (!second) throw new Error("missing second reservation");
+    await completeEvaluationReservation(
+      second,
+      { kind: "javascript_source", source: "return 1" },
+      {
+        accuracy: 1,
+        exactCount: 1_000,
+        sampleSize: 1_000,
+        meanError: 0,
+        queriesUsed: 10,
+        runtimeMs: 1,
+      },
+      database,
+    );
+
+    const result = await client.query<{ runtime_ms: number }>(
+      `select evaluation.runtime_ms
+      from challenge_attempts as attempt
+      join challenge_evaluations as evaluation
+        on evaluation.id = attempt.best_evaluation_id
+      where attempt.id = $1`,
+      [attemptId],
+    );
+    expect(result.rows[0]?.runtime_ms).toBe(100);
   });
 });
