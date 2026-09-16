@@ -1,10 +1,12 @@
 import type { ChallengeRanking } from "@chofex/challenges-contract";
+import Link from "next/link";
 
 import { HudLabel } from "@/components/landing/hud";
 import {
   LandingContainer,
   LandingSectionHead,
   landingFrameClassName,
+  landingSectionYClassName,
 } from "@/components/landing/shell";
 
 const percent = (value: number): string => `${(value * 100).toFixed(2)}%`;
@@ -28,7 +30,7 @@ const RankingResults = ({
   return (
     <div className={`overflow-x-auto ${landingFrameClassName}`}>
       <table className="min-w-full text-left text-sm">
-        <thead className="font-[family-name:var(--font-landing-mono)] text-[10px] uppercase tracking-[0.16em] text-[var(--hud-muted)]">
+        <thead className="landing-type-meta text-[var(--hud-muted)]">
           <tr>
             <th className="px-4 py-3">Puesto</th>
             <th className="px-4 py-3">Participante</th>
@@ -41,15 +43,15 @@ const RankingResults = ({
         <tbody>
           {entries.map((entry) => (
             <tr
-              className="border-white/10 border-t"
+              className="border-[var(--hud-ink)]/10 border-t"
               key={`${entry.shareCode}-${entry.rank}`}
             >
-              <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)] text-[#d6ff00]">
+              <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)] text-[var(--hud-action)]">
                 #{entry.rank}
               </td>
               <td className="px-4 py-3">
                 <div>{entry.displayName}</div>
-                <div className="font-[family-name:var(--font-landing-mono)] text-[10px] uppercase tracking-[0.14em] text-[var(--hud-muted)]">
+                <div className="landing-type-meta text-[var(--hud-muted)]">
                   #{entry.shareCode}
                 </div>
               </td>
@@ -89,13 +91,26 @@ export function ChallengeRankingView({
   }
 
   return (
-    <section className="landing-topography bg-[linear-gradient(180deg,#07152b_0%,#0d2949_100%)] text-[#f5f5f5]">
-      <LandingContainer className="py-16 sm:py-20">
-        <HudLabel className="mb-3 text-[#d6ff00]">
-          {challenge.theme} #{challenge.code}
+    <section
+      aria-labelledby="challenge-ranking-heading"
+      className="bg-[var(--hud-paper)]"
+    >
+      <LandingContainer className={landingSectionYClassName}>
+        <HudLabel className="mb-3 text-[var(--hud-kicker)]">
+          <Link
+            className="underline-offset-4 hover:text-[var(--hud-ink)] hover:underline"
+            href="/challenges"
+          >
+            challenges
+          </Link>{" "}
+          / {challenge.theme} #{challenge.code}
         </HudLabel>
-        <LandingSectionHead title={challenge.title}>
-          <p className="max-w-2xl text-sm leading-relaxed text-[var(--hud-muted)] sm:text-base">
+        <LandingSectionHead
+          headingLevel="h1"
+          title={challenge.title}
+          titleId="challenge-ranking-heading"
+        >
+          <p className="max-w-2xl text-lg leading-relaxed text-[var(--hud-ink)]/75">
             {challenge.summary} Ranking público de solo lectura: accuracy,
             empates por predicciones exactas, menos queries y runtime. Las
             implementaciones no se publican.
@@ -115,13 +130,13 @@ export function ChallengeRankingView({
           </div>
           <div>
             <HudLabel className="text-[var(--hud-muted)]">Estado</HudLabel>
-            <p className="mt-2 font-[family-name:var(--font-landing-mono)] text-sm uppercase tracking-[0.12em] text-[#d6ff00]">
+            <p className="mt-2 font-[family-name:var(--font-landing-mono)] text-sm uppercase tracking-[0.12em] text-[var(--hud-action)]">
               {challengeState}
             </p>
           </div>
           <div>
             <HudLabel className="text-[var(--hud-muted)]">CLI</HudLabel>
-            <p className="mt-2 font-[family-name:var(--font-landing-mono)] text-sm">
+            <p className="mt-2 break-words font-[family-name:var(--font-landing-mono)] text-sm">
               {cliHint}
             </p>
           </div>

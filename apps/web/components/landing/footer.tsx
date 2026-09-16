@@ -9,7 +9,11 @@ import {
 import { HudLabel } from "@/components/landing/hud";
 import { LandingContainer } from "@/components/landing/shell";
 
-export function LandingFooter() {
+export function LandingFooter({
+  sectionHrefPrefix = "",
+}: {
+  readonly sectionHrefPrefix?: string;
+}) {
   return (
     <footer className="landing-footer border-[var(--hud-type)]/12 border-t bg-[var(--hud-footer)] text-[var(--hud-type)]">
       <LandingContainer className="flex flex-col gap-6 py-8">
@@ -29,7 +33,7 @@ export function LandingFooter() {
             {sectionNav.map((item) => (
               <a
                 className="text-[var(--hud-type)]/70 underline-offset-4 hover:underline"
-                href={item.href}
+                href={`${sectionHrefPrefix}${item.href}`}
                 key={item.href}
               >
                 {item.label}

@@ -13,8 +13,10 @@ export const landingDisplayClassName =
 export const landingHudClassName =
   "font-[family-name:var(--font-landing-mono)] uppercase tracking-[0.16em]";
 
-export const landingCtaClassName =
-  "landing-cta inline-flex min-h-12 flex-col items-center justify-center bg-[var(--hud-action)] px-7 py-2.5 text-center font-[family-name:var(--font-landing-mono)] text-sm font-semibold text-[var(--hud-paper)] uppercase tracking-[0.12em] transition-colors duration-150 hover:bg-[var(--hud-action-hover)] active:scale-[0.98] md:min-h-13 md:px-9";
+export const landingCtaBaseClassName =
+  "landing-cta inline-flex items-center justify-center whitespace-nowrap bg-[var(--hud-action)] text-center font-[family-name:var(--font-landing-mono)] font-semibold text-[var(--hud-paper)] uppercase tracking-[0.12em] transition-colors duration-150 hover:bg-[var(--hud-action-hover)] active:scale-[0.98]";
+
+export const landingCtaClassName = `${landingCtaBaseClassName} min-h-12 px-7 py-2.5 text-sm md:min-h-13 md:px-9`;
 
 export const landingFrameClassName =
   "border border-[var(--hud-ink)]/10 bg-[var(--hud-card)] text-[var(--hud-ink)]";
@@ -46,9 +48,13 @@ export function LandingEyebrow({ className, ...props }: ComponentProps<"p">) {
   );
 }
 
-export function LandingTitle({ className, ...props }: ComponentProps<"h2">) {
+export function LandingTitle({
+  as: Heading = "h2",
+  className,
+  ...props
+}: ComponentProps<"h2"> & { readonly as?: "h1" | "h2" }) {
   return (
-    <h2
+    <Heading
       className={cn(
         "text-balance font-[family-name:var(--font-landing-display)] text-5xl leading-[0.88] tracking-[-0.025em] uppercase sm:text-7xl",
         className,
@@ -64,19 +70,21 @@ export function LandingSectionHead({
   titleId,
   children,
   align = "left",
+  headingLevel = "h2",
 }: {
   readonly title: string;
   readonly subtitle?: string;
   readonly titleId?: string;
   readonly children?: ReactNode;
   readonly align?: "left" | "center";
+  readonly headingLevel?: "h1" | "h2";
 }) {
   const alignment =
     align === "center" ? "items-center text-center" : "items-start text-left";
 
   return (
     <div className={cn("mb-10 flex max-w-3xl flex-col gap-3", alignment)}>
-      <LandingTitle id={titleId}>
+      <LandingTitle as={headingLevel} id={titleId}>
         <span className="block">{title}</span>
         {subtitle ? <span className="block">{subtitle}</span> : null}
       </LandingTitle>
