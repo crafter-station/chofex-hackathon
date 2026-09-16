@@ -157,8 +157,12 @@ export const prizesCopy = {
   title: "Premios",
   lede: "Premios en efectivo para las soluciones que mejor conviertan un problema real en un producto funcionando.",
   totalSuffix: "en premios en efectivo",
-  tripTitle: "Viaje",
-  tripBody: "a Chofex Headquarters",
+  tripTitle: "Viaje a Chofex Headquarters",
+  /*
+   * Stacked so "Viaje a" is the trip, and CHOFEX / HEADQUARTERS stay a
+   * readable lockup on a ~390px phone — not a 12px afterthought.
+   */
+  tripLines: ["Viaje a", "Chofex", "Headquarters"],
 } as const;
 
 export const sponsorsCopy = {
