@@ -38,18 +38,18 @@ export function LandingPeople() {
           <HudLabel className="mb-4 text-[var(--hud-muted)]">
             {peopleCopy.brandsLabel}
           </HudLabel>
-          <ul className="grid grid-cols-2 gap-px border-[var(--hud-ink)]/15 border-y bg-[var(--hud-ink)]/10 sm:grid-cols-3 lg:grid-cols-6">
+          <ul className="grid grid-cols-2 gap-px border-[var(--hud-ink)]/15 border-y bg-[var(--hud-ink)]/10 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
             {panelBrands.map((brand) => (
               <li
-                className="flex flex-col items-center justify-center gap-3 bg-[var(--hud-paper)] px-4 py-7"
+                className="flex min-w-0 flex-col items-center justify-center gap-3 bg-[var(--hud-paper)] px-3 py-6 sm:px-4 sm:py-7"
                 key={brand.id}
               >
                 <Image
                   alt=""
                   className={
                     brand.shape === "wordmark"
-                      ? "h-7 w-auto max-w-[7.5rem] object-contain sm:h-8"
-                      : "h-8 w-auto object-contain"
+                      ? "h-7 w-auto max-w-full object-contain sm:h-8"
+                      : "h-8 w-auto max-w-full object-contain"
                   }
                   height={brand.logoHeight}
                   src={brand.logoSrc}

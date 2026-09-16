@@ -142,31 +142,48 @@ test("frames the panel as top Peruvian talent and institutional backgrounds", ()
   expect(panelBrands.map((brand) => brand.id)).toEqual([
     "mit",
     "yc",
-    "meta",
     "google",
-    "harvard",
+    "meta",
+    "stanford",
     "microsoft",
+    "harvard",
+    "toronto",
+    "dp-world",
+    "hochschild",
+    "palantir",
   ]);
   expect(panelBrands.map((brand) => brand.name)).toEqual([
     "MIT",
     "YC",
-    "Meta",
     "Google",
-    "Harvard",
+    "Meta",
+    "Stanford",
     "Microsoft",
+    "Harvard",
+    "U of Toronto",
+    "DP World",
+    "Hochschild",
+    "Palantir",
   ]);
+  expect(JSON.stringify(panelBrands)).not.toMatch(/Hoschild/);
   for (const brand of panelBrands) {
-    expect(brand.logoSrc).toMatch(/^\/panel\/[a-z]+\.png$/);
+    expect(brand.logoSrc).toMatch(/^\/panel\/[a-z0-9-]+\.(png|svg)$/);
   }
 });
 
 test("keeps panel brand marks light on transparent for the black page", async () => {
   for (const brand of panelBrands) {
-    const bytes = Buffer.from(
-      await Bun.file(
-        new URL(`../../public${brand.logoSrc}`, import.meta.url),
-      ).arrayBuffer(),
+    const file = Bun.file(
+      new URL(`../../public${brand.logoSrc}`, import.meta.url),
     );
+    if (brand.logoSrc.endsWith(".svg")) {
+      const source = await file.text();
+      expect(source).toMatch(/fill="#f6f3ee"|fill="#ffffff"|fill="#fff"/i);
+      expect(source).not.toMatch(/fill="#000"|fill="black"/i);
+      continue;
+    }
+
+    const bytes = Buffer.from(await file.arrayBuffer());
     const tone = samplePngTone(bytes);
     expect(tone.whiteOpaque).toBeGreaterThan(0);
     expect(tone.blackOpaque).toBe(0);

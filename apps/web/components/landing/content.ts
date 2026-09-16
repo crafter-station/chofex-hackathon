@@ -146,7 +146,9 @@ export const peopleCopy = {
  * Institutional marks for the panel chapter.
  *
  * These are backgrounds, not a confirmed roster. Names and roles stay off the
- * page until each participation is verified.
+ * page until each participation is verified. Order is locked: MIT, YC, Google,
+ * Meta, Stanford, Microsoft, Harvard, U of Toronto, DP World, Hochschild,
+ * Palantir.
  */
 export const panelBrands = [
   {
@@ -166,6 +168,14 @@ export const panelBrands = [
     logoHeight: 40,
   },
   {
+    id: "google",
+    name: "Google",
+    shape: "square",
+    logoSrc: "/panel/google.png",
+    logoWidth: 40,
+    logoHeight: 40,
+  },
+  {
     id: "meta",
     name: "Meta",
     shape: "wordmark",
@@ -174,10 +184,18 @@ export const panelBrands = [
     logoHeight: 32,
   },
   {
-    id: "google",
-    name: "Google",
+    id: "stanford",
+    name: "Stanford",
+    shape: "wordmark",
+    logoSrc: "/panel/stanford.svg",
+    logoWidth: 168,
+    logoHeight: 36,
+  },
+  {
+    id: "microsoft",
+    name: "Microsoft",
     shape: "square",
-    logoSrc: "/panel/google.png",
+    logoSrc: "/panel/microsoft.png",
     logoWidth: 40,
     logoHeight: 40,
   },
@@ -190,12 +208,36 @@ export const panelBrands = [
     logoHeight: 40,
   },
   {
-    id: "microsoft",
-    name: "Microsoft",
-    shape: "square",
-    logoSrc: "/panel/microsoft.png",
-    logoWidth: 40,
+    id: "toronto",
+    name: "U of Toronto",
+    shape: "wordmark",
+    logoSrc: "/panel/toronto.svg",
+    logoWidth: 168,
     logoHeight: 40,
+  },
+  {
+    id: "dp-world",
+    name: "DP World",
+    shape: "wordmark",
+    logoSrc: "/panel/dp-world.svg",
+    logoWidth: 156,
+    logoHeight: 36,
+  },
+  {
+    id: "hochschild",
+    name: "Hochschild",
+    shape: "wordmark",
+    logoSrc: "/panel/hochschild.svg",
+    logoWidth: 188,
+    logoHeight: 36,
+  },
+  {
+    id: "palantir",
+    name: "Palantir",
+    shape: "wordmark",
+    logoSrc: "/panel/palantir.svg",
+    logoWidth: 156,
+    logoHeight: 36,
   },
 ] as const;
 
