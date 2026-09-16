@@ -1,3 +1,5 @@
+import { inflateSync } from "node:zlib";
+
 import { expect, test } from "bun:test";
 
 import {
@@ -158,6 +160,19 @@ test("frames the panel as top Peruvian talent and institutional backgrounds", ()
   }
 });
 
+test("keeps panel brand marks light on transparent for the black page", async () => {
+  for (const brand of panelBrands) {
+    const bytes = Buffer.from(
+      await Bun.file(
+        new URL(`../../public${brand.logoSrc}`, import.meta.url),
+      ).arrayBuffer(),
+    );
+    const tone = samplePngTone(bytes);
+    expect(tone.whiteOpaque).toBeGreaterThan(0);
+    expect(tone.blackOpaque).toBe(0);
+  }
+});
+
 test("publishes a senior, hundred-seat, three-challenge event", () => {
   expect(seatCount).toBe(100);
   expect(challengeCount).toBe(3);
@@ -252,3 +267,98 @@ test("exposes skip links and section jumps for keyboard users", async () => {
     "Organizadores",
   ]);
 });
+
+function samplePngTone(bytes: Buffer): {
+  whiteOpaque: number;
+  blackOpaque: number;
+} {
+  if (bytes.toString("hex", 0, 8) !== "89504e470d0a1a0a") {
+    throw new Error("not a png");
+  }
+
+  let offset = 8;
+  let width = 0;
+  let height = 0;
+  let colorType = 0;
+  const idats: Buffer[] = [];
+
+  while (offset < bytes.length) {
+    const length = bytes.readUInt32BE(offset);
+    const type = bytes.toString("ascii", offset + 4, offset + 8);
+    const data = bytes.subarray(offset + 8, offset + 8 + length);
+    if (type === "IHDR") {
+      width = data.readUInt32BE(0);
+      height = data.readUInt32BE(4);
+      colorType = data[9] ?? 0;
+    } else if (type === "IDAT") {
+      idats.push(data);
+    } else if (type === "IEND") {
+      break;
+    }
+    offset += 12 + length;
+  }
+
+  if (colorType !== 6) {
+    throw new Error(`unsupported png color type ${colorType}`);
+  }
+
+  const inflated = inflateSync(Buffer.concat(idats));
+  const stride = width * 4;
+  let src = 0;
+  const prev = Buffer.alloc(stride);
+  const row = Buffer.alloc(stride);
+  let whiteOpaque = 0;
+  let blackOpaque = 0;
+
+  for (let y = 0; y < height; y += 1) {
+    const filterType = inflated[src] ?? 0;
+    src += 1;
+    const raw = inflated.subarray(src, src + stride);
+    src += stride;
+    for (let i = 0; i < stride; i += 1) {
+      const left = i >= 4 ? (row[i - 4] ?? 0) : 0;
+      const up = prev[i] ?? 0;
+      const upLeft = i >= 4 ? (prev[i - 4] ?? 0) : 0;
+      const x = raw[i] ?? 0;
+      let value = x;
+      if (filterType === 1) {
+        value = (x + left) & 255;
+      } else if (filterType === 2) {
+        value = (x + up) & 255;
+      } else if (filterType === 3) {
+        value = (x + Math.floor((left + up) / 2)) & 255;
+      } else if (filterType === 4) {
+        const p = left + up - upLeft;
+        const pa = Math.abs(p - left);
+        const pb = Math.abs(p - up);
+        const pc = Math.abs(p - upLeft);
+        let pr = upLeft;
+        if (pa <= pb && pa <= pc) {
+          pr = left;
+        } else if (pb <= pc) {
+          pr = up;
+        }
+        value = (x + pr) & 255;
+      }
+      row[i] = value;
+    }
+
+    for (let i = 0; i < stride; i += 4) {
+      const r = row[i] ?? 0;
+      const g = row[i + 1] ?? 0;
+      const b = row[i + 2] ?? 0;
+      const a = row[i + 3] ?? 0;
+      if (a < 10) {
+        continue;
+      }
+      if (r > 230 && g > 230 && b > 230) {
+        whiteOpaque += 1;
+      } else if (r < 25 && g < 25 && b < 25) {
+        blackOpaque += 1;
+      }
+    }
+    row.copy(prev);
+  }
+
+  return { whiteOpaque, blackOpaque };
+}
