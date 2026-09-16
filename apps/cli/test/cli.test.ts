@@ -78,6 +78,84 @@ describe("CLI JSON mode", () => {
     expect(help.stdout).toContain("Play mini technical challenges");
   });
 
+  test("turns the bare challenge command into a guided quickstart", async () => {
+    const result = await runCli("challenge");
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stderr).toBe("");
+    expect(result.stdout).toContain("Black Box quickstart");
+    expect(result.stdout).toContain("1. Sign in");
+    expect(result.stdout).toContain("chofex login");
+    expect(result.stdout).toContain("chofex challenge show");
+    expect(result.stdout).toContain("chofex challenge query");
+    expect(result.stdout).toContain("chofex challenge notebook");
+    expect(result.stdout).toContain("function calculateShipping(input)");
+    expect(result.stdout).toContain(
+      "chofex challenge test --source ./shipping.js",
+    );
+    expect(result.stdout).toContain(
+      "chofex challenge evaluate --source ./shipping.js",
+    );
+    expect(result.stdout).toContain("Official evaluations are limited");
+    expect(result.stdout).toContain("chofex challenge ranking");
+    expect(result.stdout).toContain("chofex challenge query --help");
+  });
+
+  test("returns the challenge quickstart as one JSON document", async () => {
+    const result = await runCli("--output", "json", "challenge");
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stderr).toBe("");
+    expect(result.stdout.trim().split("\n")).toHaveLength(1);
+    const document = JSON.parse(result.stdout);
+    expect(document).toMatchObject({
+      version: 1,
+      ok: true,
+      data: {
+        title: "Black Box quickstart",
+      },
+    });
+    expect(document.data.workflow[0]).toMatchObject({
+      step: 1,
+      command: "chofex login",
+    });
+    expect(document.data.workflow[1]).toMatchObject({
+      step: 2,
+      command: "chofex challenge show",
+    });
+    expect(document.data.workflow).toHaveLength(8);
+    expect(document.data.workflow[4]).toMatchObject({
+      step: 5,
+      file: "shipping.js",
+    });
+  });
+
+  test("documents the workflow and every challenge subcommand", async () => {
+    const challengeHelp = await runCli("challenge", "--help");
+
+    expect(challengeHelp.exitCode).toBe(0);
+    expect(challengeHelp.stdout).toContain("Start here");
+    expect(challengeHelp.stdout).toContain("Chofex API base URL");
+    expect(challengeHelp.stdout).toContain("chofex challenge query --distance");
+
+    const expectedExamples = new Map([
+      ["list", "chofex challenge list"],
+      ["show", "chofex challenge show"],
+      ["query", "chofex challenge query --input shipment.json"],
+      ["notebook", "chofex challenge notebook --format csv"],
+      ["test", "chofex challenge test --source ./shipping.js"],
+      ["evaluate", "chofex challenge evaluate --source ./shipping.js"],
+      ["ranking", "chofex challenge ranking"],
+    ]);
+
+    for (const [command, example] of expectedExamples) {
+      const help = await runCli("challenge", command, "--help");
+      expect(help.exitCode).toBe(0);
+      expect(help.stdout).toContain("EXAMPLES");
+      expect(help.stdout).toContain(example);
+    }
+  });
+
   test("lists challenges from the public catalog without authentication", async () => {
     const server = Bun.serve({
       port: 0,

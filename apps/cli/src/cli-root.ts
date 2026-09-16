@@ -6,7 +6,7 @@ export const root = Command.make("chofex").pipe(
   Command.withSharedFlags({
     apiUrl: Flag.string("api-url").pipe(
       Flag.withDefault(config.apiUrl),
-      Flag.withDescription("Registration API base URL"),
+      Flag.withDescription("Chofex API base URL"),
     ),
     output: Flag.choice("output", ["human", "json"]).pipe(
       Flag.withDefault("human"),
