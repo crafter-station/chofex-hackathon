@@ -11,6 +11,7 @@ npm install --global chofex-cli@latest
 The installed command is `chofex`:
 
 ```sh
+chofex
 chofex whoami
 chofex register
 chofex status
@@ -31,6 +32,13 @@ optional: its progress and score give organizers another review metric, but
 never decide admission or block an application submission.
 
 The public ranking is read-only at `https://andes.crafter.run/challenges`.
+
+Run `chofex` for a compact retro welcome screen with a pixel Sacred Valley and
+the main commands. Run `chofex --help` for the full command reference. The
+landscape uses colored terminal cells, with readable text that works with your
+terminal's line spacing. It adapts to the terminal width and has a plain ASCII
+fallback when color is disabled with `NO_COLOR`. JSON output and individual
+command results omit the welcome screen.
 
 For agent or script input, `chofex schema --stage application` and
 `chofex schema --stage acceptance` print complete templates containing every

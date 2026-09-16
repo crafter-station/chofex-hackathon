@@ -3,10 +3,11 @@
 import { readFileSync } from "node:fs";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import { Console, Effect } from "effect";
-import { Command } from "effect/unstable/cli";
+import { CliOutput, Command } from "effect/unstable/cli";
 
 import { command } from "./commands.js";
 import { printJson } from "./output.js";
+import { welcomeFormatter } from "./welcome.js";
 
 const packageMetadata = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
@@ -33,6 +34,18 @@ const quietConsole: Console.Console = Object.assign(Object.create(console), {
 
 const commandProgram = command.pipe(
   Command.run({ version: cliVersion, renderErrors: !jsonMode }),
+  Effect.provide(
+    CliOutput.layer(
+      welcomeFormatter({
+        home: arguments_.length === 0,
+        columns: process.stdout.columns ?? 80,
+        colors:
+          process.stdout.isTTY === true &&
+          process.env.NO_COLOR === undefined &&
+          process.env.TERM !== "dumb",
+      }),
+    ),
+  ),
   Effect.catch((error) => {
     if (!jsonMode) return Effect.fail(error);
     if (error._tag === "ShowHelp" && error.errors.length === 0) {
