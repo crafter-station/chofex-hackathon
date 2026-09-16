@@ -1,9 +1,8 @@
 import { cn } from "@chofex/ui/lib/utils";
 
 import { LandingApply } from "@/components/landing/apply";
-import { LandingAudience } from "@/components/landing/audience";
 import { LandingChallenges } from "@/components/landing/challenges";
-import { LandingExperience } from "@/components/landing/experience";
+import { LandingEvent } from "@/components/landing/event";
 import {
   landingBrand,
   landingDisplay,
@@ -62,8 +61,7 @@ export default function Home() {
         <LandingHero />
         <LandingPrizes />
         <LandingChallenges />
-        <LandingAudience />
-        <LandingExperience />
+        <LandingEvent />
         <LandingApply />
         <LandingSponsors />
       </main>

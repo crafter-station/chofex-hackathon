@@ -293,8 +293,7 @@
  * the ink colour showing through one-pixel gaps, which on black is a bright
  * cream lattice rather than a hairline.
  */
-.landing-dark #why ul,
-.landing-dark #experience ul {
+.landing-dark #why ul {
   background-color: rgb(246 243 238 / 12%);
 }
 

@@ -60,7 +60,6 @@ export const sectionNav = [
   { href: "#challenges", label: "Challenges" },
   { href: "#people", label: "Panel" },
   { href: "#why", label: "Evento" },
-  { href: "#experience", label: "Experiencia" },
   { href: "#apply", label: "Aplicar" },
 ] as const;
 
@@ -84,15 +83,21 @@ export const heroCopy = {
   skipToWhy: "Conocer el evento",
 } as const;
 
-export const audienceCopy = {
+export const eventCopy = {
   title: "Crear soluciones reales para problemas reales",
   lede: "Los verdaderos retos no siempre son los más trending. Requieren tiempo, esfuerzo y creatividad para resolver lo que los demás aceptan como status quo.",
+  support:
+    "Un entorno presencial diseñado para sostener trabajo exigente, conversaciones útiles y una entrega de alto nivel.",
 } as const;
 
-export const audienceRoles = [
+export const eventItems = [
   {
     title: "Ship mata cartón",
     body: "Construyes y lanzas. El filtro es lo que ya pusiste en producción.",
+  },
+  {
+    title: "Equipos de 1–4",
+    body: "Puedes postular con equipo, buscar uno al ser aceptado o construir solo.",
   },
   {
     title: "Work hard, Play Hard",
@@ -100,7 +105,7 @@ export const audienceRoles = [
   },
   {
     title: "HardCore Mode",
-    body: "30 horas con entrega real. Presencial en Lima, 17–18 de octubre.",
+    body: "30 horas con entrega real. Presencial en Lima, 17–18 de octubre. Sede exacta por anunciar.",
   },
 ] as const;
 
@@ -222,30 +227,6 @@ export const partners = [
     logoSrc: "/sponsors/crafter-station-white.png",
     logoWidth: 1200,
     logoHeight: 233,
-  },
-] as const;
-
-export const experienceCopy = {
-  title: "30 horas bien cuidadas",
-  lede: "Un entorno presencial diseñado para sostener trabajo exigente, conversaciones útiles y una entrega de alto nivel.",
-} as const;
-
-export const experienceItems = [
-  {
-    title: "Equipos de 1–4",
-    body: "Puedes postular con equipo, buscar uno al ser aceptado o construir solo.",
-  },
-  {
-    title: "Trabajo profundo",
-    body: "Zonas de silencio, música y descanso para elegir cómo quieres avanzar.",
-  },
-  {
-    title: "Comida incluida",
-    body: "La operación está pensada para que el equipo se concentre en construir.",
-  },
-  {
-    title: "Presencial en Lima",
-    body: "Sede exacta por anunciar. El evento será completamente presencial.",
   },
 ] as const;
 
