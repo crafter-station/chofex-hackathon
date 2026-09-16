@@ -32,7 +32,7 @@ export function LandingEvent() {
         <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
           <div
             aria-hidden="true"
-            className="flex max-w-lg items-end justify-between overflow-hidden border-[var(--hud-ink)]/15 border-y py-4 sm:py-5"
+            className="flex max-w-lg items-end justify-between self-start overflow-hidden border-[var(--hud-ink)]/15 border-y py-4 sm:py-5"
           >
             <span className="font-[family-name:var(--font-landing-display)] text-[clamp(6.5rem,26vw,12rem)] leading-[0.68] tracking-[-0.06em] text-[var(--hud-type)]">
               30
