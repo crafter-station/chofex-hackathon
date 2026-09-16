@@ -1,15 +1,21 @@
 import { describe, expect, test } from "bun:test";
-import { unlink } from "node:fs/promises";
+import { mkdtemp, readFile, rm, unlink, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   acceptedDetailsInputFieldNames,
   applicationInputFieldNames,
 } from "@chofex/registration-contract";
 
 const cliDirectory = new URL("../", import.meta.url).pathname;
+const cliEntry = new URL("../src/index.ts", import.meta.url).pathname;
 
-const runCli = async (...arguments_: ReadonlyArray<string>) => {
-  const child = Bun.spawn([process.execPath, "src/index.ts", ...arguments_], {
-    cwd: cliDirectory,
+const runCliFrom = async (
+  cwd: string,
+  ...arguments_: ReadonlyArray<string>
+) => {
+  const child = Bun.spawn([process.execPath, cliEntry, ...arguments_], {
+    cwd,
     stdout: "pipe",
     stderr: "pipe",
   });
@@ -20,6 +26,9 @@ const runCli = async (...arguments_: ReadonlyArray<string>) => {
   ]);
   return { exitCode, stdout, stderr };
 };
+
+const runCli = (...arguments_: ReadonlyArray<string>) =>
+  runCliFrom(cliDirectory, ...arguments_);
 
 describe("CLI JSON mode", () => {
   test("returns one JSON error document for invalid arguments", async () => {
@@ -83,13 +92,20 @@ describe("CLI JSON mode", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stderr).toBe("");
-    expect(result.stdout).toContain("Black Box quickstart");
+    expect(result.stdout).toContain("THE SHIPPING MACHINE");
+    expect(result.stdout).toContain(
+      "A delivery company is about to retire the service",
+    );
+    expect(result.stdout).toContain("YOUR MISSION");
+    expect(result.stdout).toContain("five controls");
+    expect(result.stdout).toContain("25 oracle queries");
+    expect(result.stdout).toContain("Accuracy wins");
     expect(result.stdout).toContain("1. Sign in");
     expect(result.stdout).toContain("chofex login");
+    expect(result.stdout).toContain("chofex challenge init");
     expect(result.stdout).toContain("chofex challenge show");
     expect(result.stdout).toContain("chofex challenge query");
     expect(result.stdout).toContain("chofex challenge notebook");
-    expect(result.stdout).toContain("function calculateShipping(input)");
     expect(result.stdout).toContain(
       "chofex challenge test --source ./shipping.js",
     );
@@ -112,7 +128,7 @@ describe("CLI JSON mode", () => {
       version: 1,
       ok: true,
       data: {
-        title: "Black Box quickstart",
+        title: "THE SHIPPING MACHINE",
       },
     });
     expect(document.data.workflow[0]).toMatchObject({
@@ -121,13 +137,56 @@ describe("CLI JSON mode", () => {
     });
     expect(document.data.workflow[1]).toMatchObject({
       step: 2,
+      command: "chofex challenge init",
+    });
+    expect(document.data.workflow[2]).toMatchObject({
+      step: 3,
       command: "chofex challenge show",
     });
     expect(document.data.workflow).toHaveLength(8);
-    expect(document.data.workflow[4]).toMatchObject({
-      step: 5,
-      file: "shipping.js",
-    });
+  });
+
+  test("creates a documented solution file without overwriting work", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "chofex-challenge-"));
+    const solutionPath = join(directory, "shipping.js");
+
+    try {
+      const created = await runCliFrom(directory, "challenge", "init");
+
+      expect(created.exitCode).toBe(0);
+      expect(created.stderr).toBe("");
+      expect(created.stdout).toContain("Created shipping.js");
+      expect(created.stdout).toContain("Next: probe the machine");
+
+      const source = await readFile(solutionPath, "utf8");
+      expect(source).toContain("The Shipping Machine");
+      expect(source).toContain("distanceKm");
+      expect(source).toContain("function calculateShipping(input)");
+      expect(source).toContain("return 0;");
+
+      await writeFile(solutionPath, "// my solution\n", "utf8");
+      const repeated = await runCliFrom(directory, "challenge", "init");
+
+      expect(repeated.exitCode).toBe(0);
+      expect(repeated.stdout).toContain("shipping.js already exists");
+      expect(await readFile(solutionPath, "utf8")).toBe("// my solution\n");
+
+      const json = await runCliFrom(
+        directory,
+        "--output",
+        "json",
+        "challenge",
+        "init",
+      );
+      expect(json.stderr).toBe("");
+      expect(json.stdout.trim().split("\n")).toHaveLength(1);
+      expect(JSON.parse(json.stdout)).toMatchObject({
+        ok: true,
+        data: { path: "shipping.js", status: "exists" },
+      });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
   });
 
   test("documents the workflow and every challenge subcommand", async () => {
@@ -140,6 +199,7 @@ describe("CLI JSON mode", () => {
 
     const expectedExamples = new Map([
       ["list", "chofex challenge list"],
+      ["init", "chofex challenge init"],
       ["show", "chofex challenge show"],
       ["query", "chofex challenge query --input shipment.json"],
       ["notebook", "chofex challenge notebook --format csv"],
@@ -205,6 +265,245 @@ describe("CLI JSON mode", () => {
       });
     } finally {
       server.stop(true);
+    }
+  });
+
+  test("turns each oracle answer into the next experiment", async () => {
+    const server = Bun.serve({
+      port: 0,
+      fetch() {
+        return Response.json({
+          version: 1,
+          ok: true,
+          requestId: "request-query",
+          data: {
+            observation: {
+              sequence: 1,
+              input: {
+                distanceKm: 100,
+                weightKg: 100,
+                hour: 18,
+                fragile: true,
+                express: false,
+              },
+              output: 314.5,
+              createdAt: "2026-09-16T00:00:00.000Z",
+            },
+            queriesUsed: 1,
+            queriesRemaining: 24,
+            queriesLimit: 25,
+          },
+        });
+      },
+    });
+
+    try {
+      const result = await runCli(
+        "--api-url",
+        server.url.toString().replace(/\/$/, ""),
+        "--token",
+        "test-token",
+        "challenge",
+        "query",
+        "--distance",
+        "100",
+        "--weight",
+        "100",
+        "--hour",
+        "18",
+        "--fragile",
+        "true",
+        "--express",
+        "false",
+      );
+
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain("Observation #1 saved");
+      expect(result.stdout).toContain("Change one variable at a time");
+      expect(result.stdout).toContain("chofex challenge notebook");
+    } finally {
+      server.stop(true);
+    }
+  });
+
+  test("reads a small notebook as evidence instead of an answer", async () => {
+    const server = Bun.serve({
+      port: 0,
+      fetch() {
+        return Response.json({
+          version: 1,
+          ok: true,
+          requestId: "request-notebook",
+          data: {
+            challenge: {
+              slug: "black-box",
+              number: 1,
+              code: "01",
+              theme: "Black Box",
+              title: "The Shipping Machine",
+              summary: "Reverse engineer shipping prices.",
+              coreSkill: "Reverse engineering",
+              format: "accuracy",
+              formatLabel: "Accuracy score",
+              opensAt: "2026-09-18T05:00:00.000Z",
+              queryLimit: 25,
+              evaluationLimit: 3,
+              playable: true,
+              open: true,
+              rankingPath: "/challenges/black-box",
+            },
+            progress: {
+              slug: "black-box",
+              title: "The Shipping Machine",
+              theme: "Black Box",
+              status: "in_progress",
+              open: true,
+              playable: true,
+              queriesUsed: 1,
+              queriesLimit: 25,
+              evaluationsUsed: 0,
+              evaluationsLimit: 3,
+            },
+            observations: [
+              {
+                sequence: 1,
+                input: {
+                  distanceKm: 100,
+                  weightKg: 100,
+                  hour: 18,
+                  fragile: true,
+                  express: false,
+                },
+                output: 314.5,
+                createdAt: "2026-09-16T00:00:00.000Z",
+              },
+            ],
+            aiAllowed: true,
+            localTestHint: "Use your notebook before evaluating.",
+          },
+        });
+      },
+    });
+
+    try {
+      const result = await runCli(
+        "--api-url",
+        server.url.toString().replace(/\/$/, ""),
+        "--token",
+        "test-token",
+        "challenge",
+        "notebook",
+      );
+
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain("CASE FILE: 1 observation");
+      expect(result.stdout).not.toContain("\t");
+      expect(result.stdout).toContain("One answer is a clue, not a rule");
+      expect(result.stdout).toContain("Next: run a controlled experiment");
+      expect(result.stdout).toContain("chofex challenge init");
+
+      const status = await runCli(
+        "--api-url",
+        server.url.toString().replace(/\/$/, ""),
+        "--token",
+        "test-token",
+        "challenge",
+        "show",
+      );
+      expect(status.exitCode).toBe(0);
+      expect(status.stdout).toContain("CASE STATUS: INVESTIGATING");
+      expect(status.stdout).toContain("Evidence       1 observation");
+      expect(status.stdout).toContain("Queries        24 / 25 remaining");
+      expect(status.stdout).toContain("YOUR NEXT MOVE");
+    } finally {
+      server.stop(true);
+    }
+  });
+
+  test("explains what to do after local and official evaluations", async () => {
+    const sourcePath = join(
+      cliDirectory,
+      `.shipping-${crypto.randomUUID()}.js`,
+    );
+    const server = Bun.serve({
+      port: 0,
+      fetch(request) {
+        const path = new URL(request.url).pathname;
+        if (path.endsWith("/test")) {
+          return Response.json({
+            version: 1,
+            ok: true,
+            requestId: "request-test",
+            data: {
+              matchedObservations: 1,
+              observationCount: 2,
+              accuracy: 0.5,
+              meanError: 10,
+              mismatches: [{ sequence: 2, expected: 42, actual: 22 }],
+            },
+          });
+        }
+        return Response.json({
+          version: 1,
+          ok: true,
+          requestId: "request-evaluate",
+          data: {
+            accuracy: 0.92,
+            exactCount: 920,
+            sampleSize: 1_000,
+            meanError: 1.2,
+            queriesUsed: 12,
+            runtimeMs: 5,
+            shareCode: "ABCD",
+            rank: 3,
+            competitorCount: 20,
+            percentile: 15,
+            evaluationsUsed: 1,
+            evaluationsRemaining: 2,
+            evaluationsLimit: 3,
+            rankingPath: "/challenges/black-box",
+            shareText: "92.00% replication",
+          },
+        });
+      },
+    });
+
+    try {
+      await writeFile(
+        sourcePath,
+        "function calculateShipping() { return 0; }\n",
+        "utf8",
+      );
+      const commonArguments = [
+        "--api-url",
+        server.url.toString().replace(/\/$/, ""),
+        "--token",
+        "test-token",
+        "challenge",
+      ] as const;
+      const local = await runCli(
+        ...commonArguments,
+        "test",
+        "--source",
+        sourcePath,
+      );
+      expect(local.exitCode).toBe(0);
+      expect(local.stdout).toContain("NOTEBOOK VERDICT: KEEP WORKING");
+      expect(local.stdout).toContain("Next: edit shipping.js");
+
+      const official = await runCli(
+        ...commonArguments,
+        "evaluate",
+        "--source",
+        sourcePath,
+      );
+      expect(official.exitCode).toBe(0);
+      expect(official.stdout).toContain("OFFICIAL VERDICT");
+      expect(official.stdout).toContain("Next: inspect the leaderboard");
+      expect(official.stdout).toContain("chofex challenge ranking");
+    } finally {
+      server.stop(true);
+      await unlink(sourcePath).catch(() => undefined);
     }
   });
 

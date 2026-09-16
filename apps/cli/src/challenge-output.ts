@@ -36,32 +36,33 @@ export const challengeListText = (
     lines.push(`    Ranking: ${challenge.rankingPath}`);
     lines.push("");
   }
-  lines.push("Play the open challenge: chofex challenge query");
+  lines.push("Start the open challenge: chofex challenge");
   return lines.join("\n");
 };
 
 export const challengeShowText = (attempt: ChallengeAttemptView): string => {
   const { challenge, progress } = attempt;
-  const queryBar = remainingBar(progress.queriesUsed, progress.queriesLimit);
-  const evalBar = remainingBar(
-    progress.evaluationsUsed,
-    progress.evaluationsLimit,
-  );
+  const queriesRemaining = progress.queriesLimit - progress.queriesUsed;
+  const evaluationsRemaining =
+    progress.evaluationsLimit - progress.evaluationsUsed;
+  let evidence = `${attempt.observations.length} observations`;
+  if (attempt.observations.length === 1) evidence = "1 observation";
+  let caseStatus = "AWAITING FIRST CLUE";
+  if (attempt.observations.length > 0) caseStatus = "INVESTIGATING";
+  if (attempt.latestEvaluation !== undefined) caseStatus = "EVALUATED";
   const lines = [
-    `${challenge.theme} #${challenge.code}`,
-    challenge.title,
+    `${challenge.title.toUpperCase()} — CASE #${challenge.code}`,
     challenge.summary,
     "",
-    "AI is allowed. Use ChatGPT, Claude, Codex, Cursor, or any tool you want.",
-    "The hidden rules are personalized to you, so leaked solutions will not match.",
+    `CASE STATUS: ${caseStatus}`,
     "",
-    "Queries remaining",
-    queryBar,
-    `${progress.queriesLimit - progress.queriesUsed} / ${progress.queriesLimit}`,
+    "Your job is to replace the machine, not merely guess its next answer.",
+    "The rules are unique to you. AI tools are allowed.",
     "",
-    "Official evaluations remaining",
-    evalBar,
-    `${progress.evaluationsLimit - progress.evaluationsUsed} / ${progress.evaluationsLimit}`,
+    "FIELD NOTES",
+    `Evidence       ${evidence}`,
+    `Queries        ${queriesRemaining} / ${progress.queriesLimit} remaining`,
+    `Evaluations    ${evaluationsRemaining} / ${progress.evaluationsLimit} remaining`,
   ];
   if (progress.bestAccuracy !== undefined) {
     lines.push("", `Best accuracy  ${percent(progress.bestAccuracy)}`);
@@ -69,26 +70,59 @@ export const challengeShowText = (attempt: ChallengeAttemptView): string => {
       lines.push(`Rank           #${progress.rank}`);
     if (progress.shareCode) lines.push(`Share code     #${progress.shareCode}`);
   }
-  lines.push(
-    "",
-    "Next:",
-    "  chofex challenge query",
-    "  chofex challenge notebook",
-    "  chofex challenge test --source ./shipping.js",
-    "  chofex challenge evaluate --source ./shipping.js",
-  );
+  lines.push("", "YOUR NEXT MOVE");
+  if (attempt.observations.length === 0) {
+    lines.push(
+      "Ask the machine to price one ordinary shipment.",
+      "  chofex challenge query",
+    );
+  } else if (attempt.latestEvaluation === undefined) {
+    lines.push(
+      "Run controlled experiments, study the notebook, then test your model.",
+      "  chofex challenge query",
+      "  chofex challenge notebook",
+      "  chofex challenge init",
+      "  chofex challenge test --source ./shipping.js",
+    );
+  } else {
+    lines.push(
+      "Inspect your rank, then use remaining attempts only after improving your model.",
+      "  chofex challenge ranking",
+      "  chofex challenge test --source ./shipping.js",
+    );
+  }
   return lines.join("\n");
 };
 
 export const challengeQueryText = (result: ChallengeQueryResult): string => {
   const remaining = remainingBar(result.queriesUsed, result.queriesLimit);
-  return [
-    `Output  ${JSON.stringify(result.observation.output)}`,
+  const lines = [
+    `Observation #${result.observation.sequence} saved`,
+    `Machine output  ${JSON.stringify(result.observation.output)}`,
     "",
-    "Queries remaining",
+    `Query budget  ${result.queriesRemaining} / ${result.queriesLimit} remaining`,
     remaining,
-    `${result.queriesRemaining} / ${result.queriesLimit}`,
-  ].join("\n");
+    "",
+  ];
+  if (result.queriesRemaining > 0) {
+    lines.push(
+      "Next experiment",
+      "Change one variable at a time. Keep the others fixed so the output difference means something.",
+      "  chofex challenge query",
+      "",
+    );
+  } else {
+    lines.push(
+      "The oracle is now silent. Your notebook contains all the evidence you will get.",
+      "",
+    );
+  }
+  lines.push(
+    "Review your evidence",
+    "  chofex challenge notebook",
+    "  chofex challenge notebook --format csv > observations.csv",
+  );
+  return lines.join("\n");
 };
 
 const shipmentCells = (
@@ -124,22 +158,58 @@ export const notebookTableText = (
   observations: ReadonlyArray<ChallengeObservation>,
 ): string => {
   if (observations.length === 0) {
-    return "No observations yet. Run `chofex challenge query`.";
+    return [
+      "CASE FILE: no observations yet",
+      "The machine has not revealed anything. Start with one ordinary shipment.",
+      "",
+      "Next: chofex challenge query",
+    ].join("\n");
   }
-  const header = "#\tDistance\tWeight\tHour\tFragile\tExpress\tOutput";
+  let observationLabel = `${observations.length} observations`;
+  if (observations.length === 1) observationLabel = "1 observation";
+  const header = [
+    "#".padEnd(4),
+    "Distance".padEnd(11),
+    "Weight".padEnd(9),
+    "Hour".padEnd(7),
+    "Fragile".padEnd(10),
+    "Express".padEnd(10),
+    "Output",
+  ].join("");
   const rows = observations.map((observation) => {
     const cells = shipmentCells(observation);
     return [
-      observation.sequence,
-      cells.distance,
-      cells.weight,
-      cells.hour,
-      cells.fragile,
-      cells.express,
+      String(observation.sequence).padEnd(4),
+      cells.distance.padEnd(11),
+      cells.weight.padEnd(9),
+      cells.hour.padEnd(7),
+      cells.fragile.padEnd(10),
+      cells.express.padEnd(10),
       JSON.stringify(observation.output),
-    ].join("\t");
+    ].join("");
   });
-  return [header, ...rows].join("\n");
+  const lines = [`CASE FILE: ${observationLabel}`, "", header, ...rows, ""];
+  if (observations.length === 1) {
+    lines.push(
+      "One answer is a clue, not a rule.",
+      "Next: run a controlled experiment. Change one field and keep the other four fixed.",
+      "  chofex challenge query",
+      "",
+    );
+  } else {
+    lines.push(
+      "Look for thresholds, fixed surcharges, and interactions between fields.",
+      "Next: test a hypothesis with a controlled query, or encode it in your solution.",
+      "  chofex challenge query",
+      "",
+    );
+  }
+  lines.push(
+    "Prepare your replacement",
+    "  chofex challenge init",
+    "  chofex challenge test --source ./shipping.js",
+  );
+  return lines.join("\n");
 };
 
 export const notebookCsvText = (
@@ -162,8 +232,12 @@ export const notebookCsvText = (
 };
 
 export const challengeTestText = (result: ChallengeLocalTestResult): string => {
+  let verdict = "KEEP WORKING";
+  if (result.accuracy === 1) verdict = "NOTEBOOK MATCHED";
   const lines = [
-    "LOCAL TESTS (your notebook only)",
+    `NOTEBOOK VERDICT: ${verdict}`,
+    "These checks use only evidence you already collected, not hidden shipments.",
+    "",
     `Accuracy           ${percent(result.accuracy)}`,
     `Exact predictions  ${result.matchedObservations} / ${result.observationCount}`,
     `Mean error         ${result.meanError.toFixed(2)}`,
@@ -176,6 +250,20 @@ export const challengeTestText = (result: ChallengeLocalTestResult): string => {
       );
     }
   }
+  if (result.accuracy === 1) {
+    lines.push(
+      "",
+      "Your model explains the notebook. That is necessary, but hidden cases may expose missing rules.",
+      "Next: evaluate only when your experiments cover meaningful boundaries",
+      "  chofex challenge evaluate --source ./shipping.js",
+    );
+  } else {
+    lines.push(
+      "",
+      "Next: edit shipping.js, explain the mismatches, and test again for free",
+      "  chofex challenge test --source ./shipping.js",
+    );
+  }
   return lines.join("\n");
 };
 
@@ -183,7 +271,7 @@ export const challengeEvaluateText = (
   result: ChallengeEvaluationResult,
 ): string => {
   const lines = [
-    "BLACK BOX REPLICATION",
+    "OFFICIAL VERDICT — BLACK BOX REPLICATION",
     `Accuracy            ${percent(result.accuracy)}`,
     `Exact predictions   ${result.exactCount} / ${result.sampleSize}`,
     `Mean error          ${result.meanError.toFixed(2)}`,
@@ -195,7 +283,17 @@ export const challengeEvaluateText = (
     `Official evaluations remaining ${result.evaluationsRemaining} / ${result.evaluationsLimit}`,
     "",
     result.shareText,
+    "",
+    "Next: inspect the leaderboard",
+    "  chofex challenge ranking",
   );
+  if (result.evaluationsRemaining > 0) {
+    lines.push(
+      "",
+      "Before spending another evaluation, improve and retest your model against the notebook.",
+      "  chofex challenge test --source ./shipping.js",
+    );
+  }
   return lines.join("\n");
 };
 
