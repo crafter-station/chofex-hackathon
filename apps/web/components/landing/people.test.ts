@@ -51,6 +51,16 @@ test("renders the panel chapter without invented identities", async () => {
   expect(people).not.toMatch(/avatarSrc|linkedin/i);
 });
 
+test("does not reintroduce the invalid paragraph wrapper", async () => {
+  const people = await Bun.file(
+    new URL("./people.tsx", import.meta.url),
+  ).text();
+
+  expect(people).not.toContain(
+    '<p className="flex flex-wrap items-baseline gap-x-6 gap-y-2 border-[var(--hud-ink)]/15 border-y py-5">',
+  );
+});
+
 test("locks landing chapters as Evento, Premios, Panel, Tracks, Postular, FAQs", async () => {
   const page = await Bun.file(
     new URL("../../app/page.tsx", import.meta.url),
