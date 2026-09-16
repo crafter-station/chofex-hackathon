@@ -166,8 +166,11 @@ test("frames the panel as top Peruvian talent and institutional backgrounds", ()
   ]);
   expect(JSON.stringify(panelBrands)).not.toMatch(/Hoschild/);
   for (const brand of panelBrands) {
-    expect(brand.logoSrc).toMatch(/^\/panel\/[a-z0-9-]+\.(png|svg)$/);
+    expect(brand.logoSrc).toMatch(/^\/panel\/[a-z0-9-]+\.png$/);
   }
+  expect(panelBrands.find((brand) => brand.id === "toronto")?.logoSrc).toBe(
+    "/panel/u-of-toronto.png",
+  );
 });
 
 test("keeps panel brand marks light on transparent for the black page", async () => {

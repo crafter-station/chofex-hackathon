@@ -211,7 +211,7 @@ export const panelBrands = [
     id: "toronto",
     name: "U of Toronto",
     shape: "wordmark",
-    logoSrc: "/panel/toronto.png",
+    logoSrc: "/panel/u-of-toronto.png",
     logoWidth: 168,
     logoHeight: 40,
   },
