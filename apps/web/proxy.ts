@@ -9,6 +9,7 @@ function isPublicMarketingPath(pathname: string) {
     pathname === "/terms" ||
     pathname === "/privacy" ||
     pathname === "/challenges" ||
+    pathname === "/credits" ||
     pathname === "/opengraph-image" ||
     pathname === "/twitter-image" ||
     pathname === "/api/v1/challenges"
@@ -28,7 +29,11 @@ function isPublicMarketingPath(pathname: string) {
     return true;
   }
 
-  return pathname.startsWith("/terms/") || pathname.startsWith("/privacy/");
+  return (
+    pathname.startsWith("/terms/") ||
+    pathname.startsWith("/privacy/") ||
+    pathname.startsWith("/credits/")
+  );
 }
 
 export default function proxy(...args: Parameters<typeof clerk>) {
