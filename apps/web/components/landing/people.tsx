@@ -57,7 +57,6 @@ export function LandingPeople() {
                   }
                   height={brand.logoHeight}
                   src={brand.logoSrc}
-                  unoptimized
                   width={brand.logoWidth}
                 />
                 <HudLabel className="text-center text-[var(--hud-muted)]">

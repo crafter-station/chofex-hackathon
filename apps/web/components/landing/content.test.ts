@@ -103,13 +103,13 @@ test("keeps the public pitch in Spanish and names Chofex as principal sponsor", 
   ]);
   // Every mark has to be white on transparent, or it arrives in a box.
   for (const partner of partners) {
-    expect(partner.logoSrc).toMatch(/^\/sponsors\/[a-z-]+-white\.png$/);
+    expect(partner.logoSrc).toMatch(/^\/logos\/org\/[a-z-]+-white\.png$/);
     expect(partner.role.length).toBeGreaterThan(0);
   }
   expect(sponsorsCopy.mark).toBe("Chofex");
   // White for the dark page, black kept for light surfaces. Both transparent —
   // the mark is never to be boxed in a plate to make it legible.
-  expect(sponsorsCopy.logoSrc).toBe("/sponsors/chofex-white.png");
+  expect(sponsorsCopy.logoSrc).toBe("/logos/org/chofex-white.png");
   expect(sponsorsCopy.logoOnLightSrc).toBe("/sponsors/chofex-black.png");
   expect(partners.find((partner) => partner.id === "chofex")?.role).toBe(
     "Sponsor principal",
@@ -147,7 +147,7 @@ test("withholds panel claims until identities are confirmed", () => {
     "Microsoft",
   ]);
   for (const brand of panelBrands) {
-    expect(brand.logoSrc).toMatch(/^\/panel\/[a-z]+\.svg$/);
+    expect(brand.logoSrc).toMatch(/^\/logos\/panel\/[a-z]+-white\.png$/);
   }
 });
 
