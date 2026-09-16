@@ -15,6 +15,7 @@ import {
   peopleCopy,
   prizeAmountsPen,
   prizeAmountsUsd,
+  prizesCopy,
   seatCount,
   sectionNav,
   skipLinks,
@@ -50,6 +51,9 @@ test("publishes the confirmed prizes directly in soles", () => {
   expect(facts.find((fact) => fact.label === "Premios")?.value).toContain(
     "8,000",
   );
+  expect(prizesCopy.tripTitle).toBe("Chofex Headquarters");
+  expect(prizesCopy).not.toHaveProperty("tripLabel");
+  expect(prizesCopy).not.toHaveProperty("tripBody");
 });
 
 test("formats soles with the Peru locale", () => {
@@ -146,11 +150,17 @@ test("exposes skip links and section jumps for keyboard users", () => {
   expect(skipLinks[0]?.href).toBe("#contenido");
   expect(skipLinks[1]?.href).toBe("#apply");
   expect(sectionNav.map((item) => item.href)).toEqual([
+    "#why",
+    "#people",
+    "#apply",
     "#prizes",
     "#challenges",
-    "#people",
-    "#why",
-    "#experience",
-    "#apply",
+  ]);
+  expect(sectionNav.map((item) => item.label)).toEqual([
+    "Evento",
+    "Panel",
+    "Postular",
+    "Premios",
+    "Tracks",
   ]);
 });

@@ -56,12 +56,11 @@ export const skipLinks = [
 ] as const;
 
 export const sectionNav = [
-  { href: "#prizes", label: "Premios" },
-  { href: "#challenges", label: "Challenges" },
-  { href: "#people", label: "Panel" },
   { href: "#why", label: "Evento" },
-  { href: "#experience", label: "Experiencia" },
-  { href: "#apply", label: "Aplicar" },
+  { href: "#people", label: "Panel" },
+  { href: "#apply", label: "Postular" },
+  { href: "#prizes", label: "Premios" },
+  { href: "#challenges", label: "Tracks" },
 ] as const;
 
 export const facts = [
@@ -152,8 +151,6 @@ export const prizesCopy = {
   lede: "Premios en efectivo para las soluciones que mejor conviertan un problema real en un producto funcionando.",
   totalSuffix: "en premios en efectivo",
   tripTitle: "Chofex Headquarters",
-  tripBody:
-    "Una persona participante destacada viajará a las oficinas de Chofex en Monterrey o San Francisco.",
 } as const;
 
 export const sponsorsCopy = {
