@@ -6,21 +6,18 @@ import {
   getBadge,
   getCurrentUser,
   getRegistration,
-  saveRegistrationDraft,
-  submitRegistration,
+  register,
 } from "./api-client.js";
 import { login as oauthLogin, logout as oauthLogout } from "./auth.js";
 import { challengeCommand } from "./challenge-commands.js";
-import { draftSavedText, registrationPartsText } from "./challenge-output.js";
+import { registrationPartsText } from "./challenge-output.js";
 import { root } from "./cli-root.js";
 import { config } from "./config.js";
 import { cliError } from "./errors.js";
 import {
   acceptedDetailsInput,
   applicationDefaultsFromRegistration,
-  applicationDraftInput,
   applicationInput,
-  collectApplicationFields,
   picturePathInput,
 } from "./input.js";
 import {
@@ -43,11 +40,6 @@ const inputFlag = Flag.string("input").pipe(
 
 const stageFlag = Flag.choice("stage", ["application", "acceptance"]).pipe(
   Flag.withDefault("application"),
-);
-
-const submitFlag = Flag.boolean("submit").pipe(
-  Flag.withDefault(false),
-  Flag.withDescription("Submit the saved application draft"),
 );
 
 const currentRegistration = (client: {
@@ -98,8 +90,8 @@ const rejectIfApplicationLocked = Effect.fn("rejectIfApplicationLocked")(
 
 const registerCommand = Command.make(
   "register",
-  { input: inputFlag, submit: submitFlag },
-  Effect.fn("registerCommand")(function* ({ input, submit }) {
+  { input: inputFlag },
+  Effect.fn("registerCommand")(function* ({ input }) {
     const options = yield* root;
     const operation = Effect.gen(function* () {
       const token = Option.getOrUndefined(options.token);
@@ -107,14 +99,12 @@ const registerCommand = Command.make(
       const current = yield* currentRegistration(client);
       yield* rejectIfApplicationLocked(current);
 
-      if (Option.isSome(input) || submit) {
-        if (Option.isSome(input)) {
-          const body = yield* applicationDraftInput(input.value);
-          const saved = yield* saveRegistrationDraft(client, body);
-          if (submit) return yield* submitRegistration(client);
-          return saved;
-        }
-        return yield* submitRegistration(client);
+      if (Option.isSome(input)) {
+        const body = yield* applicationInput(
+          input.value,
+          config.publicSiteUrl,
+        );
+        return yield* register(client, body);
       }
 
       if (!process.stdin.isTTY || !process.stdout.isTTY) {
@@ -126,16 +116,10 @@ const registerCommand = Command.make(
 
       return yield* interactiveRegister(client, current);
     });
-    yield* execute(options.output, operation, (result) => {
-      if (result.registration.status === "submitted")
-        return createdText(result);
-      return draftSavedText(result);
-    });
+    yield* execute(options.output, operation, createdText);
   }),
 ).pipe(
-  Command.withDescription(
-    "Save an application draft, then submit it for review",
-  ),
+  Command.withDescription("Complete and submit an application for review"),
   Command.withExamples([
     {
       command: "chofex register",
@@ -143,11 +127,7 @@ const registerCommand = Command.make(
     },
     {
       command: "chofex --output json register --input application.json",
-      description: "Save a draft from JSON without submitting it",
-    },
-    {
-      command: "chofex register --submit",
-      description: "Submit a completed draft",
+      description: "Submit an application from an agent or script",
     },
   ]),
 );
@@ -164,18 +144,19 @@ const interactiveRegister = (
       yield* Console.log(registrationPartsText(latest));
     } else {
       yield* Console.log(
-        "No draft yet. Answers are saved on the server after you finish.",
+        "No application yet. Your application will be submitted after you finish.",
       );
     }
     let defaults = {};
     if (latest) {
       defaults = applicationDefaultsFromRegistration(latest.registration);
     }
-    const body = yield* collectApplicationFields(
+    const body = yield* applicationInput(
+      undefined,
       config.publicSiteUrl,
       defaults,
     );
-    return yield* saveRegistrationDraft(client, body);
+    return yield* register(client, body);
   });
 
 const statusCommand = Command.make(

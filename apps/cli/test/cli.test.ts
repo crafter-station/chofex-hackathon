@@ -673,8 +673,10 @@ describe("CLI JSON mode", () => {
     }
   });
 
-  test("submits a normalized on-site application draft without identity fields", async () => {
+  test("submits a normalized on-site application without identity fields", async () => {
     let submittedBody: unknown;
+    let submittedMethod: string | undefined;
+    let submittedPath: string | undefined;
     const server = Bun.serve({
       port: 0,
       async fetch(request) {
@@ -693,6 +695,8 @@ describe("CLI JSON mode", () => {
             { status: 404 },
           );
         }
+        submittedMethod = request.method;
+        submittedPath = new URL(request.url).pathname;
         submittedBody = await request.json();
         return Response.json({
           version: 1,
@@ -701,7 +705,7 @@ describe("CLI JSON mode", () => {
           data: {
             registration: {
               id: "registration-123",
-              status: "draft",
+              status: "submitted",
               firstName: "Anthony",
               lastName: "Cueva",
               email: "hi@cueva.io",
@@ -717,11 +721,11 @@ describe("CLI JSON mode", () => {
               challenges: [],
             },
             requirements: {
-              stage: "draft",
+              stage: "review",
               canSubmitNewApplication: false,
               canSubmitAcceptedDetails: false,
-              canSaveDraft: true,
-              canSubmitApplication: true,
+              canSaveDraft: false,
+              canSubmitApplication: false,
               parts: [],
               missing: [],
             },
@@ -757,8 +761,10 @@ describe("CLI JSON mode", () => {
       expect(result.exitCode).toBe(0);
       expect(JSON.parse(result.stdout)).toMatchObject({
         ok: true,
-        data: { registration: { status: "draft" } },
+        data: { registration: { status: "submitted" } },
       });
+      expect(submittedMethod).toBe("POST");
+      expect(submittedPath).toBe("/api/v1/registrations");
       expect(submittedBody).toEqual({
         fullName: "Anthony Cueva",
         role: "Builder",

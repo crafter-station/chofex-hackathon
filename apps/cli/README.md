@@ -25,11 +25,11 @@ chofex challenge ranking
 chofex confirm
 ```
 
-`chofex register` saves an application draft with full name, role, optional
-LinkedIn and GitHub URLs, and Terms and Conditions. Use `--input` to save a
-JSON draft and `--submit` to submit a completed draft. The Black Box is
-optional: its progress and score give organizers another review metric, but
-never decide admission or block an application submission.
+`chofex register` collects and submits an application with full name, role,
+optional LinkedIn and GitHub URLs, and Terms and Conditions. Use `--input` to
+submit a completed JSON application. The Black Box is optional: its progress
+and score give organizers another review metric, but never decide admission or
+block an application submission.
 
 The public ranking is read-only at `https://andes.crafter.run/challenges`.
 

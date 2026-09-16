@@ -335,9 +335,6 @@ export const challengeRankingText = (ranking: ChallengeRanking): string => {
   return lines.join("\n");
 };
 
-export const draftSavedText = (result: RegistrationResult): string =>
-  ["Application draft saved.", registrationPartsText(result)].join("\n");
-
 export const registrationPartsText = (result: RegistrationResult): string => {
   const parts = result.requirements.parts ?? [];
   if (parts.length === 0) return "";
@@ -351,9 +348,9 @@ export const registrationPartsText = (result: RegistrationResult): string => {
     lines.push(`  ${mark} ${part.title}${detail}`);
   }
   if (result.requirements.canSubmitApplication) {
-    lines.push("", "Ready to submit: chofex register --submit");
+    lines.push("", "Ready to submit: chofex register");
   } else if (result.requirements.stage === "draft") {
-    lines.push("", "Continue later with `chofex register`. Progress is saved.");
+    lines.push("", "Complete and submit with `chofex register`.");
   }
   return lines.join("\n");
 };
