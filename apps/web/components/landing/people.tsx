@@ -3,6 +3,7 @@ import { HudLabel } from "@/components/landing/hud";
 import {
   LandingContainer,
   LandingSectionHead,
+  landingSectionYClassName,
 } from "@/components/landing/shell";
 
 /**
@@ -19,7 +20,7 @@ export function LandingPeople() {
       className="bg-[var(--hud-paper)]"
       id="people"
     >
-      <LandingContainer className="py-16 sm:py-20">
+      <LandingContainer className={landingSectionYClassName}>
         <LandingSectionHead title={peopleCopy.title} titleId="people-heading">
           <p className="max-w-xl text-lg leading-relaxed text-[var(--hud-ink)]/75">
             {peopleCopy.lede}

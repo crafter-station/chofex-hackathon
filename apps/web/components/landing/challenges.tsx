@@ -4,6 +4,7 @@ import { ContourSeal } from "@/components/landing/illustrations";
 import {
   LandingContainer,
   LandingSectionHead,
+  landingSectionYClassName,
 } from "@/components/landing/shell";
 
 /**
@@ -28,7 +29,7 @@ export function LandingChallenges() {
       className="bg-[var(--hud-card)]"
       id="challenges"
     >
-      <LandingContainer className="py-20 sm:py-28">
+      <LandingContainer className={landingSectionYClassName}>
         <LandingSectionHead
           title={challengesCopy.title}
           subtitle={challengesCopy.subtitle}

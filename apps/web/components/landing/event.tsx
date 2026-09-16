@@ -8,6 +8,7 @@ import { HudLabel } from "@/components/landing/hud";
 import {
   LandingContainer,
   LandingSectionHead,
+  landingSectionYClassName,
 } from "@/components/landing/shell";
 
 export function LandingEvent() {
@@ -17,7 +18,7 @@ export function LandingEvent() {
       className="bg-[var(--hud-paper)]"
       id="why"
     >
-      <LandingContainer className="py-20 sm:py-28">
+      <LandingContainer className={landingSectionYClassName}>
         <LandingSectionHead title={eventCopy.title} titleId="why-heading">
           <div className="max-w-xl space-y-4">
             <p className="text-lg leading-relaxed text-[var(--hud-ink)]/80">

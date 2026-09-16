@@ -15,6 +15,23 @@ test("ships a decorative static valley when the live hero cannot draw", async ()
   expect(terrain).toContain("data-terrain={terrainState}");
 });
 
+test("uses a shared tighter vertical rhythm for content sections", async () => {
+  const shell = await Bun.file(new URL("./shell.tsx", import.meta.url)).text();
+  expect(shell).toContain('landingSectionYClassName = "py-14 sm:py-20"');
+
+  const sections = [
+    "apply.tsx",
+    "challenges.tsx",
+    "event.tsx",
+    "people.tsx",
+    "sponsors.tsx",
+  ];
+  for (const file of sections) {
+    const source = await Bun.file(new URL(`./${file}`, import.meta.url)).text();
+    expect(source).toContain("landingSectionYClassName");
+  }
+});
+
 test("keeps meaningful landing metadata at a readable rem size", async () => {
   const css = await Bun.file(new URL("./landing.css", import.meta.url)).text();
   const hud = await Bun.file(new URL("./hud.tsx", import.meta.url)).text();
