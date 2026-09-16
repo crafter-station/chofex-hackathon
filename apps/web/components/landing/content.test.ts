@@ -115,6 +115,9 @@ test("keeps the public pitch in Spanish and names Chofex as principal sponsor", 
   expect(partners.find((partner) => partner.id === "chofex")?.role).toBe(
     "Sponsor principal",
   );
+  expect(
+    partners.find((partner) => partner.id === "crafter-station")?.href,
+  ).toBe("https://crafter.run");
   expect(footerCopy.meta).not.toMatch(/sponsor principal/i);
   expect(metadataCopy.description).not.toMatch(/sponsor principal/i);
   expect(heroCopy).not.toHaveProperty("sponsor");
