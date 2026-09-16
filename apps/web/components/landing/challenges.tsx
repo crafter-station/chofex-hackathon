@@ -29,9 +29,6 @@ export function LandingChallenges() {
       id="challenges"
     >
       <LandingContainer className="py-20 sm:py-28">
-        <HudLabel className="mb-4 text-[var(--hud-action)]">
-          {challengesCopy.kicker}
-        </HudLabel>
         <LandingSectionHead
           title={challengesCopy.title}
           subtitle={challengesCopy.subtitle}
