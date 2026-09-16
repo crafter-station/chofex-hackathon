@@ -329,7 +329,7 @@ export const partners = [
     name: "Crafter Station",
     role: "Organiza",
     shape: "wordmark",
-    href: "https://crafter.station",
+    href: "https://crafter.run",
     logoSrc: "/sponsors/crafter-station-white.png",
     logoWidth: 1200,
     logoHeight: 233,
