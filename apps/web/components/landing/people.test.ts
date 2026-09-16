@@ -20,15 +20,18 @@ test("keeps existing landing sections in place and inserts the panel in its nav 
   ).text();
   const order = [
     "LandingHero",
+    "LandingEvent",
+    "LandingPeople",
+    "LandingApply",
     "LandingPrizes",
     "LandingChallenges",
-    "LandingPeople",
-    "LandingEvent",
-    "LandingApply",
     "LandingSponsors",
   ];
   const indexes = order.map((name) => page.indexOf(`<${name}`));
 
   expect(indexes.every((index) => index >= 0)).toBe(true);
   expect(indexes).toEqual([...indexes].sort((left, right) => left - right));
+  expect(page).not.toContain("LandingAudience");
+  expect(page).not.toContain("LandingExperience");
+  expect(page).not.toContain("#experience");
 });

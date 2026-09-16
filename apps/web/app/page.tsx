@@ -60,11 +60,11 @@ export default function Home() {
       <LandingSkipLinks />
       <main id="contenido">
         <LandingHero />
+        <LandingEvent />
+        <LandingPeople />
+        <LandingApply />
         <LandingPrizes />
         <LandingChallenges />
-        <LandingPeople />
-        <LandingEvent />
-        <LandingApply />
         <LandingSponsors />
       </main>
       <LandingFooter />

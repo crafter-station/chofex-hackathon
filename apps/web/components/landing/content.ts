@@ -56,11 +56,11 @@ export const skipLinks = [
 ] as const;
 
 export const sectionNav = [
-  { href: "#prizes", label: "Premios" },
-  { href: "#challenges", label: "Challenges" },
-  { href: "#people", label: "Panel" },
   { href: "#why", label: "Evento" },
-  { href: "#apply", label: "Aplicar" },
+  { href: "#people", label: "Panel" },
+  { href: "#apply", label: "Postular" },
+  { href: "#prizes", label: "Premios" },
+  { href: "#challenges", label: "Tracks" },
 ] as const;
 
 export const facts = [
