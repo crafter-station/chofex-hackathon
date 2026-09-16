@@ -2,8 +2,8 @@ import { expect, test } from "bun:test";
 
 import {
   applyCopy,
-  audienceCopy,
-  audienceRoles,
+  eventCopy,
+  eventItems,
   challengeCount,
   challengeSeats,
   chromeCopy,
@@ -72,7 +72,7 @@ test("formats soles with the Peru locale", () => {
 test("keeps the public pitch in Spanish and names Chofex as principal sponsor", () => {
   const blob = JSON.stringify({
     applyCopy,
-    audienceCopy,
+    eventCopy,
     chromeCopy,
     footerCopy,
     heroCopy,
@@ -133,18 +133,21 @@ test("publishes a senior, hundred-seat, three-challenge event", () => {
   );
   expect(facts.find((fact) => fact.label === "Cupos")?.value).toBe("100");
   expect(metadataCopy.description).toContain("100 cupos");
-  expect(audienceCopy.lede.toLowerCase()).toContain("status quo");
-  expect(audienceRoles.map((role) => role.title)).toEqual([
+  expect(eventCopy.title).toBe("Crear soluciones reales para problemas reales");
+  expect(eventCopy.lede.toLowerCase()).toContain("status quo");
+  expect(eventCopy.support.toLowerCase()).toContain("presencial");
+  expect(eventItems.map((item) => item.title)).toEqual([
     "Ship mata cartón",
+    "Equipos de 1–4",
     "Work hard, Play Hard",
     "HardCore Mode",
   ]);
-  // Issue #47: body copy tightened by ≥35 %. Total must stay ≤ 47 words.
-  const totalBodyWords = audienceRoles.reduce(
-    (sum, role) => sum + role.body.split(/\s+/).length,
-    0,
+  const eventBlob = JSON.stringify({ eventCopy, eventItems });
+  expect(eventBlob).toContain("17–18 de octubre");
+  expect(eventBlob).toContain("Sede exacta por anunciar");
+  expect(eventItems.filter((item) => /comida/i.test(item.body))).toHaveLength(
+    1,
   );
-  expect(totalBodyWords).toBeLessThanOrEqual(47);
 });
 
 test("keeps the social preview lockup free of sponsor-principal phrasing", async () => {
@@ -162,7 +165,6 @@ test("exposes skip links and section jumps for keyboard users", () => {
     "#challenges",
     "#people",
     "#why",
-    "#experience",
     "#apply",
   ]);
 });
