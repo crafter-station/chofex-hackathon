@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 
 import { startHeroModelPreload } from "@/components/landing/sacred-valley-preload";
+import { TerrainFallback } from "@/components/landing/terrain-fallback";
 import {
   detectWebGL,
   prefersReducedMotion,
@@ -31,9 +32,9 @@ type NavigatorWithMemory = Navigator & { deviceMemory?: number };
  * Capability gate for the drawn valley.
  *
  * Unlike the backdrop this one does fetch — several megabytes of Draco terrain
- * — so it mounts nothing at all until the browser has proved it can draw it,
- * and shows nothing in its place: the hero is composed to stand on the liquid
- * and the type alone if the drawing never arrives.
+ * — so the live canvas waits until the browser has proved it can draw it. A
+ * static contour stand-in stays in the hero so WebGL-disabled and still-loading
+ * states keep a purposeful visual instead of type on bare black.
  */
 export function Terrain({ className }: { readonly className?: string }) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -128,21 +129,35 @@ export function Terrain({ className }: { readonly className?: string }) {
     documentVisible,
   });
 
+  let terrainState = "fallback";
+  if (drawn) {
+    terrainState = "drawn";
+  } else if (webglReady) {
+    terrainState = "pending";
+  }
+
+  const fallbackClassName = drawn
+    ? "landing-world-fallback landing-world-fallback--ready absolute inset-0 text-[var(--hud-type)]"
+    : "landing-world-fallback absolute inset-0 text-[var(--hud-type)]";
+
   return (
-    <div
-      ref={rootRef}
-      className={className}
-      data-terrain={drawn ? "drawn" : "pending"}
-      style={{ opacity: drawn ? 1 : 0, transition: fade }}
-    >
+    <div ref={rootRef} className={className} data-terrain={terrainState}>
+      <div aria-hidden="true" className={fallbackClassName}>
+        <TerrainFallback className="size-full" />
+      </div>
       {webglReady ? (
-        <TerrainCanvas
-          onContextLost={() => setContextLost(true)}
-          onDrawn={() => setDrawn(true)}
-          quality={presentation.quality}
-          reducedMotion={reducedMotion}
-          running={running}
-        />
+        <div
+          className="absolute inset-0"
+          style={{ opacity: drawn ? 1 : 0, transition: fade }}
+        >
+          <TerrainCanvas
+            onContextLost={() => setContextLost(true)}
+            onDrawn={() => setDrawn(true)}
+            quality={presentation.quality}
+            reducedMotion={reducedMotion}
+            running={running}
+          />
+        </div>
       ) : null}
     </div>
   );

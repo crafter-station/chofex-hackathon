@@ -90,8 +90,15 @@
 
 .landing-type-meta {
   font-family: var(--font-landing-mono), ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.18em;
+  /*
+   * 12px / 0.75rem is the readable floor for labels that carry meaning
+   * (facts, roles, reveal dates). 10px uppercase with 0.18em tracking
+   * clipped at 320 CSS px and at 200% zoom.
+   */
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
   text-transform: uppercase;
 }
 
@@ -200,7 +207,9 @@
 }
 
 .landing-world-fallback {
-  z-index: 1;
+  z-index: 0;
+  background: #050406;
+  pointer-events: none;
   transition: opacity 360ms ease;
 }
 
@@ -219,13 +228,11 @@
   position: absolute;
   top: -1.15rem;
   left: -1px;
-  /* Deepened scarlet so 9px type on it clears AA at 5.48:1; the brand value
-     would land at 4.45 and the label is the smallest type on the page. */
   background: var(--hud-status);
   color: var(--hud-paper);
   padding: 0.1rem 0.35rem;
-  font-size: 9px;
-  letter-spacing: 0.14em;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -288,6 +295,23 @@
 .landing-page :is(a, button).landing-cta:focus-visible {
   outline-color: var(--hud-ink);
   box-shadow: 0 0 0 3px var(--hud-ink);
+}
+
+@media (forced-colors: active) {
+  .landing-page :is(a, button):focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 3px;
+  }
+
+  .landing-page :is(a, button).landing-cta:focus-visible {
+    outline-color: Highlight;
+    box-shadow: none;
+  }
+
+  .landing-world-fallback {
+    background: Canvas;
+    color: CanvasText;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -55,12 +55,13 @@ export const skipLinks = [
   { href: "#apply", label: "Saltar a aplicar" },
 ] as const;
 
+/** Locked jump order: Evento → Panel → Postular → Premios → Tracks. */
 export const sectionNav = [
-  { href: "#prizes", label: "Premios" },
-  { href: "#challenges", label: "Challenges" },
-  { href: "#people", label: "Panel" },
   { href: "#why", label: "Evento" },
-  { href: "#apply", label: "Aplicar" },
+  { href: "#people", label: "Panel" },
+  { href: "#apply", label: "Postular" },
+  { href: "#prizes", label: "Premios" },
+  { href: "#challenges", label: "Tracks" },
 ] as const;
 
 export const facts = [
@@ -110,7 +111,8 @@ export const eventItems = [
 ] as const;
 
 export const challengesCopy = {
-  title: "3 challenges sellados",
+  title: "3 Tracks centrales",
+  subtitle: "∞ Posibilidades de soluciones",
   lede: "Las personas aceptadas conocerán los 3 briefs al iniciar la hackathon. Cada equipo elegirá uno y tendrá 30 horas para entregar un producto funcionando.",
   reveal: "Se revela en Lima, 17 oct",
 } as const;

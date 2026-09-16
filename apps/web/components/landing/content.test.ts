@@ -2,16 +2,18 @@ import { expect, test } from "bun:test";
 
 import {
   applyCopy,
-  eventCopy,
-  eventItems,
   challengeCount,
   challengeSeats,
+  challengesCopy,
   chromeCopy,
+  eventCopy,
+  eventItems,
   facts,
   footerCopy,
   formatSoles,
   heroCopy,
   metadataCopy,
+  partners,
   peopleCopy,
   prizeAmountsPen,
   prizeAmountsUsd,
@@ -19,7 +21,6 @@ import {
   seatCount,
   sectionNav,
   skipLinks,
-  partners,
   sponsorsCopy,
 } from "./content";
 
@@ -55,8 +56,8 @@ test("publishes the confirmed prizes directly in soles", () => {
 
 test("keeps the headquarters trip prize without a destination paragraph", () => {
   expect(prizesCopy.tripTitle).toBe("Chofex Headquarters");
-  expect("tripBody" in prizesCopy).toBe(false);
   expect("tripLabel" in prizesCopy).toBe(false);
+  expect("tripBody" in prizesCopy).toBe(false);
 
   const blob = JSON.stringify(prizesCopy);
   expect(blob).not.toMatch(/Monterrey/);
@@ -127,6 +128,8 @@ test("withholds panel claims until identities are confirmed", () => {
 test("publishes a senior, hundred-seat, three-challenge event", () => {
   expect(seatCount).toBe(100);
   expect(challengeCount).toBe(3);
+  expect(challengesCopy.title).toBe("3 Tracks centrales");
+  expect(challengesCopy.subtitle).toBe("∞ Posibilidades de soluciones");
   expect(challengeSeats).toHaveLength(3);
   expect(challengeSeats.every((challenge) => challenge.hint.length > 0)).toBe(
     true,
@@ -157,14 +160,42 @@ test("keeps the social preview lockup free of sponsor-principal phrasing", async
   expect(og).not.toMatch(/sponsor principal/i);
 });
 
-test("exposes skip links and section jumps for keyboard users", () => {
+test("fits the prizes lockup inside one viewport column", async () => {
+  const source = await Bun.file(
+    new URL("./prizes.tsx", import.meta.url),
+  ).text();
+  expect(source).toContain("tripTitleLines");
+  expect(source).toContain("minmax(0,1fr)");
+  expect(source).toContain("landing-type-meta");
+  expect(source).not.toMatch(/text-\[10px\]/);
+});
+
+test("labels challenge cards as tracks", async () => {
+  const source = await Bun.file(
+    new URL("./challenges.tsx", import.meta.url),
+  ).text();
+  expect(source).toContain("challengesCopy.subtitle");
+  expect(source).toContain("Track {seat.index}");
+  expect(source).not.toContain("Challenge {seat.index}");
+});
+
+test("exposes skip links and section jumps for keyboard users", async () => {
   expect(skipLinks[0]?.href).toBe("#contenido");
   expect(skipLinks[1]?.href).toBe("#apply");
+  const hero = await Bun.file(new URL("./hero.tsx", import.meta.url)).text();
+  expect(hero).toContain('href="#why"');
   expect(sectionNav.map((item) => item.href)).toEqual([
+    "#why",
+    "#people",
+    "#apply",
     "#prizes",
     "#challenges",
-    "#people",
-    "#why",
-    "#apply",
+  ]);
+  expect(sectionNav.map((item) => item.label)).toEqual([
+    "Evento",
+    "Panel",
+    "Postular",
+    "Premios",
+    "Tracks",
   ]);
 });

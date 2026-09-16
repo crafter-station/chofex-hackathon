@@ -6,6 +6,7 @@ import {
   LandingContainer,
   LandingSectionHead,
   landingFrameClassName,
+  landingSectionYClassName,
 } from "@/components/landing/shell";
 
 export function LandingApply() {
@@ -15,7 +16,7 @@ export function LandingApply() {
       className="bg-[var(--hud-card)] text-[var(--hud-ink)]"
       id="apply"
     >
-      <LandingContainer className="py-20 sm:py-28">
+      <LandingContainer className={landingSectionYClassName}>
         <LandingSectionHead title={applyCopy.title} titleId="apply-heading">
           <div className="max-w-xl">
             <p className="text-lg leading-relaxed text-[var(--hud-ink)]/75">

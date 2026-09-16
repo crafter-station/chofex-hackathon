@@ -198,7 +198,7 @@ export function LandingHero() {
 
         <a
           className="pointer-events-auto self-center text-[var(--hud-type)]"
-          href="#prizes"
+          href="#why"
         >
           <span className="sr-only">{heroCopy.skipToWhy}</span>
           <span aria-hidden="true" className="block text-3xl leading-none">

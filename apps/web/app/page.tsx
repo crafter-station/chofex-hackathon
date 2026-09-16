@@ -10,12 +10,13 @@ import {
   landingSans,
 } from "@/components/landing/fonts";
 import { LandingFooter } from "@/components/landing/footer";
+import { LandingHero } from "@/components/landing/hero";
+import { LandingPeople } from "@/components/landing/people";
 import { LandingPrizes } from "@/components/landing/prizes";
 import { HERO_MODEL_PRELOAD } from "@/components/landing/sacred-valley-preload";
 import { landingPageClassName } from "@/components/landing/shell";
 import { LandingSkipLinks } from "@/components/landing/skip-links";
 import { LandingSponsors } from "@/components/landing/sponsors";
-import { LandingHero } from "@/components/landing/hero";
 
 import "@/components/landing/dark.css";
 
@@ -23,14 +24,12 @@ import "@/components/landing/dark.css";
  * The landing.
  *
  * Black, and opening on the Sacred Valley drawn in white contour lines from a
- * parked vantage inside the range — turned by dragging, not flown through. The
- * sections below are unchanged; what carries them is the dark theme in
- * `components/landing/dark.css`, which re-points the `--hud-*` tokens rather
- * than touching a single section component.
+ * parked vantage inside the range — turned by dragging, not flown through.
+ * Theme tokens live in `components/landing/dark.css`.
  *
- * The liquid colour field is off: `components/landing/backdrop.tsx` still
- * works and is one element away from coming back, but against a drawing that is
- * pure white line on pure black it was the loudest thing in the frame.
+ * Section order after the hero is locked:
+ * Evento (#why) → Panel → Postular → Premios → Tracks.
+ * Sponsors stay last. Do not restore a separate experiencia chapter.
  */
 export default function Home() {
   return (
@@ -59,10 +58,11 @@ export default function Home() {
       <LandingSkipLinks />
       <main id="contenido">
         <LandingHero />
+        <LandingEvent />
+        <LandingPeople />
+        <LandingApply />
         <LandingPrizes />
         <LandingChallenges />
-        <LandingEvent />
-        <LandingApply />
         <LandingSponsors />
       </main>
       <LandingFooter />

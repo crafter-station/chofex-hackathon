@@ -1,9 +1,10 @@
 import { challengeSeats, challengesCopy } from "@/components/landing/content";
-import { ContourSeal } from "@/components/landing/illustrations";
 import { HudLabel } from "@/components/landing/hud";
+import { ContourSeal } from "@/components/landing/illustrations";
 import {
   LandingContainer,
   LandingSectionHead,
+  landingSectionYClassName,
 } from "@/components/landing/shell";
 
 /**
@@ -28,9 +29,10 @@ export function LandingChallenges() {
       className="bg-[var(--hud-card)]"
       id="challenges"
     >
-      <LandingContainer className="py-20 sm:py-28">
+      <LandingContainer className={landingSectionYClassName}>
         <LandingSectionHead
           title={challengesCopy.title}
+          subtitle={challengesCopy.subtitle}
           titleId="challenges-heading"
         >
           <p className="max-w-xl text-lg leading-relaxed text-[var(--hud-ink)]/75">
@@ -65,7 +67,7 @@ export function LandingChallenges() {
 
                 <div className="relative z-10 flex w-full flex-col justify-between p-6 sm:p-8">
                   <HudLabel className="text-[var(--hud-muted)]">
-                    Challenge {seat.index}
+                    Track {seat.index}
                   </HudLabel>
 
                   <p className="max-w-[28ch] text-lg leading-snug text-[var(--hud-ink)]">
