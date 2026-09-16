@@ -1,0 +1,409 @@
+import { Console, Effect, Option } from "effect";
+import { Command, Flag } from "effect/unstable/cli";
+
+import {
+  evaluateChallenge,
+  getChallengeAttempt,
+  getChallengeRanking,
+  listChallenges,
+  queryChallenge,
+  testChallenge,
+} from "./api-client.js";
+import {
+  defaultChallengeSlug,
+  javascriptSourceFromPath,
+  shipmentInput,
+} from "./challenge-input.js";
+import {
+  challengeEvaluateText,
+  challengeListText,
+  challengeQueryText,
+  challengeRankingText,
+  challengeShowText,
+  challengeTestText,
+  notebookCsvText,
+  notebookTableText,
+} from "./challenge-output.js";
+import { root } from "./cli-root.js";
+import { execute, printJson } from "./output.js";
+
+const challengeQuickstart = {
+  title: "Black Box quickstart",
+  goal: "Reverse-engineer the shipping price function, then submit a compatible JavaScript replacement.",
+  workflow: [
+    {
+      step: 1,
+      action: "Sign in",
+      command: "chofex login",
+      note: "Opens Clerk authentication in your browser.",
+    },
+    {
+      step: 2,
+      action: "Check your budget",
+      command: "chofex challenge show",
+      note: "Shows remaining oracle queries and official evaluations.",
+    },
+    {
+      step: 3,
+      action: "Probe the Black Box",
+      command:
+        "chofex challenge query --distance 10 --weight 3 --hour 14 --fragile false --express false",
+      note: "A successful query reveals one shipping price and consumes one query.",
+    },
+    {
+      step: 4,
+      action: "Study your observations",
+      command: "chofex challenge notebook",
+      note: "Compare inputs and outputs to infer the pricing rules.",
+    },
+    {
+      step: 5,
+      action: "Build shipping.js",
+      file: "shipping.js",
+      source: [
+        "function calculateShipping(input) {",
+        "  // Return your predicted shipping price.",
+        "  return input.distanceKm + input.weightKg;",
+        "}",
+      ].join("\n"),
+      note: "Define calculateShipping and return one finite number.",
+    },
+    {
+      step: 6,
+      action: "Test your replacement safely",
+      command: "chofex challenge test --source ./shipping.js",
+      note: "Checks your solution against your notebook without consuming an official evaluation.",
+    },
+    {
+      step: 7,
+      action: "Submit to the hidden test set",
+      command: "chofex challenge evaluate --source ./shipping.js",
+      note: "Official evaluations are limited. Use test as often as needed, then evaluate when your solution is ready.",
+    },
+    {
+      step: 8,
+      action: "Check the leaderboard",
+      command: "chofex challenge ranking",
+      note: "Shows the public ranking without consuming budget.",
+    },
+  ],
+  helpCommand: "chofex challenge query --help",
+} as const;
+
+const challengeQuickstartText = (): string => {
+  const lines = [challengeQuickstart.title, challengeQuickstart.goal, ""];
+  for (const item of challengeQuickstart.workflow) {
+    lines.push(`${item.step}. ${item.action}`);
+    if ("command" in item) lines.push(`   ${item.command}`);
+    if ("source" in item) {
+      lines.push(...item.source.split("\n").map((line) => `   ${line}`));
+    }
+    lines.push(`   ${item.note}`, "");
+  }
+  lines.push(`More detail: ${challengeQuickstart.helpCommand}`);
+  return lines.join("\n");
+};
+
+const optionalString = (name: string, description: string) =>
+  Flag.string(name).pipe(Flag.optional, Flag.withDescription(description));
+
+const challengeFlag = Flag.string("challenge").pipe(
+  Flag.withDefault(defaultChallengeSlug),
+  Flag.withDescription("Challenge slug (default: black-box)"),
+);
+
+const sourceFlag = optionalString(
+  "source",
+  "JavaScript file defining function calculateShipping(input)",
+);
+
+const inputFlag = optionalString("input", "JSON file, or - for stdin");
+
+const formatFlag = Flag.choice("format", ["table", "json", "csv"]).pipe(
+  Flag.withDefault("table"),
+  Flag.withDescription("Notebook format"),
+);
+
+const numberFromOption = (value: Option.Option<string>): number | undefined => {
+  if (Option.isNone(value)) return undefined;
+  return Number(value.value);
+};
+
+const booleanFromOption = (
+  value: Option.Option<string>,
+): boolean | undefined => {
+  if (Option.isNone(value)) return undefined;
+  if (value.value === "true") return true;
+  if (value.value === "false") return false;
+};
+
+const listCommand = Command.make(
+  "list",
+  {},
+  Effect.fn("challengeListCommand")(function* () {
+    const options = yield* root;
+    yield* execute(
+      options.output,
+      listChallenges({ apiUrl: options.apiUrl }),
+      challengeListText,
+    );
+  }),
+).pipe(
+  Command.withDescription(
+    "Discover available challenges, opening dates, and scoring formats. No login required.",
+  ),
+  Command.withExamples([
+    {
+      command: "chofex challenge list",
+      description: "See which challenge is currently playable",
+    },
+  ]),
+);
+
+const showCommand = Command.make(
+  "show",
+  { challenge: challengeFlag },
+  Effect.fn("challengeShowCommand")(function* ({ challenge }) {
+    const options = yield* root;
+    const token = Option.getOrUndefined(options.token);
+    yield* execute(
+      options.output,
+      getChallengeAttempt({ apiUrl: options.apiUrl, token }, challenge),
+      challengeShowText,
+    );
+  }),
+).pipe(
+  Command.withDescription(
+    "Check your Black Box query budget, evaluation budget, score, and saved observations. Requires sign-in.",
+  ),
+  Command.withExamples([
+    {
+      command: "chofex challenge show",
+      description: "Check your progress before spending limited attempts",
+    },
+  ]),
+);
+
+const queryCommand = Command.make(
+  "query",
+  {
+    challenge: challengeFlag,
+    input: inputFlag,
+    distance: optionalString("distance", "Shipment distance in km"),
+    weight: optionalString("weight", "Shipment weight in kg"),
+    hour: optionalString("hour", "Hour of day, 0-23"),
+    fragile: Flag.choice("fragile", ["true", "false"]).pipe(
+      Flag.optional,
+      Flag.withDescription("Fragile surcharge flag"),
+    ),
+    express: Flag.choice("express", ["true", "false"]).pipe(
+      Flag.optional,
+      Flag.withDescription("Express surcharge flag"),
+    ),
+  },
+  Effect.fn("challengeQueryCommand")(function* ({
+    challenge,
+    input,
+    distance,
+    weight,
+    hour,
+    fragile,
+    express,
+  }) {
+    const options = yield* root;
+    const token = Option.getOrUndefined(options.token);
+    const operation = Effect.gen(function* () {
+      const shipment = yield* shipmentInput(Option.getOrUndefined(input), {
+        distanceKm: numberFromOption(distance),
+        weightKg: numberFromOption(weight),
+        hour: numberFromOption(hour),
+        fragile: booleanFromOption(fragile),
+        express: booleanFromOption(express),
+      });
+      return yield* queryChallenge(
+        { apiUrl: options.apiUrl, token },
+        challenge,
+        shipment,
+      );
+    });
+    yield* execute(options.output, operation, challengeQueryText);
+  }),
+).pipe(
+  Command.withDescription(
+    "Send one shipment to the undocumented oracle. A successful query consumes one limited request. Requires sign-in.",
+  ),
+  Command.withExamples([
+    {
+      command:
+        "chofex challenge query --distance 10 --weight 3 --hour 14 --fragile false --express false",
+      description: "Spend one oracle query",
+    },
+    {
+      command: "chofex challenge query --input shipment.json",
+      description: "Read the shipment fields from a JSON file",
+    },
+  ]),
+);
+
+const notebookCommand = Command.make(
+  "notebook",
+  { challenge: challengeFlag, format: formatFlag },
+  Effect.fn("challengeNotebookCommand")(function* ({ challenge, format }) {
+    const options = yield* root;
+    const token = Option.getOrUndefined(options.token);
+    const operation = getChallengeAttempt(
+      { apiUrl: options.apiUrl, token },
+      challenge,
+    );
+    yield* execute(options.output, operation, (attempt) => {
+      if (format === "csv") return notebookCsvText(attempt.observations);
+      if (format === "json") {
+        return JSON.stringify(attempt.observations, null, 2);
+      }
+      return notebookTableText(attempt.observations);
+    });
+  }),
+).pipe(
+  Command.withDescription(
+    "Review every input and price you observed. Export table, JSON, or CSV for analysis. Requires sign-in.",
+  ),
+  Command.withExamples([
+    {
+      command: "chofex challenge notebook",
+      description: "Read observations in a terminal table",
+    },
+    {
+      command: "chofex challenge notebook --format csv > observations.csv",
+      description: "Save observations for a spreadsheet",
+    },
+  ]),
+);
+
+const testCommand = Command.make(
+  "test",
+  { challenge: challengeFlag, source: sourceFlag },
+  Effect.fn("challengeTestCommand")(function* ({ challenge, source }) {
+    const options = yield* root;
+    const token = Option.getOrUndefined(options.token);
+    const operation = Effect.gen(function* () {
+      const solution = yield* javascriptSourceFromPath(
+        Option.getOrUndefined(source),
+      );
+      return yield* testChallenge(
+        { apiUrl: options.apiUrl, token },
+        challenge,
+        solution,
+      );
+    });
+    yield* execute(options.output, operation, challengeTestText);
+  }),
+).pipe(
+  Command.withDescription(
+    "Check calculateShipping against your saved observations. Safe to repeat; official evaluations are not consumed. Requires sign-in.",
+  ),
+  Command.withExamples([
+    {
+      command: "chofex challenge test --source ./shipping.js",
+      description: "Test a JavaScript replacement against your notebook",
+    },
+  ]),
+);
+
+const evaluateCommand = Command.make(
+  "evaluate",
+  { challenge: challengeFlag, source: sourceFlag },
+  Effect.fn("challengeEvaluateCommand")(function* ({ challenge, source }) {
+    const options = yield* root;
+    const token = Option.getOrUndefined(options.token);
+    const operation = Effect.gen(function* () {
+      const solution = yield* javascriptSourceFromPath(
+        Option.getOrUndefined(source),
+      );
+      return yield* evaluateChallenge(
+        { apiUrl: options.apiUrl, token },
+        challenge,
+        solution,
+      );
+    });
+    yield* execute(options.output, operation, challengeEvaluateText);
+  }),
+).pipe(
+  Command.withDescription(
+    "Score calculateShipping on hidden cases. This consumes one limited official evaluation. Requires sign-in.",
+  ),
+  Command.withExamples([
+    {
+      command: "chofex challenge evaluate --source ./shipping.js",
+      description: "Spend one official evaluation when your solution is ready",
+    },
+  ]),
+);
+
+const rankingCommand = Command.make(
+  "ranking",
+  { challenge: challengeFlag },
+  Effect.fn("challengeRankingCommand")(function* ({ challenge }) {
+    const options = yield* root;
+    yield* execute(
+      options.output,
+      getChallengeRanking({ apiUrl: options.apiUrl }, challenge),
+      challengeRankingText,
+    );
+  }),
+).pipe(
+  Command.withDescription(
+    "View the public leaderboard. No login required and no challenge budget consumed.",
+  ),
+  Command.withExamples([
+    {
+      command: "chofex challenge ranking",
+      description: "Compare official hidden-set scores",
+    },
+  ]),
+);
+
+export const challengeCommand = Command.make(
+  "challenge",
+  {},
+  Effect.fn("challengeQuickstartCommand")(function* () {
+    const options = yield* root;
+    if (options.output === "json") {
+      yield* printJson({
+        version: 1,
+        ok: true,
+        requestId: crypto.randomUUID(),
+        data: challengeQuickstart,
+      });
+      return;
+    }
+    yield* Console.log(challengeQuickstartText());
+  }),
+).pipe(
+  Command.withDescription(
+    "Play mini technical challenges. Start here: learn the Black Box workflow from first query to leaderboard. Run without a subcommand for the guided quickstart.",
+  ),
+  Command.withExamples([
+    {
+      command: "chofex challenge",
+      description: "Open the guided Black Box quickstart",
+    },
+    {
+      command:
+        "chofex challenge query --distance 10 --weight 3 --hour 14 --fragile false --express false",
+      description: "Make your first oracle query",
+    },
+    {
+      command: "chofex challenge query --help",
+      description: "See flags and examples for the query step",
+    },
+  ]),
+  Command.withSubcommands([
+    listCommand,
+    showCommand,
+    queryCommand,
+    notebookCommand,
+    testCommand,
+    evaluateCommand,
+    rankingCommand,
+  ]),
+);

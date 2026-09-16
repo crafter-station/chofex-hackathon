@@ -7,6 +7,7 @@ import * as Terminal from "effect/Terminal";
 import {
   applicationDefaultsFromRegistration,
   dateOfBirthPrompt,
+  normalizeDraftFields,
   publicDocumentUrl,
 } from "../src/input.js";
 
@@ -39,12 +40,15 @@ describe("CLI registration input", () => {
       portfolioUrl: "https://cueva.io",
       teamPreference: "have_team",
       teamName: "Team Andes",
+      codeOfConductAccepted: true,
+      privacyPolicyAccepted: true,
       nationalIdProvided: false,
       mediaConsent: true,
       rejectionReason: "Clarify the project scope.",
       submittedAt: "2026-09-09T00:00:00.000Z",
       createdAt: "2026-09-09T00:00:00.000Z",
       updatedAt: "2026-09-09T00:00:00.000Z",
+      challenges: [],
     });
 
     expect(defaults).toEqual({
@@ -70,6 +74,27 @@ describe("CLI registration input", () => {
     });
   });
 
+  test("does not pre-accept agreements that are still missing", () => {
+    const defaults = applicationDefaultsFromRegistration({
+      id: "registration-123",
+      status: "draft",
+      firstName: "Ada",
+      lastName: "Lovelace",
+      email: "ada@example.com",
+      participationMode: "in_person",
+      nationalIdProvided: false,
+      mediaConsent: false,
+      codeOfConductAccepted: false,
+      privacyPolicyAccepted: false,
+      createdAt: "2026-09-09T00:00:00.000Z",
+      updatedAt: "2026-09-09T00:00:00.000Z",
+      challenges: [],
+    });
+
+    expect(defaults.codeOfConductAccepted).toBeUndefined();
+    expect(defaults.privacyPolicyAccepted).toBeUndefined();
+  });
+
   test("builds public policy links from API URLs with or without a slash", () => {
     expect(publicDocumentUrl("https://apply.chofex.com", "/terms")).toBe(
       "https://apply.chofex.com/terms",
@@ -77,6 +102,21 @@ describe("CLI registration input", () => {
     expect(publicDocumentUrl("https://apply.chofex.com/", "/privacy")).toBe(
       "https://apply.chofex.com/privacy",
     );
+  });
+
+  test("sends explicit nulls when optional draft fields are cleared", () => {
+    expect(
+      normalizeDraftFields({
+        organization: "",
+        graduationYear: "",
+        githubUrl: "",
+        role: undefined,
+      }),
+    ).toEqual({
+      organization: null,
+      graduationYear: null,
+      githubUrl: null,
+    });
   });
 
   test("rejects an invalid date of birth before advancing", async () => {

@@ -1,3 +1,4 @@
+import { ParticipantChallengeProgressSchema } from "@chofex/challenges-contract";
 import { DateTime, Option, Schema, SchemaGetter } from "effect";
 
 const nonBlank = (maximum: number) =>
@@ -6,6 +7,8 @@ const nonBlank = (maximum: number) =>
   );
 
 const optionalText = (maximum: number) => Schema.optional(nonBlank(maximum));
+const nullableOptionalText = (maximum: number) =>
+  Schema.optional(Schema.NullOr(nonBlank(maximum)));
 
 const normalizedString = (normalize: (value: string) => string) =>
   Schema.String.pipe(
@@ -26,6 +29,10 @@ const url = normalizedString((value) => {
     }),
     Schema.isMaxLength(2_048),
   ),
+);
+
+const graduationYear = Schema.Int.pipe(
+  Schema.check(Schema.isBetween({ minimum: 1950, maximum: 2100 })),
 );
 
 export const RegistrationStatus = Schema.Literals([
@@ -94,11 +101,7 @@ export const applicationInputFields = {
   organization: optionalText(200),
   role: optionalText(120),
   fieldOfStudy: optionalText(160),
-  graduationYear: Schema.optional(
-    Schema.Int.pipe(
-      Schema.check(Schema.isBetween({ minimum: 1950, maximum: 2100 })),
-    ),
-  ),
+  graduationYear: Schema.optional(graduationYear),
   shippedProject: nonBlank(2_000),
   hackathonProject: nonBlank(2_000),
   bio: nonBlank(2_000),
@@ -117,6 +120,45 @@ export const applicationInputFieldNames = Object.keys(applicationInputFields);
 export const ApplicationInput = Schema.Struct(applicationInputFields);
 
 export type ApplicationInput = typeof ApplicationInput.Type;
+
+export const applicationDraftInputFields = {
+  firstName: Schema.optional(applicationInputFields.firstName),
+  lastName: Schema.optional(applicationInputFields.lastName),
+  pronouns: nullableOptionalText(50),
+  city: Schema.optional(applicationInputFields.city),
+  organization: nullableOptionalText(200),
+  role: nullableOptionalText(120),
+  fieldOfStudy: nullableOptionalText(160),
+  graduationYear: Schema.optional(Schema.NullOr(graduationYear)),
+  shippedProject: Schema.optional(applicationInputFields.shippedProject),
+  hackathonProject: Schema.optional(applicationInputFields.hackathonProject),
+  bio: Schema.optional(applicationInputFields.bio),
+  githubUrl: Schema.optional(Schema.NullOr(url)),
+  linkedInUrl: Schema.optional(Schema.NullOr(url)),
+  portfolioUrl: Schema.optional(Schema.NullOr(url)),
+  teamPreference: Schema.optional(applicationInputFields.teamPreference),
+  teamName: nullableOptionalText(120),
+  codeOfConductAccepted: Schema.optional(Schema.Boolean),
+  privacyPolicyAccepted: Schema.optional(Schema.Boolean),
+  mediaConsent: Schema.optional(Schema.Boolean),
+};
+
+export const applicationDraftInputFieldNames = Object.keys(
+  applicationDraftInputFields,
+);
+
+export const ApplicationDraftInput = Schema.Struct(applicationDraftInputFields);
+
+export type ApplicationDraftInput = typeof ApplicationDraftInput.Type;
+
+export const ApplicationPartId = Schema.Literals([
+  "identity",
+  "experience",
+  "team",
+  "agreements",
+]);
+
+export type ApplicationPartId = typeof ApplicationPartId.Type;
 
 export const acceptedDetailsInputFields = {
   fullName: nonBlank(200),
@@ -264,18 +306,39 @@ export const RegistrationViewSchema = Schema.Struct({
   pictureSource: Schema.optional(PictureSource),
   pictureUrl: Schema.optional(Schema.String),
   rejectionReason: Schema.optional(Schema.String),
-  submittedAt: Schema.String,
+  codeOfConductAccepted: Schema.Boolean,
+  privacyPolicyAccepted: Schema.Boolean,
+  submittedAt: Schema.optional(Schema.String),
   acceptanceDetailsCompletedAt: Schema.optional(Schema.String),
   createdAt: Schema.String,
   updatedAt: Schema.String,
+  challenges: Schema.Array(ParticipantChallengeProgressSchema),
 });
 
 export type RegistrationView = typeof RegistrationViewSchema.Type;
 
+export const ApplicationPartSchema = Schema.Struct({
+  id: ApplicationPartId,
+  title: Schema.String,
+  complete: Schema.Boolean,
+  missing: Schema.Array(RequirementSchema),
+});
+
+export type ApplicationPart = typeof ApplicationPartSchema.Type;
+
 export const RegistrationRequirementsSchema = Schema.Struct({
-  stage: Schema.Literals(["review", "rejected", "accepted", "complete"]),
+  stage: Schema.Literals([
+    "draft",
+    "review",
+    "rejected",
+    "accepted",
+    "complete",
+  ]),
   canSubmitNewApplication: Schema.Boolean,
   canSubmitAcceptedDetails: Schema.Boolean,
+  canSaveDraft: Schema.Boolean,
+  canSubmitApplication: Schema.Boolean,
+  parts: Schema.Array(ApplicationPartSchema),
   missing: Schema.Array(RequirementSchema),
   rejectionReason: Schema.optional(Schema.String),
 });
@@ -326,47 +389,184 @@ const acceptedDetailsRequirementsFor = (
   return missing;
 };
 
+const requiredValue = (value: string | undefined): boolean =>
+  Boolean(value && value.trim() !== "");
+
+const part = (
+  id: ApplicationPartId,
+  title: string,
+  missing: ReadonlyArray<Requirement>,
+): ApplicationPart => ({
+  id,
+  title,
+  complete: missing.length === 0,
+  missing,
+});
+
+export const applicationPartsFor = (
+  registration: RegistrationView,
+): ReadonlyArray<ApplicationPart> => {
+  const identityMissing: Array<Requirement> = [];
+  if (!requiredValue(registration.firstName)) {
+    identityMissing.push({ field: "firstName", reason: "Required to submit" });
+  }
+  if (!requiredValue(registration.lastName)) {
+    identityMissing.push({ field: "lastName", reason: "Required to submit" });
+  }
+  if (!requiredValue(registration.city)) {
+    identityMissing.push({ field: "city", reason: "Required to submit" });
+  }
+
+  const experienceMissing: Array<Requirement> = [];
+  if (!requiredValue(registration.shippedProject)) {
+    experienceMissing.push({
+      field: "shippedProject",
+      reason: "Required to submit",
+    });
+  }
+  if (!requiredValue(registration.hackathonProject)) {
+    experienceMissing.push({
+      field: "hackathonProject",
+      reason: "Required to submit",
+    });
+  }
+  if (!requiredValue(registration.bio)) {
+    experienceMissing.push({ field: "bio", reason: "Required to submit" });
+  }
+
+  const teamMissing: Array<Requirement> = [];
+  if (!registration.teamPreference) {
+    teamMissing.push({
+      field: "teamPreference",
+      reason: "Required to submit",
+    });
+  } else if (
+    registration.teamPreference === "have_team" &&
+    !requiredValue(registration.teamName)
+  ) {
+    teamMissing.push({
+      field: "teamName",
+      reason: "Required when you already have a team",
+    });
+  }
+
+  const agreementMissing: Array<Requirement> = [];
+  if (!registration.codeOfConductAccepted) {
+    agreementMissing.push({
+      field: "codeOfConductAccepted",
+      reason: "Required to submit",
+    });
+  }
+  if (!registration.privacyPolicyAccepted) {
+    agreementMissing.push({
+      field: "privacyPolicyAccepted",
+      reason: "Required to submit",
+    });
+  }
+
+  return [
+    part("identity", "Identity", identityMissing),
+    part("experience", "Experience", experienceMissing),
+    part("team", "Team", teamMissing),
+    part("agreements", "Agreements", agreementMissing),
+  ];
+};
+
+const withApplicationParts = (
+  requirements: Omit<
+    RegistrationRequirements,
+    "parts" | "canSaveDraft" | "canSubmitApplication"
+  > &
+    Partial<
+      Pick<
+        RegistrationRequirements,
+        "parts" | "canSaveDraft" | "canSubmitApplication"
+      >
+    >,
+  registration: RegistrationView,
+): RegistrationRequirements => {
+  const parts = requirements.parts ?? applicationPartsFor(registration);
+  const draftMissing = parts.flatMap((item) => item.missing);
+  const canSaveDraft = requirements.canSaveDraft ?? false;
+  let canSubmitApplication = requirements.canSubmitApplication ?? false;
+  if (requirements.stage === "draft") {
+    canSubmitApplication = draftMissing.length === 0;
+  }
+  let missing = requirements.missing;
+  if (requirements.stage === "draft") missing = draftMissing;
+  return {
+    ...requirements,
+    parts,
+    canSaveDraft,
+    canSubmitApplication,
+    missing,
+  };
+};
+
 export const applicationRequirementsFor = (
   registration: RegistrationView,
 ): RegistrationRequirements => {
   switch (registration.status) {
     case "rejected":
-      return {
-        stage: "rejected",
-        canSubmitNewApplication: true,
-        canSubmitAcceptedDetails: false,
-        missing: [],
-        rejectionReason: registration.rejectionReason,
-      };
+      return withApplicationParts(
+        {
+          stage: "rejected",
+          canSubmitNewApplication: true,
+          canSubmitAcceptedDetails: false,
+          missing: [],
+          rejectionReason: registration.rejectionReason,
+        },
+        registration,
+      );
     case "withdrawn":
-      return {
-        stage: "review",
-        canSubmitNewApplication: true,
-        canSubmitAcceptedDetails: false,
-        missing: [],
-      };
+      return withApplicationParts(
+        {
+          stage: "review",
+          canSubmitNewApplication: true,
+          canSubmitAcceptedDetails: false,
+          missing: [],
+        },
+        registration,
+      );
     case "accepted": {
       const missing = acceptedDetailsRequirementsFor(registration);
       const isComplete =
         Boolean(registration.acceptanceDetailsCompletedAt) &&
         missing.length === 0;
-      return {
-        stage: isComplete ? "complete" : "accepted",
-        canSubmitNewApplication: false,
-        canSubmitAcceptedDetails: true,
-        missing,
-      };
+      return withApplicationParts(
+        {
+          stage: isComplete ? "complete" : "accepted",
+          canSubmitNewApplication: false,
+          canSubmitAcceptedDetails: true,
+          missing,
+          parts: [],
+        },
+        registration,
+      );
     }
     case "draft":
+      return withApplicationParts(
+        {
+          stage: "draft",
+          canSubmitNewApplication: false,
+          canSubmitAcceptedDetails: false,
+          canSaveDraft: true,
+          missing: [],
+        },
+        registration,
+      );
     case "submitted":
     case "under_review":
     case "waitlisted":
-      return {
-        stage: "review",
-        canSubmitNewApplication: false,
-        canSubmitAcceptedDetails: false,
-        missing: [],
-      };
+      return withApplicationParts(
+        {
+          stage: "review",
+          canSubmitNewApplication: false,
+          canSubmitAcceptedDetails: false,
+          missing: [],
+        },
+        registration,
+      );
   }
 };
 

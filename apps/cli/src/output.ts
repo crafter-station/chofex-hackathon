@@ -7,6 +7,7 @@ import {
 } from "@chofex/registration-contract";
 import { Console, Effect, Result, Schema } from "effect";
 
+import { registrationPartsText } from "./challenge-output.js";
 import { type CliError, exitCodeFor } from "./errors.js";
 
 export type OutputMode = "human" | "json";
@@ -67,7 +68,9 @@ export const execute = <A, R>(
       }
       const customMessage = humanError?.(error);
       if (customMessage !== undefined) {
-        return Console.error(`${customMessage}\nRequest ID: ${error.requestId}`);
+        return Console.error(
+          `${customMessage}\nRequest ID: ${error.requestId}`,
+        );
       }
       const details = humanErrorDetails(error.details);
       return Console.error(
@@ -89,6 +92,9 @@ const requirementsText = (result: RegistrationResult): string => {
     return "Application withdrawn. You may submit a new application.";
   }
   if (requirements.stage === "complete") return "Attendance details: complete";
+  if (requirements.stage === "draft") {
+    return `Application draft in progress.${registrationPartsText(result)}`;
+  }
   if (requirements.stage === "review")
     return "No action needed while your application is reviewed.";
   let feedback = "";
@@ -122,8 +128,14 @@ export const registrationText = (result: RegistrationResult): string =>
     requirementsText(result),
   ].join("\n");
 
-export const createdText = (result: CreatedRegistration): string =>
-  ["Application submitted successfully.", registrationText(result)].join("\n");
+export const createdText = (result: CreatedRegistration): string => {
+  if (result.registration.status !== "submitted") {
+    return ["Application draft saved.", registrationText(result)].join("\n");
+  }
+  return ["Application submitted successfully.", registrationText(result)].join(
+    "\n",
+  );
+};
 
 export const requirementsOnlyText = (result: RegistrationResult): string =>
   requirementsText(result);

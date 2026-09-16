@@ -1,4 +1,18 @@
 import {
+  type ChallengeAttemptView,
+  ChallengeAttemptViewSchema,
+  type ChallengeCatalogResponse,
+  ChallengeCatalogSchema,
+  type ChallengeEvaluationResult,
+  ChallengeEvaluationResultSchema,
+  type ChallengeLocalTestResult,
+  ChallengeLocalTestResultSchema,
+  type ChallengeQueryResult,
+  ChallengeQueryResultSchema,
+  type ChallengeRanking,
+  ChallengeRankingSchema,
+} from "@chofex/challenges-contract";
+import {
   ApiFailureSchema,
   type ApiSuccess,
   ApiSuccessSchema,
@@ -42,13 +56,13 @@ const sendRequest = (
   options: ApiClientOptions,
   path: string,
   init: RequestInit,
-  token: string,
+  token?: string,
 ): Effect.Effect<Response, CliError> =>
   Effect.tryPromise({
     try: () => {
       const headers = new Headers(init.headers);
       headers.set("accept", "application/json");
-      headers.set("authorization", `Bearer ${token}`);
+      if (token) headers.set("authorization", `Bearer ${token}`);
       headers.set("x-request-id", crypto.randomUUID());
       if (init.body !== undefined) {
         headers.set("content-type", "application/json");
@@ -67,20 +81,10 @@ const sendRequest = (
       ),
   });
 
-const request = Effect.fn("apiRequest")(function* <A, R>(
-  options: ApiClientOptions,
-  path: string,
-  init: RequestInit,
+const decodeHttpBody = Effect.fn("decodeHttpBody")(function* <A, R>(
+  response: Response,
   decodeResponse: (input: unknown) => Effect.Effect<ApiSuccess<A>, unknown, R>,
 ): Effect.fn.Return<ApiSuccess<A>, CliError, R> {
-  const suppliedToken = options.token ?? process.env.CHOFEX_TOKEN;
-  let token = yield* resolveAccessToken(suppliedToken);
-  let response = yield* sendRequest(options, path, init, token);
-  if (response.status === 401 && !suppliedToken) {
-    token = yield* resolveAccessToken(undefined, true);
-    response = yield* sendRequest(options, path, init, token);
-  }
-
   const body = yield* Effect.tryPromise({
     try: () => response.json() as Promise<unknown>,
     catch: () =>
@@ -121,6 +125,32 @@ const request = Effect.fn("apiRequest")(function* <A, R>(
   );
 });
 
+const request = Effect.fn("apiRequest")(function* <A, R>(
+  options: ApiClientOptions,
+  path: string,
+  init: RequestInit,
+  decodeResponse: (input: unknown) => Effect.Effect<ApiSuccess<A>, unknown, R>,
+): Effect.fn.Return<ApiSuccess<A>, CliError, R> {
+  const suppliedToken = options.token ?? process.env.CHOFEX_TOKEN;
+  let token = yield* resolveAccessToken(suppliedToken);
+  let response = yield* sendRequest(options, path, init, token);
+  if (response.status === 401 && !suppliedToken) {
+    token = yield* resolveAccessToken(undefined, true);
+    response = yield* sendRequest(options, path, init, token);
+  }
+  return yield* decodeHttpBody(response, decodeResponse);
+});
+
+const publicRequest = Effect.fn("publicApiRequest")(function* <A, R>(
+  options: ApiClientOptions,
+  path: string,
+  init: RequestInit,
+  decodeResponse: (input: unknown) => Effect.Effect<ApiSuccess<A>, unknown, R>,
+): Effect.fn.Return<ApiSuccess<A>, CliError, R> {
+  const response = yield* sendRequest(options, path, init);
+  return yield* decodeHttpBody(response, decodeResponse);
+});
+
 const decodeCreatedRegistration = Schema.decodeUnknownEffect(
   ApiSuccessSchema(CreatedRegistrationSchema),
 );
@@ -138,6 +168,24 @@ const decodePictureUploadGrant = Schema.decodeUnknownEffect(
 );
 const decodePictureUpload = Schema.decodeUnknownEffect(
   ApiSuccessSchema(PictureUploadSchema),
+);
+const decodeChallengeCatalog = Schema.decodeUnknownEffect(
+  ApiSuccessSchema(ChallengeCatalogSchema),
+);
+const decodeChallengeAttempt = Schema.decodeUnknownEffect(
+  ApiSuccessSchema(ChallengeAttemptViewSchema),
+);
+const decodeChallengeQuery = Schema.decodeUnknownEffect(
+  ApiSuccessSchema(ChallengeQueryResultSchema),
+);
+const decodeChallengeTest = Schema.decodeUnknownEffect(
+  ApiSuccessSchema(ChallengeLocalTestResultSchema),
+);
+const decodeChallengeEvaluation = Schema.decodeUnknownEffect(
+  ApiSuccessSchema(ChallengeEvaluationResultSchema),
+);
+const decodeChallengeRanking = Schema.decodeUnknownEffect(
+  ApiSuccessSchema(ChallengeRankingSchema),
 );
 
 export const register = (
@@ -208,4 +256,96 @@ export const completePictureUpload = (
     "/api/v1/profile-picture",
     { method: "PUT", body: JSON.stringify(input) },
     decodePictureUpload,
+  );
+
+export const saveRegistrationDraft = (
+  options: ApiClientOptions,
+  input: unknown,
+): Effect.Effect<ApiSuccess<RegistrationResult>, CliError> =>
+  request(
+    options,
+    "/api/v1/registration",
+    {
+      method: "PUT",
+      body: JSON.stringify(input),
+    },
+    decodeRegistrationResult,
+  );
+
+export const submitRegistration = (
+  options: ApiClientOptions,
+): Effect.Effect<ApiSuccess<CreatedRegistration>, CliError> =>
+  request(
+    options,
+    "/api/v1/registration/submit",
+    { method: "POST" },
+    decodeCreatedRegistration,
+  );
+
+export const listChallenges = (
+  options: ApiClientOptions,
+): Effect.Effect<ApiSuccess<ChallengeCatalogResponse>, CliError> =>
+  publicRequest(
+    options,
+    "/api/v1/challenges",
+    { method: "GET" },
+    decodeChallengeCatalog,
+  );
+
+export const getChallengeAttempt = (
+  options: ApiClientOptions,
+  slug: string,
+): Effect.Effect<ApiSuccess<ChallengeAttemptView>, CliError> =>
+  request(
+    options,
+    `/api/v1/challenges/${slug}`,
+    { method: "GET" },
+    decodeChallengeAttempt,
+  );
+
+export const queryChallenge = (
+  options: ApiClientOptions,
+  slug: string,
+  input: unknown,
+): Effect.Effect<ApiSuccess<ChallengeQueryResult>, CliError> =>
+  request(
+    options,
+    `/api/v1/challenges/${slug}/query`,
+    { method: "POST", body: JSON.stringify(input) },
+    decodeChallengeQuery,
+  );
+
+export const testChallenge = (
+  options: ApiClientOptions,
+  slug: string,
+  input: unknown,
+): Effect.Effect<ApiSuccess<ChallengeLocalTestResult>, CliError> =>
+  request(
+    options,
+    `/api/v1/challenges/${slug}/test`,
+    { method: "POST", body: JSON.stringify(input) },
+    decodeChallengeTest,
+  );
+
+export const evaluateChallenge = (
+  options: ApiClientOptions,
+  slug: string,
+  input: unknown,
+): Effect.Effect<ApiSuccess<ChallengeEvaluationResult>, CliError> =>
+  request(
+    options,
+    `/api/v1/challenges/${slug}/evaluate`,
+    { method: "POST", body: JSON.stringify(input) },
+    decodeChallengeEvaluation,
+  );
+
+export const getChallengeRanking = (
+  options: ApiClientOptions,
+  slug: string,
+): Effect.Effect<ApiSuccess<ChallengeRanking>, CliError> =>
+  publicRequest(
+    options,
+    `/api/v1/challenges/${slug}/ranking`,
+    { method: "GET" },
+    decodeChallengeRanking,
   );

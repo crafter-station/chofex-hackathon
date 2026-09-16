@@ -69,6 +69,10 @@ import {
   parseCandidateFilter,
   reviewableCandidateStatuses,
 } from "@/lib/admin/types";
+import {
+  applicationDataStatus,
+  challengeReviewStatus,
+} from "@/lib/admin/review-metrics";
 
 interface CandidateDashboardProps {
   readonly data: CandidatePage;
@@ -130,11 +134,13 @@ const filterStatuses: ReadonlyArray<{
   readonly countKey: keyof CandidateCounts;
 }> = [
   { label: "All", countKey: "all" },
+  { value: "draft", label: "Drafts", countKey: "draft" },
   { value: "submitted", label: "Submitted", countKey: "submitted" },
   { value: "under_review", label: "In review", countKey: "under_review" },
   { value: "waitlisted", label: "Waitlisted", countKey: "waitlisted" },
   { value: "accepted", label: "Accepted", countKey: "accepted" },
   { value: "rejected", label: "Declined", countKey: "rejected" },
+  { value: "withdrawn", label: "Withdrawn", countKey: "withdrawn" },
   { value: "reattempt", label: "Reattempts", countKey: "reattempt" },
 ];
 
@@ -229,6 +235,35 @@ const StatusBadge = ({ status }: { readonly status: CandidateStatus }) => {
     </Badge>
   );
 };
+
+type ChallengeProgress = Candidate["challenges"][number];
+
+const challengeStatusVariant = (
+  challenge: ChallengeProgress,
+): "statusAccepted" | "statusSubmitted" | "statusDraft" => {
+  if (challenge.status === "evaluated") return "statusAccepted";
+  if (challenge.status === "in_progress") return "statusSubmitted";
+  return "statusDraft";
+};
+
+const ChallengeStatusBadge = ({
+  challenge,
+}: {
+  readonly challenge: ChallengeProgress;
+}) => (
+  <Badge variant={challengeStatusVariant(challenge)}>
+    <span className="size-1.5 rounded-full bg-current opacity-60" />
+    {challengeReviewStatus(challenge)}
+  </Badge>
+);
+
+const challengeAvailability = (challenge: ChallengeProgress): string => {
+  if (!challenge.playable) return "Coming later";
+  if (challenge.open) return "Open";
+  return "Not open yet";
+};
+
+const formatPercent = (value: number): string => `${(value * 100).toFixed(2)}%`;
 
 const EmptyValue = () => (
   <span className="text-muted-foreground/60">Not provided</span>
@@ -431,6 +466,7 @@ const CandidateDrawer = ({
   const dateOfBirth =
     candidate.dateOfBirth && formatCalendarDate(candidate.dateOfBirth);
   const idDocument = candidate.nationalIdProvided && "Provided securely";
+  const dataStatus = applicationDataStatus(candidate.submittedAt);
 
   return (
     <Drawer
@@ -635,8 +671,13 @@ const CandidateDrawer = ({
             <div>
               <h3 className="text-sm font-semibold">Application</h3>
               <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-5">
-                <Detail label="Submitted">
-                  {formatDateTime(candidate.submittedAt)}
+                <Detail label="Application data">{dataStatus}</Detail>
+                <Detail label="Submitted at">
+                  {candidate.submittedAt &&
+                    formatDateTime(candidate.submittedAt)}
+                </Detail>
+                <Detail label="Draft created">
+                  {formatDateTime(candidate.createdAt)}
                 </Detail>
                 <Detail label="Attempt">
                   {candidate.attemptNumber.toString()}
@@ -666,6 +707,66 @@ const CandidateDrawer = ({
                   <Detail label="Approved by">{candidate.approvedBy}</Detail>
                 )}
               </dl>
+            </div>
+
+            <div className="border-t pt-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-semibold">
+                    Technical challenges
+                  </h3>
+                  <p className="mt-1 max-w-xl text-xs leading-5 text-muted-foreground">
+                    Challenge progress and scores are review metrics only. They
+                    never approve or reject an application automatically.
+                  </p>
+                </div>
+                <ButtonLink variant="outline" size="sm" href="/challenges">
+                  Public rankings
+                  <ExternalLinkIcon />
+                </ButtonLink>
+              </div>
+              <div className="mt-4 space-y-3">
+                {candidate.challenges.map((challenge) => (
+                  <div
+                    key={challenge.slug}
+                    className="rounded-xl border bg-background p-4"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+                          {challenge.theme}
+                        </p>
+                        <p className="mt-1 text-sm font-medium">
+                          {challenge.title}
+                        </p>
+                      </div>
+                      <ChallengeStatusBadge challenge={challenge} />
+                    </div>
+                    <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3">
+                      <Detail label="Availability">
+                        {challengeAvailability(challenge)}
+                      </Detail>
+                      <Detail label="Queries used">
+                        {challenge.queriesUsed} / {challenge.queriesLimit}
+                      </Detail>
+                      <Detail label="Official attempts">
+                        {challenge.evaluationsUsed} /{" "}
+                        {challenge.evaluationsLimit}
+                      </Detail>
+                      <Detail label="Best accuracy">
+                        {challenge.bestAccuracy !== undefined &&
+                          formatPercent(challenge.bestAccuracy)}
+                      </Detail>
+                      <Detail label="Exact matches">
+                        {challenge.bestExactCount?.toString()}
+                      </Detail>
+                      <Detail label="Public rank">
+                        {challenge.rank !== undefined && `#${challenge.rank}`}
+                      </Detail>
+                    </dl>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="border-t pt-5">
@@ -1091,10 +1192,11 @@ export function CandidateDashboard({
             className="mt-4 overflow-hidden rounded-2xl border bg-card"
             aria-busy={candidateQuery.isFetching}
           >
-            <div className="hidden grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_7rem] gap-4 border-b bg-muted/35 px-5 py-3 text-[11px] font-medium tracking-wide text-muted-foreground uppercase sm:grid">
+            <div className="hidden grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_8rem_7rem] gap-4 border-b bg-muted/35 px-5 py-3 text-[11px] font-medium tracking-wide text-muted-foreground uppercase sm:grid">
               <span>Candidate</span>
               <span>Background</span>
               <span>Status</span>
+              <span>Challenge</span>
               <span className="text-right">Submitted</span>
             </div>
             {currentData.candidates.length === 0 && <EmptyCandidates />}
@@ -1248,49 +1350,61 @@ const CandidateRows = ({
   readonly onSelect: (candidateId: string) => void;
 }) => (
   <div className="divide-y">
-    {candidates.map((candidate) => (
-      <Button
-        type="button"
-        variant="ghost"
-        size="table-row"
-        key={candidate.id}
-        onClick={() => onSelect(candidate.id)}
-        className="group sm:grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_7rem]"
-      >
-        <span className="flex min-w-0 items-center gap-3">
-          <CandidateAvatar
-            candidate={candidate}
-            className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-[11px] font-semibold text-muted-foreground"
-          />
-          <span className="min-w-0">
-            <span className="block truncate text-sm font-medium">
-              {displayName(candidate)}
-              <span className="ml-2 text-[11px] font-normal text-muted-foreground">
-                Attempt {candidate.attemptNumber}
+    {candidates.map((candidate) => {
+      const primaryChallenge = candidate.challenges.find(
+        (challenge) => challenge.playable,
+      );
+      let submitted = "Not submitted";
+      if (candidate.submittedAt) submitted = formatDate(candidate.submittedAt);
+      return (
+        <Button
+          type="button"
+          variant="ghost"
+          size="table-row"
+          key={candidate.id}
+          onClick={() => onSelect(candidate.id)}
+          className="group sm:grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_8rem_7rem]"
+        >
+          <span className="flex min-w-0 items-center gap-3">
+            <CandidateAvatar
+              candidate={candidate}
+              className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-[11px] font-semibold text-muted-foreground"
+            />
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-medium">
+                {displayName(candidate)}
+                <span className="ml-2 text-[11px] font-normal text-muted-foreground">
+                  Attempt {candidate.attemptNumber}
+                </span>
+              </span>
+              <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                {candidate.email || "No email provided"}
               </span>
             </span>
+          </span>
+          <span className="hidden min-w-0 sm:block">
+            <span className="block truncate text-sm">
+              {candidate.role || candidate.fieldOfStudy || "—"}
+            </span>
             <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-              {candidate.email || "No email provided"}
+              {candidate.organization || candidate.city || "No organization"}
             </span>
           </span>
-        </span>
-        <span className="hidden min-w-0 sm:block">
-          <span className="block truncate text-sm">
-            {candidate.role || candidate.fieldOfStudy || "—"}
+          <span className="ml-12 sm:ml-0">
+            <StatusBadge status={candidate.status} />
           </span>
-          <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-            {candidate.organization || candidate.city || "No organization"}
+          <span className="hidden sm:block">
+            {primaryChallenge && (
+              <ChallengeStatusBadge challenge={primaryChallenge} />
+            )}
           </span>
-        </span>
-        <span className="ml-12 sm:ml-0">
-          <StatusBadge status={candidate.status} />
-        </span>
-        <span className="hidden items-center justify-end gap-2 text-xs text-muted-foreground sm:flex">
-          {formatDate(candidate.submittedAt)}
-          <ChevronRightIcon className="size-4 opacity-0 transition-opacity group-hover:opacity-100" />
-        </span>
-      </Button>
-    ))}
+          <span className="hidden items-center justify-end gap-2 text-xs text-muted-foreground sm:flex">
+            {submitted}
+            <ChevronRightIcon className="size-4 opacity-0 transition-opacity group-hover:opacity-100" />
+          </span>
+        </Button>
+      );
+    })}
   </div>
 );
 

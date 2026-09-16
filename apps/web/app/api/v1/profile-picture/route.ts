@@ -1,6 +1,6 @@
 import { jsonSuccess, withApiHandler } from "@/lib/registration/http";
-import { pictureUploadDependencies } from "@/lib/registration/picture-upload-adapters";
 import { handlePictureUpload } from "@/lib/registration/picture-upload";
+import { pictureUploadDependencies } from "@/lib/registration/picture-upload-adapters";
 
 export const runtime = "nodejs";
 

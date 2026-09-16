@@ -70,6 +70,144 @@ describe("CLI JSON mode", () => {
     expect(help.stdout).toContain("Verify the current Clerk authentication");
   });
 
+  test("advertises mini technical challenges", async () => {
+    const help = await runCli("--help");
+
+    expect(help.exitCode).toBe(0);
+    expect(help.stdout).toContain("challenge");
+    expect(help.stdout).toContain("Play mini technical challenges");
+  });
+
+  test("turns the bare challenge command into a guided quickstart", async () => {
+    const result = await runCli("challenge");
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stderr).toBe("");
+    expect(result.stdout).toContain("Black Box quickstart");
+    expect(result.stdout).toContain("1. Sign in");
+    expect(result.stdout).toContain("chofex login");
+    expect(result.stdout).toContain("chofex challenge show");
+    expect(result.stdout).toContain("chofex challenge query");
+    expect(result.stdout).toContain("chofex challenge notebook");
+    expect(result.stdout).toContain("function calculateShipping(input)");
+    expect(result.stdout).toContain(
+      "chofex challenge test --source ./shipping.js",
+    );
+    expect(result.stdout).toContain(
+      "chofex challenge evaluate --source ./shipping.js",
+    );
+    expect(result.stdout).toContain("Official evaluations are limited");
+    expect(result.stdout).toContain("chofex challenge ranking");
+    expect(result.stdout).toContain("chofex challenge query --help");
+  });
+
+  test("returns the challenge quickstart as one JSON document", async () => {
+    const result = await runCli("--output", "json", "challenge");
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stderr).toBe("");
+    expect(result.stdout.trim().split("\n")).toHaveLength(1);
+    const document = JSON.parse(result.stdout);
+    expect(document).toMatchObject({
+      version: 1,
+      ok: true,
+      data: {
+        title: "Black Box quickstart",
+      },
+    });
+    expect(document.data.workflow[0]).toMatchObject({
+      step: 1,
+      command: "chofex login",
+    });
+    expect(document.data.workflow[1]).toMatchObject({
+      step: 2,
+      command: "chofex challenge show",
+    });
+    expect(document.data.workflow).toHaveLength(8);
+    expect(document.data.workflow[4]).toMatchObject({
+      step: 5,
+      file: "shipping.js",
+    });
+  });
+
+  test("documents the workflow and every challenge subcommand", async () => {
+    const challengeHelp = await runCli("challenge", "--help");
+
+    expect(challengeHelp.exitCode).toBe(0);
+    expect(challengeHelp.stdout).toContain("Start here");
+    expect(challengeHelp.stdout).toContain("Chofex API base URL");
+    expect(challengeHelp.stdout).toContain("chofex challenge query --distance");
+
+    const expectedExamples = new Map([
+      ["list", "chofex challenge list"],
+      ["show", "chofex challenge show"],
+      ["query", "chofex challenge query --input shipment.json"],
+      ["notebook", "chofex challenge notebook --format csv"],
+      ["test", "chofex challenge test --source ./shipping.js"],
+      ["evaluate", "chofex challenge evaluate --source ./shipping.js"],
+      ["ranking", "chofex challenge ranking"],
+    ]);
+
+    for (const [command, example] of expectedExamples) {
+      const help = await runCli("challenge", command, "--help");
+      expect(help.exitCode).toBe(0);
+      expect(help.stdout).toContain("EXAMPLES");
+      expect(help.stdout).toContain(example);
+    }
+  });
+
+  test("lists challenges from the public catalog without authentication", async () => {
+    const server = Bun.serve({
+      port: 0,
+      fetch() {
+        return Response.json({
+          version: 1,
+          ok: true,
+          requestId: "request-challenges",
+          data: {
+            challenges: [
+              {
+                slug: "black-box",
+                number: 1,
+                code: "01",
+                theme: "Black Box",
+                title: "The Shipping Machine",
+                summary: "Reverse engineer shipping prices.",
+                coreSkill: "Reverse engineering",
+                format: "accuracy",
+                formatLabel: "Accuracy score",
+                opensAt: "2026-09-18T05:00:00.000Z",
+                queryLimit: 25,
+                evaluationLimit: 3,
+                playable: true,
+                open: true,
+                rankingPath: "/challenges/black-box",
+              },
+            ],
+          },
+        });
+      },
+    });
+
+    try {
+      const result = await runCli(
+        "--api-url",
+        server.url.toString().replace(/\/$/, ""),
+        "--output",
+        "json",
+        "challenge",
+        "list",
+      );
+      expect(result.exitCode).toBe(0);
+      expect(JSON.parse(result.stdout)).toMatchObject({
+        ok: true,
+        data: { challenges: [{ slug: "black-box", playable: true }] },
+      });
+    } finally {
+      server.stop(true);
+    }
+  });
+
   test("advertises local input validation", async () => {
     const help = await runCli("--help");
 
@@ -244,7 +382,7 @@ describe("CLI JSON mode", () => {
     }
   });
 
-  test("submits a normalized on-site application without identity fields", async () => {
+  test("submits a normalized on-site application draft without identity fields", async () => {
     let submittedBody: unknown;
     const server = Bun.serve({
       port: 0,
@@ -265,42 +403,44 @@ describe("CLI JSON mode", () => {
           );
         }
         submittedBody = await request.json();
-        return Response.json(
-          {
-            version: 1,
-            ok: true,
-            requestId: "request-registration",
-            data: {
-              registration: {
-                id: "registration-123",
-                status: "submitted",
-                firstName: "Anthony",
-                lastName: "Cueva",
-                email: "hi@cueva.io",
-                countryCode: "PE",
-                city: "Lima",
-                participationMode: "in_person",
-                shippedProject: "A community event platform.",
-                hackathonProject: "A tool for matching hackathon teammates.",
-                bio: "I build things.",
-                githubUrl: "https://github.com/cuevaio",
-                teamPreference: "solo",
-                nationalIdProvided: false,
-                mediaConsent: true,
-                submittedAt: "2026-09-09T00:00:00.000Z",
-                createdAt: "2026-09-09T00:00:00.000Z",
-                updatedAt: "2026-09-09T00:00:00.000Z",
-              },
-              requirements: {
-                stage: "review",
-                canSubmitNewApplication: false,
-                canSubmitAcceptedDetails: false,
-                missing: [],
-              },
+        return Response.json({
+          version: 1,
+          ok: true,
+          requestId: "request-registration",
+          data: {
+            registration: {
+              id: "registration-123",
+              status: "draft",
+              firstName: "Anthony",
+              lastName: "Cueva",
+              email: "hi@cueva.io",
+              countryCode: "PE",
+              city: "Lima",
+              participationMode: "in_person",
+              shippedProject: "A community event platform.",
+              hackathonProject: "A tool for matching hackathon teammates.",
+              bio: "I build things.",
+              githubUrl: "https://github.com/cuevaio",
+              teamPreference: "solo",
+              nationalIdProvided: false,
+              mediaConsent: true,
+              codeOfConductAccepted: true,
+              privacyPolicyAccepted: true,
+              createdAt: "2026-09-09T00:00:00.000Z",
+              updatedAt: "2026-09-09T00:00:00.000Z",
+              challenges: [],
+            },
+            requirements: {
+              stage: "draft",
+              canSubmitNewApplication: false,
+              canSubmitAcceptedDetails: false,
+              canSaveDraft: true,
+              canSubmitApplication: true,
+              parts: [],
+              missing: [],
             },
           },
-          { status: 201 },
-        );
+        });
       },
     });
     const inputPath = `${cliDirectory}.application-${crypto.randomUUID()}.json`;
@@ -328,12 +468,18 @@ describe("CLI JSON mode", () => {
         apiUrl,
         "--token",
         "oauth-token",
+        "--output",
+        "json",
         "register",
         "--input",
         inputPath,
       );
 
       expect(result.exitCode).toBe(0);
+      expect(JSON.parse(result.stdout)).toMatchObject({
+        ok: true,
+        data: { registration: { status: "draft" } },
+      });
       expect(submittedBody).toEqual({
         firstName: "Anthony",
         lastName: "Cueva",
@@ -365,6 +511,9 @@ describe("CLI JSON mode", () => {
         stage: "review",
         canSubmitNewApplication: false,
         canSubmitAcceptedDetails: false,
+        canSaveDraft: false,
+        canSubmitApplication: false,
+        parts: [],
         missing: [],
       },
       expectedMessage: "Already registered. Wait for approval.",
@@ -376,6 +525,9 @@ describe("CLI JSON mode", () => {
         stage: "accepted",
         canSubmitNewApplication: false,
         canSubmitAcceptedDetails: true,
+        canSaveDraft: false,
+        canSubmitApplication: false,
+        parts: [],
         missing: [{ field: "phone", reason: "Required after acceptance" }],
       },
       expectedMessage:
@@ -388,6 +540,9 @@ describe("CLI JSON mode", () => {
         stage: "complete",
         canSubmitNewApplication: false,
         canSubmitAcceptedDetails: true,
+        canSaveDraft: false,
+        canSubmitApplication: false,
+        parts: [],
         missing: [],
       },
       expectedMessage: "Already accepted. Your registration is complete.",
@@ -419,9 +574,12 @@ describe("CLI JSON mode", () => {
                 teamPreference: "solo",
                 nationalIdProvided: false,
                 mediaConsent: true,
+                codeOfConductAccepted: true,
+                privacyPolicyAccepted: true,
                 submittedAt: "2026-09-09T00:00:00.000Z",
                 createdAt: "2026-09-09T00:00:00.000Z",
                 updatedAt: "2026-09-09T00:00:00.000Z",
+                challenges: [],
               },
               requirements: scenario.requirements,
             },
@@ -590,9 +748,7 @@ describe("CLI JSON mode", () => {
         expect(result.stdout).toBe("");
         expect(result.stderr).toContain("No registration found.");
         expect(result.stderr).toContain("Next command: chofex register");
-        expect(result.stderr).toContain(
-          "Request ID: request-no-registration",
-        );
+        expect(result.stderr).toContain("Request ID: request-no-registration");
       } finally {
         server.stop(true);
       }
@@ -634,14 +790,20 @@ describe("CLI JSON mode", () => {
               participationMode: "in_person",
               nationalIdProvided: false,
               mediaConsent: false,
+              codeOfConductAccepted: true,
+              privacyPolicyAccepted: true,
               submittedAt: "2026-09-09T00:00:00.000Z",
               createdAt: "2026-09-09T00:00:00.000Z",
               updatedAt: "2026-09-09T00:00:00.000Z",
+              challenges: [],
             },
             requirements: {
               stage: "accepted",
               canSubmitNewApplication: false,
               canSubmitAcceptedDetails: true,
+              canSaveDraft: false,
+              canSubmitApplication: false,
+              parts: [],
               missing: [],
             },
           },
