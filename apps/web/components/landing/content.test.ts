@@ -56,6 +56,7 @@ test("publishes the confirmed prizes directly in soles", () => {
 
 test("keeps the headquarters trip prize without a destination paragraph", () => {
   expect(prizesCopy.tripTitle).toBe("Chofex Headquarters");
+  expect("tripLabel" in prizesCopy).toBe(false);
   expect("tripBody" in prizesCopy).toBe(false);
   expect("tripLabel" in prizesCopy).toBe(false);
 
