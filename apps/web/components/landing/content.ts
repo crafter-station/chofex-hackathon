@@ -157,7 +157,8 @@ export const prizesCopy = {
   title: "Premios",
   lede: "Premios en efectivo para las soluciones que mejor conviertan un problema real en un producto funcionando.",
   totalSuffix: "en premios en efectivo",
-  tripTitle: "Chofex Headquarters",
+  tripTitle: "Viaje",
+  tripBody: "a Chofex Headquarters",
 } as const;
 
 export const sponsorsCopy = {

@@ -2,8 +2,6 @@ import { prizePoolHeadlinePen, prizesCopy } from "@/components/landing/content";
 import { PrizeCounter } from "@/components/landing/prize-counter";
 import { LandingContainer } from "@/components/landing/shell";
 
-const tripTitleLines = prizesCopy.tripTitle.split(/\s+/);
-
 export function LandingPrizes() {
   return (
     <section
@@ -24,10 +22,9 @@ export function LandingPrizes() {
         </h2>
 
         {/*
-         * Two columns from lg up, stacked below. The previous md split plus a
-         * 7.5rem "HEADQUARTERS" overflowed a 1280 viewport; min-w-0 lets the
-         * title shrink, and the title stacks as two words so the long lockup
-         * stays inside the column.
+         * Two columns from lg up, stacked below. The trip side is a short
+         * "Viaje" lockup plus a mono destination, so it no longer needs the
+         * word-by-word stack that kept "HEADQUARTERS" inside a 1280 column.
          */}
         <div className="grid grid-cols-1 items-center gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-8 xl:gap-10">
           <div className="prize-total min-w-0">
@@ -48,12 +45,13 @@ export function LandingPrizes() {
           </p>
 
           <div className="min-w-0">
-            <h3 className="max-w-full font-[family-name:var(--font-landing-display)] text-[clamp(2.25rem,5.2vw,4.5rem)] uppercase leading-[0.86] tracking-[-0.03em]">
-              {tripTitleLines.map((line) => (
-                <span className="block w-fit" key={line}>
-                  {line}
-                </span>
-              ))}
+            <h3 className="max-w-full">
+              <span className="block font-[family-name:var(--font-landing-display)] text-[clamp(3.5rem,12vw,5.5rem)] uppercase leading-[0.86] tracking-[-0.03em] lg:text-[clamp(2.75rem,5.2vw,4.5rem)]">
+                {prizesCopy.tripTitle}
+              </span>
+              <span className="mt-3 block font-[family-name:var(--font-landing-mono)] text-xs uppercase tracking-[0.18em] text-[var(--hud-type)]/60 sm:mt-4">
+                {prizesCopy.tripBody}
+              </span>
             </h3>
           </div>
         </div>
