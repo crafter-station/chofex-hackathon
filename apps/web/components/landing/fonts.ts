@@ -19,6 +19,7 @@ export const landingBrand = Stack_Sans_Notch({
   subsets: ["latin", "latin-ext"],
   variable: "--font-landing-brand",
   display: "swap",
+  adjustFontFallback: false,
 });
 
 export const landingDisplay = Barlow_Condensed({
@@ -40,6 +41,7 @@ export const landingSans = Google_Sans_Flex({
   subsets: ["latin", "latin-ext"],
   variable: "--font-landing-sans",
   display: "swap",
+  adjustFontFallback: false,
 });
 
 export const landingMono = IBM_Plex_Mono({
