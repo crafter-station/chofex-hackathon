@@ -153,11 +153,11 @@ export const ChallengeSlugSchema = Schema.Literals([
 ]);
 
 export const ShipmentSchema = Schema.Struct({
-  distanceKm: Schema.Number.pipe(
-    Schema.check(Schema.isBetween({ minimum: 0.1, maximum: 2_000 })),
+  distanceKm: Schema.Int.pipe(
+    Schema.check(Schema.isBetween({ minimum: 1, maximum: 2_000 })),
   ),
-  weightKg: Schema.Number.pipe(
-    Schema.check(Schema.isBetween({ minimum: 0.1, maximum: 500 })),
+  weightKg: Schema.Int.pipe(
+    Schema.check(Schema.isBetween({ minimum: 1, maximum: 500 })),
   ),
   hour: Schema.Int.pipe(
     Schema.check(Schema.isBetween({ minimum: 0, maximum: 23 })),
@@ -404,9 +404,6 @@ export const compareChallengeScores = (
   }
   if (left.queriesUsed !== right.queriesUsed) {
     return left.queriesUsed - right.queriesUsed;
-  }
-  if (left.runtimeMs !== right.runtimeMs) {
-    return left.runtimeMs - right.runtimeMs;
   }
   return 0;
 };

@@ -82,6 +82,10 @@ export const challengeObservations = pgTable(
       table.attemptId,
       table.sequence,
     ),
+    uniqueIndex("challenge_observations_attempt_input_unique").on(
+      table.attemptId,
+      table.input,
+    ),
     index("challenge_observations_attempt_id_index").on(table.attemptId),
   ],
 );
@@ -110,7 +114,6 @@ export const challengeEvaluations = pgTable(
       table.accuracy,
       table.exactCount,
       table.queriesUsed,
-      table.runtimeMs,
     ),
   ],
 );

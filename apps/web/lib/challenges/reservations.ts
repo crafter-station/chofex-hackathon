@@ -52,6 +52,13 @@ interface CompletedQueryRow extends Record<string, unknown> {
   readonly queries_limit: number;
 }
 
+interface ExistingObservationRow extends Record<string, unknown> {
+  readonly sequence: number;
+  readonly input: unknown;
+  readonly output: unknown;
+  readonly created_at: Date | string;
+}
+
 export interface CompletedEvaluation {
   readonly shareCode: string;
   readonly evaluationsUsed: number;
@@ -65,6 +72,30 @@ interface CompletedEvaluationRow extends Record<string, unknown> {
 }
 
 const reservationLifetimeMs = 5 * 60 * 1_000;
+
+export const findChallengeObservation = async (
+  attemptId: string,
+  input: unknown,
+  database?: ReservationDatabase,
+): Promise<ChallengeObservation | undefined> => {
+  const client = await reservationDatabase(database);
+  const result = await client.execute<ExistingObservationRow>(sql`
+    select "sequence", "input", "output", "created_at"
+    from "challenge_observations"
+    where
+      "attempt_id" = ${attemptId}
+      and "input" = ${JSON.stringify(input)}::jsonb
+    limit 1
+  `);
+  const row = result.rows[0];
+  if (!row) return undefined;
+  return {
+    sequence: row.sequence,
+    input: row.input,
+    output: row.output,
+    createdAt: new Date(row.created_at).toISOString(),
+  };
+};
 
 export const reserveChallengeUse = async (
   attemptId: string,

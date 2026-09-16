@@ -257,8 +257,8 @@ const queryCommand = Command.make(
   {
     challenge: challengeFlag,
     input: inputFlag,
-    distance: optionalString("distance", "Shipment distance in km"),
-    weight: optionalString("weight", "Shipment weight in kg"),
+    distance: optionalString("distance", "Shipment distance in whole km"),
+    weight: optionalString("weight", "Shipment weight in whole kg"),
     hour: optionalString("hour", "Hour of day, 0-23"),
     fragile: Flag.choice("fragile", ["true", "false"]).pipe(
       Flag.optional,
