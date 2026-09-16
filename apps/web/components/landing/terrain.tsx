@@ -1,14 +1,18 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 
-import { startHeroModelPreload } from "@/components/landing/sacred-valley-preload";
+import { HeroPoster } from "@/components/landing/hero-poster";
+import {
+  scheduleWhenIdle,
+  startHeroModelPreload,
+} from "@/components/landing/sacred-valley-preload";
 import { TerrainFallback } from "@/components/landing/terrain-fallback";
 import {
   detectWebGL,
   prefersReducedMotion,
   readGpuRenderer,
+  readNetworkConstraint,
   resolveWorldPresentation,
   type WorldPresentation,
 } from "@/components/landing/world-capability";
@@ -18,23 +22,19 @@ import {
 } from "@/components/landing/world-loop";
 import { subscribePrefersReducedMotion } from "@/components/landing/world-motion";
 
-const TerrainCanvas = dynamic(
-  () =>
-    import("@/components/landing/terrain-canvas").then(
-      (module) => module.TerrainCanvas,
-    ),
-  { ssr: false },
-);
+type TerrainCanvasComponent =
+  typeof import("@/components/landing/terrain-canvas").TerrainCanvas;
 
 type NavigatorWithMemory = Navigator & { deviceMemory?: number };
 
 /**
  * Capability gate for the drawn valley.
  *
- * Unlike the backdrop this one does fetch — several megabytes of Draco terrain
- * — so the live canvas waits until the browser has proved it can draw it. A
- * static contour stand-in stays in the hero so WebGL-disabled and still-loading
- * states keep a purposeful visual instead of type on bare black.
+ * The mesh is several megabytes of Draco terrain plus the R3F stack, so
+ * nothing in that path starts until the browser has proved it can draw it
+ * *and* the opening paint has been given a turn. Until then — and for good on
+ * hardware that should not run it — the poster holds the same vantage, with
+ * the inline contour SVG behind it if the still has not arrived.
  */
 export function Terrain({ className }: { readonly className?: string }) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -47,6 +47,7 @@ export function Terrain({ className }: { readonly className?: string }) {
   const [contextLost, setContextLost] = useState(false);
   const [drawn, setDrawn] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [Canvas, setCanvas] = useState<TerrainCanvasComponent | null>(null);
   /*
    * Read after mount, never during render. `prefersReducedMotion()` reaches for
    * matchMedia, which the server does not have, so calling it inline makes the
@@ -56,7 +57,6 @@ export function Terrain({ className }: { readonly className?: string }) {
   const [fade, setFade] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    startHeroModelPreload();
     setFade(prefersReducedMotion() ? undefined : "opacity 700ms ease");
   }, []);
 
@@ -71,18 +71,27 @@ export function Terrain({ className }: { readonly className?: string }) {
           hasWebGL: detectWebGL(),
           hardwareConcurrency: navigator.hardwareConcurrency,
           deviceMemory: navigatorWithMemory.deviceMemory,
-          /*
-           * The drawing is still worth showing under reduced motion — it is
-           * the page's subject — so it is not withheld here. What the setting
-           * turns off is the turn itself, which the canvas handles by parking
-           * the camera at its opening bearing.
-           */
-          prefersReducedMotion: false,
+          network: readNetworkConstraint(),
+          prefersReducedMotion: matches,
           quality: "auto",
         }),
       );
     });
   }, []);
+
+  useEffect(() => {
+    if (presentation.mode !== "webgl") {
+      return;
+    }
+
+    return scheduleWhenIdle(() => {
+      startHeroModelPreload();
+      void import("@/components/landing/terrain-canvas").then((module) => {
+        module.preloadHeroTerrain();
+        setCanvas(() => module.TerrainCanvas);
+      });
+    });
+  }, [presentation.mode]);
 
   useEffect(() => {
     const syncVisibility = () => {
@@ -120,38 +129,60 @@ export function Terrain({ className }: { readonly className?: string }) {
   }, []);
 
   const webglReady = presentation.mode === "webgl" && !contextLost;
+  const showCanvas = webglReady && Canvas !== null;
   /*
-   * Reduced motion keeps the loop alive rather than parking it: the camera
-   * stops turning, but the canvas still has to draw the frame it is holding.
+   * Park the loop off-screen, in a hidden tab, and under reduced motion.
+   * Reduced motion never mounts the canvas (the poster holds the frame), so
+   * this only applies if the preference flips after a live scene has started.
    */
   const running = shouldRunWorldFrameLoop({
     intersecting,
     documentVisible,
+    reducedMotion,
   });
 
-  let terrainState = "fallback";
-  if (drawn) {
+  let terrainState = "poster";
+  if (drawn && showCanvas) {
     terrainState = "drawn";
-  } else if (webglReady) {
+  } else if (showCanvas) {
     terrainState = "pending";
   }
 
-  const fallbackClassName = drawn
+  const fallbackReady = drawn && showCanvas;
+  const fallbackClassName = fallbackReady
     ? "landing-world-fallback landing-world-fallback--ready absolute inset-0 text-[var(--hud-type)]"
     : "landing-world-fallback absolute inset-0 text-[var(--hud-type)]";
 
   return (
-    <div ref={rootRef} className={className} data-terrain={terrainState}>
-      <div aria-hidden="true" className={fallbackClassName}>
-        <TerrainFallback className="size-full" />
+    <div
+      ref={rootRef}
+      className={className}
+      data-hero-fallback={
+        presentation.mode === "fallback" ? presentation.reason : undefined
+      }
+      data-terrain={terrainState}
+    >
+      <div
+        aria-hidden="true"
+        className={fallbackClassName}
+        style={{
+          opacity: fallbackReady ? 0 : 1,
+          transition: fade,
+        }}
+      >
+        <TerrainFallback className="absolute inset-0 size-full" />
+        <HeroPoster />
       </div>
-      {webglReady ? (
+      {showCanvas ? (
         <div
           className="absolute inset-0"
           style={{ opacity: drawn ? 1 : 0, transition: fade }}
         >
-          <TerrainCanvas
-            onContextLost={() => setContextLost(true)}
+          <Canvas
+            onContextLost={() => {
+              setContextLost(true);
+              setDrawn(false);
+            }}
             onDrawn={() => setDrawn(true)}
             quality={presentation.quality}
             reducedMotion={reducedMotion}
