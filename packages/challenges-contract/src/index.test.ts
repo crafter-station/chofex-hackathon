@@ -3,7 +3,9 @@ import { Schema } from "effect";
 
 import {
   challengeBySlug,
+  challengeOpeningNotice,
   compareChallengeScores,
+  formatChallengeOpeningInPeru,
   isChallengeOpenAt,
   ShipmentSchema,
   scoreFromPredictions,
@@ -16,15 +18,21 @@ describe("challenge catalog", () => {
     expect(challengeBySlug("black-box")?.evaluationLimit).toBe(3);
   });
 
-  test("opens Black Box on 18 September 2026", () => {
+  test("opens Black Box on 17 September 2026 at midnight UTC-5", () => {
     const challenge = challengeBySlug("black-box");
     if (!challenge) throw new Error("missing black-box");
     expect(
-      isChallengeOpenAt(challenge, new Date("2026-09-17T23:59:59.000Z")),
+      isChallengeOpenAt(challenge, new Date("2026-09-17T04:59:59.999Z")),
     ).toBe(false);
     expect(
-      isChallengeOpenAt(challenge, new Date("2026-09-18T05:00:00.000Z")),
+      isChallengeOpenAt(challenge, new Date("2026-09-17T05:00:00.000Z")),
     ).toBe(true);
+    expect(formatChallengeOpeningInPeru(challenge.opensAt)).toBe(
+      "September 17, 2026 at 00:00 (UTC-5)",
+    );
+    expect(challengeOpeningNotice(challenge.title, challenge.opensAt)).toBe(
+      "The Shipping Machine opens September 17, 2026 at 00:00 (UTC-5). Queries and evaluations are disabled until then; no attempts will be consumed.",
+    );
     expect(
       isChallengeOpenAt(challenge, new Date("2026-09-17T00:00:00.000Z"), true),
     ).toBe(true);

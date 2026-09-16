@@ -7,6 +7,10 @@ import type {
   ChallengeQueryResult,
   ChallengeRanking,
 } from "@chofex/challenges-contract";
+import {
+  challengeOpeningNotice,
+  formatChallengeOpeningInPeru,
+} from "@chofex/challenges-contract";
 import type { RegistrationResult } from "@chofex/registration-contract";
 
 export const remainingBar = (used: number, limit: number): string => {
@@ -19,13 +23,24 @@ export const remainingBar = (used: number, limit: number): string => {
 
 const percent = (value: number): string => `${(value * 100).toFixed(2)}%`;
 
+export const challengeLaunchNotice = (
+  title: string,
+  opensAt: string,
+  now: Date = new Date(),
+): string | undefined => {
+  if (now.getTime() >= Date.parse(opensAt)) return undefined;
+  return challengeOpeningNotice(title, opensAt);
+};
+
 export const challengeListText = (
   catalog: ChallengeCatalogResponse,
 ): string => {
   const lines = ["Hack the Andes challenges", ""];
   for (const challenge of catalog.challenges) {
     let state = "open";
-    if (!challenge.open) state = `opens ${challenge.opensAt.slice(0, 10)}`;
+    if (!challenge.open) {
+      state = `opens ${formatChallengeOpeningInPeru(challenge.opensAt)}`;
+    }
     const playable = challenge.playable ? "" : " (coming later)";
     lines.push(
       `${challenge.code}  ${challenge.theme} — ${challenge.title}${playable}`,
