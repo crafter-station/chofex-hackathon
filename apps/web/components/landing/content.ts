@@ -110,7 +110,6 @@ export const challengesCopy = {
   kicker: "los briefs",
   title: "3 challenges sellados",
   lede: "Las personas aceptadas conocerán los 3 briefs al iniciar la hackathon. Cada equipo elegirá uno y tendrá 30 horas para entregar un producto funcionando.",
-  sealed: "Brief sellado",
   reveal: "Se revela en Lima, 17 oct",
 } as const;
 

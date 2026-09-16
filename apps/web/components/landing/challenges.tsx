@@ -67,14 +67,9 @@ export function LandingChallenges() {
                 />
 
                 <div className="relative z-10 flex w-full flex-col justify-between p-6 sm:p-8">
-                  <div className="flex items-start justify-between gap-4">
-                    <HudLabel className="text-[var(--hud-muted)]">
-                      Challenge {seat.index}
-                    </HudLabel>
-                    <HudLabel className="border border-[var(--hud-status)]/35 px-2 py-1 text-[var(--hud-status)]">
-                      {challengesCopy.sealed}
-                    </HudLabel>
-                  </div>
+                  <HudLabel className="text-[var(--hud-muted)]">
+                    Challenge {seat.index}
+                  </HudLabel>
 
                   <p className="max-w-[28ch] text-lg leading-snug text-[var(--hud-ink)]">
                     {seat.hint}
