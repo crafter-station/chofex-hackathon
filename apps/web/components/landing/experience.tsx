@@ -5,7 +5,10 @@ import {
   faqItems,
 } from "@/components/landing/content";
 import { HudLabel } from "@/components/landing/hud";
-import { LandingContainer } from "@/components/landing/shell";
+import {
+  LandingContainer,
+  landingSectionYClassName,
+} from "@/components/landing/shell";
 
 export function LandingExperience() {
   return (
@@ -14,7 +17,7 @@ export function LandingExperience() {
       className="bg-[var(--hud-paper)]"
       id="experience"
     >
-      <LandingContainer className="py-16 sm:py-24">
+      <LandingContainer className={landingSectionYClassName}>
         <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
           <div>
             <HudLabel className="mb-4 text-[var(--hud-action)]">

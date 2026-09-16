@@ -2,7 +2,10 @@ import Image from "next/image";
 
 import { partners, sponsorsCopy } from "@/components/landing/content";
 import { HudLabel } from "@/components/landing/hud";
-import { LandingContainer } from "@/components/landing/shell";
+import {
+  LandingContainer,
+  landingSectionYClassName,
+} from "@/components/landing/shell";
 
 export function LandingSponsors() {
   return (
@@ -11,7 +14,7 @@ export function LandingSponsors() {
       className="bg-[var(--hud-card)] text-[var(--hud-ink)]"
       id="sponsors"
     >
-      <LandingContainer className="py-20 sm:py-28">
+      <LandingContainer className={landingSectionYClassName}>
         <HudLabel className="mb-8 text-[var(--hud-action)]">
           {sponsorsCopy.kicker}
         </HudLabel>

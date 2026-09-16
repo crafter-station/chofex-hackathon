@@ -3,6 +3,7 @@ import { HudLabel } from "@/components/landing/hud";
 import {
   LandingContainer,
   LandingSectionHead,
+  landingSectionYClassName,
 } from "@/components/landing/shell";
 
 export function LandingAudience() {
@@ -12,7 +13,7 @@ export function LandingAudience() {
       className="relative bg-[var(--hud-paper)]"
       id="why"
     >
-      <LandingContainer className="py-20 sm:py-28">
+      <LandingContainer className={landingSectionYClassName}>
         <HudLabel className="mb-4 text-[var(--hud-action)]">
           {audienceCopy.kicker}
         </HudLabel>

@@ -19,6 +19,9 @@ export const landingCtaClassName =
 export const landingFrameClassName =
   "border border-[var(--hud-ink)]/10 bg-[var(--hud-card)] text-[var(--hud-ink)]";
 
+/** Vertical rhythm for regular content sections. Hero and prizes stay full-viewport. */
+export const landingSectionYClassName = "py-14 sm:py-20";
+
 export function LandingContainer({
   className,
   ...props
