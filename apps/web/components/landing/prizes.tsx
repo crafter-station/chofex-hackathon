@@ -13,7 +13,7 @@ export function LandingPrizes() {
       <LandingContainer className="flex flex-1 flex-col justify-center py-20 sm:py-24">
         {/* Section title — small kicker, also the landmark label */}
         <h2
-          className="mb-10 font-[family-name:var(--font-landing-mono)] text-[10px] uppercase tracking-[0.18em] text-[var(--hud-type)]/60 sm:mb-14"
+          className="landing-type-meta mb-10 text-[var(--hud-type)]/60 sm:mb-14"
           id="prizes-heading"
         >
           {prizesCopy.title}
