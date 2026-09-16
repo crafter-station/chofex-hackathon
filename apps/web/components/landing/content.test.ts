@@ -170,6 +170,19 @@ test("fits the prizes lockup inside one viewport column", async () => {
   expect(source).not.toMatch(/text-\[10px\]/);
 });
 
+test("keeps Premios dense on phones with a larger cash headline", async () => {
+  const source = await Bun.file(
+    new URL("./prizes.tsx", import.meta.url),
+  ).text();
+
+  expect(source).toContain("md:min-h-svh");
+  expect(source).toContain("md:justify-center");
+  expect(source).not.toMatch(/className="flex min-h-svh flex-col/);
+  expect(source).toContain("py-8");
+  expect(source).toContain("clamp(5.25rem,18vw,8rem)");
+  expect(source).toContain("lg:text-[clamp(3.25rem,9vw,7.25rem)]");
+});
+
 test("labels challenge cards as tracks", async () => {
   const source = await Bun.file(
     new URL("./challenges.tsx", import.meta.url),
