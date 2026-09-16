@@ -1,4 +1,4 @@
-import { Effect, Option } from "effect";
+import { Console, Effect, Option } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
 
 import {
@@ -25,7 +25,84 @@ import {
   notebookTableText,
 } from "./challenge-output.js";
 import { root } from "./cli-root.js";
-import { execute } from "./output.js";
+import { execute, printJson } from "./output.js";
+
+const challengeQuickstart = {
+  title: "Black Box quickstart",
+  goal: "Reverse-engineer the shipping price function, then submit a compatible JavaScript replacement.",
+  workflow: [
+    {
+      step: 1,
+      action: "Sign in",
+      command: "chofex login",
+      note: "Opens Clerk authentication in your browser.",
+    },
+    {
+      step: 2,
+      action: "Check your budget",
+      command: "chofex challenge show",
+      note: "Shows remaining oracle queries and official evaluations.",
+    },
+    {
+      step: 3,
+      action: "Probe the Black Box",
+      command:
+        "chofex challenge query --distance 10 --weight 3 --hour 14 --fragile false --express false",
+      note: "A successful query reveals one shipping price and consumes one query.",
+    },
+    {
+      step: 4,
+      action: "Study your observations",
+      command: "chofex challenge notebook",
+      note: "Compare inputs and outputs to infer the pricing rules.",
+    },
+    {
+      step: 5,
+      action: "Build shipping.js",
+      file: "shipping.js",
+      source: [
+        "function calculateShipping(input) {",
+        "  // Return your predicted shipping price.",
+        "  return input.distanceKm + input.weightKg;",
+        "}",
+      ].join("\n"),
+      note: "Define calculateShipping and return one finite number.",
+    },
+    {
+      step: 6,
+      action: "Test your replacement safely",
+      command: "chofex challenge test --source ./shipping.js",
+      note: "Checks your solution against your notebook without consuming an official evaluation.",
+    },
+    {
+      step: 7,
+      action: "Submit to the hidden test set",
+      command: "chofex challenge evaluate --source ./shipping.js",
+      note: "Official evaluations are limited. Use test as often as needed, then evaluate when your solution is ready.",
+    },
+    {
+      step: 8,
+      action: "Check the leaderboard",
+      command: "chofex challenge ranking",
+      note: "Shows the public ranking without consuming budget.",
+    },
+  ],
+  helpCommand: "chofex challenge query --help",
+} as const;
+
+const challengeQuickstartText = (): string => {
+  const lines = [challengeQuickstart.title, challengeQuickstart.goal, ""];
+  for (const item of challengeQuickstart.workflow) {
+    lines.push(`${item.step}. ${item.action}`);
+    if ("command" in item) lines.push(`   ${item.command}`);
+    if ("source" in item) {
+      lines.push(...item.source.split("\n").map((line) => `   ${line}`));
+    }
+    lines.push(`   ${item.note}`, "");
+  }
+  lines.push(`More detail: ${challengeQuickstart.helpCommand}`);
+  return lines.join("\n");
+};
 
 const optionalString = (name: string, description: string) =>
   Flag.string(name).pipe(Flag.optional, Flag.withDescription(description));
@@ -37,7 +114,7 @@ const challengeFlag = Flag.string("challenge").pipe(
 
 const sourceFlag = optionalString(
   "source",
-  "JavaScript file exporting function calculateShipping(input)",
+  "JavaScript file defining function calculateShipping(input)",
 );
 
 const inputFlag = optionalString("input", "JSON file, or - for stdin");
@@ -71,7 +148,17 @@ const listCommand = Command.make(
       challengeListText,
     );
   }),
-).pipe(Command.withDescription("List mini technical challenges"));
+).pipe(
+  Command.withDescription(
+    "Discover available challenges, opening dates, and scoring formats. No login required.",
+  ),
+  Command.withExamples([
+    {
+      command: "chofex challenge list",
+      description: "See which challenge is currently playable",
+    },
+  ]),
+);
 
 const showCommand = Command.make(
   "show",
@@ -86,7 +173,15 @@ const showCommand = Command.make(
     );
   }),
 ).pipe(
-  Command.withDescription("Show your Black Box status and remaining budget"),
+  Command.withDescription(
+    "Check your Black Box query budget, evaluation budget, score, and saved observations. Requires sign-in.",
+  ),
+  Command.withExamples([
+    {
+      command: "chofex challenge show",
+      description: "Check your progress before spending limited attempts",
+    },
+  ]),
 );
 
 const queryCommand = Command.make(
@@ -135,13 +230,17 @@ const queryCommand = Command.make(
   }),
 ).pipe(
   Command.withDescription(
-    "Query the undocumented Black Box (uses one request)",
+    "Send one shipment to the undocumented oracle. A successful query consumes one limited request. Requires sign-in.",
   ),
   Command.withExamples([
     {
       command:
         "chofex challenge query --distance 10 --weight 3 --hour 14 --fragile false --express false",
       description: "Spend one oracle query",
+    },
+    {
+      command: "chofex challenge query --input shipment.json",
+      description: "Read the shipment fields from a JSON file",
     },
   ]),
 );
@@ -166,8 +265,18 @@ const notebookCommand = Command.make(
   }),
 ).pipe(
   Command.withDescription(
-    "Export Black Box observations as a table, JSON, or CSV",
+    "Review every input and price you observed. Export table, JSON, or CSV for analysis. Requires sign-in.",
   ),
+  Command.withExamples([
+    {
+      command: "chofex challenge notebook",
+      description: "Read observations in a terminal table",
+    },
+    {
+      command: "chofex challenge notebook --format csv > observations.csv",
+      description: "Save observations for a spreadsheet",
+    },
+  ]),
 );
 
 const testCommand = Command.make(
@@ -190,8 +299,14 @@ const testCommand = Command.make(
   }),
 ).pipe(
   Command.withDescription(
-    "Test a replacement against your notebook without consuming an official evaluation",
+    "Check calculateShipping against your saved observations. Safe to repeat; official evaluations are not consumed. Requires sign-in.",
   ),
+  Command.withExamples([
+    {
+      command: "chofex challenge test --source ./shipping.js",
+      description: "Test a JavaScript replacement against your notebook",
+    },
+  ]),
 );
 
 const evaluateCommand = Command.make(
@@ -214,8 +329,14 @@ const evaluateCommand = Command.make(
   }),
 ).pipe(
   Command.withDescription(
-    "Run an official hidden-set evaluation (limited attempts)",
+    "Score calculateShipping on hidden cases. This consumes one limited official evaluation. Requires sign-in.",
   ),
+  Command.withExamples([
+    {
+      command: "chofex challenge evaluate --source ./shipping.js",
+      description: "Spend one official evaluation when your solution is ready",
+    },
+  ]),
 );
 
 const rankingCommand = Command.make(
@@ -229,12 +350,53 @@ const rankingCommand = Command.make(
       challengeRankingText,
     );
   }),
-).pipe(Command.withDescription("Show the public read-only challenge ranking"));
-
-export const challengeCommand = Command.make("challenge").pipe(
+).pipe(
   Command.withDescription(
-    "Play mini technical challenges and inspect public rankings",
+    "View the public leaderboard. No login required and no challenge budget consumed.",
   ),
+  Command.withExamples([
+    {
+      command: "chofex challenge ranking",
+      description: "Compare official hidden-set scores",
+    },
+  ]),
+);
+
+export const challengeCommand = Command.make(
+  "challenge",
+  {},
+  Effect.fn("challengeQuickstartCommand")(function* () {
+    const options = yield* root;
+    if (options.output === "json") {
+      yield* printJson({
+        version: 1,
+        ok: true,
+        requestId: crypto.randomUUID(),
+        data: challengeQuickstart,
+      });
+      return;
+    }
+    yield* Console.log(challengeQuickstartText());
+  }),
+).pipe(
+  Command.withDescription(
+    "Play mini technical challenges. Start here: learn the Black Box workflow from first query to leaderboard. Run without a subcommand for the guided quickstart.",
+  ),
+  Command.withExamples([
+    {
+      command: "chofex challenge",
+      description: "Open the guided Black Box quickstart",
+    },
+    {
+      command:
+        "chofex challenge query --distance 10 --weight 3 --hour 14 --fragile false --express false",
+      description: "Make your first oracle query",
+    },
+    {
+      command: "chofex challenge query --help",
+      description: "See flags and examples for the query step",
+    },
+  ]),
   Command.withSubcommands([
     listCommand,
     showCommand,
