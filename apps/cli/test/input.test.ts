@@ -24,26 +24,14 @@ describe("CLI registration input", () => {
       firstName: "Anthony",
       lastName: "Cueva",
       email: "hi@cueva.io",
-      pronouns: "he/him",
-      countryCode: "PE",
-      city: "Lima",
-      participationMode: "in_person",
-      organization: "Crafter Station",
       role: "Builder",
-      fieldOfStudy: "Computer Science",
-      graduationYear: 2020,
-      shippedProject: "A community platform",
-      hackathonProject: "A teammate matcher",
-      bio: "I build things.",
       githubUrl: "https://github.com/cuevaio",
       linkedInUrl: "https://linkedin.com/in/cuevaio",
-      portfolioUrl: "https://cueva.io",
-      teamPreference: "have_team",
-      teamName: "Team Andes",
       codeOfConductAccepted: true,
       privacyPolicyAccepted: true,
       nationalIdProvided: false,
       mediaConsent: true,
+      participationMode: "in_person",
       rejectionReason: "Clarify the project scope.",
       submittedAt: "2026-09-09T00:00:00.000Z",
       createdAt: "2026-09-09T00:00:00.000Z",
@@ -52,29 +40,15 @@ describe("CLI registration input", () => {
     });
 
     expect(defaults).toEqual({
-      firstName: "Anthony",
-      lastName: "Cueva",
-      pronouns: "he/him",
-      city: "Lima",
-      organization: "Crafter Station",
+      fullName: "Anthony Cueva",
       role: "Builder",
-      fieldOfStudy: "Computer Science",
-      graduationYear: 2020,
-      shippedProject: "A community platform",
-      hackathonProject: "A teammate matcher",
-      bio: "I build things.",
       githubUrl: "https://github.com/cuevaio",
       linkedInUrl: "https://linkedin.com/in/cuevaio",
-      portfolioUrl: "https://cueva.io",
-      teamPreference: "have_team",
-      teamName: "Team Andes",
       codeOfConductAccepted: true,
-      privacyPolicyAccepted: true,
-      mediaConsent: true,
     });
   });
 
-  test("does not pre-accept agreements that are still missing", () => {
+  test("does not pre-accept terms that are still missing", () => {
     const defaults = applicationDefaultsFromRegistration({
       id: "registration-123",
       status: "draft",
@@ -92,7 +66,6 @@ describe("CLI registration input", () => {
     });
 
     expect(defaults.codeOfConductAccepted).toBeUndefined();
-    expect(defaults.privacyPolicyAccepted).toBeUndefined();
   });
 
   test("builds public policy links from API URLs with or without a slash", () => {
@@ -107,15 +80,13 @@ describe("CLI registration input", () => {
   test("sends explicit nulls when optional draft fields are cleared", () => {
     expect(
       normalizeDraftFields({
-        organization: "",
-        graduationYear: "",
         githubUrl: "",
+        linkedInUrl: "",
         role: undefined,
       }),
     ).toEqual({
-      organization: null,
-      graduationYear: null,
       githubUrl: null,
+      linkedInUrl: null,
     });
   });
 

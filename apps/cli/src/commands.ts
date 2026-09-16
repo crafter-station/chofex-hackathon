@@ -1,9 +1,9 @@
+import { joinFullName } from "@chofex/registration-contract";
 import { Console, Effect, Option } from "effect";
-import { Command, Flag, Prompt } from "effect/unstable/cli";
+import { Command, Flag } from "effect/unstable/cli";
 import {
   confirmAttendance,
   getBadge,
-  getChallengeAttempt,
   getCurrentUser,
   getRegistration,
   saveRegistrationDraft,
@@ -11,11 +11,7 @@ import {
 } from "./api-client.js";
 import { login as oauthLogin, logout as oauthLogout } from "./auth.js";
 import { challengeCommand } from "./challenge-commands.js";
-import {
-  challengeShowText,
-  draftSavedText,
-  registrationPartsText,
-} from "./challenge-output.js";
+import { draftSavedText, registrationPartsText } from "./challenge-output.js";
 import { root } from "./cli-root.js";
 import { config } from "./config.js";
 import { cliError } from "./errors.js";
@@ -24,10 +20,7 @@ import {
   applicationDefaultsFromRegistration,
   applicationDraftInput,
   applicationInput,
-  collectAgreementsPart,
-  collectExperiencePart,
-  collectIdentityPart,
-  collectTeamPart,
+  collectApplicationFields,
   picturePathInput,
 } from "./input.js";
 import {
@@ -141,12 +134,12 @@ const registerCommand = Command.make(
   }),
 ).pipe(
   Command.withDescription(
-    "Save an application draft in parts, then submit it for review",
+    "Save an application draft, then submit it for review",
   ),
   Command.withExamples([
     {
       command: "chofex register",
-      description: "Fill or resume application parts interactively",
+      description: "Fill or resume the application interactively",
     },
     {
       command: "chofex --output json register --input application.json",
@@ -166,72 +159,23 @@ const interactiveRegister = (
   }>,
 ) =>
   Effect.gen(function* () {
-    let latest = Option.isSome(initial) ? initial.value.data : undefined;
-    while (true) {
-      if (latest) {
-        yield* Console.log(registrationPartsText(latest));
-      } else {
-        yield* Console.log(
-          "No draft yet. Choose a part to start. Progress is saved on the server.",
-        );
-      }
-      let defaults = {};
-      if (latest) {
-        defaults = applicationDefaultsFromRegistration(latest.registration);
-      }
-      const choice = yield* Prompt.run(
-        Prompt.select({
-          message: "What would you like to do?",
-          choices: [
-            { title: "Edit identity", value: "identity" as const },
-            { title: "Edit experience", value: "experience" as const },
-            { title: "Edit team", value: "team" as const },
-            {
-              title: "Black Box challenge status",
-              value: "challenges" as const,
-            },
-            { title: "Review agreements", value: "agreements" as const },
-            { title: "Submit application", value: "submit" as const },
-            { title: "Save and exit", value: "exit" as const },
-          ],
-        }),
-      ).pipe(
-        Effect.mapError(() =>
-          cliError("PROMPT_CANCELLED", "Interactive input was cancelled"),
-        ),
+    const latest = Option.isSome(initial) ? initial.value.data : undefined;
+    if (latest) {
+      yield* Console.log(registrationPartsText(latest));
+    } else {
+      yield* Console.log(
+        "No draft yet. Answers are saved on the server after you finish.",
       );
-      if (choice === "exit") {
-        if (!latest) {
-          latest = (yield* saveRegistrationDraft(client, {})).data;
-        }
-        return {
-          version: 1 as const,
-          ok: true as const,
-          requestId: crypto.randomUUID(),
-          data: latest,
-        };
-      }
-      if (choice === "submit") {
-        return yield* submitRegistration(client);
-      }
-      if (choice === "challenges") {
-        const attempt = yield* getChallengeAttempt(client, "black-box");
-        yield* Console.log(`\n${challengeShowText(attempt.data)}\n`);
-        latest = (yield* getRegistration(client)).data;
-        continue;
-      }
-      let partBody: Record<string, unknown> = {};
-      if (choice === "identity") {
-        partBody = yield* collectIdentityPart(defaults);
-      } else if (choice === "experience") {
-        partBody = yield* collectExperiencePart(defaults);
-      } else if (choice === "team") {
-        partBody = yield* collectTeamPart(defaults);
-      } else {
-        partBody = yield* collectAgreementsPart(config.publicSiteUrl, defaults);
-      }
-      latest = (yield* saveRegistrationDraft(client, partBody)).data;
     }
+    let defaults = {};
+    if (latest) {
+      defaults = applicationDefaultsFromRegistration(latest.registration);
+    }
+    const body = yield* collectApplicationFields(
+      config.publicSiteUrl,
+      defaults,
+    );
+    return yield* saveRegistrationDraft(client, body);
   });
 
 const statusCommand = Command.make(
@@ -312,7 +256,10 @@ const confirmCommand = Command.make(
           clerkPictureUrl: currentUser.data.clerkPictureUrl,
           githubUrl: current.data.registration.githubUrl,
           currentFullName:
-            `${current.data.registration.firstName} ${current.data.registration.lastName}`.trim(),
+            joinFullName(
+              current.data.registration.firstName,
+              current.data.registration.lastName,
+            ) || current.data.registration.fullName,
         },
       );
       const picturePath = Option.getOrUndefined(picture);
@@ -450,25 +397,11 @@ const validateCommand = Command.make(
 );
 
 const applicationTemplate = {
-  firstName: "Ada",
-  lastName: "Lovelace",
-  pronouns: "she/her",
-  city: "Lima",
-  organization: "Analytical Engines",
+  fullName: "Ada Lovelace",
   role: "Programmer",
-  fieldOfStudy: "Computer Science",
-  graduationYear: 2026,
-  shippedProject: "An open-source tool that helps teams analyze their data.",
-  hackathonProject: "A collaborative AI prototyping workspace.",
-  bio: "What I hope to build and contribute.",
   githubUrl: "https://github.com/ada-lovelace",
   linkedInUrl: "https://linkedin.com/in/ada-lovelace",
-  portfolioUrl: "https://example.com",
-  teamPreference: "have_team",
-  teamName: "Analytical Engines",
   codeOfConductAccepted: true,
-  privacyPolicyAccepted: true,
-  mediaConsent: false,
 };
 
 const acceptanceTemplate = {

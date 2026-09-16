@@ -14,10 +14,12 @@ import {
   applicationRequirementsFor,
   applicationSemanticRequirements,
   type CreatedRegistration,
+  fullNameColumnRequirements,
   hackathonCountryCode,
   hackathonParticipationMode,
   type RegistrationResult,
   type RegistrationView,
+  splitFullName,
 } from "@chofex/registration-contract";
 import { DateTime, Schema } from "effect";
 
@@ -192,51 +194,19 @@ const draftColumnsFrom = (
     participationMode: hackathonParticipationMode,
     updatedAt: now,
   };
-  if (input.firstName !== undefined) values.firstName = input.firstName;
-  if (input.lastName !== undefined) values.lastName = input.lastName;
-  if (input.pronouns !== undefined) values.pronouns = input.pronouns;
-  if (input.city !== undefined) values.city = input.city;
-  if (input.organization !== undefined) {
-    values.organization = input.organization;
+  if (input.fullName !== undefined) {
+    const name = splitFullName(input.fullName);
+    values.firstName = name.firstName;
+    values.lastName = name.lastName;
   }
   if (input.role !== undefined) values.role = input.role;
-  if (input.fieldOfStudy !== undefined)
-    values.fieldOfStudy = input.fieldOfStudy;
-  if (input.graduationYear !== undefined) {
-    values.graduationYear = input.graduationYear;
-  }
-  if (input.shippedProject !== undefined) {
-    values.shippedProject = input.shippedProject;
-  }
-  if (input.hackathonProject !== undefined) {
-    values.hackathonProject = input.hackathonProject;
-  }
-  if (input.bio !== undefined) values.bio = input.bio;
   if (input.githubUrl !== undefined) values.githubUrl = input.githubUrl;
   if (input.linkedInUrl !== undefined) values.linkedInUrl = input.linkedInUrl;
-  if (input.portfolioUrl !== undefined) {
-    values.portfolioUrl = input.portfolioUrl;
-  }
-  if (input.teamPreference !== undefined) {
-    values.teamPreference = input.teamPreference;
-  }
-  if (input.teamName !== undefined) values.teamName = input.teamName;
-  if (
-    input.teamPreference !== undefined &&
-    input.teamPreference !== "have_team"
-  ) {
-    values.teamName = null;
-  }
-  if (input.mediaConsent !== undefined)
-    values.mediaConsent = input.mediaConsent;
   if (input.codeOfConductAccepted === true) {
     values.codeOfConductAcceptedAt = now;
+    values.privacyPolicyAcceptedAt = now;
   } else if (input.codeOfConductAccepted === false) {
     values.codeOfConductAcceptedAt = null;
-  }
-  if (input.privacyPolicyAccepted === true) {
-    values.privacyPolicyAcceptedAt = now;
-  } else if (input.privacyPolicyAccepted === false) {
     values.privacyPolicyAcceptedAt = null;
   }
   return values;
@@ -274,6 +244,9 @@ export const saveRegistrationDraft = async (
   rawInput: unknown,
 ): Promise<RegistrationResult> => {
   const input = parseInput(ApplicationDraftInput, rawInput);
+  if (input.fullName !== undefined) {
+    assertNoRequirements(fullNameColumnRequirements(input.fullName));
+  }
   const participantId = await participantIdFor(identity.clerkUserId);
   const now = new Date();
   const columns = draftColumnsFrom(input, identity, now);
@@ -374,15 +347,8 @@ export const submitRegistration = async (
         eq(applications.id, current.application.id),
         eq(applications.status, "draft"),
         sql`${applications.firstName} is not null`,
-        sql`${applications.lastName} is not null`,
-        sql`${applications.city} is not null`,
-        sql`${applications.shippedProject} is not null`,
-        sql`${applications.hackathonProject} is not null`,
-        sql`${applications.bio} is not null`,
-        sql`${applications.teamPreference} is not null`,
-        sql`(${applications.teamPreference} <> 'have_team' or ${applications.teamName} is not null)`,
+        sql`${applications.role} is not null`,
         sql`${applications.codeOfConductAcceptedAt} is not null`,
-        sql`${applications.privacyPolicyAcceptedAt} is not null`,
       ),
     )
     .returning();
