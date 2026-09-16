@@ -5,7 +5,13 @@ export type WorldFallbackReason =
   | "no-webgl"
   | "reduced-motion"
   | "weak-device"
+  | "constrained-network"
   | "forced";
+
+export type NetworkConstraint = {
+  saveData?: boolean;
+  effectiveType?: string;
+};
 
 export type WorldPresentation =
   | { mode: "fallback"; reason: WorldFallbackReason }
@@ -77,12 +83,43 @@ export function isSoftwareGpu(renderer: string | undefined): boolean {
   return SOFTWARE_GPU.test(renderer);
 }
 
+export function isConstrainedNetwork(
+  network: NetworkConstraint | undefined,
+): boolean {
+  if (!network) {
+    return false;
+  }
+  if (network.saveData) {
+    return true;
+  }
+  return network.effectiveType === "slow-2g" || network.effectiveType === "2g";
+}
+
+export function readNetworkConstraint(): NetworkConstraint | undefined {
+  if (typeof navigator === "undefined") {
+    return undefined;
+  }
+
+  const connection = (
+    navigator as Navigator & { connection?: NetworkConstraint }
+  ).connection;
+  if (!connection) {
+    return undefined;
+  }
+
+  return {
+    saveData: connection.saveData,
+    effectiveType: connection.effectiveType,
+  };
+}
+
 export function resolveWorldPresentation(input: {
   hasWebGL: boolean;
   prefersReducedMotion: boolean;
   gpuRenderer?: string;
   deviceMemory?: number;
   hardwareConcurrency?: number;
+  network?: NetworkConstraint;
   quality?: WorldQuality;
   forceFallback?: boolean;
 }): WorldPresentation {
@@ -101,6 +138,10 @@ export function resolveWorldPresentation(input: {
 
   if ((input.deviceMemory ?? 8) <= 2) {
     return { mode: "fallback", reason: "weak-device" };
+  }
+
+  if (isConstrainedNetwork(input.network)) {
+    return { mode: "fallback", reason: "constrained-network" };
   }
 
   if (input.quality === "low" || input.quality === "high") {

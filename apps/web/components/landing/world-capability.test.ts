@@ -1,6 +1,10 @@
 import { expect, test } from "bun:test";
 
-import { isSoftwareGpu, resolveWorldPresentation } from "./world-capability";
+import {
+  isConstrainedNetwork,
+  isSoftwareGpu,
+  resolveWorldPresentation,
+} from "./world-capability";
 
 test("falls back when WebGL is missing", () => {
   const presentation = resolveWorldPresentation({
@@ -49,6 +53,26 @@ test("uses a high-quality live scene when auto and the device is capable", () =>
     quality: "auto",
   });
   expect(presentation).toEqual({ mode: "webgl", quality: "high" });
+});
+
+test("falls back on save-data or 2G even when the GPU looks capable", () => {
+  expect(isConstrainedNetwork({ saveData: true, effectiveType: "4g" })).toBe(
+    true,
+  );
+  expect(isConstrainedNetwork({ effectiveType: "2g" })).toBe(true);
+  expect(isConstrainedNetwork({ effectiveType: "4g" })).toBe(false);
+
+  const presentation = resolveWorldPresentation({
+    hasWebGL: true,
+    prefersReducedMotion: false,
+    deviceMemory: 8,
+    hardwareConcurrency: 8,
+    network: { saveData: true },
+  });
+  expect(presentation).toEqual({
+    mode: "fallback",
+    reason: "constrained-network",
+  });
 });
 
 test("honors an explicit quality pin", () => {

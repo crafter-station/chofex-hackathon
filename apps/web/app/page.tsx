@@ -13,7 +13,7 @@ import { LandingFooter } from "@/components/landing/footer";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingPeople } from "@/components/landing/people";
 import { LandingPrizes } from "@/components/landing/prizes";
-import { HERO_MODEL_PRELOAD } from "@/components/landing/sacred-valley-preload";
+import { HERO_POSTER_PRELOAD } from "@/components/landing/hero-poster";
 import { landingPageClassName } from "@/components/landing/shell";
 import { LandingSkipLinks } from "@/components/landing/skip-links";
 import { LandingSponsors } from "@/components/landing/sponsors";
@@ -45,15 +45,13 @@ export default function Home() {
       )}
       id="top"
     >
-      {/* The terrain is the hero's only asset and the largest thing on the
-          critical path, so the browser is told about it in the markup rather
-          than being left to discover it when the canvas mounts. */}
+      {/* The poster is the opening paint. The Draco terrain is warmed only
+          after capability gating, off this document's critical path. */}
       <link
         rel="preload"
-        href={HERO_MODEL_PRELOAD.href}
-        as={HERO_MODEL_PRELOAD.as}
-        crossOrigin={HERO_MODEL_PRELOAD.crossOrigin}
-        type={HERO_MODEL_PRELOAD.type}
+        href={HERO_POSTER_PRELOAD.href}
+        as={HERO_POSTER_PRELOAD.as}
+        type={HERO_POSTER_PRELOAD.type}
       />
       <LandingSkipLinks />
       <main id="contenido">

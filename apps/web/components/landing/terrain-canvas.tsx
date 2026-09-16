@@ -366,4 +366,8 @@ export function TerrainCanvas({
   );
 }
 
-useGLTF.preload(SACRED_VALLEY_GLB, USE_DRACO, USE_MESHOPT);
+/** Warm the drei cache after capability gating, never at module evaluate. */
+export function preloadHeroTerrain(): void {
+  useGLTF.preload(SACRED_VALLEY_GLB, USE_DRACO, USE_MESHOPT);
+  useGLTF.preload(SITE_STRUCTURES_GLB, USE_DRACO, USE_MESHOPT);
+}
