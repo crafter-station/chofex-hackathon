@@ -13,9 +13,6 @@ export function LandingAudience() {
       id="why"
     >
       <LandingContainer className="py-20 sm:py-28">
-        <HudLabel className="mb-4 text-[var(--hud-action)]">
-          {audienceCopy.kicker}
-        </HudLabel>
         <LandingSectionHead title={audienceCopy.title} titleId="why-heading">
           <div className="max-w-xl">
             <p className="text-lg leading-relaxed text-[var(--hud-ink)]/80">

@@ -86,7 +86,6 @@ export const heroCopy = {
 } as const;
 
 export const audienceCopy = {
-  kicker: "el estándar",
   title: "Crear soluciones reales para problemas reales",
   lede: "Los verdaderos retos no siempre son los más trending. Requieren tiempo, esfuerzo y creatividad para resolver lo que los demás aceptan como status quo.",
 } as const;
@@ -107,7 +106,6 @@ export const audienceRoles = [
 ] as const;
 
 export const challengesCopy = {
-  kicker: "los briefs",
   title: "3 challenges sellados",
   lede: "Las personas aceptadas conocerán los 3 briefs al iniciar la hackathon. Cada equipo elegirá uno y tendrá 30 horas para entregar un producto funcionando.",
   sealed: "Brief sellado",
@@ -137,7 +135,6 @@ export const peopleCopy = {
 } as const;
 
 export const applyCopy = {
-  kicker: "postulaciones abiertas",
   title: "Postula desde tu terminal",
   lede: "La postulación es parte del filtro. Cuéntanos qué lanzaste, qué construirías aquí y dónde podemos ver tu trabajo. El Black Box es una métrica opcional para la revisión y no decide la admisión.",
   criteriaTitle: "Qué revisamos",
@@ -155,7 +152,6 @@ export const prizesCopy = {
   title: "Premios",
   lede: "Premios en efectivo para las soluciones que mejor conviertan un problema real en un producto funcionando.",
   totalSuffix: "en premios en efectivo",
-  tripLabel: "Viaje pagado",
   tripTitle: "Chofex Headquarters",
   tripBody:
     "Una persona participante destacada viajará a las oficinas de Chofex en Monterrey o San Francisco.",
@@ -234,7 +230,6 @@ export const partners = [
 ] as const;
 
 export const experienceCopy = {
-  kicker: "la experiencia",
   title: "30 horas bien cuidadas",
   lede: "Un entorno presencial diseñado para sostener trabajo exigente, conversaciones útiles y una entrega de alto nivel.",
 } as const;
@@ -259,7 +254,6 @@ export const experienceItems = [
 ] as const;
 
 export const faqCopy = {
-  kicker: "antes de postular",
   title: "Preguntas frecuentes",
 } as const;
 
