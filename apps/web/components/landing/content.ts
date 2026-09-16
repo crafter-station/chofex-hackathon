@@ -135,11 +135,8 @@ export const challengeSeats = [
 ] as const;
 
 export const peopleCopy = {
-  kicker: "Panel",
   title: "El talento más top de Perú",
-  description:
-    "Jueces, asesores y mentores de las mejores compañías de tecnología",
-  brandsLabel: "Algunos de sus backgrounds",
+  brandsLabel: "Backgrounds",
 } as const;
 
 /**

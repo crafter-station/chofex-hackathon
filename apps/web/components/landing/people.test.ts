@@ -35,7 +35,9 @@ test("renders the panel chapter without invented identities", async () => {
 
   expect(page).toContain("LandingPeople");
   expect(people).toContain('id="people"');
-  expect(people).toContain("peopleCopy.description");
+  expect(people).toContain("peopleCopy.brandsLabel");
+  expect(people).not.toContain("peopleCopy.description");
+  expect(people).not.toContain("peopleCopy.kicker");
   expect(people).toContain("panelBrands");
   expect(people).toContain("next/image");
   expect(people).toContain("alt={brand.name}");
