@@ -96,10 +96,23 @@ export const splitFullName = (
   fullName: string,
 ): { readonly firstName: string; readonly lastName: string } => {
   const normalized = fullName.trim().replace(/\s+/g, " ");
-  const lastSpace = normalized.lastIndexOf(" ");
-  if (lastSpace <= 0) {
+  const tokens = normalized.split(" ");
+  if (tokens.length === 1) {
     return { firstName: normalized, lastName: "" };
   }
+
+  for (let index = tokens.length - 1; index >= 1; index--) {
+    const firstName = tokens.slice(0, index).join(" ");
+    const lastName = tokens.slice(index).join(" ");
+    if (
+      firstName.length <= givenNameMaximum &&
+      lastName.length <= familyNameMaximum
+    ) {
+      return { firstName, lastName };
+    }
+  }
+
+  const lastSpace = normalized.lastIndexOf(" ");
   return {
     firstName: normalized.slice(0, lastSpace),
     lastName: normalized.slice(lastSpace + 1),
@@ -147,7 +160,12 @@ export const ApplicationDraftInput = Schema.Struct(applicationDraftInputFields);
 
 export type ApplicationDraftInput = typeof ApplicationDraftInput.Type;
 
-export const ApplicationPartId = Schema.Literals(["profile", "agreements"]);
+export const ApplicationPartId = Schema.Literals([
+  "identity",
+  "experience",
+  "team",
+  "agreements",
+]);
 
 export type ApplicationPartId = typeof ApplicationPartId.Type;
 
@@ -403,14 +421,14 @@ const part = (
 export const applicationPartsFor = (
   registration: RegistrationView,
 ): ReadonlyArray<ApplicationPart> => {
-  const profileMissing: Array<Requirement> = [];
+  const identityMissing: Array<Requirement> = [];
   if (
     !requiredValue(joinFullName(registration.firstName, registration.lastName))
   ) {
-    profileMissing.push({ field: "fullName", reason: "Required to submit" });
+    identityMissing.push({ field: "fullName", reason: "Required to submit" });
   }
   if (!requiredValue(registration.role)) {
-    profileMissing.push({ field: "role", reason: "Required to submit" });
+    identityMissing.push({ field: "role", reason: "Required to submit" });
   }
 
   const agreementMissing: Array<Requirement> = [];
@@ -422,7 +440,7 @@ export const applicationPartsFor = (
   }
 
   return [
-    part("profile", "Profile", profileMissing),
+    part("identity", "Profile", identityMissing),
     part("agreements", "Terms", agreementMissing),
   ];
 };

@@ -192,6 +192,18 @@ const draftColumnsFrom = (
     email: identity.email,
     countryCode: hackathonCountryCode,
     participationMode: hackathonParticipationMode,
+    pronouns: null,
+    city: null,
+    organization: null,
+    fieldOfStudy: null,
+    graduationYear: null,
+    shippedProject: null,
+    hackathonProject: null,
+    bio: null,
+    portfolioUrl: null,
+    teamPreference: null,
+    teamName: null,
+    mediaConsent: false,
     updatedAt: now,
   };
   if (input.fullName !== undefined) {

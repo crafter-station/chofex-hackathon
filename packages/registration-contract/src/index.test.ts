@@ -5,6 +5,7 @@ import {
   AcceptedDetailsInput,
   ApplicationDraftInput,
   ApplicationInput,
+  ApplicationPartId,
   acceptedDetailsSemanticRequirements,
   applicationRequirementsFor,
   applicationSemanticRequirements,
@@ -129,6 +130,25 @@ describe("registration contract", () => {
     expect(joinFullName("Madonna", "")).toBe("Madonna");
   });
 
+  test("splits a long name at a boundary that fits both columns", () => {
+    const given = "A".repeat(60);
+    const middle = "B".repeat(60);
+    const family = "C".repeat(20);
+    const fullName = `${given} ${middle} ${family}`;
+    expect(splitFullName(fullName)).toEqual({
+      firstName: given,
+      lastName: `${middle} ${family}`,
+    });
+    expect(
+      applicationSemanticRequirements(
+        Schema.decodeUnknownSync(ApplicationInput)({
+          ...application,
+          fullName,
+        }),
+      ),
+    ).toEqual([]);
+  });
+
   test("rejects a full name that cannot fit the existing name columns", () => {
     const decoded = Schema.decodeUnknownSync(ApplicationInput)({
       ...application,
@@ -251,6 +271,22 @@ describe("registration contract", () => {
     }
   });
 
+  test("keeps published application-part identifiers", () => {
+    expect(Schema.decodeUnknownSync(ApplicationPartId)("identity")).toBe(
+      "identity",
+    );
+    expect(Schema.decodeUnknownSync(ApplicationPartId)("experience")).toBe(
+      "experience",
+    );
+    expect(Schema.decodeUnknownSync(ApplicationPartId)("team")).toBe("team");
+    expect(Schema.decodeUnknownSync(ApplicationPartId)("agreements")).toBe(
+      "agreements",
+    );
+    expect(() =>
+      Schema.decodeUnknownSync(ApplicationPartId)("profile"),
+    ).toThrow();
+  });
+
   test("treats drafts as a resumable application with required parts", () => {
     const requirements = applicationRequirementsFor(
       registrationView({
@@ -264,7 +300,7 @@ describe("registration contract", () => {
     expect(requirements.canSaveDraft).toBe(true);
     expect(requirements.canSubmitApplication).toBe(false);
     expect(requirements.parts.map((item) => item.id)).toEqual([
-      "profile",
+      "identity",
       "agreements",
     ]);
     expect(requirements.missing).toEqual([
