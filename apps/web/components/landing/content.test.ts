@@ -92,7 +92,12 @@ test("keeps the public pitch in Spanish and names Chofex as principal sponsor", 
   // the mark is never to be boxed in a plate to make it legible.
   expect(sponsorsCopy.logoSrc).toBe("/sponsors/chofex-white.png");
   expect(sponsorsCopy.logoOnLightSrc).toBe("/sponsors/chofex-black.png");
-  expect(heroCopy.sponsor.toLowerCase()).toContain("chofex");
+  expect(partners.find((partner) => partner.id === "chofex")?.role).toBe(
+    "Sponsor principal",
+  );
+  expect(footerCopy.meta).not.toMatch(/sponsor principal/i);
+  expect(metadataCopy.description).not.toMatch(/sponsor principal/i);
+  expect(heroCopy).not.toHaveProperty("sponsor");
 });
 
 test("withholds panel claims until identities are confirmed", () => {
@@ -128,6 +133,13 @@ test("publishes a senior, hundred-seat, three-challenge event", () => {
     0,
   );
   expect(totalBodyWords).toBeLessThanOrEqual(47);
+});
+
+test("keeps the social preview lockup free of sponsor-principal phrasing", async () => {
+  const og = await Bun.file(
+    new URL("../../app/opengraph-image.tsx", import.meta.url),
+  ).text();
+  expect(og).not.toMatch(/sponsor principal/i);
 });
 
 test("exposes skip links and section jumps for keyboard users", () => {
