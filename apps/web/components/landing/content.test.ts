@@ -119,13 +119,20 @@ test("keeps the public pitch in Spanish and names Chofex as principal sponsor", 
   expect(heroCopy).not.toHaveProperty("sponsor");
 });
 
-test("withholds panel claims until identities are confirmed", () => {
+test("frames the panel as top Peruvian talent and institutional backgrounds", () => {
   expect(peopleCopy.kicker).toBe("Panel");
-  expect(peopleCopy.lede.toLowerCase()).toContain("confirmada");
-  expect(peopleCopy.status).toBe("Sin nombres anunciados.");
-  expect(peopleCopy.brandsLabel).toBe("Instituciones");
+  expect(peopleCopy.title).toBe("El talento más top de Perú");
+  expect(peopleCopy.description).toBe(
+    "Jueces, asesores y mentores de las mejores compañías de tecnología",
+  );
+  expect(peopleCopy.brandsLabel).toBe("Algunos de sus backgrounds");
+  expect("lede" in peopleCopy).toBe(false);
+  expect("status" in peopleCopy).toBe(false);
 
   const blob = JSON.stringify(peopleCopy);
+  expect(blob).not.toMatch(/nombres por confirmar/i);
+  expect(blob).not.toMatch(/sin nombres anunciados/i);
+  expect(blob).not.toMatch(/instituciones/i);
   expect(blob).not.toMatch(/\b10\b/);
   expect(blob).not.toMatch(
     /Y Combinator|Stanford|University of Toronto|DP World|Hochschild|Palantir/i,
@@ -147,7 +154,7 @@ test("withholds panel claims until identities are confirmed", () => {
     "Microsoft",
   ]);
   for (const brand of panelBrands) {
-    expect(brand.logoSrc).toMatch(/^\/panel\/[a-z]+\.svg$/);
+    expect(brand.logoSrc).toMatch(/^\/panel\/[a-z]+\.png$/);
   }
 });
 

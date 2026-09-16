@@ -35,7 +35,7 @@ test("renders the panel chapter without invented identities", async () => {
 
   expect(page).toContain("LandingPeople");
   expect(people).toContain('id="people"');
-  expect(people).toContain("peopleCopy.status");
+  expect(people).toContain("peopleCopy.description");
   expect(people).toContain("panelBrands");
   expect(people).toContain("next/image");
   expect(people).not.toMatch(/avatarSrc|linkedin/i);

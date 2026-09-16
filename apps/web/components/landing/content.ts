@@ -136,17 +136,17 @@ export const challengeSeats = [
 
 export const peopleCopy = {
   kicker: "Panel",
-  title: "Nombres por confirmar",
-  lede: "Publicaremos el panel cuando cada participación esté confirmada.",
-  status: "Sin nombres anunciados.",
-  brandsLabel: "Instituciones",
+  title: "El talento más top de Perú",
+  description:
+    "Jueces, asesores y mentores de las mejores compañías de tecnología",
+  brandsLabel: "Algunos de sus backgrounds",
 } as const;
 
 /**
  * Institutional marks for the panel chapter.
  *
- * These are social-proof brands, not a confirmed roster. Names and roles stay
- * off the page until each participation is verified.
+ * These are backgrounds, not a confirmed roster. Names and roles stay off the
+ * page until each participation is verified.
  */
 export const panelBrands = [
   {
