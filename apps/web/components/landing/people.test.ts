@@ -14,6 +14,17 @@ test("keeps FAQs in their own section instead of inside Evento", async () => {
   expect(event).not.toContain('id="faq"');
 });
 
+test("enlarges the Evento 30-hour frame into a full recuadro", async () => {
+  const event = await Bun.file(new URL("./event.tsx", import.meta.url)).text();
+
+  expect(event).toContain("max-w-xl");
+  expect(event).toContain("sm:max-w-2xl");
+  expect(event).toContain("border border-[var(--hud-ink)]/20");
+  expect(event).toContain("px-5 py-6");
+  expect(event).toContain("clamp(7.25rem,28vw,13.5rem)");
+  expect(event).not.toContain("border-y");
+});
+
 test("renders the panel chapter without invented identities", async () => {
   const people = await Bun.file(
     new URL("./people.tsx", import.meta.url),
