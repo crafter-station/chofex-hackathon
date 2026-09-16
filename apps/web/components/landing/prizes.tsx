@@ -46,9 +46,9 @@ export function LandingPrizes() {
           </p>
 
           <div className="min-w-0">
-            <h3 className="max-w-full font-[family-name:var(--font-landing-display)] text-[clamp(1.85rem,3.6vw,3.15rem)] uppercase leading-[0.86] tracking-[-0.03em]">
+            <h3 className="max-w-full font-[family-name:var(--font-landing-display)] text-[clamp(2.25rem,5.2vw,4.5rem)] uppercase leading-[0.86] tracking-[-0.03em]">
               {tripTitleLines.map((line) => (
-                <span className="block" key={line}>
+                <span className="block w-fit" key={line}>
                   {line}
                 </span>
               ))}
