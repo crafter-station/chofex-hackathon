@@ -121,12 +121,10 @@ test("keeps the public pitch in Spanish and names Chofex as principal sponsor", 
 });
 
 test("frames the panel as top Peruvian talent and institutional backgrounds", () => {
-  expect(peopleCopy.kicker).toBe("Panel");
   expect(peopleCopy.title).toBe("El talento más top de Perú");
-  expect(peopleCopy.description).toBe(
-    "Jueces, asesores y mentores de las mejores compañías de tecnología",
-  );
-  expect(peopleCopy.brandsLabel).toBe("Algunos de sus backgrounds");
+  expect(peopleCopy.brandsLabel).toBe("Backgrounds");
+  expect("kicker" in peopleCopy).toBe(false);
+  expect("description" in peopleCopy).toBe(false);
   expect("lede" in peopleCopy).toBe(false);
   expect("status" in peopleCopy).toBe(false);
 
@@ -134,6 +132,8 @@ test("frames the panel as top Peruvian talent and institutional backgrounds", ()
   expect(blob).not.toMatch(/nombres por confirmar/i);
   expect(blob).not.toMatch(/sin nombres anunciados/i);
   expect(blob).not.toMatch(/instituciones/i);
+  expect(blob).not.toMatch(/jueces, asesores y mentores/i);
+  expect(blob).not.toMatch(/algunos de sus backgrounds/i);
   expect(blob).not.toMatch(/\b10\b/);
   expect(blob).not.toMatch(
     /Y Combinator|Stanford|University of Toronto|DP World|Hochschild|Palantir/i,
@@ -159,7 +159,7 @@ test("frames the panel as top Peruvian talent and institutional backgrounds", ()
     "Stanford",
     "Microsoft",
     "Harvard",
-    "U of Toronto",
+    "University of Toronto",
     "DP World",
     "Hochschild",
     "Palantir",

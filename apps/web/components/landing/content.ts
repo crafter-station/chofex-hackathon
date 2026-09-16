@@ -135,11 +135,8 @@ export const challengeSeats = [
 ] as const;
 
 export const peopleCopy = {
-  kicker: "Panel",
   title: "El talento más top de Perú",
-  description:
-    "Jueces, asesores y mentores de las mejores compañías de tecnología",
-  brandsLabel: "Algunos de sus backgrounds",
+  brandsLabel: "Backgrounds",
 } as const;
 
 /**
@@ -209,11 +206,11 @@ export const panelBrands = [
   },
   {
     id: "toronto",
-    name: "U of Toronto",
+    name: "University of Toronto",
     shape: "wordmark",
     logoSrc: "/panel/toronto.png",
-    logoWidth: 168,
-    logoHeight: 40,
+    logoWidth: 720,
+    logoHeight: 180,
   },
   {
     id: "dp-world",
