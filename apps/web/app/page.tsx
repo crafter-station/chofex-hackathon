@@ -29,8 +29,8 @@ import "@/components/landing/dark.css";
  * Theme tokens live in `components/landing/dark.css`.
  *
  * Section order after the hero is locked:
- * Evento (#why) → Panel → Postular → Premios → Tracks.
- * Sponsors stay last. Do not restore a separate experiencia chapter.
+ * Evento (#why) → Premios → Panel → Tracks → Postular → FAQs →
+ * Organizadores. Do not restore a separate experiencia chapter.
  */
 export default function Home() {
   return (
@@ -58,11 +58,11 @@ export default function Home() {
       <main id="contenido">
         <LandingHero />
         <LandingEvent />
-        <LandingFaq />
-        <LandingPeople />
-        <LandingApply />
         <LandingPrizes />
+        <LandingPeople />
         <LandingChallenges />
+        <LandingApply />
+        <LandingFaq />
         <LandingSponsors />
       </main>
       <LandingFooter />

@@ -55,13 +55,15 @@ export const skipLinks = [
   { href: "#apply", label: "Saltar a aplicar" },
 ] as const;
 
-/** Locked jump order: Evento → Panel → Postular → Premios → Tracks. */
+/** Locked jump order: Evento → Premios → Panel → Tracks → Postular → FAQs → Organizadores. */
 export const sectionNav = [
   { href: "#why", label: "Evento" },
-  { href: "#people", label: "Panel" },
-  { href: "#apply", label: "Postular" },
   { href: "#prizes", label: "Premios" },
+  { href: "#people", label: "Panel" },
   { href: "#challenges", label: "Tracks" },
+  { href: "#apply", label: "Postular" },
+  { href: "#faq", label: "FAQs" },
+  { href: "#sponsors", label: "Organizadores" },
 ] as const;
 
 export const facts = [

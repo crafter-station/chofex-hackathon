@@ -28,17 +28,18 @@ test("renders the panel chapter without invented identities", async () => {
   expect(people).not.toMatch(/<img|next\/image|avatarSrc|linkedin/i);
 });
 
-test("locks landing chapters as Evento, Panel, Postular, Premios, Tracks", async () => {
+test("locks landing chapters as Evento, Premios, Panel, Tracks, Postular, FAQs", async () => {
   const page = await Bun.file(
     new URL("../../app/page.tsx", import.meta.url),
   ).text();
   const order = [
     "LandingHero",
     "LandingEvent",
-    "LandingPeople",
-    "LandingApply",
     "LandingPrizes",
+    "LandingPeople",
     "LandingChallenges",
+    "LandingApply",
+    "LandingFaq",
     "LandingSponsors",
   ];
   const indexes = order.map((name) => page.indexOf(`<${name}`));

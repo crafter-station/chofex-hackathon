@@ -205,16 +205,20 @@ test("exposes skip links and section jumps for keyboard users", async () => {
   expect(hero).toContain('href="#why"');
   expect(sectionNav.map((item) => item.href)).toEqual([
     "#why",
-    "#people",
-    "#apply",
     "#prizes",
+    "#people",
     "#challenges",
+    "#apply",
+    "#faq",
+    "#sponsors",
   ]);
   expect(sectionNav.map((item) => item.label)).toEqual([
     "Evento",
-    "Panel",
-    "Postular",
     "Premios",
+    "Panel",
     "Tracks",
+    "Postular",
+    "FAQs",
+    "Organizadores",
   ]);
 });
