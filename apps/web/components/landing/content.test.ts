@@ -13,6 +13,7 @@ import {
   formatSoles,
   heroCopy,
   metadataCopy,
+  panelBrands,
   partners,
   peopleCopy,
   prizeAmountsPen,
@@ -121,13 +122,33 @@ test("keeps the public pitch in Spanish and names Chofex as principal sponsor", 
 test("withholds panel claims until identities are confirmed", () => {
   expect(peopleCopy.kicker).toBe("Panel");
   expect(peopleCopy.lede.toLowerCase()).toContain("confirmada");
-  expect(peopleCopy.status).toBe("Sin nombres ni afiliaciones anunciadas.");
+  expect(peopleCopy.status).toBe("Sin nombres anunciados.");
+  expect(peopleCopy.brandsLabel).toBe("Instituciones");
 
   const blob = JSON.stringify(peopleCopy);
   expect(blob).not.toMatch(/\b10\b/);
   expect(blob).not.toMatch(
-    /MIT|Y Combinator|Google|Meta|Stanford|Microsoft|Harvard|University of Toronto|DP World|Hochschild|Palantir/i,
+    /Y Combinator|Stanford|University of Toronto|DP World|Hochschild|Palantir/i,
   );
+  expect(panelBrands.map((brand) => brand.id)).toEqual([
+    "mit",
+    "yc",
+    "meta",
+    "google",
+    "harvard",
+    "microsoft",
+  ]);
+  expect(panelBrands.map((brand) => brand.name)).toEqual([
+    "MIT",
+    "YC",
+    "Meta",
+    "Google",
+    "Harvard",
+    "Microsoft",
+  ]);
+  for (const brand of panelBrands) {
+    expect(brand.logoSrc).toMatch(/^\/panel\/[a-z]+\.svg$/);
+  }
 });
 
 test("publishes a senior, hundred-seat, three-challenge event", () => {

@@ -138,8 +138,66 @@ export const peopleCopy = {
   kicker: "Panel",
   title: "Nombres por confirmar",
   lede: "Publicaremos el panel cuando cada participación esté confirmada.",
-  status: "Sin nombres ni afiliaciones anunciadas.",
+  status: "Sin nombres anunciados.",
+  brandsLabel: "Instituciones",
 } as const;
+
+/**
+ * Institutional marks for the panel chapter.
+ *
+ * These are social-proof brands, not a confirmed roster. Names and roles stay
+ * off the page until each participation is verified.
+ */
+export const panelBrands = [
+  {
+    id: "mit",
+    name: "MIT",
+    shape: "wordmark",
+    logoSrc: "/panel/mit.svg",
+    logoWidth: 120,
+    logoHeight: 36,
+  },
+  {
+    id: "yc",
+    name: "YC",
+    shape: "square",
+    logoSrc: "/panel/yc.svg",
+    logoWidth: 40,
+    logoHeight: 40,
+  },
+  {
+    id: "meta",
+    name: "Meta",
+    shape: "wordmark",
+    logoSrc: "/panel/meta.svg",
+    logoWidth: 86,
+    logoHeight: 32,
+  },
+  {
+    id: "google",
+    name: "Google",
+    shape: "square",
+    logoSrc: "/panel/google.svg",
+    logoWidth: 40,
+    logoHeight: 40,
+  },
+  {
+    id: "harvard",
+    name: "Harvard",
+    shape: "square",
+    logoSrc: "/panel/harvard.svg",
+    logoWidth: 36,
+    logoHeight: 40,
+  },
+  {
+    id: "microsoft",
+    name: "Microsoft",
+    shape: "square",
+    logoSrc: "/panel/microsoft.svg",
+    logoWidth: 40,
+    logoHeight: 40,
+  },
+] as const;
 
 export const applyCopy = {
   title: "Postula desde tu terminal",

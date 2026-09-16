@@ -25,7 +25,9 @@ test("renders the panel chapter without invented identities", async () => {
   expect(page).toContain("LandingPeople");
   expect(people).toContain('id="people"');
   expect(people).toContain("peopleCopy.status");
-  expect(people).not.toMatch(/<img|next\/image|avatarSrc|linkedin/i);
+  expect(people).toContain("panelBrands");
+  expect(people).toContain("<img");
+  expect(people).not.toMatch(/avatarSrc|linkedin/i);
 });
 
 test("locks landing chapters as Evento, Premios, Panel, Tracks, Postular, FAQs", async () => {

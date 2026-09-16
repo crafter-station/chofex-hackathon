@@ -1,4 +1,4 @@
-import { peopleCopy } from "@/components/landing/content";
+import { panelBrands, peopleCopy } from "@/components/landing/content";
 import { HudLabel } from "@/components/landing/hud";
 import {
   LandingContainer,
@@ -9,8 +9,8 @@ import {
 /**
  * Panel chapter while the roster is still unconfirmed.
  *
- * Names, photos, roles, and organization marks stay off the page until each
- * participation is verified. This is a compact pending state, not a grid of
+ * Names, photos, and roles stay off the page until each participation is
+ * verified. Institutional marks sit here as social proof, not as a grid of
  * empty seats that would imply committed people.
  */
 export function LandingPeople() {
@@ -35,6 +35,35 @@ export function LandingPeople() {
             {peopleCopy.status}
           </span>
         </p>
+
+        <div className="mt-8">
+          <HudLabel className="mb-4 text-[var(--hud-muted)]">
+            {peopleCopy.brandsLabel}
+          </HudLabel>
+          <ul className="grid grid-cols-2 gap-px border-[var(--hud-ink)]/15 border-y bg-[var(--hud-ink)]/10 sm:grid-cols-3 lg:grid-cols-6">
+            {panelBrands.map((brand) => (
+              <li
+                className="flex flex-col items-center justify-center gap-3 bg-[var(--hud-paper)] px-4 py-7"
+                key={brand.id}
+              >
+                <img
+                  alt=""
+                  className={
+                    brand.shape === "wordmark"
+                      ? "h-7 w-auto max-w-[7.5rem] object-contain sm:h-8"
+                      : "h-8 w-auto object-contain"
+                  }
+                  height={brand.logoHeight}
+                  src={brand.logoSrc}
+                  width={brand.logoWidth}
+                />
+                <HudLabel className="text-center text-[var(--hud-muted)]">
+                  {brand.name}
+                </HudLabel>
+              </li>
+            ))}
+          </ul>
+        </div>
       </LandingContainer>
     </section>
   );
