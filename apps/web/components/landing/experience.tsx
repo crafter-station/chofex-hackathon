@@ -17,9 +17,6 @@ export function LandingExperience() {
       <LandingContainer className="py-16 sm:py-24">
         <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
           <div>
-            <HudLabel className="mb-4 text-[var(--hud-action)]">
-              {experienceCopy.kicker}
-            </HudLabel>
             <h2
               className="text-balance font-[family-name:var(--font-landing-display)] text-5xl leading-[0.88] tracking-[-0.025em] uppercase sm:text-7xl"
               id="experience-heading"
@@ -68,9 +65,6 @@ export function LandingExperience() {
 
         <div className="mt-12 grid gap-10 border-[var(--hud-ink)]/15 border-t pt-12 sm:mt-16 sm:pt-16 lg:grid-cols-[0.75fr_1.25fr] lg:gap-20">
           <div>
-            <HudLabel className="mb-4 text-[var(--hud-action)]">
-              {faqCopy.kicker}
-            </HudLabel>
             <h2 className="font-[family-name:var(--font-landing-display)] text-5xl leading-[0.9] tracking-[-0.025em] uppercase sm:text-6xl">
               {faqCopy.title}
             </h2>

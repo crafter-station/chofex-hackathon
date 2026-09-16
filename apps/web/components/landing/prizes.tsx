@@ -1,5 +1,4 @@
 import { prizePoolHeadlinePen, prizesCopy } from "@/components/landing/content";
-import { HudLabel } from "@/components/landing/hud";
 import { PrizeCounter } from "@/components/landing/prize-counter";
 import { LandingContainer } from "@/components/landing/shell";
 
@@ -43,9 +42,6 @@ export function LandingPrizes() {
 
           {/* Right: Trip prize */}
           <div>
-            <HudLabel className="mb-4 text-[var(--hud-action)]">
-              {prizesCopy.tripLabel}
-            </HudLabel>
             <h3 className="font-[family-name:var(--font-landing-display)] text-[clamp(3.5rem,9vw,7.5rem)] uppercase leading-[0.85] tracking-[-0.03em]">
               {prizesCopy.tripTitle}
             </h3>

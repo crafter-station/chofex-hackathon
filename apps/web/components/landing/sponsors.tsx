@@ -12,9 +12,6 @@ export function LandingSponsors() {
       id="sponsors"
     >
       <LandingContainer className="py-20 sm:py-28">
-        <HudLabel className="mb-8 text-[var(--hud-action)]">
-          {sponsorsCopy.kicker}
-        </HudLabel>
         <h2 className="sr-only" id="sponsors-heading">
           {sponsorsCopy.kicker}
         </h2>
