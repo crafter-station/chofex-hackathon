@@ -145,7 +145,7 @@ export const peopleCopy = {
  * These are backgrounds, not a confirmed roster. Names and roles stay off the
  * page until each participation is verified. Order is locked: MIT, YC, Google,
  * Meta, Stanford, Microsoft, Harvard, U of Toronto, DP World, Hochschild,
- * Palantir.
+ * Palantir, Artificio.
  */
 export const panelBrands = [
   {
@@ -235,6 +235,14 @@ export const panelBrands = [
     logoSrc: "/panel/palantir.png",
     logoWidth: 156,
     logoHeight: 36,
+  },
+  {
+    id: "artificio",
+    name: "Artificio",
+    shape: "wordmark",
+    logoSrc: "/panel/artificio.png",
+    logoWidth: 156,
+    logoHeight: 58,
   },
 ] as const;
 

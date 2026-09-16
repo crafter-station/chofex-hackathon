@@ -152,6 +152,7 @@ test("frames the panel as top Peruvian talent and institutional backgrounds", ()
     "dp-world",
     "hochschild",
     "palantir",
+    "artificio",
   ]);
   expect(panelBrands.map((brand) => brand.name)).toEqual([
     "MIT",
@@ -165,6 +166,7 @@ test("frames the panel as top Peruvian talent and institutional backgrounds", ()
     "DP World",
     "Hochschild",
     "Palantir",
+    "Artificio",
   ]);
   expect(JSON.stringify(panelBrands)).not.toMatch(/Hoschild/);
   for (const brand of panelBrands) {
