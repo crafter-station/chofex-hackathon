@@ -54,10 +54,10 @@ test("publishes the confirmed prizes directly in soles", () => {
   );
 });
 
-test("keeps the headquarters trip prize without a destination paragraph", () => {
-  expect(prizesCopy.tripTitle).toBe("Chofex Headquarters");
+test("names the headquarters prize as a trip without a city destination", () => {
+  expect(prizesCopy.tripTitle).toBe("Viaje");
+  expect(prizesCopy.tripBody).toBe("a Chofex Headquarters");
   expect("tripLabel" in prizesCopy).toBe(false);
-  expect("tripBody" in prizesCopy).toBe(false);
 
   const blob = JSON.stringify(prizesCopy);
   expect(blob).not.toMatch(/Monterrey/);
@@ -164,10 +164,25 @@ test("fits the prizes lockup inside one viewport column", async () => {
   const source = await Bun.file(
     new URL("./prizes.tsx", import.meta.url),
   ).text();
-  expect(source).toContain("tripTitleLines");
+  expect(source).toContain("prizesCopy.tripTitle");
+  expect(source).toContain("prizesCopy.tripBody");
   expect(source).toContain("minmax(0,1fr)");
   expect(source).toContain("landing-type-meta");
   expect(source).not.toMatch(/text-\[10px\]/);
+  expect(source).not.toContain("tripTitleLines");
+});
+
+test("keeps Premios dense on phones with a larger cash headline", async () => {
+  const source = await Bun.file(
+    new URL("./prizes.tsx", import.meta.url),
+  ).text();
+
+  expect(source).toContain("md:min-h-svh");
+  expect(source).toContain("md:justify-center");
+  expect(source).not.toMatch(/className="flex min-h-svh flex-col/);
+  expect(source).toContain("py-8");
+  expect(source).toContain("clamp(5.25rem,18vw,8rem)");
+  expect(source).toContain("lg:text-[clamp(3.25rem,9vw,7.25rem)]");
 });
 
 test("labels challenge cards as tracks", async () => {
