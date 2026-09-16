@@ -24,6 +24,7 @@
     "@react-three/fiber": "^9.7.0",
     "@tanstack/react-query": "^5.102.8",
     "@trigger.dev/sdk": "^4.5.16",
+    "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.8.0",
     "ai": "^7.0.97",
     "effect": "4.0.0-rc.112",

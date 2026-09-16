@@ -1,5 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/ui/themes";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { DocumentLang } from "@/components/document-lang";
@@ -77,6 +78,7 @@ export default function RootLayout({
         >
           {content}
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
