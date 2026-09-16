@@ -257,6 +257,7 @@ export const prizesCopy = {
   lede: "Premios en efectivo para las soluciones que mejor conviertan un problema real en un producto funcionando.",
   totalSuffix: "en premios en efectivo",
   tripTitle: "Viaje a Chofex Headquarters",
+  tripLocation: "(San Francisco, USA y/o Monterrey, Mexico)",
   /*
    * Stacked so "Viaje a" is the trip, and CHOFEX / HEADQUARTERS stay a
    * readable lockup on a ~390px phone — not a 12px afterthought.

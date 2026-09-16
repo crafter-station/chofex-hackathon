@@ -56,19 +56,18 @@ test("publishes the confirmed prizes directly in soles", () => {
   );
 });
 
-test("names the headquarters prize as a trip without a city destination", () => {
+test("names the headquarters prize and its possible destinations", () => {
   expect(prizesCopy.tripTitle).toBe("Viaje a Chofex Headquarters");
-  expect(prizesCopy.tripLines).toEqual([
-    "Viaje a",
-    "Chofex",
-    "Headquarters",
-  ]);
+  expect(prizesCopy.tripLocation).toBe(
+    "(San Francisco, USA y/o Monterrey, Mexico)",
+  );
+  expect(prizesCopy.tripLines).toEqual(["Viaje a", "Chofex", "Headquarters"]);
   expect("tripLabel" in prizesCopy).toBe(false);
   expect("tripBody" in prizesCopy).toBe(false);
 
   const blob = JSON.stringify(prizesCopy);
-  expect(blob).not.toMatch(/Monterrey/);
-  expect(blob).not.toMatch(/San Francisco/);
+  expect(blob).toMatch(/Monterrey/);
+  expect(blob).toMatch(/San Francisco/);
   expect(blob).not.toMatch(/viajar/i);
 });
 
@@ -233,6 +232,7 @@ test("fits the prizes lockup inside one viewport column", async () => {
   ).text();
   expect(source).toContain("prizesCopy.tripTitle");
   expect(source).toContain("prizesCopy.tripLines");
+  expect(source).toContain("prizesCopy.tripLocation");
   expect(source).toContain("minmax(0,1fr)");
   expect(source).toContain("landing-type-meta");
   expect(source).not.toMatch(/text-\[10px\]/);
@@ -264,7 +264,9 @@ test("exposes skip links and section jumps for keyboard users", async () => {
   expect(skipLinks[0]?.href).toBe("#contenido");
   expect(skipLinks[1]?.href).toBe("#apply");
   const hero = await Bun.file(new URL("./hero.tsx", import.meta.url)).text();
-  const footer = await Bun.file(new URL("./footer.tsx", import.meta.url)).text();
+  const footer = await Bun.file(
+    new URL("./footer.tsx", import.meta.url),
+  ).text();
   expect(hero).toContain('href="#why"');
   expect(footer).toContain("sectionNav");
   expect(sectionNav.map((item) => item.href)).toEqual([

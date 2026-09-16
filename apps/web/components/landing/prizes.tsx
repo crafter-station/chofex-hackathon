@@ -53,6 +53,9 @@ export function LandingPrizes() {
                 </span>
               ))}
             </h3>
+            <p className="mt-3 font-[family-name:var(--font-landing-mono)] text-xs tracking-[0.08em] text-[var(--hud-type)]/60 sm:mt-4">
+              {prizesCopy.tripLocation}
+            </p>
           </div>
         </div>
       </LandingContainer>
