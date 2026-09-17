@@ -3,8 +3,10 @@
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { chromeCopy } from "@/lib/decks/chrome-copy";
 import type {
   DeckBackdrop,
+  DeckLang,
   DeckLayout,
   DeckStyle,
   DeckVeil,
@@ -53,13 +55,16 @@ export function DeckPager({
   title,
   slides,
   deckStyle,
+  lang,
 }: {
   slug: string;
   title: string;
   description?: string;
   slides: Slide[];
   deckStyle?: DeckStyle;
+  lang: DeckLang;
 }) {
+  const copy = chromeCopy(lang);
   const [activeIndex, setActiveIndex] = useState(0);
   const [indexOpen, setIndexOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -196,6 +201,9 @@ export function DeckPager({
     <div
       className="deck-pager"
       data-deck-style={deckStyle}
+      // The deck's own language, which is not the app's: a screen reader needs
+      // to know which voice to read a slide in.
+      lang={lang}
       data-index-open={indexOpen}
       data-mounted={mounted}
       onTouchEnd={onTouchEnd}
@@ -206,7 +214,7 @@ export function DeckPager({
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100]"
         href={`/deck/${slug}`}
       >
-        Saltar controles — ir al inicio del deck
+        {copy.skipToDeck}
       </a>
 
       <header className="deck-chrome">
@@ -219,7 +227,7 @@ export function DeckPager({
             onClick={() => setIndexOpen((v) => !v)}
             type="button"
           >
-            Índice
+            {copy.index}
           </button>
         </div>
       </header>
@@ -259,7 +267,7 @@ export function DeckPager({
         </span>
         <div className="deck-keycaps">
           <button
-            aria-label="Diapositiva anterior"
+            aria-label={copy.previousSlide}
             className="deck-key"
             disabled={activeIndex === 0}
             onClick={prev}
@@ -268,7 +276,7 @@ export function DeckPager({
             ←
           </button>
           <button
-            aria-label="Diapositiva siguiente"
+            aria-label={copy.nextSlide}
             className="deck-key"
             disabled={activeIndex === slides.length - 1}
             onClick={next}
@@ -281,7 +289,7 @@ export function DeckPager({
 
       {indexOpen && (
         <div
-          aria-label="Índice de diapositivas"
+          aria-label={copy.indexDialog}
           aria-modal="true"
           className="deck-index"
           id="deck-index"
@@ -290,9 +298,9 @@ export function DeckPager({
           <div aria-hidden="true" className="deck-index-backdrop" />
           <div className="deck-index-panel">
             <div className="deck-index-header">
-              <span className="deck-index-label">Índice</span>
+              <span className="deck-index-label">{copy.index}</span>
               <button
-                aria-label="Cerrar índice"
+                aria-label={copy.closeIndex}
                 className="deck-key"
                 onClick={() => setIndexOpen(false)}
                 type="button"

@@ -18,6 +18,31 @@ const DECKS_DIR = join(process.cwd(), "content", "decks");
 export type DeckStyle = "plain" | "editorial" | "terrain";
 
 /**
+ * The language of a deck, declared once in its `deck.json`.
+ *
+ * It does not translate anything — the slides are written in whatever language
+ * they are written in. What it picks is the chrome around them (the index, the
+ * pager's labels) and the `lang` attribute the page carries, which is what
+ * tells a screen reader which voice to read a slide in.
+ */
+export const DECK_LANGS = ["es", "en"] as const;
+
+export type DeckLang = (typeof DECK_LANGS)[number];
+
+function parseDeckLang(value: unknown, slug: string): DeckLang {
+  if (value == null) return "es";
+  if (
+    typeof value === "string" &&
+    (DECK_LANGS as readonly string[]).includes(value)
+  ) {
+    return value as DeckLang;
+  }
+  throw new Error(
+    `lang inválido "${String(value)}" en decks/${slug}/deck.json — usá uno de: ${DECK_LANGS.join(", ")}`,
+  );
+}
+
+/**
  * The backdrops a slide can sit on, named rather than pathed so a slide never
  * hardcodes a file and swapping the art is one change in `deck.css`.
  *
@@ -117,6 +142,7 @@ export type DeckMeta = {
   icon?: string;
   appleIcon?: string;
   style?: DeckStyle;
+  lang?: DeckLang;
 } & Record<string, unknown>;
 
 export type SlideMeta = {
@@ -139,6 +165,7 @@ export type SlideSource = {
 export type LoadedDeck = {
   meta: DeckMeta;
   slug: string;
+  lang: DeckLang;
   slides: SlideSource[];
 };
 
@@ -229,5 +256,5 @@ export async function loadDeck(slug: string): Promise<LoadedDeck | null> {
   // reorders the deck, and dropping the numeric prefix disables a slide.
   slides.sort((a, b) => a.number - b.number);
 
-  return { meta, slug, slides };
+  return { meta, slug, lang: parseDeckLang(meta.lang, slug), slides };
 }

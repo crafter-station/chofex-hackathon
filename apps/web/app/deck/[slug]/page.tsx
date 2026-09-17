@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { compileMDX } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 
-import { mdxComponents } from "@/components/decks/mdx-components";
+import { mdxComponentsFor } from "@/components/decks/mdx-components";
 import { listDecks, loadDeck } from "@/lib/decks/loader";
 
 import { DeckPager } from "./deck-pager";
@@ -94,7 +94,7 @@ export default async function DeckPage({
       // the map does not style; they fall through to the browser's defaults.
       const { content } = await compileMDX({
         source: slide.source,
-        components: mdxComponents,
+        components: mdxComponentsFor(deck.lang),
         options: {
           parseFrontmatter: false,
           blockJS: false,
@@ -115,6 +115,7 @@ export default async function DeckPage({
   return (
     <DeckPager
       deckStyle={deck.meta.style}
+      lang={deck.lang}
       slides={compiledSlides}
       slug={slug}
       title={deck.meta.title}

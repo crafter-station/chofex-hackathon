@@ -1,0 +1,8 @@
+{
+  "url": "https://www.tsankotype.com/shop-4",
+  "prompt": "What is sold on this page for the Glock typeface? List weights, price, licence types (desktop/web/app), and the character set / language support. Is there a webfont licence?",
+  "etag": "W/\"6da71e4078d2939419daffbde50d9a66\"",
+  "last_modified": "",
+  "content": "# Glock Typeface - Sales Information\n\n**Available Weights & Pricing:**\n- Glock Regular: $25\n- Glock Medium: $25\n- Glock Semi: $25\n- Glock Bold: $25\n- Complete Typefamily: $100\n\n**Character Support:**\nLatin and Cyrillic alphabets\n\n**License Type:**\nThe page lists only a \"Commercial License\" described as suitable for \"brand identities, advertising campaigns, commercial design solutions, and digital interfaces.\"\n\n**File Formats:**\n\"OTF+TTF+WOFF+Variable\"\n\n**Webfont License:**\nNo separate webfont license is explicitly mentioned. While WOFF files (web font format) are included in the package, there's no distinct licensing tier specified for web-only usage versus desktop or app licensing.\n\n**Note:**\nTest files are available for download at no cost, but the page lacks detailed breakdown of license restrictions by use case (desktop, web, or app).",
+  "fetched_at": 1789670834
+}

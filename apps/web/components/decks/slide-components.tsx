@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
 
+import { availableLabel } from "@/lib/decks/chrome-copy";
+import type { DeckLang } from "@/lib/decks/loader";
+
 /*
  * The closed vocabulary available inside a slide. Slides cannot `import`, so
  * anything not mapped in `mdx-components.ts` does not exist for them — that is
@@ -207,6 +210,7 @@ export function SponsorTier({
   available,
   covers,
   feature = false,
+  lang = "es",
 }: {
   name: string;
   price: string;
@@ -216,6 +220,8 @@ export function SponsorTier({
   available?: string;
   covers: string[];
   feature?: boolean;
+  /** Injected by the component map, not written in a slide. */
+  lang?: DeckLang;
 }) {
   return (
     <div
@@ -229,9 +235,7 @@ export function SponsorTier({
         {slots ? (
           <span className="deck-stat-label" style={{ marginTop: 0 }}>
             ×{slots}
-            {available
-              ? ` · ${available} ${available === "1" ? "disponible" : "disponibles"}`
-              : ""}
+            {available ? ` · ${availableLabel(available, lang)}` : ""}
           </span>
         ) : null}
       </div>

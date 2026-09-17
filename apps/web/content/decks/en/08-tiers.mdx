@@ -1,0 +1,34 @@
+---
+title: Sponsorship
+backdrop: canyon
+veil: heavy
+layout: wide
+---
+
+<SlideTitle label="Sponsorship" size="sm">Three ways in</SlideTitle>
+
+<Lead>Everything is contributed in credits. We do not ask for cash.</Lead>
+
+<DataGrid columns={3}>
+  <SponsorTier
+    name="Kit Partner"
+    price="$200"
+    slots="5"
+    available="5"
+    covers={["An award of your own", "Credits in the kit", "Logo on the grid", "Claims report"]}
+  />
+  <SponsorTier
+    name="Award Partner"
+    price="$500"
+    slots="3"
+    available="3"
+    covers={["Everything above", "Larger space on the site", "Workshop or mentor", "Usage report"]}
+  />
+  <SponsorTier
+    name="Title Partner"
+    price="$1,000"
+    slots="1"
+    feature
+    covers={["Everything above", "Keynote", "Jury seat", "Lockup beside the brand"]}
+  />
+</DataGrid>
