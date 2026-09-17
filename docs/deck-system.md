@@ -4,6 +4,7 @@ Cómo está montado el sistema con el que se producen, publican y exportan los
 decks de patrocinio de Hack the Andes.
 
 - **La doctrina** (qué se escribe y en qué orden): [`deck-best-practices.md`](./deck-best-practices.md)
+- **La piel** (color, tipografía, retícula): [`deck-design-system.md`](./deck-design-system.md)
 - **Los números** (tiers, presupuesto): [`budget-sponsors.md`](./budget-sponsors.md)
 
 > **Origen.** Portado de `~/Documents/the-next-craft` (42 decks, 480 slides en
