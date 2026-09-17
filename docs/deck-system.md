@@ -9,8 +9,9 @@ decks de patrocinio de Hack the Andes.
 
 > **Origen.** Portado de `~/Documents/the-next-craft` (42 decks, 480 slides en
 > producción). Se portaron el motor y la doctrina; **no** el contenido ni el
-> sistema visual — aquel es C64 blanco y negro sobre fondo oscuro, este lleva la
-> identidad Hack the Andes sobre papel claro.
+> sistema visual. El deck de patrocinio viste `terrain`, la piel que fija la base
+> de diseño: negro, monocromo y con láminas de terreno. Los estilos de papel
+> siguen ahí para los decks que los quieran.
 
 ---
 
@@ -190,13 +191,18 @@ retícula de 1px compartido, sin gaps y sin radius.
 
 ## 7. Las dos variantes tipográficas
 
-`deck.json → "style"`, tipo `DeckStyle = "plain" | "editorial"`. Baja al DOM como
-`data-deck-style` en `.deck-pager`.
+`deck.json → "style"`, tipo `DeckStyle = "plain" | "editorial" | "terrain"`. Baja
+al DOM como `data-deck-style` en `.deck-pager`.
 
 | Estilo | Cuándo | Qué cambia |
 | --- | --- | --- |
-| `editorial` (default de facto) | La mayoría | Barlow Condensed en títulos sobre IBM Plex Mono en chrome. |
+| `editorial` (default de facto) | La mayoría | Barlow Condensed en títulos sobre IBM Plex Mono en chrome. Papel claro. |
 | `plain` | Decks institucionales | Una sola familia (IBM Plex Mono). El condensed a escala de titular lee como marketing; para una universidad o un fondo público, no sirve. |
+| `terrain` | El deck de patrocinio | Invierte la página a negro, retira todo el croma, pone los títulos en la cara de marca y pinta las láminas de fondo. Es el único que redeclara los roles en vez de heredarlos — ver [`deck-design-system.md`](./deck-design-system.md). |
+
+`terrain` agrega tres campos al frontmatter de un slide: `backdrop` (qué lámina),
+`veil` (cuánto se la tapa) y `layout` (cuál de las cuatro plantillas). Los otros
+dos estilos los ignoran.
 
 ---
 
