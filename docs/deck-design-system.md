@@ -67,15 +67,19 @@ implementan tres pasos (`0.10 · 0.30 · 0.55`) y se documenta la reducción.
 | Rol | Familia | Estado |
 | --- | --- | --- |
 | Display | **Stack Sans Notch** | Resuelta. Koto para Stack Overflow, OFL-1.1, en Google Fonts, variable 200–700 |
-| Cuerpo | Glock Grotesk | **Bloqueada** — ver abajo |
+| Cuerpo | **DM Mono** | Resuelta. OFL-1.1, en Google Fonts, pesos 300/400/500 con `latin-ext` |
 
 La display ya está en el repo. `components/landing/fonts.ts` la carga como
 `landingBrand`, variable con `latin-ext`, y su comentario dice que es la cara de
 marca "and only the event's name". La base de diseño no inventó una tipografía:
 se hizo mirando el landing.
 
-Lo único que falta es cablearla: `app/deck/layout.tsx` importa `landingDisplay`,
-`landingSans` y `landingMono`, pero **no** `landingBrand`.
+`app/deck/layout.tsx` no la pedía, así que el wordmark caía a la condensada.
+Ahora la importa, y en `terrain` el rol `--deck-display` resuelve a ella: la base
+compone los títulos de sección con la cara de marca, no solo el nombre del
+evento. Es más ancho que la regla que `fonts.ts` enuncia para el landing, y es
+deliberado — un deck son nueve slides vistas una vez, donde la cara que grita es
+el punto; un landing es una página que se habita.
 
 Verificada por superposición, no por parecido: se renderizó "HACK THE ANDES" en
 Stack Sans Notch 700 y se comparó contra el wordmark extraído del SVG. Mismos
@@ -87,7 +91,8 @@ intencional o el default de Canva.
 
 ### Glock Grotesk: por qué no entra
 
-Dos problemas, una sola solución.
+La base fija el cuerpo en Glock Grotesk, de Ivan Tsanko. No entra, por dos
+razones, y hay una tercera que decide.
 
 1. **Licencia.** Lo que circula gratis es una demo de uso personal; el archivo
    que tenemos trae un `Befonts-License.txt` que dice `License: Personal Use
@@ -98,15 +103,31 @@ Dos problemas, una sola solución.
    peso (600)**, y le faltan `á é í ó ú ü ñ Á É Í Ó Ú Ü Ñ` completos, más `$` y
    `%`. El deck es en español y lleva montos. Cada acento cae a una fuente de
    reemplazo a mitad de palabra.
+3. **No es el corte del comp.** Medido: al mismo alto de caja, el cuerpo de la
+   base mide 932px de ancho y este archivo 818 — es **14% más angosto y más
+   pesado**. La base se compuso con un peso más liviano de la familia completa.
+   Forzar este archivo no daría el comp, daría otra cosa.
 
-La versión completa de Ivan Tsanko trae el latino extendido y varios pesos, y es
-la misma compra que resuelve la licencia. Hasta entonces el cuerpo va en una OFL
-sustituta y **`--deck-body` es el único punto de cambio**.
+La familia completa se compra en [tsankotype.com](https://www.tsankotype.com/shop-4)
+— $25 por peso, $100 la familia, con OTF+TTF+WOFF y licencia comercial que
+nombra "digital interfaces". Antes de pagar hay que pedir el mapa de caracteres:
+la tienda dice "Latin and Cyrillic", que es exactamente lo que decía la demo que
+no tiene un solo acento.
 
-Candidatas medidas contra la textura de la base: **DM Mono** (clava el peso y la
-geometría: `o` circular, aperturas abiertas, trazo ligero), **Martian Mono**
-(clava el ancho y el ritmo, pero come demasiada línea con copy real) e **IBM Plex
-Mono** (la que el sistema ya carga, y la única que no suma una familia).
+**Se eligió DM Mono.** Un monoespaciado donde la base usaba una proporcional, y
+elegido por eso: la base contrapone una display limpia contra una cara ancha y
+rara, y ese contraste de dos voces es lo que sostiene la página. Stack Sans Notch
+lleva los títulos, y una segunda grotesca debajo lee como la misma voz en chico.
+El costo es densidad — el mono corre unas cinco líneas donde una proporcional
+corre tres — y es asumible porque una slide de patrocinio lleva frases y cifras,
+no párrafos.
+
+Descartadas: **Familjen Grotesk** (excelente cara de texto y ~40% más densa, pero
+demasiado cerca del titular), **Martian Mono** (clava el ancho de la base, pero
+come demasiada línea) e **IBM Plex Mono** (ya cargada para los labels, y por eso
+mismo sin contraste contra ellos).
+
+`--deck-body` sigue siendo el único punto de cambio.
 
 ### La escala
 
@@ -137,8 +158,11 @@ abajo**. Está en el archivo original, no es un artefacto del render. Con lorem
 pasa desapercibido; con copy real en español pasa a ser peor, porque los acentos
 suben y el choque empieza también por arriba.
 
-Se implementa en **1.15**. Se pierde algo de la textura de bloque; es la
-diferencia entre un deck y un deck que se puede leer.
+No se porta. `.deck-lead` queda en **1.5**, que es el valor que el sistema ya
+traía y el que un monoespaciado necesita: DM Mono tiene ascendentes y
+descendentes largas, y apretarlas reproduce el choque en vez de evitarlo. Se
+pierde la textura de bloque de la base; es la diferencia entre un deck y un deck
+que se puede leer.
 
 ---
 
@@ -155,9 +179,13 @@ No hay una. Los márgenes izquierdos medidos, por slide:
 Y **T2 y T3 son espejos que no espejan**: T3 abre el texto en `x=117.4`, T2 lo
 cierra en `x=1265.3`, o sea margen 174.7.
 
-Pendiente del diseñador. Hasta que responda se toma **177.9** como margen
-canónico (el de T4, el único que deja el bloque centrado en el lienzo) y se
-documenta la decisión acá cuando se confirme.
+**Resuelto: 177.9**, o `12.35%`. Es el de T4, y el único de los tres que deja el
+bloque centrado en el lienzo, así que conserva la tarjeta de 249.6 tal como está
+dibujada. Las columnas de texto se alinean a él.
+
+En CSS va como `clamp(1.25rem, 12.35vw, 4rem)`: el 12.35% de un teléfono no es
+un margen, es un canal, y el piso sostiene la slide legible mucho antes que la
+proporción.
 
 ### Las cards de T4
 
@@ -227,10 +255,13 @@ propios roles dentro de `.deck-pager[data-deck-style="terrain"]`.
 
 ## 7. Lo que falta cerrar
 
-| Pendiente | De quién | Bloquea |
-| --- | --- | --- |
-| Los cuatro márgenes de §4 | Diseñador | La retícula final |
-| Si los seis scrims son tres | Diseñador | §2 |
-| El tracking del wordmark | Diseñador | El lockup |
-| Si Open Sans está en uso | Diseñador | Nada, es higiene |
-| Glock Grotesk completa | Compra a Ivan Tsanko | `--deck-body` |
+| Pendiente | Bloquea |
+| --- | --- |
+| Si los seis scrims son tres niveles o seis | El acabado de T4 |
+| El tracking del wordmark (≈ +0.025em): ¿intencional o default de Canva? | El lockup |
+| La capa de fondo: los cuatro PNG, el grano, y el T2 que hay que sacar del shader | T1, T2, T3, T4 |
+| Las variaciones de plantilla por slide | Las 10 slides |
+
+Cerrados en esta iteración: el margen canónico (§4), la cara de cuerpo (§3), la
+display (§3) y Open Sans, que no aparece en ninguno de los trazos de la base y
+se da por residuo de la plantilla de Canva.

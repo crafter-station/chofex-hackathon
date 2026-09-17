@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 
 import {
+  landingBrand,
   landingDisplay,
   landingMono,
-  landingSans,
 } from "@/components/landing/fonts";
 
+import { deckBody } from "./fonts";
 import "./deck.css";
 
 export const metadata: Metadata = {
@@ -43,8 +44,12 @@ const NO_JS_FALLBACK = `
 
 /**
  * Decks render under the app's root layout but carry their own type stack and
- * stylesheet: the landing pairing (Barlow Condensed / Barlow / IBM Plex Mono),
- * not the app's Geist.
+ * stylesheet — the landing's four faces, not the app's Geist.
+ *
+ * `landingBrand` is Stack Sans Notch, and it is the one the sponsorship design
+ * base sets the event's name in. `fonts.ts` already loaded it for the landing's
+ * hero lockup; the decks just never asked for it, so the wordmark fell through
+ * to the condensed display face.
  */
 export default function DeckLayout({
   children,
@@ -53,7 +58,7 @@ export default function DeckLayout({
 }) {
   return (
     <div
-      className={`${landingDisplay.variable} ${landingSans.variable} ${landingMono.variable}`}
+      className={`${landingBrand.variable} ${landingDisplay.variable} ${landingMono.variable} ${deckBody.variable}`}
     >
       <noscript>
         <style>{NO_JS_FALLBACK}</style>

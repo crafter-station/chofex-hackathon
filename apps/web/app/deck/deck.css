@@ -21,16 +21,40 @@
   --deck-status: var(--hud-status);
   --deck-accent: var(--hud-accent);
   --deck-muted: var(--hud-muted);
-  /* Rules are the ink at low alpha, so they track the ink if it changes. */
-  --deck-line: color-mix(in srgb, var(--hud-ink) 14%, transparent);
-  --deck-line-strong: color-mix(in srgb, var(--hud-ink) 28%, transparent);
+  /*
+   * Rules are the ink at low alpha, so they track the ink if it changes.
+   *
+   * They derive from `--deck-ink` and not from `--hud-ink`, which is what they
+   * used to read: a skin that inverts the ink has to be able to invert the
+   * rules with it, and going through the local role is what lets one override
+   * carry both.
+   */
+  --deck-line: color-mix(in srgb, var(--deck-ink) 14%, transparent);
+  --deck-line-strong: color-mix(in srgb, var(--deck-ink) 28%, transparent);
 
+  /*
+   * The brand face carries the event's name and nothing else — that is the
+   * rule `fonts.ts` states for the landing, and the design base follows it.
+   * Everything else that is "a heading" stays on the condensed display face.
+   */
+  --deck-brand: var(--font-landing-brand), ui-sans-serif, system-ui, sans-serif;
   --deck-display: var(--font-landing-display), ui-sans-serif, system-ui,
     sans-serif;
   --deck-mono: var(--font-landing-mono), ui-monospace, monospace;
-  --deck-body: var(--font-landing-sans), ui-sans-serif, system-ui, sans-serif;
+  /* The body face is a monospace, so the fallback has to be one too — a
+     proportional fallback would reflow every slide while the font loads. */
+  --deck-body: var(--font-deck-body), ui-monospace, monospace;
 
-  --deck-stage-padding-x: clamp(1.25rem, 6vw, 4rem);
+  /*
+   * 12.35% is the design base's card-row margin, and it is the one of the three
+   * it uses that leaves the block centred on the canvas. The other two (5.63%
+   * for the media frame, 8.17% for the text column) are recorded in
+   * `docs/deck-design-system.md` along with why they lost.
+   *
+   * It stays a clamp because 12.35% of a phone is not a margin, it is a
+   * gutter: the floor holds the slide readable long before the ratio does.
+   */
+  --deck-stage-padding-x: clamp(1.25rem, 12.35vw, 4rem);
   --deck-stage-padding-y: clamp(4.5rem, 9svh, 6rem);
 
   position: relative;
@@ -50,6 +74,47 @@
 .deck-pager[data-deck-style="plain"] {
   --deck-display: var(--font-landing-mono), ui-monospace, monospace;
   background: var(--deck-paper);
+}
+
+/*
+ * "terrain": the sponsorship skin, and the one the design base specifies.
+ *
+ * It is the only style that inverts the page, so it is the only one that
+ * redeclares the roles rather than inheriting them. `palette.css` is not
+ * touched: that file is shared with the landing, the landing is paper, and the
+ * comment at the top of it records that the two drifted apart once already.
+ * The override lives here, scoped to the attribute, so a deck opts in through
+ * `deck.json` and nothing else moves.
+ *
+ * The base carries no chroma at all — the whole of it is `#000` and `#fff`.
+ * That retires both accents: cobalt had the labels and burnt red had the rules
+ * and the bullets, and on this ground there is nothing for either to do. The
+ * roles stay declared so the vocabulary keeps working; they just resolve to
+ * white, and hierarchy falls to scale, weight and alpha.
+ */
+.deck-pager[data-deck-style="terrain"] {
+  --deck-paper: #000000;
+  --deck-ink: #ffffff;
+  /*
+   * A card is the background image with a black scrim over it, so the fill is
+   * a translucent white that the image reads through rather than a flat panel.
+   */
+  --deck-card: rgb(255 255 255 / 8%);
+  --deck-muted: rgb(255 255 255 / 62%);
+  --deck-accent: rgb(255 255 255 / 16%);
+  --deck-action: #ffffff;
+  --deck-status: #ffffff;
+
+  /*
+   * The base sets section titles in the brand face, not just the event's name.
+   * That is wider than the rule `fonts.ts` states for the landing, and it is a
+   * deliberate difference: a deck is nine slides seen once, where the face
+   * doing the shouting is the point, and a landing is a page lived in.
+   */
+  --deck-display: var(--deck-brand);
+
+  background: var(--deck-paper);
+  color: var(--deck-ink);
 }
 
 /* ---------- chrome ---------- */
