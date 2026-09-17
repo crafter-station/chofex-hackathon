@@ -35,20 +35,36 @@ export function SlideTitle({
   );
 }
 
+/*
+ * The three below take their children straight from MDX, so none of them can
+ * be a `<p>`.
+ *
+ * MDX only leaves children inline when they sit on the same line as the tag.
+ * Written across lines they are flow content, and MDX wraps them in a
+ * paragraph — which here is `MdxP`, another `<p>`. A `<p>` inside a `<p>` is
+ * invalid: the parser closes the outer one the moment it meets the inner, so
+ * the tree the server sent and the tree the client builds disagree and React
+ * throws the whole slide away and re-renders it.
+ *
+ * A `<div>` takes either shape. The typography does not move: on one line the
+ * class styles the text directly, across lines `MdxP` carries the same class
+ * on the paragraph inside.
+ */
+
 export function Lead({ children }: { children: ReactNode }) {
-  return <p className="deck-lead">{children}</p>;
+  return <div className="deck-lead">{children}</div>;
 }
 
 export function Wordmark({ children }: { children: ReactNode }) {
-  return <p className="deck-wordmark">{children}</p>;
+  return <div className="deck-wordmark">{children}</div>;
 }
 
 /** Closing line of a close slide: the single next step, set apart. */
 export function Ready({ children }: { children: ReactNode }) {
   return (
-    <p className="deck-label" style={{ color: "var(--deck-status)" }}>
+    <div className="deck-label" style={{ color: "var(--deck-status)" }}>
       {children}
-    </p>
+    </div>
   );
 }
 
