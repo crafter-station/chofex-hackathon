@@ -2,6 +2,11 @@
 const nextConfig = {
   agentRules: false,
   transpilePackages: ["three", "@chofex/challenges-contract"],
+  // Decks are compiled at build time from content/decks; the tracer cannot see
+  // the directory through fs reads, so pin it explicitly.
+  outputFileTracingIncludes: {
+    "/deck/[slug]": ["./content/decks/**/*"],
+  },
   async headers() {
     return [
       {

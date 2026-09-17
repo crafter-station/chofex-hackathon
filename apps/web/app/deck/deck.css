@@ -1,0 +1,912 @@
+@import "../../components/landing/palette.css";
+
+/*
+ * Deck chrome and slide vocabulary.
+ *
+ * The deck wears the Hack the Andes identity, not Chofex's. The palette is
+ * imported, never copied: `palette.css` declares the --hud-* roles for both
+ * `.landing-page` and `.deck-pager`, so a palette change on the landing reaches
+ * the decks in the same commit. It already drifted once — the deck shipped with
+ * the pre-`feat/palette` hexes while the landing had moved on.
+ *
+ * The --deck-* names below are local aliases, so the rest of this file reads in
+ * deck terms and a role rename upstream is a one-line change here.
+ */
+
+.deck-pager {
+  --deck-paper: var(--hud-paper);
+  --deck-card: var(--hud-card);
+  --deck-ink: var(--hud-ink);
+  --deck-action: var(--hud-action);
+  --deck-status: var(--hud-status);
+  --deck-accent: var(--hud-accent);
+  --deck-muted: var(--hud-muted);
+  /*
+   * Rules are the ink at low alpha, so they track the ink if it changes.
+   *
+   * They derive from `--deck-ink` and not from `--hud-ink`, which is what they
+   * used to read: a skin that inverts the ink has to be able to invert the
+   * rules with it, and going through the local role is what lets one override
+   * carry both.
+   */
+  --deck-line: color-mix(in srgb, var(--deck-ink) 14%, transparent);
+  --deck-line-strong: color-mix(in srgb, var(--deck-ink) 28%, transparent);
+
+  /*
+   * The brand face carries the event's name and nothing else — that is the
+   * rule `fonts.ts` states for the landing, and the design base follows it.
+   * Everything else that is "a heading" stays on the condensed display face.
+   */
+  --deck-brand: var(--font-landing-brand), ui-sans-serif, system-ui, sans-serif;
+  --deck-display: var(--font-landing-display), ui-sans-serif, system-ui,
+    sans-serif;
+  --deck-mono: var(--font-landing-mono), ui-monospace, monospace;
+  /* The body face is a monospace, so the fallback has to be one too — a
+     proportional fallback would reflow every slide while the font loads. */
+  --deck-body: var(--font-deck-body), ui-monospace, monospace;
+
+  /*
+   * 12.35% is the design base's card-row margin, and it is the one of the three
+   * it uses that leaves the block centred on the canvas. The other two (5.63%
+   * for the media frame, 8.17% for the text column) are recorded in
+   * `docs/deck-design-system.md` along with why they lost.
+   *
+   * It stays a clamp because 12.35% of a phone is not a margin, it is a
+   * gutter: the floor holds the slide readable long before the ratio does.
+   */
+  --deck-stage-padding-x: clamp(1.25rem, 12.35vw, 4rem);
+  --deck-stage-padding-y: clamp(4.5rem, 9svh, 6rem);
+
+  position: relative;
+  height: 100svh;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--deck-paper);
+  color: var(--deck-ink);
+  font-family: var(--deck-body);
+}
+
+/*
+ * "plain": one family throughout. Barlow Condensed at heading scale reads as
+ * marketing; for institutional decks (a university venue, a public fund) the
+ * mono carries hierarchy with weight and scale instead.
+ */
+.deck-pager[data-deck-style="plain"] {
+  --deck-display: var(--font-landing-mono), ui-monospace, monospace;
+  background: var(--deck-paper);
+}
+
+/*
+ * "terrain": the sponsorship skin, and the one the design base specifies.
+ *
+ * It is the only style that inverts the page, so it is the only one that
+ * redeclares the roles rather than inheriting them. `palette.css` is not
+ * touched: that file is shared with the landing, the landing is paper, and the
+ * comment at the top of it records that the two drifted apart once already.
+ * The override lives here, scoped to the attribute, so a deck opts in through
+ * `deck.json` and nothing else moves.
+ *
+ * The base carries no chroma at all — the whole of it is `#000` and `#fff`.
+ * That retires both accents: cobalt had the labels and burnt red had the rules
+ * and the bullets, and on this ground there is nothing for either to do. The
+ * roles stay declared so the vocabulary keeps working; they just resolve to
+ * white, and hierarchy falls to scale, weight and alpha.
+ */
+.deck-pager[data-deck-style="terrain"] {
+  --deck-paper: #000000;
+  --deck-ink: #ffffff;
+  /*
+   * A card dims the plate further rather than lifting off it, which is the one
+   * place this skin argues with the design base: there the cards are lighter
+   * than the ground, and their type flips to black to stay on them. That works
+   * with the lorem the base is set in and stops working with real copy, because
+   * half the deck's cards would then carry black type and half white. Dimming
+   * keeps one ink for the whole deck and still reads as a panel over the image.
+   */
+  --deck-card: rgb(0 0 0 / 45%);
+  /*
+   * 72%, not the 62% a flat black ground would take: this muted sits on top of
+   * a wireframe drawing, and the small mono labels are the first thing the
+   * plate eats.
+   */
+  --deck-muted: rgb(255 255 255 / 72%);
+  --deck-accent: rgb(255 255 255 / 80%);
+  --deck-action: #ffffff;
+  --deck-status: #ffffff;
+
+  /*
+   * The base sets section titles in the brand face, not just the event's name.
+   * That is wider than the rule `fonts.ts` states for the landing, and it is a
+   * deliberate difference: a deck is nine slides seen once, where the face
+   * doing the shouting is the point, and a landing is a page lived in.
+   */
+  --deck-display: var(--deck-brand);
+
+  background: var(--deck-paper);
+  color: var(--deck-ink);
+
+  /*
+   * The default veil. White type over a wireframe drawing is the one place
+   * this skin can fail to be readable, and the plates are brightest exactly
+   * where the peaks are, which is where the eye puts the headline.
+   *
+   * A slide overrides it through `veil:` in its frontmatter — the steps are
+   * below, and they exist because the design base does the same: its three
+   * full-bleed scrims sit at 0.37, 0.52 and 0.54.
+   */
+  --deck-veil: rgb(0 0 0 / 58%);
+  /*
+   * What the split layouts leave on the half the type does not take. The base
+   * draws an empty framed box there; this is the same idea without the frame —
+   * the plate, barely touched, doing the job the box was holding open for it.
+   */
+  --deck-veil-far: rgb(0 0 0 / 18%);
+
+  /*
+   * The shadow layer, and it is a layer rather than a change to the veil.
+   *
+   * The veil is flat by design — it buys a fixed amount of contrast wherever
+   * the type happens to land. This sits on top of it and deepens downward, so
+   * the plate keeps its lightest reading at the top edge, where measurement
+   * says nothing but the drawing lives: across the ten slides the type runs
+   * from 21% to 79% of the height, and never above it.
+   *
+   * It only ever adds. Nothing on any slide gets lighter than it was, which is
+   * the property that makes it safe to apply to all ten at once.
+   */
+  --deck-shade: rgb(0 0 0 / 46%);
+}
+
+/* A cover with six words can afford to let the drawing through. */
+.deck-backdrop[data-veil="light"] {
+  --deck-veil: rgb(0 0 0 / 40%);
+}
+
+.deck-backdrop[data-veil="mid"] {
+  --deck-veil: rgb(0 0 0 / 58%);
+}
+
+/* A seven-row table over the canyon's lit seam cannot. */
+.deck-backdrop[data-veil="heavy"] {
+  --deck-veil: rgb(0 0 0 / 78%);
+}
+
+/* ---------- backdrop ---------- */
+
+/*
+ * Three stacked layers in one element: the plate, a scrim that buys the type
+ * its contrast, and the grain.
+ *
+ * Only `terrain` paints anything. The paper styles leave `.deck-backdrop` in
+ * the markup and invisible, so a deck can change skin without its slides
+ * changing shape.
+ */
+.deck-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/*
+ * Plate and scrim are two layers of one background rather than two elements.
+ * A scrim painted as its own absolutely positioned box inside `.deck-slide-
+ * inner` scrolls away the moment a slide overflows, taking the type's contrast
+ * with it; stacked here it cannot come apart from the plate it dims.
+ */
+.deck-pager[data-deck-style="terrain"] .deck-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--deck-paper);
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0%) 0%,
+      rgb(0 0 0 / 9%) 30%,
+      rgb(0 0 0 / 23%) 62%,
+      var(--deck-shade) 100%
+    ),
+    linear-gradient(to bottom, var(--deck-veil), var(--deck-veil)),
+    var(--deck-plate, none);
+  background-position: center, center, var(--deck-plate-position, center);
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-size: cover, cover, cover;
+}
+
+.deck-pager[data-deck-style="terrain"] .deck-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /*
+   * The grain is generated, not a tile. A raster tile small enough to ship
+   * repeats about twenty-five times across the 3200px the PDF export
+   * screenshots at, and that repeat is visible; turbulence has no period.
+   */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence baseFrequency='0.75' numOctaves='3' stitchTiles='stitch' type='fractalNoise'/%3E%3C/filter%3E%3Crect filter='url(%23g)' height='100%25' width='100%25'/%3E%3C/svg%3E");
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+}
+
+/* The plate a slide sits on, chosen in its frontmatter. */
+.deck-backdrop[data-backdrop="summit"] {
+  --deck-plate: url("/deck/summit.webp");
+}
+.deck-backdrop[data-backdrop="range"] {
+  --deck-plate: url("/deck/range.webp");
+}
+.deck-backdrop[data-backdrop="peak"] {
+  --deck-plate: url("/deck/peak.webp");
+}
+/*
+ * The contour map, and the only plate the repo draws rather than buys. It is
+ * the Sacred Valley's own elevation sliced by the landing's contour measure —
+ * `scripts/build-deck-contour-plate.py` has the why. It replaces the design
+ * base's topographic plate, which carries another author's signature inside
+ * the image.
+ */
+.deck-backdrop[data-backdrop="contour"] {
+  --deck-plate: url("/deck/contour.webp");
+}
+
+.deck-backdrop[data-backdrop="canyon"] {
+  --deck-plate: url("/deck/canyon.webp");
+  /* The canyon's subject is its lit seam, which sits above centre. */
+  --deck-plate-position: center 35%;
+  /*
+   * The one high-key plate: its seam is near white where the mountains top out
+   * at mid grey, so the same veil step leaves it far brighter. At the shared
+   * 18% a card over the seam lands near 3.3:1 against white type; this puts it
+   * back over 5.
+   */
+  --deck-veil-far: rgb(0 0 0 / 45%);
+}
+
+/*
+ * `none` still gets the scrim colour, so a slide without a plate is the same
+ * black as one whose plate is fully dimmed rather than a different black.
+ */
+.deck-backdrop[data-backdrop="none"] {
+  --deck-plate: none;
+}
+
+/* ---------- chrome ---------- */
+
+.deck-chrome {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.deck-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.deck-topbar > * {
+  pointer-events: auto;
+}
+
+.deck-deck-title {
+  max-width: 60vw;
+  overflow: hidden;
+  font-family: var(--deck-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--deck-muted);
+}
+
+.deck-key {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--deck-line-strong);
+  background-color: var(--deck-card);
+  color: var(--deck-ink);
+  font-family: var(--deck-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  /* Hard shadow, never blur. */
+  box-shadow: 0 2px 0 var(--deck-line-strong);
+  transition:
+    transform 120ms ease-out,
+    box-shadow 120ms ease-out;
+}
+
+.deck-key:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--deck-line-strong);
+}
+
+.deck-key:disabled {
+  opacity: 0.35;
+}
+
+/* ---------- stage ---------- */
+
+.deck-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+
+.deck-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+/* Only animate once hydrated, so the first painted slide appears instantly. */
+.deck-pager[data-mounted="true"] .deck-slide {
+  transition:
+    opacity 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.deck-pager .deck-slide[data-active="true"] {
+  z-index: 1;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.deck-slide-inner {
+  display: flex;
+  align-items: safe center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: var(--deck-stage-padding-y) var(--deck-stage-padding-x)
+    calc(var(--deck-stage-padding-y) + env(safe-area-inset-bottom));
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.deck-slide-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+/* The no-JS fallback lives in the <noscript> style in app/deck/layout.tsx. */
+
+/* ---------- controls ---------- */
+
+.deck-controls {
+  position: fixed;
+  right: calc(1rem + env(safe-area-inset-right));
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.deck-counter {
+  font-family: var(--deck-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  font-variant-numeric: tabular-nums;
+  color: var(--deck-muted);
+}
+
+.deck-keycaps {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ---------- index ---------- */
+
+.deck-index {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.deck-index-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: color-mix(in srgb, var(--deck-ink) 72%, transparent);
+}
+
+.deck-index-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 520px;
+  max-height: 80svh;
+  border: 1px solid var(--deck-line-strong);
+  background-color: var(--deck-card);
+}
+
+.deck-index-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--deck-line);
+}
+
+.deck-index-label {
+  font-family: var(--deck-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--deck-action);
+}
+
+.deck-index-list {
+  margin: 0;
+  padding: 0.75rem;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.deck-index-button {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--deck-muted);
+  font-family: var(--deck-mono);
+  font-size: 13px;
+  text-align: left;
+  transition:
+    color 150ms ease-out,
+    background-color 150ms ease-out,
+    border-color 150ms ease-out;
+}
+
+.deck-index-button:hover,
+.deck-index-button:focus-visible {
+  border-color: var(--deck-line);
+  background-color: var(--deck-paper);
+  color: var(--deck-ink);
+}
+
+.deck-index-button[aria-current="true"] {
+  border-color: var(--deck-action);
+  background-color: var(--deck-paper);
+  color: var(--deck-action);
+}
+
+.deck-index-number {
+  flex-shrink: 0;
+  width: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- slide vocabulary ---------- */
+
+.deck-label {
+  font-family: var(--deck-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--deck-action);
+}
+
+.deck-title {
+  font-family: var(--deck-display);
+  font-size: clamp(2.25rem, 6vw, 4.25rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.deck-title-sm {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+}
+
+.deck-lead {
+  max-width: 62ch;
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  line-height: 1.5;
+  text-wrap: pretty;
+  color: var(--deck-ink);
+}
+
+.deck-rule {
+  height: 2px;
+  border: 0;
+  background-color: var(--deck-status);
+}
+
+/*
+ * The shared grid: the container draws top and left, each cell draws right and
+ * bottom. One 1px rule between neighbours, no gaps, no radius.
+ */
+.deck-table {
+  display: grid;
+  border-top: 1px solid var(--deck-line-strong);
+  border-left: 1px solid var(--deck-line-strong);
+  background-color: var(--deck-card);
+}
+
+.deck-cell {
+  padding: 1.1rem 1.25rem;
+  border-right: 1px solid var(--deck-line-strong);
+  border-bottom: 1px solid var(--deck-line-strong);
+}
+
+.deck-cell-invert {
+  background-color: var(--deck-ink);
+  color: var(--deck-paper);
+}
+
+.deck-cell-invert .deck-label {
+  color: var(--deck-accent);
+}
+
+.deck-stat-value {
+  display: block;
+  font-family: var(--deck-display);
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.deck-stat-label {
+  display: block;
+  margin-top: 0.5rem;
+  font-family: var(--deck-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--deck-muted);
+}
+
+.deck-cell-invert .deck-stat-label {
+  color: color-mix(in srgb, var(--deck-paper) 70%, transparent);
+}
+
+.deck-copy {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--deck-muted);
+}
+
+.deck-cell-invert .deck-copy {
+  color: color-mix(in srgb, var(--deck-paper) 78%, transparent);
+}
+
+.deck-chip {
+  display: inline-block;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--deck-line-strong);
+  background-color: var(--deck-card);
+  font-family: var(--deck-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.deck-bullet {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.deck-bullet::before {
+  content: "▸";
+  color: var(--deck-status);
+}
+
+.deck-tier-price {
+  font-family: var(--deck-display);
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.deck-wordmark {
+  font-family: var(--deck-display);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- markdown fallbacks ---------- */
+
+.deck-slide-content :where(p) {
+  max-width: 62ch;
+  line-height: 1.55;
+}
+
+.deck-slide-content :where(strong) {
+  font-weight: 600;
+  color: var(--deck-ink);
+}
+
+.deck-slide-content :where(a) {
+  color: var(--deck-action);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------- terrain: the templates ---------- */
+
+/*
+ * The four templates from the design base. They are layout only — no slide
+ * changes hands, and the MDX is identical under every one of them.
+ *
+ * `wide` is the default and needs no rule: it is the centred column every slide
+ * already had.
+ */
+
+/*
+ * `wide` takes the whole column, not the 980px the paper styles cap at.
+ *
+ * That cap is a reading measure, and it is right for a deck whose wide slides
+ * are prose. Here they are grids: the design base draws four cards of 249.6
+ * with a 29.25 gutter, which needs the 1084 the page margin leaves and gets
+ * 980. The difference is the fourth card fitting or not.
+ */
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="wide"]
+  .deck-slide-content {
+  max-width: 100%;
+}
+
+/* The title slide: one narrow column, centred, the way the base sets it. */
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="cover"]
+  .deck-slide-content {
+  max-width: 62ch;
+  text-align: center;
+  align-items: center;
+}
+
+/*
+ * `align-items: center` shrinks every child to its content, and an `<hr>` has
+ * none — the rule vanishes rather than centring. It is the one child that wants
+ * the full column.
+ */
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="cover"]
+  .deck-rule {
+  align-self: stretch;
+}
+
+/*
+ * The mirrored halves. The type takes one side and the plate keeps the other.
+ *
+ * 64%, not half. A clean half is what the design base draws, and it works there
+ * because the type side holds a paragraph. This deck's slides almost all hold a
+ * grid instead — three tiers, four stats, two columns of contrast — and halving
+ * the column crushes them to unreadable. 64% keeps the asymmetry, which is what
+ * the template is actually for, and still leaves the plate a third of the slide
+ * to itself.
+ */
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-left"]
+  .deck-slide-content,
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-right"]
+  .deck-slide-content {
+  max-width: 64%;
+}
+
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-left"]
+  .deck-slide-content {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-right"]
+  .deck-slide-content {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+/*
+ * The plate slides away from the type under a split. Without this the drawing's
+ * brightest mass — which is the peak, and the reason the plate was chosen — sits
+ * under the column as often as beside it, and the gradient is left fighting the
+ * one part of the image it cannot win against.
+ */
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-left"]
+  .deck-backdrop {
+  --deck-plate-position: 82% center;
+}
+
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-right"]
+  .deck-backdrop {
+  --deck-plate-position: 18% center;
+}
+
+/*
+ * The veil turns directional under a split: full strength under the type,
+ * `--deck-veil-far` over the half the plate keeps. The stop sits past the
+ * column's edge so the two never meet on a hard line.
+ */
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-left"]
+  .deck-backdrop::before {
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0%) 0%,
+      rgb(0 0 0 / 9%) 30%,
+      rgb(0 0 0 / 23%) 62%,
+      var(--deck-shade) 100%
+    ),
+    linear-gradient(
+      to right,
+      var(--deck-veil) 0%,
+      var(--deck-veil) 34%,
+      var(--deck-veil-far) 72%
+    ),
+    var(--deck-plate, none);
+}
+
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-right"]
+  .deck-backdrop::before {
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0%) 0%,
+      rgb(0 0 0 / 9%) 30%,
+      rgb(0 0 0 / 23%) 62%,
+      var(--deck-shade) 100%
+    ),
+    linear-gradient(
+      to left,
+      var(--deck-veil) 0%,
+      var(--deck-veil) 34%,
+      var(--deck-veil-far) 72%
+    ),
+    var(--deck-plate, none);
+}
+
+/*
+ * A split needs two halves to be a split. Below that the column takes the slide
+ * and the veil goes back to covering all of it, or the type ends up over the
+ * brightest part of the drawing with nothing between them.
+ */
+@media (max-width: 800px) {
+  .deck-pager[data-deck-style="terrain"]
+    .deck-slide[data-layout="split-left"]
+    .deck-slide-content,
+  .deck-pager[data-deck-style="terrain"]
+    .deck-slide[data-layout="split-right"]
+    .deck-slide-content {
+    max-width: 100%;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .deck-pager[data-deck-style="terrain"]
+    .deck-slide[data-layout="split-left"]
+    .deck-backdrop::before,
+  .deck-pager[data-deck-style="terrain"]
+    .deck-slide[data-layout="split-right"]
+    .deck-backdrop::before {
+    background-image:
+      linear-gradient(
+        to bottom,
+        rgb(0 0 0 / 0%) 0%,
+        rgb(0 0 0 / 9%) 30%,
+        rgb(0 0 0 / 23%) 62%,
+        var(--deck-shade) 100%
+      ),
+      linear-gradient(to bottom, var(--deck-veil), var(--deck-veil)),
+      var(--deck-plate, none);
+  }
+}
+
+/* ---------- terrain: overrides of the vocabulary above ---------- */
+
+/*
+ * These sit after the rules they override, not beside the rest of the
+ * terrain block at the top. Every one of them is more specific than its
+ * base, so placing them earlier would have them lose the cascade on a
+ * tie — and biome's noDescendingSpecificity catches exactly that.
+ */
+
+/* The type rides above the backdrop, which is the slide's z-index 0. */
+.deck-pager[data-deck-style="terrain"] .deck-slide-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/*
+ * `deck-cell-invert` flips to ink-on-paper, which on this skin is a solid white
+ * block — the one move the design base never makes. Emphasis here is what the
+ * base actually uses: a step up the scrim and a rule at full strength, with the
+ * type staying white so the deck keeps one ink.
+ */
+/*
+ * The lockup's tracking, matched to the design base rather than guessed.
+ *
+ * `.deck-title` is cut for Barlow Condensed, where -0.02em closes the gaps a
+ * condensed face opens. Stack Sans Notch is not condensed and does not want it:
+ * measured against the base's own wordmark, at the same cap height, our title
+ * came out 1.9% narrow — ratio 11.10 of width to cap against the base's 11.31.
+ * Spread over the fifteen gaps in "HACK THE ANDES" that is about 0.01em, which
+ * is what this gives back.
+ */
+.deck-pager[data-deck-style="terrain"] .deck-title {
+  letter-spacing: -0.01em;
+}
+
+.deck-pager[data-deck-style="terrain"] .deck-cell-invert {
+  background-color: rgb(0 0 0 / 15%);
+  border-color: var(--deck-ink);
+  color: var(--deck-ink);
+}
+
+.deck-pager[data-deck-style="terrain"] .deck-cell-invert .deck-label {
+  color: var(--deck-ink);
+}
+
+.deck-pager[data-deck-style="terrain"] .deck-cell-invert .deck-stat-label,
+.deck-pager[data-deck-style="terrain"] .deck-cell-invert .deck-copy {
+  color: var(--deck-muted);
+}
+
+/* ---------- motion and print ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-pager[data-mounted="true"] .deck-slide {
+    transform: none;
+    transition: none;
+  }
+
+  .deck-index-button,
+  .deck-key {
+    transition: none;
+  }
+}
+
+@media print {
+  @page {
+    size: 16in 9in;
+    margin: 0;
+  }
+
+  .deck-pager .deck-chrome,
+  .deck-pager .deck-controls,
+  .deck-pager .deck-index {
+    display: none;
+  }
+}
