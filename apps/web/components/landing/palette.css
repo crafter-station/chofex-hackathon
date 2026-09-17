@@ -1,23 +1,35 @@
 /*
- * The palette, shared by the landing and the sponsorship decks.
+ * The light palette. Read the next paragraph before trusting the file name.
  *
- * Both surfaces are the same brand, so the roles are declared once here and
- * imported by `landing.css` and `app/deck/deck.css`. Before this file the deck
- * carried its own copy of the hex values, and a palette change on the landing
- * silently left the decks a version behind.
+ * It was written as the one palette shared by the landing and the decks, and
+ * it is still imported by both. It is no longer what either of them paints
+ * with. `dark.css` redefines **every** token declared here under
+ * `.landing-dark`, and `app/page.tsx` puts that class on the landing — so the
+ * landing takes nothing from this file, and the decks take it only in the
+ * `editorial` and `plain` styles, which nothing currently ships.
+ *
+ * What that leaves is a light base with one real consumer: a deck that opts
+ * out of `terrain`. Useful, and not what the header used to claim.
+ *
+ * The contrast reasoning below is still sound — it is why the light direction
+ * was worth trying — but the measurements that govern the shipping surfaces
+ * are in `dark.css`, taken against black.
  */
 .landing-page,
 .deck-pager {
   /*
-   * The palette, named by role. The page is light: Sandy Linen is the ground
-   * and the dark is reserved for type.
+   * The palette, named by role. On paper: Sandy Linen is the ground and the
+   * dark is reserved for type.
    *
-   * Inverting it is what finally lets every colour do a job. On a dark field
-   * Scarlet tops out at 3.88:1 against pure black, so it could never carry
-   * small type; on paper it reads 4.45, and 5.04 on a raised card. Aegean goes
+   * On paper Scarlet reads 4.45:1, and 5.04 on a raised card, where on a dark
+   * field it tops out at 3.88 and could never carry small type. Aegean goes
    * from unusable to 4.96. Blossom goes the other way — 1.18 on paper — which
-   * settles it as a tint rather than a text colour, and that is the secondary
-   * role it should have had all along.
+   * settles it as a tint rather than a text colour.
+   *
+   * `dark.css` solves the same problem the other way, by lifting each value
+   * until it clears on black: Aegean to #6f9bff at 7.1:1, and Scarlet three
+   * times over, because the third lift still measured 4.48:1 against the warm
+   * glow behind the sealed-brief chips.
    */
 
   /* Warm mineral paper — the page itself. */
