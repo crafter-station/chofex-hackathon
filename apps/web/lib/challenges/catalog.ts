@@ -13,23 +13,29 @@ export const catalogItemFor = (
   challenge: ChallengeDefinition,
   now: Date = currentChallengeTime(),
   forceOpen = challengesForceOpen(),
-): ChallengeCatalogItem => ({
-  slug: challenge.slug,
-  number: challenge.number,
-  code: challenge.code,
-  theme: challenge.theme,
-  title: challenge.title,
-  summary: challenge.summary,
-  coreSkill: challenge.coreSkill,
-  format: challenge.format,
-  formatLabel: challenge.formatLabel,
-  opensAt: challenge.opensAt,
-  queryLimit: challenge.queryLimit,
-  evaluationLimit: challenge.evaluationLimit,
-  playable: challenge.playable,
-  open: isChallengeOpenAt(challenge, now, forceOpen),
-  rankingPath: rankingPathFor(challenge.slug),
-});
+): ChallengeCatalogItem => {
+  const item: ChallengeCatalogItem = {
+    slug: challenge.slug,
+    number: challenge.number,
+    code: challenge.code,
+    theme: challenge.theme,
+    title: challenge.title,
+    summary: challenge.summary,
+    coreSkill: challenge.coreSkill,
+    format: challenge.format,
+    formatLabel: challenge.formatLabel,
+    opensAt: challenge.opensAt,
+    queryLimit: challenge.queryLimit,
+    evaluationLimit: challenge.evaluationLimit,
+    playable: challenge.playable,
+    open: isChallengeOpenAt(challenge, now, forceOpen),
+    rankingPath: rankingPathFor(challenge.slug),
+  };
+  if (challenge.rankingVisibleAt) {
+    return { ...item, rankingVisibleAt: challenge.rankingVisibleAt };
+  }
+  return item;
+};
 
 export const publicChallengeCatalog = (
   now: Date = currentChallengeTime(),

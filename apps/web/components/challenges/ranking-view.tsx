@@ -1,4 +1,5 @@
 import type { ChallengeRanking } from "@chofex/challenges-contract";
+import { isChallengeRankingVisibleAt } from "@chofex/challenges-contract";
 import Link from "next/link";
 
 import { HudLabel } from "@/components/landing/hud";
@@ -8,6 +9,7 @@ import {
   landingFrameClassName,
   landingSectionYClassName,
 } from "@/components/landing/shell";
+import { RankingCountdown } from "./ranking-countdown-view";
 
 const percent = (value: number): string => `${(value * 100).toFixed(2)}%`;
 
@@ -76,11 +78,14 @@ const RankingResults = ({
 };
 
 export function ChallengeRankingView({
+  now,
   ranking,
 }: {
+  readonly now: string;
   readonly ranking: ChallengeRanking;
 }) {
   const { challenge, entries, competitorCount } = ranking;
+  const rankingVisible = isChallengeRankingVisibleAt(challenge, new Date(now));
   let cliHint = "chofex challenge list";
   if (challenge.playable) {
     cliHint = `chofex challenge query --challenge ${challenge.slug}`;
@@ -88,6 +93,15 @@ export function ChallengeRankingView({
   let challengeState = "Abierto";
   if (!challenge.open) {
     challengeState = `Abre ${challenge.opensAt.slice(0, 10)}`;
+  }
+  let rankingContent = <RankingResults entries={entries} />;
+  if (!rankingVisible && challenge.rankingVisibleAt) {
+    rankingContent = (
+      <RankingCountdown
+        initialNow={now}
+        visibleAt={challenge.rankingVisibleAt}
+      />
+    );
   }
 
   return (
@@ -125,7 +139,7 @@ export function ChallengeRankingView({
               Participantes
             </HudLabel>
             <p className="mt-2 font-[family-name:var(--font-landing-display)] text-4xl">
-              {competitorCount}
+              {rankingVisible ? competitorCount : "—"}
             </p>
           </div>
           <div>
@@ -142,7 +156,7 @@ export function ChallengeRankingView({
           </div>
         </div>
 
-        <RankingResults entries={entries} />
+        {rankingContent}
       </LandingContainer>
     </section>
   );

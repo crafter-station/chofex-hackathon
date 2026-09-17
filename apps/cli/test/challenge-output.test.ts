@@ -4,6 +4,7 @@ import {
   challengeEvaluateText,
   challengeLaunchNotice,
   challengeListText,
+  challengeRankingText,
 } from "../src/challenge-output.js";
 
 describe("challenge output", () => {
@@ -102,5 +103,38 @@ describe("challenge output", () => {
     expect(text).not.toContain("Rank");
     expect(text).not.toContain("undefined");
     expect(text).toContain("2 / 3");
+  });
+
+  test("shows the ranking release without claiming there are no evaluations", () => {
+    const text = challengeRankingText(
+      {
+        challenge: {
+          slug: "black-box",
+          number: 1,
+          code: "01",
+          theme: "Black Box",
+          title: "The Shipping Machine",
+          summary: "Reverse engineer the machine.",
+          coreSkill: "Reverse engineering",
+          format: "accuracy",
+          formatLabel: "Accuracy score",
+          opensAt: "2026-09-17T14:00:00.000Z",
+          rankingVisibleAt: "2026-09-18T14:00:00.000Z",
+          queryLimit: 25,
+          evaluationLimit: 3,
+          playable: true,
+          open: true,
+          rankingPath: "/challenges/black-box",
+        },
+        entries: [],
+        competitorCount: 0,
+      },
+      new Date("2026-09-18T13:00:00.000Z"),
+    );
+
+    expect(text).toContain(
+      "Ranking available September 18, 2026 at 09:00 (UTC-5).",
+    );
+    expect(text).not.toContain("0 official evaluations");
   });
 });

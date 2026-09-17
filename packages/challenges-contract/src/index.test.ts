@@ -7,6 +7,7 @@ import {
   compareChallengeScores,
   formatChallengeOpeningInPeru,
   isChallengeOpenAt,
+  isChallengeRankingVisibleAt,
   ShipmentSchema,
   scoreFromPredictions,
 } from "./index.js";
@@ -35,6 +36,25 @@ describe("challenge catalog", () => {
     );
     expect(
       isChallengeOpenAt(challenge, new Date("2026-09-17T00:00:00.000Z"), true),
+    ).toBe(true);
+  });
+
+  test("reveals the Black Box ranking on 18 September 2026 at 09:00 UTC-5", () => {
+    const challenge = challengeBySlug("black-box");
+    if (!challenge) throw new Error("missing black-box");
+
+    expect(challenge.rankingVisibleAt).toBe("2026-09-18T14:00:00.000Z");
+    expect(
+      isChallengeRankingVisibleAt(
+        challenge,
+        new Date("2026-09-18T13:59:59.999Z"),
+      ),
+    ).toBe(false);
+    expect(
+      isChallengeRankingVisibleAt(
+        challenge,
+        new Date("2026-09-18T14:00:00.000Z"),
+      ),
     ).toBe(true);
   });
 });

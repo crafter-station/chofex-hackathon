@@ -4,6 +4,7 @@ import {
   type ChallengeScore,
   challengeBySlug,
   compareChallengeScores,
+  isChallengeRankingVisibleAt,
 } from "@chofex/challenges-contract";
 import { db } from "@chofex/db";
 import { and, desc, eq, inArray } from "@chofex/db/orm";
@@ -89,6 +90,15 @@ export const getChallengeRanking = async (
     throw new HttpError(404, "CHALLENGE_NOT_FOUND", "Challenge not found");
   }
 
+  const challengeItem = catalogItemFor(challenge, now, challengesForceOpen());
+  if (!isChallengeRankingVisibleAt(challenge, now)) {
+    return {
+      challenge: challengeItem,
+      entries: [],
+      competitorCount: 0,
+    };
+  }
+
   const ranked = await rankedEvaluationsFor(slug);
   const participantIds = [...new Set(ranked.map((row) => row.participantId))];
   const identityByParticipant = new Map<
@@ -145,7 +155,7 @@ export const getChallengeRanking = async (
   });
 
   return {
-    challenge: catalogItemFor(challenge, now, challengesForceOpen()),
+    challenge: challengeItem,
     entries,
     competitorCount: entries.length,
   };

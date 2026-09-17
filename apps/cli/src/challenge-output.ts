@@ -10,6 +10,7 @@ import type {
 import {
   challengeOpeningNotice,
   formatChallengeOpeningInPeru,
+  isChallengeRankingVisibleAt,
 } from "@chofex/challenges-contract";
 import type { RegistrationResult } from "@chofex/registration-contract";
 
@@ -312,12 +313,23 @@ export const challengeEvaluateText = (
   return lines.join("\n");
 };
 
-export const challengeRankingText = (ranking: ChallengeRanking): string => {
-  const lines = [
-    `${ranking.challenge.theme} — ${ranking.challenge.title}`,
-    `${ranking.competitorCount} official evaluations`,
-    "",
-  ];
+export const challengeRankingText = (
+  ranking: ChallengeRanking,
+  now: Date = new Date(),
+): string => {
+  const lines = [`${ranking.challenge.theme} — ${ranking.challenge.title}`];
+  const { rankingVisibleAt } = ranking.challenge;
+  if (
+    rankingVisibleAt &&
+    !isChallengeRankingVisibleAt(ranking.challenge, now)
+  ) {
+    lines.push(
+      "",
+      `Ranking available ${formatChallengeOpeningInPeru(rankingVisibleAt)}.`,
+    );
+    return lines.join("\n");
+  }
+  lines.push(`${ranking.competitorCount} official evaluations`, "");
   if (ranking.entries.length === 0) {
     lines.push("No official evaluations yet.");
     return lines.join("\n");

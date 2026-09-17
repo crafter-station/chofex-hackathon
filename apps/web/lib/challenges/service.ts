@@ -13,6 +13,7 @@ import {
   challengeOpeningNotice,
   compareChallengeScores,
   isChallengeOpenAt,
+  isChallengeRankingVisibleAt,
   type ParticipantChallengeProgress,
   type Shipment,
   ShipmentSchema,
@@ -367,15 +368,15 @@ export const challengeProgressForParticipants = async (
     }
   }
 
-  const rankedSlugs = [
-    ...new Set(
-      attempts.flatMap((attempt) => {
-        if (evaluationByAttemptId.has(attempt.id))
-          return [attempt.challengeSlug];
-        return [];
-      }),
-    ),
-  ];
+  const rankedSlugSet = new Set<string>();
+  for (const attempt of attempts) {
+    if (!evaluationByAttemptId.has(attempt.id)) continue;
+    const challenge = challengeBySlug(attempt.challengeSlug);
+    if (challenge && isChallengeRankingVisibleAt(challenge, now)) {
+      rankedSlugSet.add(attempt.challengeSlug);
+    }
+  }
+  const rankedSlugs = [...rankedSlugSet];
   const rankings = await Promise.all(
     rankedSlugs.map(
       async (slug) => [slug, await rankedEvaluationsFor(slug)] as const,
@@ -431,6 +432,7 @@ export const getChallengeAttempt = async (
   const challenge = requireChallenge(slug);
   const participantId = await participantIdFor(clerkUserId);
   const item = catalogItemFor(challenge, now, challengesForceOpen());
+  const rankingVisible = isChallengeRankingVisibleAt(challenge, now);
   const [existing] = await db
     .select()
     .from(challengeAttempts)
@@ -444,7 +446,7 @@ export const getChallengeAttempt = async (
     .limit(1);
 
   let rank: number | undefined;
-  if (existing?.bestEvaluationId) {
+  if (rankingVisible && existing?.bestEvaluationId) {
     const ranked = await rankedEvaluationsFor(challenge.slug);
     rank = rankForAttempt(ranked, existing.id)?.rank;
   }
@@ -455,8 +457,11 @@ export const getChallengeAttempt = async (
 
   let latestEvaluation: ChallengeAttemptView["latestEvaluation"];
   if (evaluation && existing) {
-    const ranked = await rankedEvaluationsFor(challenge.slug);
-    const standing = rankForAttempt(ranked, existing.id);
+    let standing: ReturnType<typeof rankForAttempt>;
+    if (rankingVisible) {
+      const ranked = await rankedEvaluationsFor(challenge.slug);
+      standing = rankForAttempt(ranked, existing.id);
+    }
     let percentile: number | undefined;
     if (standing) {
       percentile = percentileFor(standing.rank, standing.competitorCount);
@@ -667,11 +672,13 @@ export const evaluateChallenge = async (
   if (!completed) throw engineUnavailableError();
 
   let standing: { rank: number; competitorCount: number } | undefined;
-  try {
-    const ranked = await rankedEvaluationsFor(challenge.slug);
-    standing = rankForAttempt(ranked, attempt.id);
-  } catch (error) {
-    console.error("Could not load challenge ranking after evaluation", error);
+  if (isChallengeRankingVisibleAt(challenge, now)) {
+    try {
+      const ranked = await rankedEvaluationsFor(challenge.slug);
+      standing = rankForAttempt(ranked, attempt.id);
+    } catch (error) {
+      console.error("Could not load challenge ranking after evaluation", error);
+    }
   }
 
   const rankingResult: {

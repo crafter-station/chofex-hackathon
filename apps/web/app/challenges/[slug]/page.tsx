@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ChallengesShell } from "@/components/challenges/challenges-shell";
 import { ChallengeRankingView } from "@/components/challenges/ranking-view";
+import { currentChallengeTime } from "@/lib/challenges/clock";
 import { getChallengeRanking } from "@/lib/challenges/ranking";
 import { HttpError } from "@/lib/registration/http";
 
@@ -29,10 +30,11 @@ export default async function ChallengeRankingPage({
 }: ChallengeRankingPageProps) {
   const { slug } = await params;
   try {
-    const ranking = await getChallengeRanking(slug);
+    const now = currentChallengeTime();
+    const ranking = await getChallengeRanking(slug, now);
     return (
       <ChallengesShell>
-        <ChallengeRankingView ranking={ranking} />
+        <ChallengeRankingView now={now.toISOString()} ranking={ranking} />
       </ChallengesShell>
     );
   } catch (error) {

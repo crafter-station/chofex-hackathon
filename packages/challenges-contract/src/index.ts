@@ -26,6 +26,7 @@ export interface ChallengeDefinition {
   readonly format: ChallengeFormat;
   readonly formatLabel: string;
   readonly opensAt: string;
+  readonly rankingVisibleAt?: string;
   readonly queryLimit: number;
   readonly evaluationLimit: number;
   readonly hiddenSampleSize: number;
@@ -46,6 +47,7 @@ export const challengeCatalog: ReadonlyArray<ChallengeDefinition> = [
     format: "accuracy",
     formatLabel: "Accuracy score",
     opensAt: "2026-09-17T14:00:00.000Z",
+    rankingVisibleAt: "2026-09-18T14:00:00.000Z",
     queryLimit: 25,
     evaluationLimit: 3,
     hiddenSampleSize: 1000,
@@ -142,6 +144,14 @@ export const isChallengeOpenAt = (
 ): boolean => {
   if (forceOpen && challenge.playable) return true;
   return now.getTime() >= Date.parse(challenge.opensAt);
+};
+
+export const isChallengeRankingVisibleAt = (
+  challenge: { readonly rankingVisibleAt?: string },
+  now: Date,
+): boolean => {
+  if (!challenge.rankingVisibleAt) return true;
+  return now.getTime() >= Date.parse(challenge.rankingVisibleAt);
 };
 
 const challengeTimeZoneOffsetMs = 5 * 60 * 60 * 1_000;
@@ -279,6 +289,7 @@ export const ChallengeCatalogItemSchema = Schema.Struct({
   ]),
   formatLabel: Schema.String,
   opensAt: Schema.String,
+  rankingVisibleAt: Schema.optional(Schema.String),
   queryLimit: Schema.Number,
   evaluationLimit: Schema.Number,
   playable: Schema.Boolean,
