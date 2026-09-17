@@ -5,36 +5,30 @@ veil: heavy
 layout: wide
 ---
 
-<SlideTitle label="Sponsorship" size="sm">Four ways in</SlideTitle>
+<SlideTitle label="Sponsorship" size="sm">Three ways in</SlideTitle>
 
-<Lead>The main ask is product credits. Cash closes the budget.</Lead>
+<Lead>Everything is contributed in credits. We do not ask for cash.</Lead>
 
-<DataGrid columns={4}>
+<DataGrid columns={3}>
   <SponsorTier
-    name="Stack Partner"
-    price="$2,500"
+    name="Kit Partner"
+    price="$200"
+    slots="5"
+    available="5"
+    covers={["An award of your own", "Credits in the kit", "Logo on the grid", "Claims report"]}
+  />
+  <SponsorTier
+    name="Award Partner"
+    price="$500"
+    slots="3"
+    available="3"
+    covers={["Everything above", "Larger space on the site", "Workshop or mentor", "Usage report"]}
+  />
+  <SponsorTier
+    name="Title Partner"
+    price="$1,000"
     slots="1"
     feature
-    covers={["Mandatory tool", "Layer exclusivity", "Keynote", "Jury seat", "Workshop"]}
-  />
-  <SponsorTier
-    name="Core Partner"
-    price="$1,000"
-    slots="2"
-    available="2"
-    covers={["Mandatory tool", "Layer exclusivity", "45-min workshop", "Mentor on site"]}
-  />
-  <SponsorTier
-    name="Toolkit"
-    price="$500"
-    slots="6"
-    available="6"
-    covers={["Credits in the kit", "Optional use", "Logo on the grid", "Kickoff mention"]}
-  />
-  <SponsorTier
-    name="In-kind"
-    price="$0"
-    slots="∞"
-    covers={["Mentors and jury", "A prize of your own", "Venue, food, swag"]}
+    covers={["Everything above", "Keynote", "Jury seat", "Lockup beside the brand"]}
   />
 </DataGrid>

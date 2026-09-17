@@ -80,31 +80,40 @@ que hay que multiplicar — no el total.
 
 ## 5. El tier sheet
 
-Cuatro niveles. El ask principal a devtools sigue siendo **créditos de producto**
-(in-kind); el cash es lo que cierra el presupuesto.
+**No se pide efectivo.** Todo el aporte de un partner de tecnología es en
+créditos: para un devtool el costo marginal es casi cero, que es exactamente por
+qué este modelo funciona sin caja. Ninguna herramienta es obligatoria.
 
-| Tier | Aporte | PEN | Slots | Qué incluye |
-| --- | ---: | ---: | :---: | --- |
-| **Stack Partner** (title) | $2.500 | S/ 8,375 | 1 | **Herramienta obligatoria** para los 100 · exclusividad de capa · lockup junto a la marca · keynote de apertura · workshop · puesto en el jurado · mentor en sala |
-| **Core Partner** | $1.000 | S/ 3,350 | 2 | **Herramienta obligatoria** para los 100, en otra capa · exclusividad de capa · workshop de 45 min · mentor en sala · demo en premiación |
-| **Toolkit Partner** | $500 | S/ 1,675 | 6 | Créditos en el kit oficial, **uso opcional** · logo en la grilla · mención en kickoff y premiación · logo en el recap |
-| **In-kind** | producto | — | ∞ | Sede, comida, swag, mentores, jurado, premios adicionales |
+Tres niveles. El monto es **el galardón** — el premio en créditos que el partner
+pone con su nombre — y no los créditos del kit, que se negocian aparte y no
+llevan cifra en el deck porque el volumen razonable depende de qué cuesta una
+hora de ese producto.
 
-**Chofex ocupa el slot Stack Partner**: la landing ya lo llama "Sponsor
+| Tier | Galardón | Slots | Qué incluye |
+| --- | ---: | :---: | --- |
+| **Title Partner** | $1.000 | 1 | Galardón propio · créditos en el kit · lockup junto a la marca · keynote de apertura · puesto en el jurado · reporte de uso |
+| **Award Partner** | $500 | 3 | Galardón propio · créditos en el kit · espacio mayor en la web · workshop de 45 min o mentor en sala · reporte de uso |
+| **Kit Partner** | $200 | 5 | Galardón propio · créditos en el kit · logo en la grilla · mención en kickoff · reporte de claims |
+| **In-kind** | producto | ∞ | Sede, comida, swag, mentores, jurado, premios adicionales |
+
+**Chofex ocupa el slot Title Partner**: la landing ya lo llama "Sponsor
 principal".
 
-Toolkit está fijado en **$500 a propósito**: es el umbral que en la mayoría de
-devtools entra en presupuesto discrecional de DevRel sin pasar por legal. Bajarlo
-no acelera el sí; subirlo lo manda a un comité.
+$200 es el piso a propósito: es lo que un DevRel aprueba sin pasar por nadie, y
+lo que hace que el tier de entrada sea un sí de una llamada.
 
-> **Los tiers ya no se venden por challenge.** Los 3 challenges son producto de
-> participante y van sin marca. Lo que se vende es **obligatoriedad de uso**: la
-> herramienta del partner entra en los requisitos de entrega.
+> **Los tiers ya no se venden por challenge ni por obligatoriedad.** Los 3
+> challenges son producto de participante y van sin marca. Lo que se vende es
+> **presencia en el kit más un galardón propio**: el partner pone créditos para
+> los 100 y un premio con su nombre, y recibe un reporte de qué se reclamó.
 >
-> Por eso el sheet abre **exactamente 3 slots obligatorios** (1 Stack + 2 Core),
-> uno por capa del stack. El tope no es comercial, es de producto: cada
-> integración obligatoria cuesta entre 1 y 3 de las 30 horas del equipo. Las
-> cuatro reglas están en `deck-best-practices.md` §9.
+> El galardón es lo que reemplaza a la obligatoriedad como motor de uso. No le
+> quita horas al equipo y no compite con el premio en efectivo, porque tiene su
+> propia categoría y su propio ganador.
+>
+> **Una herramienta por categoría** —inferencia, datos, auth, infra,
+> observabilidad— para que los créditos de un partner no se diluyan entre cuatro
+> de lo mismo. Las reglas están en `deck-best-practices.md` §9.
 
 ### Cuántos slots abre la landing
 
@@ -172,18 +181,20 @@ Si se venden 3 Toolkit de 6 y falta el in-kind de comida:
 
 ## 7. Pendientes que mueven estos números
 
-1. **Reconstruir la grilla de sponsors.** El rediseño la eliminó. Sin ella, el
-   tier Toolkit promete algo que no existe.
+1. **Reconstruir la grilla de sponsors.** El rediseño la eliminó. Los tres tiers
+   prometen logo en la grilla y "espacio mayor en la web", y hoy esa sección
+   tiene una sola marca. Bloquea cobrar cualquiera de los tres.
 2. **Cotizar de verdad** las cinco líneas marcadas ⚠️.
-3. **Definir las 3 capas obligatorias antes de vender la primera.** Al cerrar un
-   Stack o un Core se cierra su capa para todo el evento (regla 3 de
-   `deck-best-practices.md` §9). Vender por orden de llegada, sin decidir qué
-   capas se abren, es cómo se termina con dos proveedores de inferencia y una
-   promesa de exclusividad imposible de cumplir.
-4. **Escribir la obligatoriedad en los requisitos de entrega.** Es lo que
-   convierte el tier en producto: sin reglamento, sin verificación del jurado y
-   sin mención en el kickoff, "obligatorio" no existe. **Esto vale $4.500 del
-   sheet** — los tres slots obligatorios completos.
+3. **Definir las categorías del kit antes de vender la primera.** Al cerrar un
+   partner se cierra su categoría para todo el evento (`deck-best-practices.md`
+   §9). Vender por orden de llegada, sin decidir qué categorías se abren, es
+   cómo se termina con dos proveedores de inferencia y una promesa de
+   exclusividad imposible de cumplir.
+4. **Montar el reporte antes de prometerlo.** Los tres tiers lo incluyen y es lo
+   que separa esto de un logo en una web. Lo que contamos nosotros —kits
+   reclamados, cuentas creadas, proyectos que lo nombran— hay que instrumentarlo;
+   lo que sale de los sistemas del partner —créditos consumidos, API calls— hay
+   que pedirlo en el trato, no darlo por hecho.
 
 > El cupo de 100 y las fechas ya no son pendientes: `seatCount` está publicado y
 > el 17–18 oct es consistente en toda `content.ts`.

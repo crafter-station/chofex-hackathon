@@ -5,38 +5,30 @@ veil: heavy
 layout: wide
 ---
 
-<SlideTitle label="Patrocinios" size="sm">Cuatro formas de entrar</SlideTitle>
+<SlideTitle label="Patrocinios" size="sm">Tres formas de entrar</SlideTitle>
 
-<Lead>
-  El ask principal son créditos de producto. El cash cierra el presupuesto.
-</Lead>
+<Lead>Todo el aporte es en créditos. No pedimos efectivo.</Lead>
 
-<DataGrid columns={4}>
+<DataGrid columns={3}>
   <SponsorTier
-    name="Stack Partner"
-    price="$2.500"
+    name="Kit Partner"
+    price="$200"
+    slots="5"
+    available="5"
+    covers={["Galardón propio", "Créditos en el kit", "Logo en la grilla", "Reporte de claims"]}
+  />
+  <SponsorTier
+    name="Award Partner"
+    price="$500"
+    slots="3"
+    available="3"
+    covers={["Todo lo anterior", "Espacio mayor en la web", "Workshop o mentor", "Reporte de uso"]}
+  />
+  <SponsorTier
+    name="Title Partner"
+    price="$1.000"
     slots="1"
     feature
-    covers={["Herramienta obligatoria", "Exclusividad de capa", "Keynote", "Jurado", "Workshop"]}
-  />
-  <SponsorTier
-    name="Core Partner"
-    price="$1.000"
-    slots="2"
-    available="2"
-    covers={["Herramienta obligatoria", "Exclusividad de capa", "Workshop 45 min", "Mentor en sala"]}
-  />
-  <SponsorTier
-    name="Toolkit"
-    price="$500"
-    slots="6"
-    available="6"
-    covers={["Créditos en el kit", "Uso opcional", "Logo en la grilla", "Mención en kickoff"]}
-  />
-  <SponsorTier
-    name="In-kind"
-    price="$0"
-    slots="∞"
-    covers={["Mentores y jurado", "Premio propio", "Sede, comida, swag"]}
+    covers={["Todo lo anterior", "Keynote", "Jurado", "Lockup junto a la marca"]}
   />
 </DataGrid>

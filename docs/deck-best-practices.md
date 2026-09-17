@@ -12,41 +12,44 @@ somos: **primera edición, una sede, ~100 asistentes**.
 
 ## 1. El principio
 
-> **Un deck no vende espacio para un logo. Vende adopción por parte de builders,
-> con evidencia.**
+> **Un deck no vende espacio para un logo. Vende adopción medida, con evidencia.**
 
-Todo lo demás en este documento se deriva de eso. Un sponsor de devtools no
-compra visibilidad: compra que 100 personas seleccionadas abran una cuenta,
-lean sus docs y construyan algo con su producto en 30 horas, delante de un
-jurado. La visibilidad es el envoltorio, no el producto.
+Un sponsor de devtools no compra visibilidad: compra que 100 personas
+seleccionadas tengan sus créditos en la mano, un motivo para abrirlos, y un
+reporte de lo que pasó. La visibilidad es el envoltorio, no el producto.
 
-**Lo que se vende es adopción obligatoria.** La herramienta del partner entra en
-los requisitos de entrega: un proyecto que no la usa no compite. Eso convierte
-la métrica de "esperamos que algunos equipos lo prueben" en **el 100% de las
-soluciones, garantizado por las reglas**. Es la oferta más fuerte que tenemos y
-es la única que no depende de que a la gente le dé la gana.
+**Nada es obligatorio.** Ninguna herramienta entra en los requisitos de entrega.
+Lo que se ofrece son dos palancas honestas:
+
+1. **Créditos para los 100**, en el kit oficial. Quien los necesite, los usa.
+2. **Un galardón propio en créditos** — "Mejor uso de X" — con su ganador y su
+   mención en la premiación. No obliga: tira.
+
+Y encima de las dos, lo que de verdad nos diferencia: **el reporte**. Un logo en
+una web no se puede medir; kits reclamados, cuentas creadas y proyectos que lo
+nombran, sí.
 
 ### El marco que se usa
 
-- *"[X] es requisito de entrega: los 100 builders lo integran o no compiten."*
-- *"Cada proyecto de Hack the Andes corre sobre [X]."*
-- *"[X] es la capa de [categoría] del stack oficial, en exclusiva."*
+- *"Los 100 builders reciben tus créditos en el kickoff."*
+- *"Tu galardón tiene ganador propio y se nombra en la premiación."*
+- *"Al cierre te mandamos un reporte de qué se reclamó y qué se usó."*
 
 ### El marco que está prohibido
 
 - "Logo en la web" como valor principal.
 - "Exposición masiva", "alcance", "visibilidad de marca" como argumento central.
 - Cualquier promesa de ingresos, conversión o pipeline.
-- **"Los equipos podrán usar [X] si quieren."** Un tier de herramienta
-  obligatoria que en la práctica es opcional es la forma más rápida de no
-  vender una segunda edición.
+- **Prometer adopción.** No la controlamos. Se mide después y se reporta; no se
+  promete antes.
+- Cualquier lenguaje de obligatoriedad: "requisito de entrega", "el 100% lo
+  integra", "exclusividad de capa". Describe un modelo que ya no existe.
 
-> **Nota sobre nuestro inventario actual.** El brief lista siete contrapartidas
-> —logo en landing, post de anuncio, plantilla de imagen, banners, badges,
-> menciones en kickoff y premiación— y **las siete son visibilidad**. Sirven como
-> relleno de tier, nunca como la tesis de un deck. Si un deck nuestro no puede
-> nombrar **en qué capa del stack entra la herramienta del sponsor y con qué
-> obligatoriedad**, todavía no está listo para mandarse.
+> **Nota sobre el inventario.** El brief lista siete contrapartidas —logo,
+> post de anuncio, plantilla de imagen, banners, badges, menciones— y **las
+> siete son visibilidad**. Sirven como relleno de tier, nunca como tesis. Si un
+> deck nuestro no puede nombrar **qué créditos entran al kit, qué galardón posee
+> el partner y qué se le va a reportar**, todavía no está listo para mandarse.
 
 ---
 
@@ -62,8 +65,8 @@ devtools en lote. Flujo:
 3. **Cómo se filtra** ← nuestro sustituto del track record (ver §4)
 4. Datos del evento
 5. Premios oficiales
-6. **El stack obligatorio** ← el producto que se vende (ver §9)
-7. **Qué capa sería tuya** ← la exclusividad, nombrada
+6. **Por qué lo van a usar** ← el kit y el galardón (ver §9)
+7. **Una por categoría** ← la exclusividad, y de dónde sale ahora
 8. **Tiers**
 9. Por qué patrocinar aquí y no en otro evento
 10. Qué se reporta después
@@ -73,11 +76,9 @@ Es el orden de `content/decks/main/`. Los slides 6 y 7 van **antes** de los
 tiers a propósito: sin entender que se venden capas del stack, y cuáles, los
 precios del 8 no significan nada.
 
-El 7 existe porque la primera pregunta de un devtool es *¿qué capa sería mía?*,
-y un slide de tiers que muestra cupos (1, 2, 6) no la contesta. Nombra las cinco
-capas candidatas, dice que se abren tres, y que quien firma primero elige. No
-afirma cuáles se abren, porque eso todavía no está decidido — ver la pregunta
-abierta #1 del brief.
+El 7 existe porque la primera pregunta de un devtool es *¿con quién comparto el
+kit?*, y un slide de tiers que muestra cupos no la contesta. Nombra las cinco
+categorías y dice que se cierra una por partner.
 
 ### Deck a partner específico
 
@@ -88,10 +89,10 @@ Cuando hay una tesis de por qué *esa* empresa. Flujo:
 3. Qué es Hack the Andes
 4. Datos y audiencia
 5. Cómo se filtra
-6. **La capa del stack que el partner ocupa** — nombrada: "inferencia",
+6. **La categoría que el partner cierra** — nombrada: "inferencia",
    "base de datos", "auth". Y qué queda cerrado para la competencia.
-7. Qué significa obligatorio para un equipo: el starter kit, la integración
-   mínima, en qué punto de las 30 horas la resuelven
+7. Cómo llega su producto a un equipo: el kit, la cuenta, y en qué punto de las
+   30 horas lo abrirían
 8. Ejemplos concretos de lo que se construiría con su producto
 9. Plan de activación (workshop / mentor / jurado)
 10. Métricas que se van a reportar
@@ -109,20 +110,23 @@ general con un logo pegado.
 
 | Situación | Ask |
 | --- | --- |
-| Preferido | **$2.500 Stack Partner** — herramienta obligatoria, capa en exclusiva |
-| Alternativa | **$1.000 Core Partner** — herramienta obligatoria en otra capa |
-| Devtools en lote | **$500 Toolkit** — créditos en el kit, uso opcional |
-| Siempre, además | créditos, licencias, mentores, jurado, swag, sede, workshops, premio propio |
+| Preferido | **Title Partner $1.000** — galardón propio, keynote, jurado |
+| Alternativa | **Award Partner $500** — galardón propio, espacio mayor, reporte de uso |
+| Devtools en lote | **Kit Partner $200** — galardón propio, créditos en el kit |
+| Siempre, además | créditos para el kit, licencias, mentores, jurado, swag, sede, workshops |
 
-**El ask de créditos nunca va solo.** Créditos sin obligatoriedad es un cupón que
-nadie canjea; obligatoriedad sin créditos es pedirle a 100 personas que paguen
-por una herramienta en un fin de semana. Los dos juntos son el producto.
+**No se pide efectivo.** Todo el aporte es en créditos: para un devtool el costo
+marginal es casi cero, que es exactamente por qué este modelo funciona sin caja.
+
+**Los montos son el galardón, no el kit.** Los créditos del kit se negocian
+aparte y no llevan cifra en el deck, porque el volumen razonable depende de qué
+cuesta una hora de ese producto.
 
 Montos y slots vienen de [`budget-sponsors.md`](./budget-sponsors.md), que es la
 única fuente. No los escribas de memoria en un slide.
 
-**Un solo ask por mensaje.** El deck puede mostrar los cuatro tiers; el correo
-que lo acompaña pide uno.
+**Un solo ask por mensaje.** El deck puede mostrar los tres tiers; el correo que
+lo acompaña pide uno.
 
 ---
 
@@ -152,18 +156,25 @@ exista. Nada de "cientos de builders" ni "la comunidad más grande de".
 
 ## 5. Métricas
 
-| ✅ Se pueden reportar | ❌ No se prometen |
-| --- | --- |
-| Cuentas activadas | Ingresos |
-| Equipos usando el producto | Valor de pipeline |
-| Submissions que lo usan | Tasa de conversión |
-| API calls, minutos, runs, créditos consumidos | Retención |
-| Demos funcionando, repos, clips | Cobertura de prensa |
-| Asistencia al workshop, feedback técnico | Contrataciones |
+Tres columnas, no dos, y la del medio es la que se olvidaba.
 
-Lo de la izquierda lo controlamos y lo podemos contar después del evento. Lo de
-la derecha depende del sponsor, no de nosotros; prometerlo es lo que quema una
-relación para la segunda edición.
+| ✅ Contamos nosotros | 🤝 Nos lo comparte el partner | ❌ No se promete |
+| --- | --- | --- |
+| Kits entregados y reclamados | Cuentas activadas | Ingresos |
+| Cuentas creadas con nuestro código | Créditos consumidos | Valor de pipeline |
+| Proyectos que lo nombran en la entrega | API calls, minutos, runs | Tasa de conversión |
+| Demos que lo muestran, repos | Retención posterior | Contrataciones |
+| Asistencia al workshop, feedback en sala | | Cobertura de prensa |
+
+La primera columna la instrumentamos nosotros y se puede prometer. **La segunda
+no.** Sale de los sistemas del partner, y un deck que la promete está
+comprometiendo un dato que no controla — se pide en el trato, con la fórmula
+*"si nos compartís el consumo, va en el mismo reporte"*.
+
+La tercera depende del negocio del sponsor y no se toca nunca. Prometerla es lo
+que quema una relación para la segunda edición.
+
+Si un deck menciona una métrica, de qué columna sale va en el mismo slide.
 
 Si un deck menciona una métrica, el plan de cómo se mide va en el mismo slide o
 en el siguiente. Una métrica sin método de medición es una promesa.
@@ -230,54 +241,58 @@ un sponsor verifica contra la landing.
 
 ---
 
-## 9. El stack obligatorio
+## 9. El kit y el galardón
 
 **Los partners no son dueños de challenges.** Los 3 challenges son producto de
 participante: sellados hasta el kickoff, elegidos por cada equipo, sin marca
-encima. Lo que un partner compra es otra cosa: **que su herramienta sea
-requisito de entrega.**
+encima. Y **tampoco son dueños de una obligación**: ninguna herramienta es
+requisito de entrega.
 
-### Las cuatro reglas
+Lo que un partner compra son dos cosas concretas.
 
-**1. Tope de 3 herramientas obligatorias.** Es el número, no una aspiración.
-Cada integración obligatoria le cuesta a un equipo entre una y tres horas de
-las 30 que tiene. A la cuarta, el evento deja de ser un hackathon y pasa a ser
-un tutorial de integraciones, y lo que se entrega es peor — que es exactamente
-lo que un sponsor no quiere que su logo acompañe.
+### 1. Créditos en el kit
 
-**2. Una por capa.** Las tres obligatorias van en capas distintas del stack
-—inferencia, datos, auth, infra, observabilidad, voz— para que compongan en vez
-de competir. Dos herramientas de la misma capa **no pueden ser ambas
-obligatorias**: se pisan, y obligar a usar las dos es pedirle al equipo que
-integre lo mismo dos veces.
+Los 100 aceptados reciben el kit oficial en el kickoff. Los créditos del partner
+van ahí. Uso opcional, y eso se dice en el deck sin adornos: *quien lo necesite,
+lo usará.*
 
-**3. Exclusividad de categoría, y es estructural.** Se deriva de la regla 2, no
-es un perk que se regala en el tier alto. Si un partner ocupa la capa de
-inferencia, esa capa está cerrada para el resto del evento.
+**Una por categoría.** El kit lleva una sola herramienta por categoría
+—inferencia, datos, auth, infra, observabilidad— para que los créditos de un
+partner no se diluyan entre cuatro de lo mismo. La exclusividad sigue siendo
+real y sigue cerrando ventas; lo que cambió es la razón: antes era *nadie más
+puede ser obligatorio en tu capa*, ahora es *tus créditos no compiten con otros
+tres iguales*.
 
-**4. Obligatorio significa verificable.** Entra en los requisitos de entrega,
-se dice en el kickoff, y el jurado lo comprueba antes de evaluar. Sin eso,
-"obligatorio" es una promesa que no podemos cumplir y el sponsor lo va a
-descubrir leyendo las submissions.
+### 2. Un galardón propio
+
+El partner pone un premio en créditos con **su nombre y su ganador**: "Mejor uso
+de X". Es lo que reemplaza a la obligatoriedad como motor de uso, y es mejor por
+dos razones: no le quita horas al equipo, y no compite con el premio en efectivo
+—tiene su propia categoría, así que $500 en créditos no se lee al lado de
+$2.000 en plata.
+
+También es lo que hace que el partner **posea algo nombrable**, que es un punto
+del checklist de §11.
 
 ### Lo que esto compra, dicho con números
 
 | Oferta | Lo que se puede prometer |
 | --- | --- |
-| Herramienta obligatoria | **100% de las submissions** la integran |
-| Créditos en el kit | cuentas activadas, créditos consumidos |
+| Créditos en el kit | **100 kits entregados**; claims y cuentas creadas |
+| Galardón propio | ganador nombrado, mención en la premiación |
 | Workshop | asistencia y feedback técnico en sala |
 
-La primera fila es la única cifra que podemos **garantizar por reglamento** en
-vez de estimar. Es el argumento central de cualquier deck nuestro.
+Ninguna fila promete adopción. La primera es lo único garantizado por
+construcción: el kit se entrega a los 100 porque nosotros lo entregamos.
 
 ### El riesgo que hay que decir en voz alta
 
-Obligar herramientas estrecha lo que los equipos pueden construir. La mitigación
-es elegir **infraestructura de capa** (un proveedor de inferencia, una base de
-datos, un auth) y no producto opinado que decide la forma de la solución. Si una
-obligatoria no encaja con un challenge, el que pierde es el evento — y con él la
-segunda edición.
+**El reporte es lo mejor que vendemos y el dato de consumo no es nuestro.**
+Kits reclamados, cuentas creadas y proyectos que lo mencionan los contamos
+nosotros. Créditos consumidos y API calls salen de los sistemas del partner. El
+deck promete solo lo primero, y lo segundo se pide como parte del trato: *si nos
+compartís el consumo, va en el mismo reporte.* Prometer un número que depende de
+un tercero es cómo se quema una relación para la segunda edición.
 
 ---
 
@@ -302,8 +317,11 @@ pinta la paleta. (Regla ya cerrada en el brief, no reabrir.)
 ## 11. Checklist antes de mandar un deck
 
 - [ ] La tesis del slide 2 **falla** el test de intercambiabilidad.
-- [ ] El partner **posee** algo nombrable: un challenge, un workshop, un premio, un
-      puesto en el jurado.
+- [ ] El partner **posee** algo nombrable: su galardón, un workshop, un puesto
+      en el jurado.
+- [ ] Ninguna métrica de la columna 🤝 de §5 aparece como promesa.
+- [ ] Ningún slide habla de obligatoriedad, requisito de entrega ni exclusividad
+      de capa: describen un modelo que ya no existe.
 - [ ] El plan de activación es ejecutable con la gente y el tiempo que hay.
 - [ ] Hay un ask limpio y un fallback.
 - [ ] Los beneficios son concretos, no adjetivos.
