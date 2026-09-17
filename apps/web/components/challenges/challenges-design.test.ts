@@ -3,25 +3,26 @@ import { expect, test } from "bun:test";
 const sourceFor = (name: string) =>
   Bun.file(new URL(`./${name}`, import.meta.url)).text();
 
-test("challenge pages use the light landing identity", async () => {
+test("challenge pages wear the same dark identity as the landing", async () => {
   const shell = await sourceFor("challenges-shell.tsx");
 
-  expect(shell).toContain('"challenges-light flex flex-col"');
+  expect(shell).toContain('"landing-dark flex flex-col"');
   expect(shell).toContain("landingBrand.variable");
-  expect(shell).toContain('import "@/components/challenges/challenges.css"');
-  expect(shell).not.toContain("landing-dark");
+  // The bespoke light palette is gone: one ground for the whole project.
+  expect(shell).not.toContain("challenges.css");
+  expect(shell).not.toContain("challenges-light");
   expect(shell).toContain('<LandingSkipLinks applyHref="/#apply" />');
   expect(shell).toContain('<LandingFooter sectionHrefPrefix="/" />');
 });
 
-test("the challenge light palette keeps page, panels, and labels distinct", async () => {
-  const palette = await sourceFor("challenges.css");
+test("the challenge palette is the shared one, not a third", async () => {
+  const palette = await sourceFor("../landing/palette.css");
 
-  expect(palette).toContain(".challenges-light");
-  expect(palette).toContain("--hud-paper: #eee9df");
-  expect(palette).toContain("--hud-card: #fcfaf5");
-  expect(palette).toContain("--hud-kicker: #95443c");
-  expect(palette).toContain("--hud-muted: #62666d");
+  // These pages used to carry their own ground (#eee9df) and their own card,
+  // which made three definitions of --hud-paper in one repo. They inherit the
+  // dark set now, from the same file the landing and the decks read.
+  expect(palette).toContain("--hud-paper: #050406");
+  expect(palette).toContain(".landing-dark");
 });
 
 test("challenge views use landing tokens instead of the retired neon palette", async () => {
