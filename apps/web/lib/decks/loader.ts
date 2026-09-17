@@ -77,6 +77,38 @@ function parseBackdrop(value: unknown, slideId: string): DeckBackdrop {
   );
 }
 
+/**
+ * The four templates the design base draws, named by what they do.
+ *
+ * - `cover`: the title slide. One centred column.
+ * - `split-left` / `split-right`: the two mirrored halves. The type takes one
+ *   half and the plate keeps the other, which is what the base's empty framed
+ *   box on that side was standing in for — it is the drawing, uncovered.
+ * - `wide`: the grid slides. The full column, which is what every slide got
+ *   before templates existed, so it is the default.
+ */
+export const DECK_LAYOUTS = [
+  "cover",
+  "split-left",
+  "split-right",
+  "wide",
+] as const;
+
+export type DeckLayout = (typeof DECK_LAYOUTS)[number];
+
+function parseLayout(value: unknown, slideId: string): DeckLayout {
+  if (value == null) return "wide";
+  if (
+    typeof value === "string" &&
+    (DECK_LAYOUTS as readonly string[]).includes(value)
+  ) {
+    return value as DeckLayout;
+  }
+  throw new Error(
+    `layout inválido "${String(value)}" en ${slideId}.mdx — usá uno de: ${DECK_LAYOUTS.join(", ")}`,
+  );
+}
+
 export type DeckMeta = {
   title: string;
   description: string;
@@ -90,6 +122,7 @@ export type SlideMeta = {
   title: string;
   backdrop?: DeckBackdrop;
   veil?: DeckVeil;
+  layout?: DeckLayout;
 } & Record<string, unknown>;
 
 export type SlideSource = {
@@ -99,6 +132,7 @@ export type SlideSource = {
   id: string;
   backdrop: DeckBackdrop;
   veil: DeckVeil;
+  layout: DeckLayout;
 };
 
 export type LoadedDeck = {
@@ -186,6 +220,7 @@ export async function loadDeck(slug: string): Promise<LoadedDeck | null> {
       id: parsed.id,
       backdrop: parseBackdrop((data as SlideMeta).backdrop, parsed.id),
       veil: parseVeil((data as SlideMeta).veil, parsed.id),
+      layout: parseLayout((data as SlideMeta).layout, parsed.id),
     });
   }
 

@@ -135,6 +135,12 @@
    * full-bleed scrims sit at 0.37, 0.52 and 0.54.
    */
   --deck-veil: rgb(0 0 0 / 58%);
+  /*
+   * What the split layouts leave on the half the type does not take. The base
+   * draws an empty framed box there; this is the same idea without the frame —
+   * the plate, barely touched, doing the job the box was holding open for it.
+   */
+  --deck-veil-far: rgb(0 0 0 / 18%);
 }
 
 /* A cover with six words can afford to let the drawing through. */
@@ -215,6 +221,13 @@
   --deck-plate: url("/deck/canyon.webp");
   /* The canyon's subject is its lit seam, which sits above centre. */
   --deck-plate-position: center 35%;
+  /*
+   * The one high-key plate: its seam is near white where the mountains top out
+   * at mid grey, so the same veil step leaves it far brighter. At the shared
+   * 18% a card over the seam lands near 3.3:1 against white type; this puts it
+   * back over 5.
+   */
+  --deck-veil-far: rgb(0 0 0 / 45%);
 }
 
 /*
@@ -611,6 +624,147 @@
   color: var(--deck-action);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* ---------- terrain: the templates ---------- */
+
+/*
+ * The four templates from the design base. They are layout only — no slide
+ * changes hands, and the MDX is identical under every one of them.
+ *
+ * `wide` is the default and needs no rule: it is the centred column every slide
+ * already had.
+ */
+
+/* The title slide: one narrow column, centred, the way the base sets it. */
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="cover"]
+  .deck-slide-content {
+  max-width: 62ch;
+  text-align: center;
+  align-items: center;
+}
+
+/*
+ * `align-items: center` shrinks every child to its content, and an `<hr>` has
+ * none — the rule vanishes rather than centring. It is the one child that wants
+ * the full column.
+ */
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="cover"]
+  .deck-rule {
+  align-self: stretch;
+}
+
+/*
+ * The mirrored halves. The type takes one side and the plate keeps the other.
+ *
+ * 64%, not half. A clean half is what the design base draws, and it works there
+ * because the type side holds a paragraph. This deck's slides almost all hold a
+ * grid instead — three tiers, four stats, two columns of contrast — and halving
+ * the column crushes them to unreadable. 64% keeps the asymmetry, which is what
+ * the template is actually for, and still leaves the plate a third of the slide
+ * to itself.
+ */
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-left"]
+  .deck-slide-content,
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-right"]
+  .deck-slide-content {
+  max-width: 64%;
+}
+
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-left"]
+  .deck-slide-content {
+  margin-right: auto;
+  margin-left: 0;
+}
+
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-right"]
+  .deck-slide-content {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+/*
+ * The plate slides away from the type under a split. Without this the drawing's
+ * brightest mass — which is the peak, and the reason the plate was chosen — sits
+ * under the column as often as beside it, and the gradient is left fighting the
+ * one part of the image it cannot win against.
+ */
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-left"]
+  .deck-backdrop {
+  --deck-plate-position: 82% center;
+}
+
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-right"]
+  .deck-backdrop {
+  --deck-plate-position: 18% center;
+}
+
+/*
+ * The veil turns directional under a split: full strength under the type,
+ * `--deck-veil-far` over the half the plate keeps. The stop sits past the
+ * column's edge so the two never meet on a hard line.
+ */
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-left"]
+  .deck-backdrop::before {
+  background-image:
+    linear-gradient(
+      to right,
+      var(--deck-veil) 0%,
+      var(--deck-veil) 34%,
+      var(--deck-veil-far) 72%
+    ),
+    var(--deck-plate, none);
+}
+
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="split-right"]
+  .deck-backdrop::before {
+  background-image:
+    linear-gradient(
+      to left,
+      var(--deck-veil) 0%,
+      var(--deck-veil) 34%,
+      var(--deck-veil-far) 72%
+    ),
+    var(--deck-plate, none);
+}
+
+/*
+ * A split needs two halves to be a split. Below that the column takes the slide
+ * and the veil goes back to covering all of it, or the type ends up over the
+ * brightest part of the drawing with nothing between them.
+ */
+@media (max-width: 800px) {
+  .deck-pager[data-deck-style="terrain"]
+    .deck-slide[data-layout="split-left"]
+    .deck-slide-content,
+  .deck-pager[data-deck-style="terrain"]
+    .deck-slide[data-layout="split-right"]
+    .deck-slide-content {
+    max-width: 100%;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .deck-pager[data-deck-style="terrain"]
+    .deck-slide[data-layout="split-left"]
+    .deck-backdrop::before,
+  .deck-pager[data-deck-style="terrain"]
+    .deck-slide[data-layout="split-right"]
+    .deck-backdrop::before {
+    background-image:
+      linear-gradient(to bottom, var(--deck-veil), var(--deck-veil)),
+      var(--deck-plate, none);
+  }
 }
 
 /* ---------- terrain: overrides of the vocabulary above ---------- */

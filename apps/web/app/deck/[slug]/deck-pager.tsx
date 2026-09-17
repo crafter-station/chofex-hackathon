@@ -3,7 +3,12 @@
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import type { DeckBackdrop, DeckStyle, DeckVeil } from "@/lib/decks/loader";
+import type {
+  DeckBackdrop,
+  DeckLayout,
+  DeckStyle,
+  DeckVeil,
+} from "@/lib/decks/loader";
 
 type Slide = {
   id: string;
@@ -11,6 +16,7 @@ type Slide = {
   content: ReactNode;
   backdrop: DeckBackdrop;
   veil: DeckVeil;
+  layout: DeckLayout;
 };
 
 const SWIPE_THRESHOLD = 56;
@@ -224,6 +230,7 @@ export function DeckPager({
             aria-hidden={index !== activeIndex}
             className="deck-slide"
             data-active={index === activeIndex}
+            data-layout={slide.layout}
             key={slide.id}
           >
             {/*

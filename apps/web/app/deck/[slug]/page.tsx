@@ -95,6 +95,7 @@ export default async function DeckPage({
         content,
         backdrop: slide.backdrop,
         veil: slide.veil,
+        layout: slide.layout,
       };
     }),
   );

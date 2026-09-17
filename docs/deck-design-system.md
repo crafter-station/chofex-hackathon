@@ -33,6 +33,27 @@ piel entra como un `style` en `deck.json` y el contenido no se toca. Inventar un
 regla del propio sistema: ampliar el vocabulario de `mdx-components.ts` es
 deliberado, y primero se compone con lo que existe.
 
+### La correspondencia no es uno a uno
+
+El mapeo de arriba es de dónde sale cada plantilla, no qué slide la usa. El
+layout lo decide **la forma del contenido**, y ocho de las diez slides llevan una
+grilla donde la base lleva un párrafo. Partir el lienzo al medio las aplastaba.
+
+Por eso `split` no es media página sino una **columna al 64% corrida a un lado**:
+conserva la asimetría, que es para lo que sirve la plantilla, y le sigue dejando
+un tercio del lienzo a la lámina. Lo que quedó:
+
+| Layout | Slides | Por qué |
+| --- | --- | --- |
+| `cover` | `01-cover`, `10-close` | Las dos que no llevan grilla |
+| `split-left` | `05-prizes`, `06-stack` | Podio de 2 y grilla de 3, entran al 64% |
+| `split-right` | `08-why` | `ContrastGrid` son 2 columnas |
+| `wide` | las otras cinco | `StatRow` y `FlowMap` de 4, `MiniMatrix`, los 3 tiers |
+
+Y bajo un split la lámina se corre al lado contrario del texto (`82%` / `18%`),
+porque si no la masa más brillante del dibujo —el pico, que es la razón por la
+que se eligió esa lámina— cae bajo la columna tan seguido como al lado.
+
 ---
 
 ## 2. Color
@@ -257,11 +278,14 @@ propios roles dentro de `.deck-pager[data-deck-style="terrain"]`.
 
 | Pendiente | Bloquea |
 | --- | --- |
-| Si los seis scrims son tres niveles o seis | El acabado de T4 |
+| El fondo de T2 sigue prestado: `02-what` y `08-why` usan `peak`, la lámina que sobraba, porque el original lleva la firma `ALAN·G`. Falta sacarlo de `terrain-shader.ts` | Nada, pero el deck repite una lámina |
 | El tracking del wordmark (≈ +0.025em): ¿intencional o default de Canva? | El lockup |
-| La capa de fondo: los cuatro PNG, el grano, y el T2 que hay que sacar del shader | T1, T2, T3, T4 |
-| Las variaciones de plantilla por slide | Las 10 slides |
+| Las tarjetas claras con texto negro, si se quiere el efecto exacto de la base | Una variante de componente, no un token |
+| `bun deck:pdf` sin verificar — Playwright es un paso manual, no una dependencia | El entregable en PDF |
 
-Cerrados en esta iteración: el margen canónico (§4), la cara de cuerpo (§3), la
-display (§3) y Open Sans, que no aparece en ninguno de los trazos de la base y
-se da por residuo de la plantilla de Canva.
+Cerrados: el margen canónico (§4), la cara de cuerpo (§3), la display (§3), los
+layouts (§1), la capa de fondo (§5), Open Sans —que no aparece en ninguno de los
+trazos de la base y se da por residuo de la plantilla de Canva— y los scrims,
+que resultaron ser dos cosas distintas mezcladas: tres velos de página completa
+(0.37 · 0.52 · 0.54) y los de las tarjetas. Los velos son ahora `light` · `mid`
+· `heavy` por slide.
