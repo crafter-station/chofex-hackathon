@@ -1,0 +1,40 @@
+---
+title: Sponsorship
+backdrop: canyon
+veil: heavy
+layout: wide
+---
+
+<SlideTitle label="Sponsorship" size="sm">Four ways in</SlideTitle>
+
+<Lead>The main ask is product credits. Cash closes the budget.</Lead>
+
+<DataGrid columns={4}>
+  <SponsorTier
+    name="Stack Partner"
+    price="$2,500"
+    slots="1"
+    feature
+    covers={["Mandatory tool", "Layer exclusivity", "Keynote", "Jury seat", "Workshop"]}
+  />
+  <SponsorTier
+    name="Core Partner"
+    price="$1,000"
+    slots="2"
+    available="2"
+    covers={["Mandatory tool", "Layer exclusivity", "45-min workshop", "Mentor on site"]}
+  />
+  <SponsorTier
+    name="Toolkit"
+    price="$500"
+    slots="6"
+    available="6"
+    covers={["Credits in the kit", "Optional use", "Logo on the grid", "Kickoff mention"]}
+  />
+  <SponsorTier
+    name="In-kind"
+    price="$0"
+    slots="∞"
+    covers={["Mentors and jury", "A prize of your own", "Venue, food, swag"]}
+  />
+</DataGrid>
