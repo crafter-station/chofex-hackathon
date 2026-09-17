@@ -71,11 +71,16 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} min-h-svh font-sans antialiased`}
       >
         <DocumentLang />
+        {/*
+          The brand has one theme. `forcedTheme` keeps the class next-themes
+          writes deterministic, so a product page cannot follow the OS into a
+          light that no surface of this project uses.
+        */}
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="dark"
           disableTransitionOnChange
+          forcedTheme="dark"
         >
           {content}
         </ThemeProvider>
