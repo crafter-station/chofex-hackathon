@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { compileMDX } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
 
 import { mdxComponents } from "@/components/decks/mdx-components";
 import { listDecks, loadDeck } from "@/lib/decks/loader";
@@ -84,10 +85,21 @@ export default async function DeckPage({
       // evaluation by default, which silently hands components `undefined`.
       // Safe here because deck sources are authored in this repo, never user
       // input; if that ever changes, this has to change with it.
+      //
+      // remark-gfm is what makes the markdown half of the vocabulary real.
+      // `mdx-components.ts` maps table, thead, tbody, tr, th and td, and
+      // without this plugin the parser never emits a table node — so those six
+      // could not fire, and a markdown table rendered as a row of literal
+      // pipes. It also brings strikethrough, task lists and autolinks, which
+      // the map does not style; they fall through to the browser's defaults.
       const { content } = await compileMDX({
         source: slide.source,
         components: mdxComponents,
-        options: { parseFrontmatter: false, blockJS: false },
+        options: {
+          parseFrontmatter: false,
+          blockJS: false,
+          mdxOptions: { remarkPlugins: [remarkGfm] },
+        },
       });
       return {
         id: slide.id,

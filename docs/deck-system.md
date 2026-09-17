@@ -108,6 +108,11 @@ compileMDX({ components: mdxComponents })   next-mdx-remote/rsc
   prefijo numérico y el regex `/^(\d{2,})-.+\.mdx$/` lo ignora.
 - **`robots: { index: false, follow: false }`** en todos los decks. Son
   artefactos privados que se mandan por link a una empresa.
+- **`remark-gfm`** en `compileMDX`. `mdx-components.ts` mapea `table`, `thead`,
+  `tbody`, `tr`, `th` y `td`, y sin el plugin el parser nunca emite un nodo de
+  tabla: los seis componentes no podían dispararse y una tabla en markdown salía
+  como una fila de pipes literales. Trae además tachado, listas de tareas y
+  autolinks, que el mapa no estiliza y caen a los defaults del navegador.
 - **`blockJS: false`** en `compileMDX` es obligatorio. next-mdx-remote v6 bloquea
   la evaluación de expresiones por defecto, y los slides pasan arrays y objetos
   como props (`items={[…]}`); sin esa opción los componentes reciben `undefined`
