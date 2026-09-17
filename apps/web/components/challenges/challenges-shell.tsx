@@ -16,7 +16,6 @@ import {
 } from "@/components/landing/shell";
 import { LandingSkipLinks } from "@/components/landing/skip-links";
 
-import "@/components/challenges/challenges.css";
 
 export function ChallengesShell({
   children,
@@ -27,7 +26,7 @@ export function ChallengesShell({
     <div
       className={cn(
         landingPageClassName,
-        "challenges-light flex flex-col",
+        "landing-dark flex flex-col",
         landingBrand.variable,
         landingDisplay.variable,
         landingSans.variable,

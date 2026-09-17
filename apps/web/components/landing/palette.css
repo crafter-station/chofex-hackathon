@@ -72,6 +72,14 @@
  * What changes is not only light and dark: several values that were tuned to
  * clear AA on Sandy Linen paper are unusable on black, and those are lifted.
  */
+/*
+ * `:root` as well as `.landing-dark`, so these are the brand's default rather
+ * than the landing's opt-in. Product surfaces — sign-up, welcome, admin, the
+ * legal pages — inherit them from the document and stop painting the generic
+ * shadcn greys they used to. A subtree can still override for itself, which is
+ * how the light deck styles keep working.
+ */
+:root,
 .landing-dark {
   /* The ground. The liquid backdrop is fixed behind this, and the sections let
      it through — so this value is what shows where the field has drained. */
