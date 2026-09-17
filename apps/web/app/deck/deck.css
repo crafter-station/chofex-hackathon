@@ -668,6 +668,20 @@
  * already had.
  */
 
+/*
+ * `wide` takes the whole column, not the 980px the paper styles cap at.
+ *
+ * That cap is a reading measure, and it is right for a deck whose wide slides
+ * are prose. Here they are grids: the design base draws four cards of 249.6
+ * with a 29.25 gutter, which needs the 1084 the page margin leaves and gets
+ * 980. The difference is the fourth card fitting or not.
+ */
+.deck-pager[data-deck-style="terrain"]
+  .deck-slide[data-layout="wide"]
+  .deck-slide-content {
+  max-width: 100%;
+}
+
 /* The title slide: one narrow column, centred, the way the base sets it. */
 .deck-pager[data-deck-style="terrain"]
   .deck-slide[data-layout="cover"]

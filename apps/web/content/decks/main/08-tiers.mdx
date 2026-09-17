@@ -1,13 +1,17 @@
 ---
-title: Tiers de patrocinio
+title: Patrocinios
 backdrop: canyon
 veil: heavy
 layout: wide
 ---
 
-<SlideTitle label="Patrocinios" size="sm">Tres lugares en el stack</SlideTitle>
+<SlideTitle label="Patrocinios" size="sm">Cuatro formas de entrar</SlideTitle>
 
-<DataGrid columns={3}>
+<Lead>
+  El ask principal son créditos de producto. El cash cierra el presupuesto.
+</Lead>
+
+<DataGrid columns={4}>
   <SponsorTier
     name="Stack Partner"
     price="$2.500"
@@ -29,6 +33,10 @@ layout: wide
     available="6"
     covers={["Créditos en el kit", "Uso opcional", "Logo en la grilla", "Mención en kickoff"]}
   />
+  <SponsorTier
+    name="In-kind"
+    price="$0"
+    slots="∞"
+    covers={["Mentores y jurado", "Premio propio", "Sede, comida, swag"]}
+  />
 </DataGrid>
-
-<Lead>Solo 3 herramientas pueden ser obligatorias, una por capa del stack.</Lead>

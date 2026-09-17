@@ -63,14 +63,21 @@ devtools en lote. Flujo:
 4. Datos del evento
 5. Premios oficiales
 6. **El stack obligatorio** ← el producto que se vende (ver §9)
-7. **Tiers**
-8. Por qué patrocinar aquí y no en otro evento
-9. Qué se reporta después
-10. Cierre
+7. **Qué capa sería tuya** ← la exclusividad, nombrada
+8. **Tiers**
+9. Por qué patrocinar aquí y no en otro evento
+10. Qué se reporta después
+11. Cierre
 
-Es el orden de `content/decks/main/`. El slide 6 va **antes** de los tiers a
-propósito: sin entender que se venden capas del stack, los precios del 7 no
-significan nada.
+Es el orden de `content/decks/main/`. Los slides 6 y 7 van **antes** de los
+tiers a propósito: sin entender que se venden capas del stack, y cuáles, los
+precios del 8 no significan nada.
+
+El 7 existe porque la primera pregunta de un devtool es *¿qué capa sería mía?*,
+y un slide de tiers que muestra cupos (1, 2, 6) no la contesta. Nombra las cinco
+capas candidatas, dice que se abren tres, y que quien firma primero elige. No
+afirma cuáles se abren, porque eso todavía no está decidido — ver la pregunta
+abierta #1 del brief.
 
 ### Deck a partner específico
 
