@@ -3,12 +3,14 @@
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import type { DeckStyle } from "@/lib/decks/loader";
+import type { DeckBackdrop, DeckStyle, DeckVeil } from "@/lib/decks/loader";
 
 type Slide = {
   id: string;
   title: string;
   content: ReactNode;
+  backdrop: DeckBackdrop;
+  veil: DeckVeil;
 };
 
 const SWIPE_THRESHOLD = 56;
@@ -224,6 +226,18 @@ export function DeckPager({
             data-active={index === activeIndex}
             key={slide.id}
           >
+            {/*
+              * The backdrop is its own element rather than a background on the
+              * section: it carries the plate, the scrim and the grain as three
+              * stacked layers, and `aria-hidden` keeps all of it out of the
+              * accessibility tree — it is atmosphere, never content.
+              */}
+            <div
+              aria-hidden="true"
+              className="deck-backdrop"
+              data-backdrop={slide.backdrop}
+              data-veil={slide.veil}
+            />
             <div className="deck-slide-inner">
               <div className="deck-slide-content">{slide.content}</div>
             </div>

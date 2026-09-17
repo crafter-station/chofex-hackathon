@@ -96,12 +96,21 @@
   --deck-paper: #000000;
   --deck-ink: #ffffff;
   /*
-   * A card is the background image with a black scrim over it, so the fill is
-   * a translucent white that the image reads through rather than a flat panel.
+   * A card dims the plate further rather than lifting off it, which is the one
+   * place this skin argues with the design base: there the cards are lighter
+   * than the ground, and their type flips to black to stay on them. That works
+   * with the lorem the base is set in and stops working with real copy, because
+   * half the deck's cards would then carry black type and half white. Dimming
+   * keeps one ink for the whole deck and still reads as a panel over the image.
    */
-  --deck-card: rgb(255 255 255 / 8%);
-  --deck-muted: rgb(255 255 255 / 62%);
-  --deck-accent: rgb(255 255 255 / 16%);
+  --deck-card: rgb(0 0 0 / 45%);
+  /*
+   * 72%, not the 62% a flat black ground would take: this muted sits on top of
+   * a wireframe drawing, and the small mono labels are the first thing the
+   * plate eats.
+   */
+  --deck-muted: rgb(255 255 255 / 72%);
+  --deck-accent: rgb(255 255 255 / 80%);
   --deck-action: #ffffff;
   --deck-status: #ffffff;
 
@@ -115,6 +124,105 @@
 
   background: var(--deck-paper);
   color: var(--deck-ink);
+
+  /*
+   * The default veil. White type over a wireframe drawing is the one place
+   * this skin can fail to be readable, and the plates are brightest exactly
+   * where the peaks are, which is where the eye puts the headline.
+   *
+   * A slide overrides it through `veil:` in its frontmatter — the steps are
+   * below, and they exist because the design base does the same: its three
+   * full-bleed scrims sit at 0.37, 0.52 and 0.54.
+   */
+  --deck-veil: rgb(0 0 0 / 58%);
+}
+
+/* A cover with six words can afford to let the drawing through. */
+.deck-backdrop[data-veil="light"] {
+  --deck-veil: rgb(0 0 0 / 40%);
+}
+
+.deck-backdrop[data-veil="mid"] {
+  --deck-veil: rgb(0 0 0 / 58%);
+}
+
+/* A seven-row table over the canyon's lit seam cannot. */
+.deck-backdrop[data-veil="heavy"] {
+  --deck-veil: rgb(0 0 0 / 78%);
+}
+
+/* ---------- backdrop ---------- */
+
+/*
+ * Three stacked layers in one element: the plate, a scrim that buys the type
+ * its contrast, and the grain.
+ *
+ * Only `terrain` paints anything. The paper styles leave `.deck-backdrop` in
+ * the markup and invisible, so a deck can change skin without its slides
+ * changing shape.
+ */
+.deck-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/*
+ * Plate and scrim are two layers of one background rather than two elements.
+ * A scrim painted as its own absolutely positioned box inside `.deck-slide-
+ * inner` scrolls away the moment a slide overflows, taking the type's contrast
+ * with it; stacked here it cannot come apart from the plate it dims.
+ */
+.deck-pager[data-deck-style="terrain"] .deck-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--deck-paper);
+  background-image:
+    linear-gradient(to bottom, var(--deck-veil), var(--deck-veil)),
+    var(--deck-plate, none);
+  background-position: center, var(--deck-plate-position, center);
+  background-repeat: no-repeat, no-repeat;
+  background-size: cover, cover;
+}
+
+.deck-pager[data-deck-style="terrain"] .deck-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /*
+   * The grain is generated, not a tile. A raster tile small enough to ship
+   * repeats about twenty-five times across the 3200px the PDF export
+   * screenshots at, and that repeat is visible; turbulence has no period.
+   */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence baseFrequency='0.75' numOctaves='3' stitchTiles='stitch' type='fractalNoise'/%3E%3C/filter%3E%3Crect filter='url(%23g)' height='100%25' width='100%25'/%3E%3C/svg%3E");
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+}
+
+/* The plate a slide sits on, chosen in its frontmatter. */
+.deck-backdrop[data-backdrop="summit"] {
+  --deck-plate: url("/deck/summit.webp");
+}
+.deck-backdrop[data-backdrop="range"] {
+  --deck-plate: url("/deck/range.webp");
+}
+.deck-backdrop[data-backdrop="peak"] {
+  --deck-plate: url("/deck/peak.webp");
+}
+.deck-backdrop[data-backdrop="canyon"] {
+  --deck-plate: url("/deck/canyon.webp");
+  /* The canyon's subject is its lit seam, which sits above centre. */
+  --deck-plate-position: center 35%;
+}
+
+/*
+ * `none` still gets the scrim colour, so a slide without a plate is the same
+ * black as one whose plate is fully dimmed rather than a different black.
+ */
+.deck-backdrop[data-backdrop="none"] {
+  --deck-plate: none;
 }
 
 /* ---------- chrome ---------- */
@@ -503,6 +611,42 @@
   color: var(--deck-action);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* ---------- terrain: overrides of the vocabulary above ---------- */
+
+/*
+ * These sit after the rules they override, not beside the rest of the
+ * terrain block at the top. Every one of them is more specific than its
+ * base, so placing them earlier would have them lose the cascade on a
+ * tie — and biome's noDescendingSpecificity catches exactly that.
+ */
+
+/* The type rides above the backdrop, which is the slide's z-index 0. */
+.deck-pager[data-deck-style="terrain"] .deck-slide-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/*
+ * `deck-cell-invert` flips to ink-on-paper, which on this skin is a solid white
+ * block — the one move the design base never makes. Emphasis here is what the
+ * base actually uses: a step up the scrim and a rule at full strength, with the
+ * type staying white so the deck keeps one ink.
+ */
+.deck-pager[data-deck-style="terrain"] .deck-cell-invert {
+  background-color: rgb(0 0 0 / 15%);
+  border-color: var(--deck-ink);
+  color: var(--deck-ink);
+}
+
+.deck-pager[data-deck-style="terrain"] .deck-cell-invert .deck-label {
+  color: var(--deck-ink);
+}
+
+.deck-pager[data-deck-style="terrain"] .deck-cell-invert .deck-stat-label,
+.deck-pager[data-deck-style="terrain"] .deck-cell-invert .deck-copy {
+  color: var(--deck-muted);
 }
 
 /* ---------- motion and print ---------- */

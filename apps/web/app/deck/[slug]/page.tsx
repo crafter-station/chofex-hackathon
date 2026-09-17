@@ -93,6 +93,8 @@ export default async function DeckPage({
         id: slide.id,
         title: slide.meta.title ?? slide.id,
         content,
+        backdrop: slide.backdrop,
+        veil: slide.veil,
       };
     }),
   );

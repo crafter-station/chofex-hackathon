@@ -12,8 +12,70 @@ const DECKS_DIR = join(process.cwd(), "content", "decks");
  *   the landing's own pairing. Use it unless there's a reason not to.
  * - `plain`: IBM Plex Mono throughout, no display pair. For sober decks aimed
  *   at institutions, where the condensed display reads as marketing.
+ * - `terrain`: the sponsorship skin. Inverts the page to black, drops all
+ *   chroma, sets headings in the brand face and paints the slide backdrops.
  */
-export type DeckStyle = "plain" | "editorial";
+export type DeckStyle = "plain" | "editorial" | "terrain";
+
+/**
+ * The backdrops a slide can sit on, named rather than pathed so a slide never
+ * hardcodes a file and swapping the art is one change in `deck.css`.
+ *
+ * They are the same four monochrome plates across the whole deck on purpose:
+ * the design base draws one world, and a backdrop per slide would read as a
+ * stock library rather than an identity. Only `terrain` paints them — the paper
+ * styles ignore the field entirely.
+ */
+export const DECK_BACKDROPS = [
+  "summit",
+  "range",
+  "peak",
+  "canyon",
+  "none",
+] as const;
+
+export type DeckBackdrop = (typeof DECK_BACKDROPS)[number];
+
+/**
+ * How hard the plate is pushed under the type, per slide.
+ *
+ * It is a per-slide value and not one constant because the plates are not
+ * evenly bright and the slides are not evenly full: a cover with six words over
+ * the dark foot of a mountain wants the drawing, and a table of seven rows over
+ * the lit seam of the canyon wants it gone. The design base does the same
+ * thing — the three full-bleed scrims measured off it sit at 0.37, 0.52 and
+ * 0.54 — which is most of what looked at first like six unrelated opacities.
+ */
+export const DECK_VEILS = ["light", "mid", "heavy"] as const;
+
+export type DeckVeil = (typeof DECK_VEILS)[number];
+
+function parseVeil(value: unknown, slideId: string): DeckVeil {
+  if (value == null) return "mid";
+  if (
+    typeof value === "string" &&
+    (DECK_VEILS as readonly string[]).includes(value)
+  ) {
+    return value as DeckVeil;
+  }
+  throw new Error(
+    `veil inválido "${String(value)}" en ${slideId}.mdx — usá uno de: ${DECK_VEILS.join(", ")}`,
+  );
+}
+
+function parseBackdrop(value: unknown, slideId: string): DeckBackdrop {
+  if (value == null) return "none";
+  if (
+    typeof value === "string" &&
+    (DECK_BACKDROPS as readonly string[]).includes(value)
+  ) {
+    return value as DeckBackdrop;
+  }
+  // A typo here would silently paint nothing, which reads as a design choice.
+  throw new Error(
+    `backdrop inválido "${String(value)}" en ${slideId}.mdx — usá uno de: ${DECK_BACKDROPS.join(", ")}`,
+  );
+}
 
 export type DeckMeta = {
   title: string;
@@ -26,6 +88,8 @@ export type DeckMeta = {
 
 export type SlideMeta = {
   title: string;
+  backdrop?: DeckBackdrop;
+  veil?: DeckVeil;
 } & Record<string, unknown>;
 
 export type SlideSource = {
@@ -33,6 +97,8 @@ export type SlideSource = {
   source: string;
   number: number;
   id: string;
+  backdrop: DeckBackdrop;
+  veil: DeckVeil;
 };
 
 export type LoadedDeck = {
@@ -118,6 +184,8 @@ export async function loadDeck(slug: string): Promise<LoadedDeck | null> {
       source: content,
       number: parsed.number,
       id: parsed.id,
+      backdrop: parseBackdrop((data as SlideMeta).backdrop, parsed.id),
+      veil: parseVeil((data as SlideMeta).veil, parsed.id),
     });
   }
 
