@@ -141,6 +141,20 @@
    * the plate, barely touched, doing the job the box was holding open for it.
    */
   --deck-veil-far: rgb(0 0 0 / 18%);
+
+  /*
+   * The shadow layer, and it is a layer rather than a change to the veil.
+   *
+   * The veil is flat by design — it buys a fixed amount of contrast wherever
+   * the type happens to land. This sits on top of it and deepens downward, so
+   * the plate keeps its lightest reading at the top edge, where measurement
+   * says nothing but the drawing lives: across the ten slides the type runs
+   * from 21% to 79% of the height, and never above it.
+   *
+   * It only ever adds. Nothing on any slide gets lighter than it was, which is
+   * the property that makes it safe to apply to all ten at once.
+   */
+  --deck-shade: rgb(0 0 0 / 34%);
 }
 
 /* A cover with six words can afford to let the drawing through. */
@@ -186,11 +200,18 @@
   inset: 0;
   background-color: var(--deck-paper);
   background-image:
+    linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0%) 0%,
+      rgb(0 0 0 / 6%) 30%,
+      rgb(0 0 0 / 16%) 62%,
+      var(--deck-shade) 100%
+    ),
     linear-gradient(to bottom, var(--deck-veil), var(--deck-veil)),
     var(--deck-plate, none);
-  background-position: center, var(--deck-plate-position, center);
-  background-repeat: no-repeat, no-repeat;
-  background-size: cover, cover;
+  background-position: center, center, var(--deck-plate-position, center);
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-size: cover, cover, cover;
 }
 
 .deck-pager[data-deck-style="terrain"] .deck-backdrop::after {
@@ -728,6 +749,13 @@
   .deck-backdrop::before {
   background-image:
     linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0%) 0%,
+      rgb(0 0 0 / 6%) 30%,
+      rgb(0 0 0 / 16%) 62%,
+      var(--deck-shade) 100%
+    ),
+    linear-gradient(
       to right,
       var(--deck-veil) 0%,
       var(--deck-veil) 34%,
@@ -740,6 +768,13 @@
   .deck-slide[data-layout="split-right"]
   .deck-backdrop::before {
   background-image:
+    linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0%) 0%,
+      rgb(0 0 0 / 6%) 30%,
+      rgb(0 0 0 / 16%) 62%,
+      var(--deck-shade) 100%
+    ),
     linear-gradient(
       to left,
       var(--deck-veil) 0%,
@@ -773,6 +808,13 @@
     .deck-slide[data-layout="split-right"]
     .deck-backdrop::before {
     background-image:
+      linear-gradient(
+        to bottom,
+        rgb(0 0 0 / 0%) 0%,
+        rgb(0 0 0 / 6%) 30%,
+        rgb(0 0 0 / 16%) 62%,
+        var(--deck-shade) 100%
+      ),
       linear-gradient(to bottom, var(--deck-veil), var(--deck-veil)),
       var(--deck-plate, none);
   }
