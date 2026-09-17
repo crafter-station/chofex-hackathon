@@ -154,7 +154,7 @@
    * It only ever adds. Nothing on any slide gets lighter than it was, which is
    * the property that makes it safe to apply to all ten at once.
    */
-  --deck-shade: rgb(0 0 0 / 34%);
+  --deck-shade: rgb(0 0 0 / 46%);
 }
 
 /* A cover with six words can afford to let the drawing through. */
@@ -203,8 +203,8 @@
     linear-gradient(
       to bottom,
       rgb(0 0 0 / 0%) 0%,
-      rgb(0 0 0 / 6%) 30%,
-      rgb(0 0 0 / 16%) 62%,
+      rgb(0 0 0 / 9%) 30%,
+      rgb(0 0 0 / 23%) 62%,
       var(--deck-shade) 100%
     ),
     linear-gradient(to bottom, var(--deck-veil), var(--deck-veil)),
@@ -751,8 +751,8 @@
     linear-gradient(
       to bottom,
       rgb(0 0 0 / 0%) 0%,
-      rgb(0 0 0 / 6%) 30%,
-      rgb(0 0 0 / 16%) 62%,
+      rgb(0 0 0 / 9%) 30%,
+      rgb(0 0 0 / 23%) 62%,
       var(--deck-shade) 100%
     ),
     linear-gradient(
@@ -771,8 +771,8 @@
     linear-gradient(
       to bottom,
       rgb(0 0 0 / 0%) 0%,
-      rgb(0 0 0 / 6%) 30%,
-      rgb(0 0 0 / 16%) 62%,
+      rgb(0 0 0 / 9%) 30%,
+      rgb(0 0 0 / 23%) 62%,
       var(--deck-shade) 100%
     ),
     linear-gradient(
@@ -811,8 +811,8 @@
       linear-gradient(
         to bottom,
         rgb(0 0 0 / 0%) 0%,
-        rgb(0 0 0 / 6%) 30%,
-        rgb(0 0 0 / 16%) 62%,
+        rgb(0 0 0 / 9%) 30%,
+        rgb(0 0 0 / 23%) 62%,
         var(--deck-shade) 100%
       ),
       linear-gradient(to bottom, var(--deck-veil), var(--deck-veil)),

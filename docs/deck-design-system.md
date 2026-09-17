@@ -277,7 +277,7 @@ apps/web/public/sponsors/peru-tech-week-white.png
 ### La capa de sombra
 
 Sobre el velo va un degradé vertical que se profundiza hacia abajo: transparente
-arriba, `34%` de negro al pie. Es una **capa aparte**, no un cambio al velo, y
+arriba, `46%` de negro al pie. Es una **capa aparte**, no un cambio al velo, y
 eso importa por una propiedad: **solo suma**. Ninguna slide queda más clara de
 lo que estaba, que es lo que hace seguro aplicarlo a las diez de una.
 
@@ -287,10 +287,10 @@ texto va del 21% al 79% del alto y nunca sube de ahí.
 Medido antes y después, contraste del texto contra el fondo real que lo rodea
 (percentil 95, excluyendo el antialiasing de los glifos):
 
-| | Antes | Después |
+| | Sin sombra | Con sombra |
 | --- | --- | --- |
-| Peor slide (`05-prizes`) | 4.48 | **6.09** |
-| Mediana | 11.2 | **12.5** |
+| Peor slide (`05-prizes`) | 4.48 | **7.00** |
+| Mediana | 11.2 | **13.0** |
 
 AA pide 4.5:1 para texto normal. El peor caso estaba justo en el límite y ahora
 tiene margen. Se controla con `--deck-shade`.
