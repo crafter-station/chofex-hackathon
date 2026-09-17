@@ -8,21 +8,21 @@ import {
 
 describe("challenge output", () => {
   test("notifies users of the exact local opening time before launch", () => {
-    const opensAt = "2026-09-17T05:00:00.000Z";
+    const opensAt = "2026-09-17T14:00:00.000Z";
     expect(
       challengeLaunchNotice(
         "Black Box",
         opensAt,
-        new Date("2026-09-17T04:59:59.999Z"),
+        new Date("2026-09-17T13:59:59.999Z"),
       ),
     ).toBe(
-      "Black Box opens September 17, 2026 at 00:00 (UTC-5). Queries and evaluations are disabled until then; no attempts will be consumed.",
+      "Black Box opens September 17, 2026 at 09:00 (UTC-5). Queries and evaluations are disabled until then; no attempts will be consumed.",
     );
     expect(
       challengeLaunchNotice(
         "Black Box",
         opensAt,
-        new Date("2026-09-17T05:00:00.000Z"),
+        new Date("2026-09-17T14:00:00.000Z"),
       ),
     ).toBeUndefined();
 
@@ -47,7 +47,7 @@ describe("challenge output", () => {
         },
       ],
     });
-    expect(text).toContain("opens September 17, 2026 at 00:00 (UTC-5)");
+    expect(text).toContain("opens September 17, 2026 at 09:00 (UTC-5)");
   });
 
   test("prints official evaluation score details and a share card", () => {

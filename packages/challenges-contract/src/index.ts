@@ -45,7 +45,7 @@ export const challengeCatalog: ReadonlyArray<ChallengeDefinition> = [
     coreSkill: "Reverse engineering & experimentation",
     format: "accuracy",
     formatLabel: "Accuracy score",
-    opensAt: "2026-09-17T05:00:00.000Z",
+    opensAt: "2026-09-17T14:00:00.000Z",
     queryLimit: 25,
     evaluationLimit: 3,
     hiddenSampleSize: 1000,
