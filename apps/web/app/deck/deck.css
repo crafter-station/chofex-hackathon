@@ -799,6 +799,20 @@
  * base actually uses: a step up the scrim and a rule at full strength, with the
  * type staying white so the deck keeps one ink.
  */
+/*
+ * The lockup's tracking, matched to the design base rather than guessed.
+ *
+ * `.deck-title` is cut for Barlow Condensed, where -0.02em closes the gaps a
+ * condensed face opens. Stack Sans Notch is not condensed and does not want it:
+ * measured against the base's own wordmark, at the same cap height, our title
+ * came out 1.9% narrow — ratio 11.10 of width to cap against the base's 11.31.
+ * Spread over the fifteen gaps in "HACK THE ANDES" that is about 0.01em, which
+ * is what this gives back.
+ */
+.deck-pager[data-deck-style="terrain"] .deck-title {
+  letter-spacing: -0.01em;
+}
+
 .deck-pager[data-deck-style="terrain"] .deck-cell-invert {
   background-color: rgb(0 0 0 / 15%);
   border-color: var(--deck-ink);

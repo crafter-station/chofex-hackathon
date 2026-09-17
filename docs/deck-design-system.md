@@ -106,9 +106,12 @@ Verificada por superposición, no por parecido: se renderizó "HACK THE ANDES" e
 Stack Sans Notch 700 y se comparó contra el wordmark extraído del SVG. Mismos
 trazos, mismos notches en la K y la A.
 
-El wordmark de la base es ~4% más ancho que la fuente pura a igual altura de
-caja, lo que da un tracking de **≈ +0.025em**. Pendiente de confirmar si es
-intencional o el default de Canva.
+**El tracking del lockup está igualado por medición, no estimado.** `.deck-title`
+venía en `-0.02em`, que es un valor cortado para Barlow Condensed: cierra los
+huecos que abre una condensada. Stack Sans Notch no lo es y no lo quiere. Medido
+a la misma altura de caja, nuestro título salía 1.9% angosto —ratio ancho/caja
+de 11.10 contra 11.31 de la base—, así que en `terrain` va en `-0.01em`. Con eso
+la diferencia queda en 0.15%, que es ruido de antialiasing del bbox.
 
 ### Glock Grotesk: por qué no entra
 
@@ -292,13 +295,12 @@ propios roles dentro de `.deck-pager[data-deck-style="terrain"]`.
 
 | Pendiente | Bloquea |
 | --- | --- |
-| El fondo de T2 sigue prestado: `02-what` y `08-why` usan `peak`, la lámina que sobraba, porque el original lleva la firma `ALAN·G`. Falta sacarlo de `terrain-shader.ts` | Nada, pero el deck repite una lámina |
-| El tracking del wordmark (≈ +0.025em): ¿intencional o default de Canva? | El lockup |
 | Las tarjetas claras con texto negro, si se quiere el efecto exacto de la base | Una variante de componente, no un token |
 | `bun deck:pdf` sin verificar — Playwright es un paso manual, no una dependencia | El entregable en PDF |
 
-Cerrados: el margen canónico (§4), la cara de cuerpo (§3), la display (§3), los
-layouts (§1), la capa de fondo (§5), Open Sans —que no aparece en ninguno de los
+Cerrados: el margen canónico (§4), la cara de cuerpo (§3), la display (§3), el
+tracking del lockup (§3), los layouts (§1), la capa de fondo y la lámina de
+curvas (§5), Open Sans —que no aparece en ninguno de los
 trazos de la base y se da por residuo de la plantilla de Canva— y los scrims,
 que resultaron ser dos cosas distintas mezcladas: tres velos de página completa
 (0.37 · 0.52 · 0.54) y los de las tarjetas. Los velos son ahora `light` · `mid`
