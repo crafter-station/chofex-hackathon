@@ -8,8 +8,9 @@
  * It is a screenshot pass, not a print stylesheet: what renders on the web is
  * exactly what lands in the PDF, so a deck never has two divergent layouts.
  *
- * Requires Playwright with Chromium:
- *   bun add -d playwright && bunx playwright install chromium
+ * Playwright is a devDependency, so `bun install` brings the library. The
+ * browser itself is not in that install and is fetched once, per machine:
+ *   bunx playwright install chromium
  *
  * Unlike the version this was ported from, it resolves Playwright normally
  * (no absolute path into one machine's home directory) and assembles the PDF
@@ -25,6 +26,18 @@ const HEIGHT = 900;
 /** Retina: the PDF is read zoomed-in on a laptop as often as printed. */
 const SCALE = 2;
 const SLIDE_SETTLE_MS = 250;
+
+/*
+ * Slides are captured as JPEG, not PNG, and the reason is the deliverable.
+ *
+ * A retina PNG of a full-bleed 16:9 slide runs about 4.5 MB, so the ten-slide
+ * sponsorship deck came out at 45 MB — past what Gmail will attach, for a
+ * document whose whole purpose is to be attached to an email to one company.
+ * At 92 the same deck is 7.8 MB with no artefact visible at 100%: the plates
+ * are photographic, and the type sits on flat black, where JPEG has nothing to
+ * ring against.
+ */
+const JPEG_QUALITY = 92;
 
 function usage(message) {
   if (message) console.error(`\n  ${message}`);
@@ -48,7 +61,7 @@ try {
   ({ chromium } = await import("playwright"));
 } catch {
   usage(
-    "Playwright no está instalado. Corre:\n  bun add -d playwright && bunx playwright install chromium",
+    "Falta el navegador de Playwright. Corre:\n  bunx playwright install chromium",
   );
 }
 
@@ -84,8 +97,8 @@ try {
 
   const shots = [];
   for (let i = 0; i < slideCount; i += 1) {
-    const file = join(workDir, `${String(i).padStart(3, "0")}.png`);
-    await page.screenshot({ path: file, type: "png" });
+    const file = join(workDir, `${String(i).padStart(3, "0")}.jpg`);
+    await page.screenshot({ path: file, quality: JPEG_QUALITY, type: "jpeg" });
     shots.push(file);
     process.stdout.write(`\r  capturado ${i + 1}/${slideCount}`);
     if (i < slideCount - 1) {

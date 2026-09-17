@@ -296,7 +296,11 @@ propios roles dentro de `.deck-pager[data-deck-style="terrain"]`.
 | Pendiente | Bloquea |
 | --- | --- |
 | Las tarjetas claras con texto negro, si se quiere el efecto exacto de la base | Una variante de componente, no un token |
-| `bun deck:pdf` sin verificar — Playwright es un paso manual, no una dependencia | El entregable en PDF |
+
+El PDF está verificado: `bun deck:pdf` produce las diez slides a 16:9 retina.
+Playwright pasó a ser devDependency —el navegador se sigue bajando una vez por
+máquina— y las capturas van en JPEG 92 en vez de PNG, porque en PNG el deck
+pesaba 45 MB y no entraba en un mail. Ahora son 7.8.
 
 Cerrados: el margen canónico (§4), la cara de cuerpo (§3), la display (§3), el
 tracking del lockup (§3), los layouts (§1), la capa de fondo y la lámina de
