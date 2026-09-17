@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { DocumentLang } from "@/components/document-lang";
 import { brandName, metadataCopy } from "@/components/landing/content";
+import { PostHogAnalytics } from "@/components/posthog-analytics";
 import { QueryProvider } from "@/components/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import "@chofex/ui/globals.css";
@@ -79,6 +80,7 @@ export default function RootLayout({
           {content}
         </ThemeProvider>
         <Analytics />
+        <PostHogAnalytics />
       </body>
     </html>
   );
