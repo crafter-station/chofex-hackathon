@@ -2,7 +2,8 @@
 
 ## Terreno
 
-El relieve utilizado en la ilustración del hero proviene de Mapzen Terrain
+El relieve del Valle Sagrado —tanto la ilustración del hero como el mapa de
+curvas de nivel que usan los decks de patrocinio— proviene de Mapzen Terrain
 Tiles, distribuido mediante AWS Open Data. Los datos SRTM son cortesía del
 U.S. Geological Survey.
 

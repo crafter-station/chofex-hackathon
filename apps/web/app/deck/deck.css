@@ -217,6 +217,17 @@
 .deck-backdrop[data-backdrop="peak"] {
   --deck-plate: url("/deck/peak.webp");
 }
+/*
+ * The contour map, and the only plate the repo draws rather than buys. It is
+ * the Sacred Valley's own elevation sliced by the landing's contour measure —
+ * `scripts/build-deck-contour-plate.py` has the why. It replaces the design
+ * base's topographic plate, which carries another author's signature inside
+ * the image.
+ */
+.deck-backdrop[data-backdrop="contour"] {
+  --deck-plate: url("/deck/contour.webp");
+}
+
 .deck-backdrop[data-backdrop="canyon"] {
   --deck-plate: url("/deck/canyon.webp");
   /* The canyon's subject is its lit seam, which sits above centre. */

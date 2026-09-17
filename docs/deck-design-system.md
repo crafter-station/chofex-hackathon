@@ -232,14 +232,28 @@ Blanco, `1px` en la portada y `2px` en el resto, a escala de 1440.
 Cuatro PNG, todos monocromos sobre negro: tres cordilleras wireframe y un
 cañón. Cubren T1, T3 y T4.
 
-**T2 no tiene fondo utilizable.** El de la base es un contorno topográfico de
+**El de T2 no se podía usar.** El de la base es un contorno topográfico de
 736×1308 con la firma **`ALAN·G`** grabada dentro de la imagen, abajo a la
 izquierda. No es una marca de agua de preview: está en el arte. Un deck de
 patrocinio no sale con la firma de otro autor encima.
 
-Se resuelve sin licencia de por medio: ese fondo es un patrón de curvas de
-nivel, que es exactamente lo que `components/landing/terrain-shader.ts` ya
-produce. Sale de nuestro propio shader, con la misma identidad que el landing.
+Se reemplazó por una quinta lámina que el repo **dibuja**, no compra:
+`contour.webp`, el relieve real del Valle Sagrado cortado en curvas de nivel.
+No imita al shader del landing — corre su misma medida (`band = elevación /
+espaciado`, línea donde `fract(band)` cruza, normalizada por el gradiente)
+sobre el mismo DEM, visto desde arriba en vez de desde una cámara en el valle.
+El script es `scripts/build-deck-contour-plate.py` y usa la misma caché que los
+builders de GLB.
+
+Dos parámetros que no salen del landing y son decisiones de esta lámina: el
+intervalo va en 110 m, porque a los 45 m de un plano cartográfico los Andes a
+19 m por píxel ponen una línea en casi cada píxel y la lámina lee como grano; y
+el terreno se suaviza 4 px antes de cortar, porque cada aspereza de cresta se
+convierte en su propia curva cerrada. Eso es lo que separa un plano de
+agrimensura del campo fluido que dibuja la base.
+
+El dato de elevación exige atribución, y ahora tiene un consumidor más: está en
+`content/legal/credits.md` y en `public/models/README.md`.
 
 ### Grano
 

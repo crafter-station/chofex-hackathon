@@ -21,7 +21,7 @@ export type DeckStyle = "plain" | "editorial" | "terrain";
  * The backdrops a slide can sit on, named rather than pathed so a slide never
  * hardcodes a file and swapping the art is one change in `deck.css`.
  *
- * They are the same four monochrome plates across the whole deck on purpose:
+ * They are a handful of monochrome plates across the whole deck on purpose:
  * the design base draws one world, and a backdrop per slide would read as a
  * stock library rather than an identity. Only `terrain` paints them — the paper
  * styles ignore the field entirely.
@@ -31,6 +31,7 @@ export const DECK_BACKDROPS = [
   "range",
   "peak",
   "canyon",
+  "contour",
   "none",
 ] as const;
 
