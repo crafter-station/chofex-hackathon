@@ -305,10 +305,19 @@ La piel es un `style` nuevo, junto a `editorial` y `plain`:
 { "style": "terrain" }
 ```
 
-`palette.css` no se toca. Ese archivo está compartido a propósito entre el
-landing y los decks, y su propio comentario recuerda que ya se desincronizó una
-vez. El landing es papel claro y se queda así; la piel oscura declara sus
-propios roles dentro de `.deck-pager[data-deck-style="terrain"]`.
+`palette.css` no se toca, pero no por la razón que este doc daba antes. Ese
+archivo se escribió como paleta compartida entre landing y decks, y **ya no lo
+es**: el landing lleva `.landing-dark` y `dark.css` redefine todos sus tokens,
+así que no toma nada de él. Hoy es la base clara que consumen `editorial` y
+`plain`, y la piel oscura declara sus propios roles dentro de
+`.deck-pager[data-deck-style="terrain"]`.
+
+**El landing también es negro**, por su propia vía. Resuelve el contraste
+levantando cada color hasta que pasa —el cobalto de Chofex a `#6f9bff`, 7.1:1; el
+rojo quemado tres veces, porque el tercer intento todavía medía 4.48:1 contra el
+brillo cálido del fondo—. Esta piel no puede reusar esos valores, y no por un
+motivo técnico: la base de diseño no tiene croma, así que no hay dónde poner un
+cobalto por levantado que esté.
 
 ---
 

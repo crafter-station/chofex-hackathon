@@ -1,63 +1,16 @@
 /*
- * The landing, inverted onto black.
+ * The landing's dark theme: everything that is not a colour value.
  *
- * Every section already paints through the `--hud-*` tokens, so re-theming the
- * page is a matter of redefining them here rather than touching a component.
- * What changes is not only light and dark: several values that were tuned to
- * clear AA on Sandy Linen paper are unusable on black, and those are lifted.
+ * The tokens this used to open with live in `palette.css` now, next to the
+ * light set they override. They are the same values and the same reasoning —
+ * what moved is only where they sit, so that one file answers "what colour is
+ * anything" and this one answers "what does the dark page do differently".
+ *
+ * What stays here is structural: sections going transparent so the fixed
+ * liquid shows through, the stacking that puts content above it, and the
+ * hairlines and textures that were drawn as ink over paper and have to be
+ * redrawn in reverse.
  */
-.landing-dark {
-  /* The ground. The liquid backdrop is fixed behind this, and the sections let
-     it through — so this value is what shows where the field has drained. */
-  --hud-paper: #050406;
-  /* Raised surfaces are now a lift of the ink, not a tint of the paper: a
-     lighter solid would punch a hole in the backdrop wherever a card sits. */
-  --hud-card: rgb(246 243 238 / 5%);
-  --hud-panel: rgb(246 243 238 / 5%);
-  --hud-field: rgb(246 243 238 / 8%);
-  --hud-footer: transparent;
-
-  /* Type. Warm white rather than pure, so it sits with the ink of the drawing
-     rather than glaring against it. 17.4:1 on the ground. */
-  --hud-ink: #f6f3ee;
-  --hud-type: #f6f3ee;
-
-  /*
-   * Actions. Chofex cobalt reads 4.96:1 on paper and 2.6:1 here, which is
-   * under AA for any size — so the action colour is lifted until it clears on
-   * black (7.1:1) and the hover goes lighter rather than darker, since on a
-   * dark ground "darker" reads as disabled.
-   */
-  --hud-action: #6f9bff;
-  --hud-action-hover: #9dbcff;
-  /*
-   * Burnt red, lifted twice. #b83e35 lands at 3.9:1 on the ground; #e2564a
-   * cleared that but still measured 2.6:1 where the liquid glows warm behind a
-   * metric, so it goes lighter again — twice, in the end: #f2897b still measured
- * 4.48:1 on the warm glow behind the sealed-brief chips, which rounds to a
- * pass and is not one. This clears it over every measured background.
-   */
-  --hud-status: #f59d91;
-  /* Sandstone, which was a tint on paper and is a legible accent on black. */
-  --hud-accent: #ddcfbd;
-  /*
-   * Kickers get their own token rather than borrowing the accent, because the
-   * hero re-points the accent at burnt red for its lockup — and inheriting
-   * that put 10px red mono over the white strokes of the drawing at 2.6:1.
-   */
-  --hud-kicker: #ddcfbd;
-
-  /*
-   * Muted body copy. The paper value is 2.6:1 on black; the first lift to
-   * #a2a8ae was fine over black and 2.5:1 over the brightest part of the
-   * field, which is where half the body copy on this page actually sits.
-   */
-  --hud-muted: #bec3c9;
-  --hud-muted-on-light: #bec3c9;
-
-  background: var(--hud-paper);
-  color: var(--hud-ink);
-}
 
 /*
  * Sections go transparent so the fixed liquid shows through them.

@@ -3,11 +3,18 @@
 /*
  * Deck chrome and slide vocabulary.
  *
- * The deck wears the Hack the Andes identity, not Chofex's. The palette is
- * imported, never copied: `palette.css` declares the --hud-* roles for both
- * `.landing-page` and `.deck-pager`, so a palette change on the landing reaches
- * the decks in the same commit. It already drifted once — the deck shipped with
- * the pre-`feat/palette` hexes while the landing had moved on.
+ * The deck wears the Hack the Andes identity, not Chofex's.
+ *
+ * `palette.css` is imported rather than copied, which was once the whole point:
+ * it declared the --hud-* roles for both `.landing-page` and `.deck-pager`, so
+ * a palette change on the landing reached the decks in the same commit. That
+ * has stopped being true. The landing carries `.landing-dark`, and `dark.css`
+ * redefines every token `palette.css` declares — so the import now brings the
+ * light base and nothing the landing actually paints with.
+ *
+ * It still earns its place for `editorial` and `plain`, which are light styles
+ * and want exactly those values. `terrain`, below, redeclares the roles on
+ * black and is what every shipping deck uses.
  *
  * The --deck-* names below are local aliases, so the rest of this file reads in
  * deck terms and a role rename upstream is a one-line change here.
@@ -79,12 +86,15 @@
 /*
  * "terrain": the sponsorship skin, and the one the design base specifies.
  *
- * It is the only style that inverts the page, so it is the only one that
- * redeclares the roles rather than inheriting them. `palette.css` is not
- * touched: that file is shared with the landing, the landing is paper, and the
- * comment at the top of it records that the two drifted apart once already.
- * The override lives here, scoped to the attribute, so a deck opts in through
- * `deck.json` and nothing else moves.
+ * It inverts the page, so it redeclares the roles rather than inheriting the
+ * light ones `palette.css` brings. The override lives here, scoped to the
+ * attribute, so a deck opts in through `deck.json` and nothing else moves.
+ *
+ * The landing is black too, by its own route (`dark.css`), and solves contrast
+ * by lifting each colour until it clears — Chofex cobalt to #6f9bff, the burnt
+ * red three times over. This skin cannot reuse those, and not for a technical
+ * reason: the design base carries no chroma at all, so there is nothing here
+ * for a lifted cobalt to be.
  *
  * The base carries no chroma at all — the whole of it is `#000` and `#fff`.
  * That retires both accents: cobalt had the labels and burnt red had the rules
