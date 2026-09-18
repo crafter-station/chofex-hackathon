@@ -59,6 +59,7 @@ import {
   TriangleAlertIcon,
   TrophyIcon,
   UserRoundPlusIcon,
+  UsersIcon,
   XIcon,
 } from "lucide-react";
 import Image from "next/image";
@@ -1200,7 +1201,12 @@ export function CandidateDashboard({
             </Badge>
           </section>
 
-          <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
+            <StatCard
+              label="Authenticated users"
+              value={currentData.authenticatedUserCount}
+              icon={<UsersIcon className="size-4 text-muted-foreground" />}
+            />
             {candidateFunnelStatuses.map((status) => (
               <StatCard
                 key={status}

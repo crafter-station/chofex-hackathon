@@ -341,17 +341,22 @@ export const listCandidates = async (
     .as("funnel_summary");
   const whereCondition = and(visibleInFunnel, searchCondition, statusCondition);
 
-  const [totalResult, statusResults] = await Promise.all([
-    db
-      .select({ value: count() })
-      .from(applications)
-      .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
-      .where(whereCondition),
-    db
-      .select({ status: funnelSummary.status, value: count() })
-      .from(funnelSummary)
-      .groupBy(funnelSummary.status),
-  ]);
+  const [totalResult, statusResults, authenticatedUserCount] =
+    await Promise.all([
+      db
+        .select({ value: count() })
+        .from(applications)
+        .innerJoin(
+          latestApplications,
+          eq(latestApplications.id, applications.id),
+        )
+        .where(whereCondition),
+      db
+        .select({ status: funnelSummary.status, value: count() })
+        .from(funnelSummary)
+        .groupBy(funnelSummary.status),
+      clerkClient().then((clerk) => clerk.users.getCount()),
+    ]);
 
   const total = totalResult[0]?.value ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -389,6 +394,7 @@ export const listCandidates = async (
 
   return {
     candidates,
+    authenticatedUserCount,
     counts,
     page: currentPage,
     pageSize,
