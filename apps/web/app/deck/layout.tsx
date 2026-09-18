@@ -1,11 +1,5 @@
 import type { Metadata } from "next";
 
-import {
-  landingBrand,
-  landingDisplay,
-  landingMono,
-} from "@/components/landing/fonts";
-
 import { deckBody } from "./fonts";
 import "./deck.css";
 
@@ -57,9 +51,7 @@ export default function DeckLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div
-      className={`${landingBrand.variable} ${landingDisplay.variable} ${landingMono.variable} ${deckBody.variable}`}
-    >
+    <div className={deckBody.variable}>
       <noscript>
         <style>{NO_JS_FALLBACK}</style>
       </noscript>

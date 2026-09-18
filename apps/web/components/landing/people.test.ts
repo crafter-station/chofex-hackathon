@@ -47,7 +47,7 @@ test("renders the panel chapter without invented identities", async () => {
   expect(people).toContain("lg:w-1/4");
   expect(people).toContain("xl:w-1/6");
   expect(people).toContain("max-w-full");
-  expect(people).not.toMatch(/<HudLabel[^>]*>\s*\{brand\.name\}/);
+  expect(people).not.toMatch(/<BrandKicker[^>]*>\s*\{brand\.name\}/);
   expect(people).not.toMatch(/avatarSrc|linkedin/i);
 });
 

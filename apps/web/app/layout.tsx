@@ -1,24 +1,22 @@
-import { ClerkProvider } from "@clerk/nextjs";
+import { brandClerkAppearance } from "@chofex/ui/lib/clerk-appearance";
+import { ClerkLoaded, ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/ui/themes";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { ChunkLoadRecoverySuccess } from "@/components/chunk-load-recovery";
 import { DocumentLang } from "@/components/document-lang";
 import { brandName, metadataCopy } from "@/components/landing/content";
+import {
+  landingBrand,
+  landingDisplay,
+  landingMono,
+  landingSans,
+} from "@/components/landing/fonts";
 import { PostHogAnalytics } from "@/components/posthog-analytics";
 import { QueryProvider } from "@/components/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import "@chofex/ui/globals.css";
-import "./globals.css";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-});
+import "@clerk/ui/themes/shadcn.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://hacktheandes.com"),
@@ -51,16 +49,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const queryProvider = <QueryProvider>{children}</QueryProvider>;
-  let content = queryProvider;
+  let content = (
+    <>
+      {queryProvider}
+      <ChunkLoadRecoverySuccess />
+    </>
+  );
 
   if (clerkConfigured) {
     content = (
       <ClerkProvider
-        appearance={{ theme: shadcn }}
+        appearance={{ theme: shadcn, ...brandClerkAppearance }}
         signInFallbackRedirectUrl="/auth/complete"
         signUpFallbackRedirectUrl="/auth/complete"
       >
         {queryProvider}
+        <ClerkLoaded>
+          <ChunkLoadRecoverySuccess />
+        </ClerkLoaded>
       </ClerkProvider>
     );
   }
@@ -68,7 +74,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-svh font-sans antialiased`}
+        className={`${landingBrand.variable} ${landingDisplay.variable} ${landingSans.variable} ${landingMono.variable} min-h-svh font-sans antialiased`}
       >
         <DocumentLang />
         {/*

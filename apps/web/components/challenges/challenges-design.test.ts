@@ -7,7 +7,7 @@ test("challenge pages wear the same dark identity as the landing", async () => {
   const shell = await sourceFor("challenges-shell.tsx");
 
   expect(shell).toContain('"landing-dark flex flex-col"');
-  expect(shell).toContain("landingBrand.variable");
+  expect(shell).toContain("BrandPage");
   // The bespoke light palette is gone: one ground for the whole project.
   expect(shell).not.toContain("challenges.css");
   expect(shell).not.toContain("challenges-light");
@@ -16,13 +16,15 @@ test("challenge pages wear the same dark identity as the landing", async () => {
 });
 
 test("the challenge palette is the shared one, not a third", async () => {
-  const palette = await sourceFor("../landing/palette.css");
+  const palette = await Bun.file(
+    new URL("../../../../packages/ui/src/styles/globals.css", import.meta.url),
+  ).text();
 
   // These pages used to carry their own ground (#eee9df) and their own card,
   // which made three definitions of --hud-paper in one repo. They inherit the
   // dark set now, from the same file the landing and the decks read.
   expect(palette).toContain("--hud-paper: #050406");
-  expect(palette).toContain(".landing-dark");
+  expect(palette).toContain(".brand-dark");
 });
 
 test("challenge views use landing tokens instead of the retired neon palette", async () => {
@@ -32,7 +34,7 @@ test("challenge views use landing tokens instead of the retired neon palette", a
 
   expect(challengeViews).not.toContain("#d6ff00");
   expect(challengeViews).not.toContain("#07152b");
-  expect(index).toContain("landingSectionYClassName");
+  expect(index).toContain("brandSectionClassName");
   expect(index).toContain("ContourSeal");
 });
 

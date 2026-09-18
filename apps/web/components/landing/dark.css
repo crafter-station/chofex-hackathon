@@ -1,10 +1,8 @@
 /*
  * The landing's dark theme: everything that is not a colour value.
  *
- * The tokens this used to open with live in `palette.css` now, next to the
- * light set they override. They are the same values and the same reasoning —
- * what moved is only where they sit, so that one file answers "what colour is
- * anything" and this one answers "what does the dark page do differently".
+ * Shared tokens and visual primitives live in `@chofex/ui/globals.css`. This
+ * file only answers what this particular immersive landing does differently.
  *
  * What stays here is structural: sections going transparent so the fixed
  * liquid shows through, the stacking that puts content above it, and the
@@ -31,35 +29,9 @@
   z-index: 1;
 }
 
-/*
- * Rules and hairlines were drawn as ink at low alpha over paper; over black
- * they vanish. These are the same idea in reverse.
- */
-.landing-dark .hud-box {
-  border-color: rgb(246 243 238 / 22%);
-}
-
-.landing-dark .hud-halftone {
-  background-image: radial-gradient(
-    rgb(246 243 238 / 16%) 0.7px,
-    transparent 0.8px
-  );
-}
-
-.landing-dark .hud-scanlines {
-  background-image: repeating-linear-gradient(
-    180deg,
-    rgb(246 243 238 / 5%) 0 1px,
-    transparent 1px 4px
-  );
-}
-
-.landing-dark .landing-dossier::before {
-  background: repeating-radial-gradient(
-    ellipse at 82% 18%,
-    transparent 0 15px,
-    rgb(246 243 238 / 7%) 16px 17px
-  );
+/* Preserve the reference landing's cream-on-sandstone text selection. */
+.landing-dark ::selection {
+  color: var(--hud-ink);
 }
 
 /*
@@ -217,20 +189,6 @@
 }
 
 /*
- * Kickers come off the action colour and go to sandstone.
- *
- * On paper the cobalt kicker reads 4.96:1 and is the page's quiet brand signal.
- * Here it is 9px mono sitting directly on a field that is *sometimes* cobalt
- * itself — measured 2.6:1 over the blue pole, which no amount of scrim fixes
- * without also deleting the colour. Sandstone clears 5.6:1 over either pole and
- * over the black between them, and the action colour keeps the buttons and
- * links, where it sits on a surface of its own.
- */
-.landing-dark .landing-type-meta {
-  color: var(--hud-kicker);
-}
-
-/*
  * The CLI block was authored as ink on paper: a dark slab made out of the type
  * colour, with light type on it. Inverted, `--hud-ink` is the cream — so the
  * slab turned cream and took its cream type with it, and three commands went
@@ -257,21 +215,4 @@
  */
 .landing-dark #apply ol li > span:first-child {
   color: rgb(246 243 238 / 62%);
-}
-
-/*
- * The copy-prompt button carries the shared Button's own dark surface, which
- * the utility class for the action colour does not outrank. On paper that is
- * invisible — a dark button with cream type, exactly as intended. Here the
- * type colour inverted to near-black and the surface did not, so the label
- * went dark-on-dark at 1.2:1. Naming both ends the guessing.
- */
-.landing-dark .landing-cta {
-  background-color: var(--hud-action);
-  color: var(--hud-paper);
-}
-
-.landing-dark .landing-cta:hover {
-  background-color: var(--hud-action-hover);
-  color: var(--hud-paper);
 }

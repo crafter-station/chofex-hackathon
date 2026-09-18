@@ -1,11 +1,10 @@
-import Image from "next/image";
-
-import { partners, sponsorsCopy } from "@/components/landing/content";
-import { HudLabel } from "@/components/landing/hud";
 import {
-  LandingContainer,
-  landingSectionYClassName,
-} from "@/components/landing/shell";
+  BrandContainer,
+  BrandKicker,
+  brandSectionClassName,
+} from "@chofex/ui/components/brand";
+import Image from "next/image";
+import { partners, sponsorsCopy } from "@/components/landing/content";
 
 export function LandingSponsors() {
   return (
@@ -14,7 +13,7 @@ export function LandingSponsors() {
       className="bg-[var(--hud-card)] text-[var(--hud-ink)]"
       id="sponsors"
     >
-      <LandingContainer className={landingSectionYClassName}>
+      <BrandContainer className={brandSectionClassName}>
         <h2 className="sr-only" id="sponsors-heading">
           {sponsorsCopy.kicker}
         </h2>
@@ -36,9 +35,9 @@ export function LandingSponsors() {
                 rel="noreferrer"
                 target="_blank"
               >
-                <HudLabel className="text-[var(--hud-ink)]/60">
+                <BrandKicker className="text-[var(--hud-ink)]/60">
                   {partner.role}
-                </HudLabel>
+                </BrandKicker>
                 {/*
                  * `self-start` matters: this is a flex column, and a stretched
                  * item would have the mark filling the card's width with its
@@ -57,7 +56,7 @@ export function LandingSponsors() {
             </li>
           ))}
         </ul>
-      </LandingContainer>
+      </BrandContainer>
     </section>
   );
 }

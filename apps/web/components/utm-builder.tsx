@@ -208,7 +208,7 @@ export function UtmBuilder() {
 
       <div className="flex flex-col gap-3">
         <span className="text-sm font-medium">Link</span>
-        <code className="block overflow-x-auto rounded-lg bg-muted px-3 py-2 font-mono text-sm break-all">
+        <code className="block overflow-x-auto border border-border bg-muted px-3 py-3 font-mono text-sm break-all">
           {link ?? "Enter a post link or id to generate the link."}
         </code>
         <div className="flex items-center gap-3">

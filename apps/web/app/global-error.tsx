@@ -1,31 +1,13 @@
 "use client";
 
+import { brandColors } from "@chofex/ui/lib/brand-theme";
 import { useEffect } from "react";
+import { claimChunkReload, isChunkLoadError } from "@/lib/chunk-load-recovery";
 
 /**
- * Top-level error boundary. Without it a failed chunk — the auth UI bundle
- * timing out, or a stale reference after a deploy — has nothing to catch it and
- * the page renders blank. `global-error` replaces the root layout, so it owns
- * its own `<html>`/`<body>` and stays on inline styles: the CSS it would need
- * may be part of the same load that just failed.
+ * Top-level error boundary. It replaces the root layout, so every style needed
+ * by this fallback stays inline in case a stylesheet or font chunk failed.
  */
-
-const RELOAD_GUARD_KEY = "hta:global-error-reload-at";
-const RELOAD_GUARD_WINDOW_MS = 10_000;
-
-function isChunkLoadError(error: { name?: string; message?: string }): boolean {
-  const name = error.name ?? "";
-  const message = error.message ?? "";
-  if (name === "ChunkLoadError") {
-    return true;
-  }
-  return (
-    /Loading chunk [^\s]+ failed/.test(message) ||
-    /Loading CSS chunk/.test(message) ||
-    /Failed to fetch dynamically imported module/.test(message)
-  );
-}
-
 export default function GlobalError({
   error,
   reset,
@@ -36,18 +18,12 @@ export default function GlobalError({
   const chunkError = isChunkLoadError(error);
 
   useEffect(() => {
-    if (!chunkError) {
-      return;
-    }
-    // A failed chunk is usually transient, so reload once to pull fresh chunk
-    // URLs. The guard stops a reload loop when the chunk stays unreachable.
-    const now = Date.now();
-    const last = Number(window.sessionStorage.getItem(RELOAD_GUARD_KEY) ?? "0");
-    if (now - last > RELOAD_GUARD_WINDOW_MS) {
-      window.sessionStorage.setItem(RELOAD_GUARD_KEY, String(now));
+    console.error(error);
+
+    if (chunkError && claimChunkReload(window.sessionStorage)) {
       window.location.reload();
     }
-  }, [chunkError]);
+  }, [chunkError, error]);
 
   const retry = () => {
     if (chunkError) {
@@ -58,50 +34,90 @@ export default function GlobalError({
   };
 
   return (
-    <html lang="es">
+    <html lang="es" style={{ colorScheme: "dark" }}>
       <body
         style={{
+          boxSizing: "border-box",
           margin: 0,
           minHeight: "100svh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "1.5rem",
-          backgroundColor: "#050406",
-          color: "#f3efe7",
+          display: "grid",
+          placeItems: "center",
+          padding: "1.25rem",
+          backgroundColor: brandColors.dark.paper,
+          backgroundImage:
+            "radial-gradient(circle at 24% 18%, rgb(210 22 36 / 8%), transparent 20rem)",
+          color: brandColors.dark.ink,
           fontFamily:
-            "ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif",
+            "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
         }}
       >
-        <main style={{ maxWidth: "28rem", textAlign: "center" }}>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: 600, margin: 0 }}>
-            No pudimos cargar la página
+        <title>Error | Hack the Andes</title>
+        <main
+          style={{
+            boxSizing: "border-box",
+            width: "100%",
+            maxWidth: "42rem",
+            border: "1px solid rgb(246 243 238 / 22%)",
+            padding: "clamp(2rem, 8vw, 4rem) clamp(1.5rem, 6vw, 3rem)",
+            backgroundColor: "rgb(246 243 238 / 5%)",
+            textAlign: "center",
+          }}
+        >
+          <p
+            style={{
+              margin: 0,
+              color: brandColors.dark.action,
+              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+              fontSize: "0.75rem",
+              letterSpacing: "0.12em",
+              lineHeight: 1.35,
+              textTransform: "uppercase",
+            }}
+          >
+            Error / 500
+          </p>
+          <h1
+            style={{
+              margin: "1.5rem 0 0",
+              fontSize: "clamp(2.75rem, 10vw, 4.5rem)",
+              fontWeight: 700,
+              letterSpacing: "-0.025em",
+              lineHeight: 0.9,
+              textTransform: "uppercase",
+            }}
+          >
+            Algo salió mal
           </h1>
           <p
             style={{
-              margin: "0.75rem 0 1.5rem",
-              lineHeight: 1.5,
-              color: "rgb(243 239 231 / 72%)",
+              maxWidth: "28rem",
+              margin: "1.5rem auto 0",
+              color: brandColors.dark.muted,
+              lineHeight: 1.6,
             }}
           >
-            Un recurso no terminó de cargar. Volvé a intentarlo; suele
-            resolverse al reintentar.
+            No pudimos cargar la aplicación. Intenta nuevamente.
           </p>
           <button
             type="button"
             onClick={retry}
             style={{
+              minHeight: "3rem",
+              marginTop: "2rem",
               cursor: "pointer",
-              border: "none",
-              borderRadius: "0.5rem",
-              padding: "0.75rem 1.5rem",
-              fontSize: "1rem",
+              border: "1px solid transparent",
+              borderRadius: 0,
+              padding: "0.625rem 1.75rem",
+              backgroundColor: brandColors.dark.action,
+              color: brandColors.dark.paper,
+              fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+              fontSize: "0.875rem",
               fontWeight: 600,
-              backgroundColor: "#2459c9",
-              color: "#f3efe7",
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
             }}
           >
-            Reintentar
+            Intentar de nuevo
           </button>
         </main>
       </body>
