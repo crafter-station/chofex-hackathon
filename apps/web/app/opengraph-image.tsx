@@ -1,9 +1,12 @@
+import { brandColors, brandColorWithAlpha } from "@chofex/ui/lib/brand-theme";
 import { ImageResponse } from "next/og";
 import { trackCount } from "@/components/landing/content";
 
 export const alt = `Hack the Andes — 100 builders, ${trackCount} tracks, Lima, 17–18 de octubre`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+
+const colors = brandColors.dark;
 
 export default function OpenGraphImage() {
   return new ImageResponse(
@@ -14,8 +17,8 @@ export default function OpenGraphImage() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        backgroundColor: "#0b1726",
-        color: "#f3efe7",
+        backgroundColor: colors.paper,
+        color: colors.ink,
         padding: "72px 80px",
         overflow: "hidden",
         position: "relative",
@@ -30,7 +33,7 @@ export default function OpenGraphImage() {
             width: diameter,
             height: diameter,
             borderRadius: 999,
-            border: "2px solid rgba(243,239,231,0.10)",
+            border: `2px solid ${brandColorWithAlpha(colors.ink, 0.1)}`,
             right: 120 - diameter / 2,
             top: 315 - diameter / 2,
           }}
@@ -41,7 +44,7 @@ export default function OpenGraphImage() {
           display: "flex",
           justifyContent: "flex-end",
           fontSize: 22,
-          color: "#ddcfbd",
+          color: colors.accent,
           letterSpacing: "0.06em",
           textTransform: "uppercase",
         }}
@@ -65,7 +68,7 @@ export default function OpenGraphImage() {
             maxWidth: 700,
             fontSize: 32,
             lineHeight: 1.25,
-            color: "#ddcfbd",
+            color: colors.accent,
           }}
         >
           100 builders con experiencia. {trackCount} tracks. 30 horas.
@@ -77,7 +80,7 @@ export default function OpenGraphImage() {
           gap: 32,
           alignItems: "flex-end",
           fontSize: 22,
-          color: "rgba(243,239,231,0.72)",
+          color: brandColorWithAlpha(colors.ink, 0.72),
         }}
       >
         <div style={{ display: "flex" }}>100 cupos</div>

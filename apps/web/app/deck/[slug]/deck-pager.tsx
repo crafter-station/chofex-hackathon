@@ -199,7 +199,7 @@ export function DeckPager({
     // Swipe and wheel are shortcuts layered over the keyboard and the button
     // controls below, which stay the accessible path through the deck.
     <div
-      className="deck-pager"
+      className="brand-light deck-pager"
       data-deck-style={deckStyle}
       // The deck's own language, which is not the app's: a screen reader needs
       // to know which voice to read a slide in.

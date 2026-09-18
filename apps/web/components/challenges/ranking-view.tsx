@@ -3,15 +3,14 @@ import {
   type ChallengeRanking,
   isChallengeRankingVisibleAt,
 } from "@chofex/challenges-contract";
-import Link from "next/link";
-
-import { HudLabel } from "@/components/landing/hud";
 import {
-  LandingContainer,
-  LandingSectionHead,
-  landingFrameClassName,
-  landingSectionYClassName,
-} from "@/components/landing/shell";
+  BrandContainer,
+  BrandKicker,
+  BrandSectionHeader,
+  brandFrameClassName,
+  brandSectionClassName,
+} from "@chofex/ui/components/brand";
+import Link from "next/link";
 import { BlackBoxChallengeGuide } from "./challenge-guide";
 import { RankingCountdown } from "./ranking-countdown-view";
 
@@ -24,7 +23,7 @@ const RankingResults = ({
 }) => {
   if (entries.length === 0) {
     return (
-      <div className={`p-6 ${landingFrameClassName}`}>
+      <div className={`p-6 ${brandFrameClassName}`}>
         <p className="text-sm text-[var(--hud-muted)]">
           Nadie ha enviado una evaluación oficial todavía. Las soluciones se
           envían por la CLI; esta página solo muestra el ranking.
@@ -34,7 +33,7 @@ const RankingResults = ({
   }
 
   return (
-    <div className={`overflow-x-auto ${landingFrameClassName}`}>
+    <div className={`overflow-x-auto ${brandFrameClassName}`}>
       <table className="min-w-full text-left text-sm">
         <thead className="landing-type-meta text-[var(--hud-muted)]">
           <tr>
@@ -52,7 +51,7 @@ const RankingResults = ({
               className="border-[var(--hud-ink)]/10 border-t"
               key={`${entry.shareCode}-${entry.rank}`}
             >
-              <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)] text-[var(--hud-action)]">
+              <td className="px-4 py-3 font-mono text-[var(--hud-action)]">
                 #{entry.rank}
               </td>
               <td className="px-4 py-3">
@@ -61,18 +60,12 @@ const RankingResults = ({
                   #{entry.shareCode}
                 </div>
               </td>
-              <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)]">
-                {percent(entry.accuracy)}
-              </td>
-              <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)]">
+              <td className="px-4 py-3 font-mono">{percent(entry.accuracy)}</td>
+              <td className="px-4 py-3 font-mono">
                 {entry.exactCount}/{entry.sampleSize}
               </td>
-              <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)]">
-                {entry.queriesUsed}
-              </td>
-              <td className="px-4 py-3 font-[family-name:var(--font-landing-mono)]">
-                {entry.runtimeMs} ms
-              </td>
+              <td className="px-4 py-3 font-mono">{entry.queriesUsed}</td>
+              <td className="px-4 py-3 font-mono">{entry.runtimeMs} ms</td>
             </tr>
           ))}
         </tbody>
@@ -117,8 +110,8 @@ export function ChallengeRankingView({
       aria-labelledby="challenge-ranking-heading"
       className="bg-[var(--hud-paper)]"
     >
-      <LandingContainer className={landingSectionYClassName}>
-        <HudLabel className="mb-3 text-[var(--hud-kicker)]">
+      <BrandContainer className={brandSectionClassName}>
+        <BrandKicker className="mb-3 text-[var(--hud-kicker)]">
           <Link
             className="underline-offset-4 hover:text-[var(--hud-ink)] hover:underline"
             href="/challenges"
@@ -126,8 +119,8 @@ export function ChallengeRankingView({
             challenges
           </Link>{" "}
           / {challenge.theme} #{challenge.code}
-        </HudLabel>
-        <LandingSectionHead
+        </BrandKicker>
+        <BrandSectionHeader
           headingLevel="h1"
           title={challenge.title}
           titleId="challenge-ranking-heading"
@@ -135,41 +128,41 @@ export function ChallengeRankingView({
           <p className="max-w-2xl text-lg leading-relaxed text-[var(--hud-ink)]/75">
             {challenge.summary}
           </p>
-        </LandingSectionHead>
+        </BrandSectionHeader>
 
         <div
-          className={`mb-8 grid gap-3 p-5 sm:grid-cols-3 ${landingFrameClassName}`}
+          className={`mb-8 grid gap-3 p-5 sm:grid-cols-3 ${brandFrameClassName}`}
         >
           <div>
-            <HudLabel className="text-[var(--hud-muted)]">
+            <BrandKicker className="text-[var(--hud-muted)]">
               Participantes
-            </HudLabel>
-            <p className="mt-2 font-[family-name:var(--font-landing-display)] text-4xl">
+            </BrandKicker>
+            <p className="mt-2 font-display text-4xl">
               {rankingVisible ? competitorCount : "—"}
             </p>
           </div>
           <div>
-            <HudLabel className="text-[var(--hud-muted)]">Estado</HudLabel>
-            <p className="mt-2 font-[family-name:var(--font-landing-mono)] text-sm uppercase tracking-[0.12em] text-[var(--hud-action)]">
+            <BrandKicker className="text-[var(--hud-muted)]">
+              Estado
+            </BrandKicker>
+            <p className="mt-2 font-mono text-sm uppercase tracking-[0.12em] text-[var(--hud-action)]">
               {challengeState}
             </p>
           </div>
           <div>
-            <HudLabel className="text-[var(--hud-muted)]">CLI</HudLabel>
-            <p className="mt-2 break-words font-[family-name:var(--font-landing-mono)] text-sm">
-              {cliHint}
-            </p>
+            <BrandKicker className="text-[var(--hud-muted)]">CLI</BrandKicker>
+            <p className="mt-2 break-words font-mono text-sm">{cliHint}</p>
           </div>
         </div>
 
         {challengeGuide}
 
         <section aria-labelledby="ranking-heading" className="mt-14">
-          <HudLabel className="mb-3 text-[var(--hud-kicker)]">
+          <BrandKicker className="mb-3 text-[var(--hud-kicker)]">
             resultados oficiales
-          </HudLabel>
+          </BrandKicker>
           <h2
-            className="font-[family-name:var(--font-landing-display)] text-4xl leading-none uppercase sm:text-5xl"
+            className="font-display text-4xl leading-none uppercase sm:text-5xl"
             id="ranking-heading"
           >
             Ranking
@@ -181,7 +174,7 @@ export function ChallengeRankingView({
           </p>
           {rankingContent}
         </section>
-      </LandingContainer>
+      </BrandContainer>
     </section>
   );
 }

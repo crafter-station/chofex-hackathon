@@ -58,7 +58,7 @@ El deck va con identidad **Hack the Andes**. Chofex aparece como sponsor, no com
 dueño de la estética. Esto cierra la tarea Notion "Definir tratamiento *Sponsored
 by Chofex* (sin colores Chofex)".
 
-**Paleta: la fuente es `apps/web/components/landing/palette.css`, y este
+**Paleta: la fuente es `packages/ui/src/styles/globals.css`, y este
 documento no repite los valores.** La paleta ya cambió dos veces en semanas
 (`feat/palette` #39, y otra vez en el rediseño #41), y las dos veces una copia
 escrita a mano quedó atrás sin que nadie se diera cuenta — primero en este
@@ -71,8 +71,9 @@ papel de fondo y la tinta reservada para tipografía; el accent es un tinte y no
 sostiene texto. Tipografía: Barlow Condensed (display), Barlow (cuerpo), IBM
 Plex Mono (chrome HUD) — ver `components/landing/fonts.ts`.
 
-El deck importa ese mismo `palette.css`, así que un cambio de paleta en la
-landing llega a los decks en el mismo commit.
+El deck consume esos mismos tokens del design system y activa `.brand-light`
+para sus estilos claros, así que un cambio de paleta llega a landing, producto
+y decks en el mismo commit.
 
 ## Estado actual de los slots
 

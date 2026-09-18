@@ -63,7 +63,7 @@ export function Backdrop() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#050406]"
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[var(--hud-paper)]"
       data-backdrop={webglReady && painted ? "liquid" : "painted"}
     >
       <div
@@ -88,7 +88,7 @@ export function Backdrop() {
        * white the sections are set in, which is under AA. Held down to a deep
        * glow, every section clears 9:1 and the colour still carries.
        */}
-      <div className="absolute inset-0 bg-[#050406]/62" />
+      <div className="landing-world-overlay absolute inset-0" />
     </div>
   );
 }
