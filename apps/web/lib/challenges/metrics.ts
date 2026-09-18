@@ -36,18 +36,26 @@ export const challengeActivityCounts = async (
   const client = await metricsDatabase(database);
   const result = await client.execute<ChallengeActivityCountsRow>(sql`
     select
-      count(best."attempt_id")::integer as "completed",
+      count(*) filter (
+        where exists (
+          select 1
+          from "challenge_evaluations" as evaluation
+          where evaluation."attempt_id" = attempt."id"
+        )
+      )::integer as "completed",
       count(*) filter (
         where
-          best."attempt_id" is null
+          not exists (
+            select 1
+            from "challenge_evaluations" as evaluation
+            where evaluation."attempt_id" = attempt."id"
+          )
           and (
             attempt."queries_used" > 0
             or attempt."evaluations_used" > 0
           )
       )::integer as "in_progress"
     from "challenge_attempts" as attempt
-    left join "challenge_best_evaluations" as best
-      on best."attempt_id" = attempt."id"
     where
       attempt."challenge_version" = ${currentChallengeVersion}
       and attempt."challenge_slug" in (${playableSlugList})

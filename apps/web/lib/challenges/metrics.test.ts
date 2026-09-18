@@ -24,8 +24,9 @@ describe("challenge activity metrics", () => {
         queries_used integer default 0 not null,
         evaluations_used integer default 0 not null
       );
-      create table challenge_best_evaluations (
-        attempt_id uuid primary key references challenge_attempts(id)
+      create table challenge_evaluations (
+        id uuid primary key,
+        attempt_id uuid not null references challenge_attempts(id)
       );
       create table applications (
         participant_id uuid primary key
@@ -73,7 +74,10 @@ describe("challenge activity metrics", () => {
       [firstCompletedId, secondCompletedId, inProgressId],
     );
     await client.query(
-      `insert into challenge_best_evaluations (attempt_id) values ($1), ($2), ($3)`,
+      `insert into challenge_evaluations (id, attempt_id) values
+        (gen_random_uuid(), $1),
+        (gen_random_uuid(), $2),
+        (gen_random_uuid(), $3)`,
       [firstCompletedId, secondCompletedId, hiddenCompletedId],
     );
 
