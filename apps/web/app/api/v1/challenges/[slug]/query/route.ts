@@ -1,5 +1,6 @@
 import { requireParticipantUserId } from "@/lib/auth";
 import { queryChallenge } from "@/lib/challenges/service";
+import { captureProductEvent } from "@/lib/posthog-server";
 import { jsonSuccess, readJson, withApiHandler } from "@/lib/registration/http";
 
 export const runtime = "nodejs";
@@ -11,8 +12,19 @@ export const POST = (
   withApiHandler(request, async (requestId) => {
     const { slug } = await context.params;
     const clerkUserId = await requireParticipantUserId(request);
-    return jsonSuccess(
-      requestId,
-      await queryChallenge(clerkUserId, slug, await readJson(request)),
+    const result = await queryChallenge(
+      clerkUserId,
+      slug,
+      await readJson(request),
     );
+    await captureProductEvent({
+      distinctId: clerkUserId,
+      event: "challenge_query_completed",
+      properties: {
+        challenge_slug: slug,
+        queries_used: result.queriesUsed,
+        queries_remaining: result.queriesRemaining,
+      },
+    });
+    return jsonSuccess(requestId, result);
   });

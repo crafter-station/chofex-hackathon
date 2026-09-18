@@ -1,6 +1,38 @@
 import { expect, test } from "bun:test";
 
-import { isTrackablePath, isTrackableUrl } from "./analytics";
+import {
+  campaignPropertiesFromUrl,
+  isPostHogConfigured,
+  isTrackablePath,
+  isTrackableUrl,
+} from "./analytics";
+
+test("reads campaign dimensions for conversion events", () => {
+  expect(
+    campaignPropertiesFromUrl(
+      "https://hacktheandes.com/?utm_source=instagram&utm_medium=organic_social&utm_campaign=launch&utm_content=reel-42",
+    ),
+  ).toEqual({
+    $utm_source: "instagram",
+    $utm_medium: "organic_social",
+    $utm_campaign: "launch",
+    $utm_content: "reel-42",
+  });
+});
+
+test("ignores empty campaign dimensions and bounds their size", () => {
+  expect(
+    campaignPropertiesFromUrl(
+      `https://hacktheandes.com/?utm_source=&utm_campaign=${"a".repeat(250)}`,
+    ),
+  ).toEqual({ $utm_campaign: "a".repeat(200) });
+});
+
+test("recognizes real PostHog configuration", () => {
+  expect(isPostHogConfigured("phc_project_key")).toBe(true);
+  expect(isPostHogConfigured("phc_replace_me")).toBe(false);
+  expect(isPostHogConfigured(undefined)).toBe(false);
+});
 
 test("tracks the public marketing funnel", () => {
   expect(isTrackablePath("/")).toBe(true);

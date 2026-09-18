@@ -1,4 +1,5 @@
 import { requireAuthenticatedParticipantProfile } from "@/lib/auth";
+import { captureProductEvent } from "@/lib/posthog-server";
 import { jsonSuccess, readJson, withApiHandler } from "@/lib/registration/http";
 import { createRegistration } from "@/lib/registration/service";
 
@@ -15,5 +16,15 @@ export const POST = (request: Request): Promise<Response> =>
       await readJson(request),
     );
     const created = result.registration.status === "submitted";
+    const event = created ? "application_submitted" : "application_draft_saved";
+    await captureProductEvent({
+      distinctId: participant.clerkUserId,
+      event,
+      properties: {
+        auth_token_type: participant.tokenType,
+        application_status: result.registration.status,
+        missing_requirement_count: result.requirements.missing.length,
+      },
+    });
     return jsonSuccess(requestId, result, created ? 201 : 200);
   });

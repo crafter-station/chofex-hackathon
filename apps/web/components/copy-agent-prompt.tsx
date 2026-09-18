@@ -2,6 +2,7 @@
 
 import { Button } from "@chofex/ui/components/button";
 import { CheckIcon, CopyIcon, TriangleAlertIcon } from "lucide-react";
+import posthog from "posthog-js";
 import { useEffect, useRef, useState } from "react";
 import { agentApplicationPrompt } from "@/lib/agent-prompt";
 
@@ -38,8 +39,12 @@ export function CopyAgentPrompt() {
     try {
       const prompt = agentApplicationPrompt(window.location.origin);
       await navigator.clipboard.writeText(prompt);
+      posthog.capture("application_prompt_copied", {
+        conversion_stage: "application_intent",
+      });
       setStatus("copied");
-    } catch {
+    } catch (error) {
+      posthog.captureException(error);
       setStatus("failed");
     }
 
