@@ -46,6 +46,7 @@ import {
   SparklesIcon,
   SquareCodeIcon,
   TriangleAlertIcon,
+  TrophyIcon,
   UserRoundPlusIcon,
   UsersIcon,
   XIcon,
@@ -1117,7 +1118,7 @@ export function CandidateDashboard({
           </Badge>
         </section>
 
-        <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <StatCard
             label="Clerk users"
             value={currentData.clerkUserCount}
@@ -1141,6 +1142,11 @@ export function CandidateDashboard({
             label="Accepted"
             value={currentData.counts.accepted}
             icon={<CheckIcon className="size-4 text-muted-foreground" />}
+          />
+          <StatCard
+            label="Challenges completed"
+            value={currentData.completedChallengeCount}
+            icon={<TrophyIcon className="size-4 text-muted-foreground" />}
           />
         </section>
 

@@ -95,6 +95,7 @@ export interface CandidateCounts {
 export interface CandidatePage {
   readonly candidates: ReadonlyArray<Candidate>;
   readonly clerkUserCount: number;
+  readonly completedChallengeCount: number;
   readonly counts: CandidateCounts;
   readonly page: number;
   readonly pageSize: number;

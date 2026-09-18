@@ -19,9 +19,10 @@ import {
   ShipmentSchema,
 } from "@chofex/challenges-contract";
 import { db } from "@chofex/db";
-import { and, asc, desc, eq, inArray } from "@chofex/db/orm";
+import { and, asc, count, desc, eq, inArray } from "@chofex/db/orm";
 import {
   challengeAttempts,
+  challengeBestEvaluations,
   challengeEvaluations,
   challengeObservations,
 } from "@chofex/db/schema";
@@ -411,6 +412,18 @@ export const challengeProgressForParticipants = async (
     progressByParticipant.set(participantId, progress);
   }
   return progressByParticipant;
+};
+
+export const countCompletedChallenges = async (): Promise<number> => {
+  const [result] = await db
+    .select({ value: count() })
+    .from(challengeBestEvaluations)
+    .innerJoin(
+      challengeAttempts,
+      eq(challengeAttempts.id, challengeBestEvaluations.attemptId),
+    )
+    .where(eq(challengeAttempts.challengeVersion, currentChallengeVersion));
+  return result?.value ?? 0;
 };
 
 export const challengeProgressForParticipant = async (

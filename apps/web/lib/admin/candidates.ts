@@ -19,7 +19,10 @@ import {
 } from "@chofex/db/schema";
 
 import { HttpError } from "@/lib/registration/http";
-import { challengeProgressForParticipants } from "../challenges/service";
+import {
+  challengeProgressForParticipants,
+  countCompletedChallenges,
+} from "../challenges/service";
 import { candidateAvatarUrl } from "./avatars";
 import { type ApplicationDecision, buildDecisionEmail } from "./decision-email";
 import {
@@ -344,34 +347,31 @@ export const listCandidates = async (
     reattemptCondition,
   );
 
-  const [totalResult, statusResults, reattemptResult, clerkUserCount] =
-    await Promise.all([
-      db
-        .select({ value: count() })
-        .from(applications)
-        .innerJoin(
-          latestApplications,
-          eq(latestApplications.id, applications.id),
-        )
-        .where(whereCondition),
-      db
-        .select({ status: applications.status, value: count() })
-        .from(applications)
-        .innerJoin(
-          latestApplications,
-          eq(latestApplications.id, applications.id),
-        )
-        .groupBy(applications.status),
-      db
-        .select({ value: count() })
-        .from(applications)
-        .innerJoin(
-          latestApplications,
-          eq(latestApplications.id, applications.id),
-        )
-        .where(isReattemptCondition),
-      clerk.users.getCount(),
-    ]);
+  const [
+    totalResult,
+    statusResults,
+    reattemptResult,
+    clerkUserCount,
+    completedChallengeCount,
+  ] = await Promise.all([
+    db
+      .select({ value: count() })
+      .from(applications)
+      .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
+      .where(whereCondition),
+    db
+      .select({ status: applications.status, value: count() })
+      .from(applications)
+      .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
+      .groupBy(applications.status),
+    db
+      .select({ value: count() })
+      .from(applications)
+      .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
+      .where(isReattemptCondition),
+    clerk.users.getCount(),
+    countCompletedChallenges(),
+  ]);
 
   const total = totalResult[0]?.value ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -411,6 +411,7 @@ export const listCandidates = async (
   return {
     candidates,
     clerkUserCount,
+    completedChallengeCount,
     counts,
     page: currentPage,
     pageSize,
