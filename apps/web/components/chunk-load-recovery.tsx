@@ -17,14 +17,15 @@ export function ChunkLoadRecoverySuccess() {
       clearChunkReloadGuard(() => window.sessionStorage);
     };
 
+    if (!clerkComponent) {
+      return;
+    }
+
     const routeHasRecovered = () => {
       return !document.querySelector("[data-app-error-fallback]");
     };
 
     const criticalUiHasRendered = () => {
-      if (!clerkComponent) {
-        return true;
-      }
       const selector = `[data-clerk-component="${clerkComponent}"]`;
       const root = document.querySelector(selector);
       return Boolean(root?.childElementCount);

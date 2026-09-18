@@ -5,6 +5,7 @@ import {
   clearChunkReloadGuard,
   clerkUiComponentForPath,
   isChunkLoadError,
+  shouldAutoReloadChunk,
 } from "./chunk-load-recovery";
 
 function createStorage(initialValue: string | null = null) {
@@ -26,6 +27,7 @@ describe("chunk load recovery", () => {
     ["ChunkLoadError", ""],
     ["TypeError", "Loading chunk 123 failed."],
     ["TypeError", "Loading CSS chunk 123 failed."],
+    ["Error", "Failed to load chunk 123 from module app/page.tsx"],
     ["TypeError", "Failed to fetch dynamically imported module"],
     ["TypeError", "error loading dynamically imported module"],
     ["TypeError", "Importing a module script failed"],
@@ -88,5 +90,8 @@ describe("chunk load recovery", () => {
     expect(clerkUiComponentForPath("/sign-up")).toBe("SignUp");
     expect(clerkUiComponentForPath("/sign-up/verify")).toBe("SignUp");
     expect(clerkUiComponentForPath("/challenges")).toBeNull();
+    expect(shouldAutoReloadChunk("/sign-in")).toBe(true);
+    expect(shouldAutoReloadChunk("/sign-up/verify")).toBe(true);
+    expect(shouldAutoReloadChunk("/challenges")).toBe(false);
   });
 });

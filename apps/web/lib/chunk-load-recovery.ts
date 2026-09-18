@@ -22,6 +22,10 @@ export function clerkUiComponentForPath(
   return null;
 }
 
+export function shouldAutoReloadChunk(pathname: string): boolean {
+  return clerkUiComponentForPath(pathname) !== null;
+}
+
 export function isChunkLoadError(error: unknown): boolean {
   if (!error || typeof error !== "object") {
     return false;
@@ -41,6 +45,7 @@ export function isChunkLoadError(error: unknown): boolean {
   const message = errorLike.message;
   return (
     /loading (?:css )?chunk [^\s]+ failed/i.test(message) ||
+    /failed to load chunk\b/i.test(message) ||
     /failed to fetch dynamically imported module/i.test(message) ||
     /error loading dynamically imported module/i.test(message) ||
     /importing a module script failed/i.test(message)

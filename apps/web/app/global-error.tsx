@@ -2,7 +2,11 @@
 
 import { brandColors } from "@chofex/ui/lib/brand-theme";
 import { useEffect } from "react";
-import { claimChunkReload, isChunkLoadError } from "@/lib/chunk-load-recovery";
+import {
+  claimChunkReload,
+  isChunkLoadError,
+  shouldAutoReloadChunk,
+} from "@/lib/chunk-load-recovery";
 
 /**
  * Top-level error boundary. It replaces the root layout, so every style needed
@@ -20,7 +24,11 @@ export default function GlobalError({
   useEffect(() => {
     console.error(error);
 
-    if (chunkError && claimChunkReload(() => window.sessionStorage)) {
+    if (
+      chunkError &&
+      shouldAutoReloadChunk(window.location.pathname) &&
+      claimChunkReload(() => window.sessionStorage)
+    ) {
       window.location.reload();
     }
   }, [chunkError, error]);
