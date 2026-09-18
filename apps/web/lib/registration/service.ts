@@ -11,6 +11,7 @@ import {
   ApplicationDraftInput,
   ApplicationInput,
   acceptedDetailsSemanticRequirements,
+  applicationDraftReplacementFrom,
   applicationRequirementsFor,
   applicationSemanticRequirements,
   type CreatedRegistration,
@@ -129,6 +130,7 @@ const toView = (
   firstName: application.firstName ?? "",
   lastName: application.lastName ?? "",
   email: application.email ?? "",
+  applicationPhone: optional(application.phone),
   fullName: optional(details?.fullName),
   phone: optional(details?.phone ?? application.phone),
   dateOfBirth: optionalDateString(details?.dateOfBirth),
@@ -409,7 +411,10 @@ export const createRegistration = async (
 ): Promise<CreatedRegistration> => {
   const input = parseInput(ApplicationInput, rawInput);
   assertNoRequirements(applicationSemanticRequirements(input));
-  const draft = await saveRegistrationDraft(identity, input);
+  const draft = await saveRegistrationDraft(
+    identity,
+    applicationDraftReplacementFrom(input),
+  );
   if (draft.requirements.canSubmitApplication) {
     return submitRegistration(identity);
   }

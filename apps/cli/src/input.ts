@@ -128,7 +128,7 @@ export const applicationDefaultsFromRegistration = (
 ): Partial<ApplicationInput> => ({
   fullName: joinFullName(registration.firstName, registration.lastName),
   role: registration.role,
-  phone: registration.phone,
+  phone: registration.applicationPhone,
   bio: registration.bio,
   portfolioUrl: registration.portfolioUrl,
   shippedProject: registration.shippedProject,

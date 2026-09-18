@@ -7,6 +7,7 @@ import {
   ApplicationInput,
   ApplicationPartId,
   acceptedDetailsSemanticRequirements,
+  applicationDraftReplacementFrom,
   applicationRequirementsFor,
   applicationSemanticRequirements,
   CurrentUserSchema,
@@ -126,6 +127,19 @@ describe("registration contract", () => {
       bio: null,
       portfolioUrl: null,
       shippedProject: null,
+    });
+  });
+
+  test("clears omitted optional fields when replacing a complete draft", () => {
+    const input = Schema.decodeUnknownSync(ApplicationInput)(application);
+
+    expect(applicationDraftReplacementFrom(input)).toMatchObject({
+      phone: null,
+      bio: null,
+      portfolioUrl: null,
+      shippedProject: null,
+      githubUrl: null,
+      linkedInUrl: null,
     });
   });
 
@@ -430,6 +444,28 @@ describe("registration contract", () => {
         reason: "Required for in-person participants",
       },
     ]);
+  });
+
+  test("does not treat an application phone as confirmed attendance data", () => {
+    const requirements = applicationRequirementsFor(
+      registrationView({
+        status: "accepted",
+        applicationPhone: "+51 999 999 999",
+        fullName: "Ada Lovelace",
+        dateOfBirth: "1990-01-01",
+        nationalIdProvided: true,
+        shirtSize: "m",
+        emergencyContactName: "Grace Hopper",
+        emergencyContactPhone: "+1 555 0100",
+        pictureSource: "clerk",
+        pictureUrl: "https://images.example/ada.jpg",
+      }),
+    );
+
+    expect(requirements.missing).toContainEqual({
+      field: "phone",
+      reason: "Required after acceptance",
+    });
   });
 
   test("does not require a shirt size for remote acceptance", () => {

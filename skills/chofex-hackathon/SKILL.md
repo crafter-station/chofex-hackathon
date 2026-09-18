@@ -116,8 +116,7 @@ Explain these rules while collecting answers:
 - Registration is for the in-person event in Lima, Peru. The application uses
   the authenticated account's primary email and records Peru as the country.
 - `fullName` and `role` are required.
-- `phone`, `bio`, `portfolioUrl`, `shippedProject`, `githubUrl`, and
-  `linkedInUrl` are optional.
+- Every field grouped under optional profile is optional.
 - `codeOfConductAccepted` must be the participant's explicit `true`; an agent
   cannot consent for them.
 

@@ -9,6 +9,7 @@ const nonBlank = (maximum: number) =>
 const optionalText = (maximum: number) => Schema.optional(nonBlank(maximum));
 const nullableOptionalText = (maximum: number) =>
   Schema.optional(Schema.NullOr(nonBlank(maximum)));
+const phone = nonBlank(32);
 
 const normalizedString = (normalize: (value: string) => string) =>
   Schema.String.pipe(
@@ -133,7 +134,7 @@ export const joinFullName = (
 export const applicationInputFields = {
   fullName: nonBlank(givenNameMaximum + familyNameMaximum + 1),
   role: nonBlank(120),
-  phone: optionalText(32),
+  phone: Schema.optional(phone),
   bio: optionalText(2_000),
   portfolioUrl: Schema.optional(url),
   shippedProject: optionalText(2_000),
@@ -151,7 +152,7 @@ export type ApplicationInput = typeof ApplicationInput.Type;
 export const applicationDraftInputFields = {
   fullName: Schema.optional(applicationInputFields.fullName),
   role: nullableOptionalText(120),
-  phone: nullableOptionalText(32),
+  phone: Schema.optional(Schema.NullOr(phone)),
   bio: nullableOptionalText(2_000),
   portfolioUrl: Schema.optional(Schema.NullOr(url)),
   shippedProject: nullableOptionalText(2_000),
@@ -168,6 +169,18 @@ export const ApplicationDraftInput = Schema.Struct(applicationDraftInputFields);
 
 export type ApplicationDraftInput = typeof ApplicationDraftInput.Type;
 
+export const applicationDraftReplacementFrom = (
+  input: ApplicationInput,
+): ApplicationDraftInput => ({
+  ...input,
+  phone: input.phone ?? null,
+  bio: input.bio ?? null,
+  portfolioUrl: input.portfolioUrl ?? null,
+  shippedProject: input.shippedProject ?? null,
+  githubUrl: input.githubUrl ?? null,
+  linkedInUrl: input.linkedInUrl ?? null,
+});
+
 export const ApplicationPartId = Schema.Literals([
   "identity",
   "experience",
@@ -179,7 +192,7 @@ export type ApplicationPartId = typeof ApplicationPartId.Type;
 
 export const acceptedDetailsInputFields = {
   fullName: nonBlank(200),
-  phone: nonBlank(32),
+  phone,
   dateOfBirth: Schema.String.pipe(
     Schema.check(
       Schema.isPattern(/^\d{4}-\d{2}-\d{2}$/, {
@@ -192,7 +205,7 @@ export const acceptedDetailsInputFields = {
   dietaryRestrictions: optionalText(1_000),
   accessibilityNeeds: optionalText(1_000),
   emergencyContactName: nonBlank(200),
-  emergencyContactPhone: nonBlank(32),
+  emergencyContactPhone: phone,
   mediaConsent: Schema.optional(Schema.Boolean),
   pictureSource: PictureSource,
 };
@@ -300,6 +313,7 @@ export const RegistrationViewSchema = Schema.Struct({
   firstName: Schema.String,
   lastName: Schema.String,
   email: Schema.String,
+  applicationPhone: Schema.optional(Schema.String),
   fullName: Schema.optional(Schema.String),
   phone: Schema.optional(Schema.String),
   dateOfBirth: Schema.optional(Schema.String),
