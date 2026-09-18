@@ -3,6 +3,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/ui/themes";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
+import { ChunkLoadRecoverySuccess } from "@/components/chunk-load-recovery";
 import { DocumentLang } from "@/components/document-lang";
 import { brandName, metadataCopy } from "@/components/landing/content";
 import {
@@ -80,6 +81,7 @@ export default function RootLayout({
           forcedTheme="dark"
         >
           {content}
+          <ChunkLoadRecoverySuccess />
         </ThemeProvider>
         <Analytics />
         <PostHogAnalytics />
