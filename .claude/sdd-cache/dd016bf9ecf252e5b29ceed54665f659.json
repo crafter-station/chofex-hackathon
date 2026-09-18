@@ -1,8 +1,0 @@
-{
-  "url": "https://github.com/ahmedrangel/instagram-media-scraper",
-  "prompt": "Find and quote the exact regex or URL-parsing code used to extract the Instagram post/reel shortcode or ID from a pasted URL. Include support for /p/, /reel/, /reels/, /tv/, /stories/, profile-scoped URLs, and share URLs if present. Quote the exact code.",
-  "etag": "W/\"5f602fc8d34f0dbcc27d8df1bc67d0e0\"",
-  "last_modified": "",
-  "content": "# Instagram Post ID Extraction Regex\n\nBased on the GitHub repository content, here's the exact regex code used:\n\n```javascript\nconst regex = /instagram.com\\/(?:[A-Za-z0-9_.]+\\/)?(p|reels|reel|stories)\\/([A-Za-z0-9-_]+)/;\nconst match = url.match(regex);\nreturn match && match[2] ? match[2] : null;\n```\n\nThis pattern captures Instagram shortcodes from URLs by:\n- Matching `instagram.com/`\n- Optionally capturing username paths\n- Targeting post types: `/p/`, `/reels/`, `/reel/`, or `/stories/`\n- Extracting the alphanumeric shortcode (group 2) containing letters, numbers, hyphens, and underscores\n\nThe code returns the shortcode if matched, or null for invalid URLs.",
-  "fetched_at": 1789706303
-}

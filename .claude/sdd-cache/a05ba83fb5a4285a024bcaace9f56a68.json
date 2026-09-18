@@ -1,8 +1,0 @@
-{
-  "url": "https://en.wikipedia.org/wiki/Snowflake_ID",
-  "prompt": "What is the exact bit layout of Twitter's snowflake ID (sign bit, timestamp bits, epoch, machine id bits, sequence bits)? What is the minimum and maximum possible number of decimal digits for a snowflake ID, and what is the id range for 2023-2026 dates?",
-  "etag": "",
-  "last_modified": "Thu, 10 Sep 2026 02:28:38 GMT",
-  "content": "# Snowflake ID Bit Layout and Range\n\n## Bit Structure\n\nBased on the Wikipedia article, here's Twitter's exact snowflake layout:\n\n- **1 bit**: Sign bit (always 0, highest-order)\n- **41 bits**: Timestamp (milliseconds since epoch)\n- **10 bits**: Machine ID\n- **12 bits**: Sequence number per machine\n\nThis creates a **63-bit variable payload** within a 64-bit signed integer.\n\n## Decimal Digits\n\nSnowflake IDs are \"generally serialized textually as a decimal number.\" Given the 64-bit signed integer maximum (9,223,372,036,854,775,807), snowflake IDs range from:\n- **Minimum**: 1 digit (theoretically)\n- **Maximum**: 19 decimal digits\n\n## 2023-2026 ID Range\n\nThe article doesn't provide specific ID ranges for those years. However, it demonstrates calculation using a February 2025 tweet (ID: 1888944671579078978—a **19-digit number**). To compute ranges for specific dates, you'd need to:\n\n1. Calculate milliseconds elapsed since Twitter's epoch (1288834974657 in Unix time)\n2. Shift left by 22 bits (41 timestamp + 1 sign bit)\n3. Account for machine and sequence variations\n\nThe article notes snowflakes are \"sortable by time,\" enabling retrieval of IDs created before/after specific dates.",
-  "fetched_at": 1789706249
-}

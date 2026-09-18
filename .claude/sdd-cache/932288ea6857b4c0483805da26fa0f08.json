@@ -1,8 +1,0 @@
-{
-  "url": "https://raw.githubusercontent.com/imputnet/cobalt/main/api/src/processing/service-config.js",
-  "prompt": "Find the instagram section and quote the exact regex patterns used to match URL paths for posts, reels, reels plural, tv, stories, and share links, including the pattern for extracting the shortcode/id.",
-  "etag": "\"7cb8868f168784bd6d2f89af834fe404bd5058d72386816cde388181732f413f\"",
-  "last_modified": "",
-  "content": "# Instagram URL Patterns\n\nBased on the configuration, here are the exact patterns used for Instagram URLs:\n\n**Posts & Media:**\n- `\"p/:postId\"` - Standard posts\n- `\"tv/:postId\"` - IGTV videos\n- `\"reel/:postId\"` - Single reel format\n- `\"reels/:postId\"` - Plural reel format\n- `\"stories/:username/:storyId\"` - Story links\n\n**Share Links:**\n- `\"share/:shareId\"` - Generic share\n- `\"share/p/:shareId\"` - Post shares\n- `\"share/reel/:shareId\"` - Reel shares\n\n**Username-based:**\n- `\":username/p/:postId\"` - Posts via username\n- `\":username/reel/:postId\"` - Reels via username\n\nThe `:postId`, `:shareId`, `:storyId`, and `:username` parameters serve as the extractable identifiers from these URL patterns.",
-  "fetched_at": 1789706345
-}
