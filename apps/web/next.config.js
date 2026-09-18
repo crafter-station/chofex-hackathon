@@ -7,6 +7,15 @@ const nextConfig = {
   outputFileTracingIncludes: {
     "/deck/[slug]": ["./content/decks/**/*"],
   },
+  async redirects() {
+    return [
+      {
+        source: "/discord",
+        destination: "https://discord.gg/PB5xZ9XYPJ",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
