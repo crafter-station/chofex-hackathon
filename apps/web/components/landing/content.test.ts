@@ -4,6 +4,7 @@ import { inflateSync } from "node:zlib";
 import {
   applyCopy,
   chromeCopy,
+  discordCopy,
   eventCopy,
   eventItems,
   facts,
@@ -249,9 +250,7 @@ test("answers application deadline, eligibility, and review questions", () => {
   expect(experienceFaq?.answer).toMatch(/años de experiencia/i);
   expect(experienceFaq?.answer).toMatch(/construir y shippear/i);
 
-  const profileFaq = faqItems.find((item) =>
-    /perfil/i.test(item.question),
-  );
+  const profileFaq = faqItems.find((item) => /perfil/i.test(item.question));
   expect(profileFaq?.answer).toMatch(/GitHub/i);
   expect(profileFaq?.answer).toMatch(/LinkedIn/i);
   expect(profileFaq?.answer).toMatch(/challenge/i);
@@ -260,6 +259,20 @@ test("answers application deadline, eligibility, and review questions", () => {
   expect(
     JSON.stringify({ applyCopy, eventItems, faqItems, metadataCopy }),
   ).not.toMatch(/lanz(?:a|an|ar|as|aste)/i);
+});
+
+test("invites participants to connect through Discord", async () => {
+  expect(discordCopy.cta).toMatch(/Discord/i);
+  expect(discordCopy.description).toMatch(/preséntate/i);
+  expect(discordCopy.description).toMatch(/encuentra equipo/i);
+  expect(discordCopy.description).toMatch(/preguntas/i);
+
+  const [hero, faq] = await Promise.all([
+    Bun.file(new URL("./hero.tsx", import.meta.url)).text(),
+    Bun.file(new URL("./faq.tsx", import.meta.url)).text(),
+  ]);
+  expect(hero).toContain('href="/discord"');
+  expect(faq).toContain('href="/discord"');
 });
 
 test("encourages strong applicants outside Lima and promises flight support", () => {

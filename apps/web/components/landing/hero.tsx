@@ -2,9 +2,17 @@
 
 import Image from "next/image";
 
-import { facts, heroCopy, partners } from "@/components/landing/content";
+import {
+  discordCopy,
+  facts,
+  heroCopy,
+  partners,
+} from "@/components/landing/content";
 import { HudLabel } from "@/components/landing/hud";
-import { landingCtaClassName } from "@/components/landing/shell";
+import {
+  landingCtaClassName,
+  landingSecondaryCtaClassName,
+} from "@/components/landing/shell";
 import { Terrain } from "@/components/landing/terrain";
 
 /**
@@ -124,12 +132,25 @@ export function LandingHero() {
                 <span>{heroCopy.metaLocation}</span>
               </p>
 
-              <a
-                className={`pointer-events-auto mt-1 w-full sm:w-auto ${landingCtaClassName}`}
-                href="#apply"
-              >
-                <span>{heroCopy.cta}</span>
-              </a>
+              <div className="mt-1 flex w-full max-w-xl flex-col items-center gap-3">
+                <div className="flex w-full flex-col justify-center gap-3 sm:flex-row">
+                  <a
+                    className={`pointer-events-auto w-full sm:w-auto ${landingCtaClassName}`}
+                    href="#apply"
+                  >
+                    <span>{heroCopy.cta}</span>
+                  </a>
+                  <a
+                    className={`pointer-events-auto w-full sm:w-auto ${landingSecondaryCtaClassName}`}
+                    href="/discord"
+                  >
+                    <span>{discordCopy.cta}</span>
+                  </a>
+                </div>
+                <p className="max-w-lg text-balance text-xs leading-relaxed text-[var(--hud-type)]/80 sm:text-sm">
+                  {discordCopy.description}
+                </p>
+              </div>
 
               {/*
                * The partners as marks, not as a line of type.

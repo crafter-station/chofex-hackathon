@@ -87,6 +87,13 @@ export const heroCopy = {
   skipToWhy: "Conocer el evento",
 } as const;
 
+export const discordCopy = {
+  cta: "Únete al Discord",
+  title: "Conecta con la comunidad",
+  description:
+    "Preséntate, conoce a otros participantes, encuentra equipo y haz tus preguntas antes del evento.",
+} as const;
+
 export const eventCopy = {
   title: "Crear soluciones reales para problemas reales",
   lede: "Los verdaderos retos no siempre son los más trending. Requieren tiempo, esfuerzo y creatividad para resolver lo que los demás aceptan como status quo.",

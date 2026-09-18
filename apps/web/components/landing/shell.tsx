@@ -18,6 +18,9 @@ export const landingCtaBaseClassName =
 
 export const landingCtaClassName = `${landingCtaBaseClassName} min-h-12 px-7 py-2.5 text-sm md:min-h-13 md:px-9`;
 
+export const landingSecondaryCtaClassName =
+  "inline-flex min-h-12 items-center justify-center whitespace-nowrap border border-[var(--hud-ink)]/45 bg-transparent px-7 py-2.5 text-center font-[family-name:var(--font-landing-mono)] font-semibold text-sm text-[var(--hud-ink)] uppercase tracking-[0.12em] transition-colors duration-150 hover:bg-[var(--hud-ink)]/10 active:scale-[0.98] md:min-h-13 md:px-9";
+
 export const landingFrameClassName =
   "border border-[var(--hud-ink)]/10 bg-[var(--hud-card)] text-[var(--hud-ink)]";
 
