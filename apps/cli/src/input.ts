@@ -128,6 +128,9 @@ export const applicationDefaultsFromRegistration = (
 ): Partial<ApplicationInput> => ({
   fullName: joinFullName(registration.firstName, registration.lastName),
   role: registration.role,
+  bio: registration.bio,
+  portfolioUrl: registration.portfolioUrl,
+  shippedProject: registration.shippedProject,
   githubUrl: registration.githubUrl,
   linkedInUrl: registration.linkedInUrl,
   codeOfConductAccepted: registration.codeOfConductAccepted ? true : undefined,
@@ -196,6 +199,21 @@ const applicationPrompts = (defaults: Partial<ApplicationInput>) =>
       defaults.fullName,
     ),
     role: requiredText("Role", applicationInputFields.role, defaults.role),
+    bio: optionalText(
+      "Short bio (optional)",
+      applicationInputFields.bio,
+      defaults.bio,
+    ),
+    portfolioUrl: optionalText(
+      "Portfolio URL (optional)",
+      applicationInputFields.portfolioUrl,
+      defaults.portfolioUrl,
+    ),
+    shippedProject: optionalText(
+      "What have you shipped? (optional)",
+      applicationInputFields.shippedProject,
+      defaults.shippedProject,
+    ),
     linkedInUrl: profileUrlPrompt(
       "LinkedIn username (optional)",
       "LinkedIn URL (optional)",

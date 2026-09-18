@@ -419,6 +419,9 @@ const validateCommand = Command.make(
 const applicationTemplate = {
   fullName: "Ada Lovelace",
   role: "Programmer",
+  bio: "I build tools that help people collaborate.",
+  portfolioUrl: "https://ada.example.com",
+  shippedProject: "An open-source analytical engine simulator.",
   githubUrl: "https://github.com/ada-lovelace",
   linkedInUrl: "https://linkedin.com/in/ada-lovelace",
   codeOfConductAccepted: true,

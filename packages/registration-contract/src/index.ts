@@ -133,6 +133,9 @@ export const joinFullName = (
 export const applicationInputFields = {
   fullName: nonBlank(givenNameMaximum + familyNameMaximum + 1),
   role: nonBlank(120),
+  bio: optionalText(2_000),
+  portfolioUrl: Schema.optional(url),
+  shippedProject: optionalText(2_000),
   githubUrl: Schema.optional(url),
   linkedInUrl: Schema.optional(url),
   codeOfConductAccepted: Schema.Literal(true),
@@ -147,6 +150,9 @@ export type ApplicationInput = typeof ApplicationInput.Type;
 export const applicationDraftInputFields = {
   fullName: Schema.optional(applicationInputFields.fullName),
   role: nullableOptionalText(120),
+  bio: nullableOptionalText(2_000),
+  portfolioUrl: Schema.optional(Schema.NullOr(url)),
+  shippedProject: nullableOptionalText(2_000),
   githubUrl: Schema.optional(Schema.NullOr(url)),
   linkedInUrl: Schema.optional(Schema.NullOr(url)),
   codeOfConductAccepted: Schema.optional(Schema.Boolean),

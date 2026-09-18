@@ -197,10 +197,7 @@ const draftColumnsFrom = (
     organization: null,
     fieldOfStudy: null,
     graduationYear: null,
-    shippedProject: null,
     hackathonProject: null,
-    bio: null,
-    portfolioUrl: null,
     teamPreference: null,
     teamName: null,
     mediaConsent: false,
@@ -212,6 +209,13 @@ const draftColumnsFrom = (
     values.lastName = name.lastName;
   }
   if (input.role !== undefined) values.role = input.role;
+  if (input.bio !== undefined) values.bio = input.bio;
+  if (input.portfolioUrl !== undefined) {
+    values.portfolioUrl = input.portfolioUrl;
+  }
+  if (input.shippedProject !== undefined) {
+    values.shippedProject = input.shippedProject;
+  }
   if (input.githubUrl !== undefined) values.githubUrl = input.githubUrl;
   if (input.linkedInUrl !== undefined) values.linkedInUrl = input.linkedInUrl;
   if (input.codeOfConductAccepted === true) {
