@@ -6,7 +6,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   publish:
@@ -54,14 +54,37 @@ jobs:
           NPM_CONFIG_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: bun publish --access public --tag history --tolerate-republish
 
-      - name: Promote current main release
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-          NPM_CONFIG_FORCE: "true"
+      - name: Check whether this is the current main release
+        id: current_main
         run: |
           latest_main_sha="$(git ls-remote origin refs/heads/main | cut -f1)"
           if [[ "$latest_main_sha" != "$GITHUB_SHA" ]]; then
             echo "A newer main commit exists; leaving this version on the history tag."
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          npm dist-tag add "chofex-cli@${RELEASE_VERSION}" latest
+          echo "should_release=true" >> "$GITHUB_OUTPUT"
+
+      - name: Promote current main release
+        if: steps.current_main.outputs.should_release == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          NPM_CONFIG_FORCE: "true"
+        run: npm dist-tag add "chofex-cli@${RELEASE_VERSION}" latest
+
+      - name: Create GitHub release
+        if: steps.current_main.outputs.should_release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          release_tag="v${RELEASE_VERSION}"
+          if gh release view "$release_tag" >/dev/null 2>&1; then
+            echo "GitHub release ${release_tag} already exists."
+            exit 0
+          fi
+          gh release create "$release_tag" \
+            --target "$GITHUB_SHA" \
+            --title "chofex-cli ${release_tag}" \
+            --notes "Install this release with \`npm install --global chofex-cli@${RELEASE_VERSION}\`." \
+            --generate-notes \
+            --latest
