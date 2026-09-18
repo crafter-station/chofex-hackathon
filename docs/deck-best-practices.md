@@ -145,27 +145,40 @@ lo acompaña pide uno.
 
 ---
 
-## 4. El problema de la primera edición
+## 4. Qué es nuevo y qué no
 
-The Next Craft vende con track record: fotos de ediciones anteriores, ocho
-sponsors confirmados, 300 builders. **Nosotros no tenemos nada de eso.** El slide
-de "track record" y el de "backed by" no tienen contenido, y fingirlos es la
-forma más rápida de que un lector senior descuente el deck entero.
+Esta sección decía que no teníamos track record y que el filtro era su
+sustituto. **Estaba mal, y se estaba regalando el mejor argumento del deck.**
 
-Lo que sí tenemos, y que ellos no, es **el filtro**. Úsalo como prueba:
+The Next Craft lo corre **el mismo equipo** que Crafter Station. Bogotá y Lima ya
+pasaron, con marcas grandes en la pared de sponsors. Lo nuevo es el formato de
+Hack the Andes, no la gente que lo monta.
+
+La distinción tiene que ser exacta en los dos sentidos, porque las dos mitades
+se pueden verificar:
+
+- ✅ *"Primera edición de este formato."*
+- ✅ *"No es nuestra primera hackathon: Bogotá y Lima."*
+- ❌ *"Primera edición, sin track record."* — falso, y encima renuncia a la
+  respuesta de la objeción que todo sponsor tiene con un evento nuevo: *¿ustedes
+  saben hacer esto?*
+- ❌ Cualquier número de ediciones, asistentes o marcas que no venga de alguien
+  que los contó.
+
+**Las fotos son la prueba.** Van en escala de grises, como plancha de un slide
+donde la foto es el tema —no de fondo bajo un párrafo, que es donde no se leen
+ni ellas ni el texto— y los logos que aparecen en la pared del fondo son parte
+de la evidencia, no un accidente que haya que recortar.
+
+Y el **filtro sigue siendo argumento**, solo que ya no como sustituto de nada:
 
 - Aplicación por CLI (`chofex register`) o por agent — el formulario ya es un
   filtro técnico.
-- Se revisa **lo que la persona ya construyó**, no su CV: el criterio con que lo
-  explica y la propuesta que trae al evento.
+- Se revisa **lo que la persona ya construyó**, no su CV.
 - Corte explícito en 100: no es un evento abierto.
 
-El argumento se vuelve: *no podemos mostrarte ediciones pasadas, pero sí podemos
-mostrarte exactamente cómo se filtra quién entra*. Eso es verificable hoy y es
-más honesto que una foto de stock.
-
-**Regla:** mientras no haya edición pasada, ningún deck afirma tracción que no
-exista. Nada de "cientos de builders" ni "la comunidad más grande de".
+**Regla:** el equipo tiene historial y el evento no. Ningún deck confunde los
+dos, en ninguna de las dos direcciones.
 
 ---
 

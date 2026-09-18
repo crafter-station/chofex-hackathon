@@ -259,6 +259,29 @@
   --deck-plate: url("/deck/contour.webp");
 }
 
+/*
+ * The photographic plates: past editions run by the same team, in greyscale.
+ *
+ * They carry more mid-tone than the drawn ones — a room full of people has no
+ * black to fall back to — so they take a heavier far-veil than the mountains
+ * and want a split layout, where the type keeps its own half and the photograph
+ * keeps the other rather than sitting under it.
+ */
+.deck-backdrop[data-backdrop="sala-bogota"] {
+  --deck-plate: url("/deck/sala-bogota.webp");
+  --deck-veil-far: rgb(0 0 0 / 38%);
+}
+
+.deck-backdrop[data-backdrop="equipos-lima"] {
+  --deck-plate: url("/deck/equipos-lima.webp");
+  --deck-veil-far: rgb(0 0 0 / 38%);
+}
+
+.deck-backdrop[data-backdrop="organizadores"] {
+  --deck-plate: url("/deck/organizadores.webp");
+  --deck-veil-far: rgb(0 0 0 / 38%);
+}
+
 .deck-backdrop[data-backdrop="canyon"] {
   --deck-plate: url("/deck/canyon.webp");
   /* The canyon's subject is its lit seam, which sits above centre. */
