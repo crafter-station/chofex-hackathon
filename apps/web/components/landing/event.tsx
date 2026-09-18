@@ -42,7 +42,7 @@ export function LandingEvent() {
           <ul className="border-[var(--hud-ink)]/15 border-t">
             {eventItems.map((item, index) => (
               <li
-                className="grid grid-cols-[2.25rem_1fr] gap-4 border-[var(--hud-ink)]/15 border-b py-4 sm:grid-cols-[2.75rem_1fr] sm:gap-6 sm:py-6"
+                className="grid grid-cols-[2.25rem_1fr] gap-4 border-[var(--hud-ink)]/15 border-b px-4 py-4 sm:grid-cols-[2.75rem_1fr] sm:gap-6 sm:px-6 sm:py-6"
                 key={item.title}
               >
                 <HudLabel className="pt-1 text-[var(--hud-status)]">
