@@ -19,11 +19,8 @@ import {
 } from "@chofex/db/schema";
 
 import { HttpError } from "@/lib/registration/http";
-import {
-  challengeProgressForParticipants,
-  countChallengesInProgress,
-  countCompletedChallenges,
-} from "../challenges/service";
+import { challengeActivityCounts } from "../challenges/metrics";
+import { challengeProgressForParticipants } from "../challenges/service";
 import { candidateAvatarUrl } from "./avatars";
 import { type ApplicationDecision, buildDecisionEmail } from "./decision-email";
 import {
@@ -353,8 +350,7 @@ export const listCandidates = async (
     statusResults,
     reattemptResult,
     clerkUserCount,
-    completedChallengeCount,
-    inProgressChallengeCount,
+    challengeCounts,
   ] = await Promise.all([
     db
       .select({ value: count() })
@@ -372,8 +368,7 @@ export const listCandidates = async (
       .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
       .where(isReattemptCondition),
     clerk.users.getCount(),
-    countCompletedChallenges(),
-    countChallengesInProgress(),
+    challengeActivityCounts(),
   ]);
 
   const total = totalResult[0]?.value ?? 0;
@@ -414,8 +409,8 @@ export const listCandidates = async (
   return {
     candidates,
     clerkUserCount,
-    completedChallengeCount,
-    inProgressChallengeCount,
+    completedChallengeCount: challengeCounts.completed,
+    inProgressChallengeCount: challengeCounts.inProgress,
     counts,
     page: currentPage,
     pageSize,
