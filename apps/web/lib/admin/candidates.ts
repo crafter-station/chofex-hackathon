@@ -19,7 +19,10 @@ import {
 import { clerkClient } from "@clerk/nextjs/server";
 
 import { HttpError } from "@/lib/registration/http";
-import { challengeActivityCounts } from "../challenges/metrics";
+import {
+  challengeActivityCounts,
+  completedChallengeParticipantCondition,
+} from "../challenges/metrics";
 import { challengeProgressForParticipants } from "../challenges/service";
 import { candidateAvatarUrl } from "./avatars";
 import { type ApplicationDecision, buildDecisionEmail } from "./decision-email";
@@ -292,6 +295,7 @@ const emptyCounts = (): MutableCandidateCounts => ({
   rejected: 0,
   withdrawn: 0,
   reattempt: 0,
+  challenge_completed: 0,
 });
 
 export interface CandidateListInput {
@@ -316,7 +320,11 @@ export const listCandidates = async (
     );
   }
   let statusCondition: SQL | undefined;
-  if (input.status && input.status !== "reattempt") {
+  if (
+    input.status &&
+    input.status !== "reattempt" &&
+    input.status !== "challenge_completed"
+  ) {
     statusCondition = eq(applications.status, input.status);
   }
   const latestApplications = db
@@ -339,16 +347,25 @@ export const listCandidates = async (
   if (input.status === "reattempt") {
     reattemptCondition = isReattemptCondition;
   }
+  const completedChallengeCondition = completedChallengeParticipantCondition(
+    sql`${applications.participantId}`,
+  );
+  let completedChallengeFilterCondition: SQL | undefined;
+  if (input.status === "challenge_completed") {
+    completedChallengeFilterCondition = completedChallengeCondition;
+  }
   const whereCondition = and(
     searchCondition,
     statusCondition,
     reattemptCondition,
+    completedChallengeFilterCondition,
   );
 
   const [
     totalResult,
     statusResults,
     reattemptResult,
+    completedChallengeResult,
     clerkUserCount,
     challengeCounts,
   ] = await Promise.all([
@@ -367,6 +384,11 @@ export const listCandidates = async (
       .from(applications)
       .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
       .where(isReattemptCondition),
+    db
+      .select({ value: count() })
+      .from(applications)
+      .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
+      .where(completedChallengeCondition),
     clerk.users.getCount(),
     challengeActivityCounts(),
   ]);
@@ -403,6 +425,7 @@ export const listCandidates = async (
     counts.all += result.value;
   }
   counts.reattempt = reattemptResult[0]?.value ?? 0;
+  counts.challenge_completed = completedChallengeResult[0]?.value ?? 0;
 
   const candidates = await toCandidates(await addAttemptHistory(records));
 

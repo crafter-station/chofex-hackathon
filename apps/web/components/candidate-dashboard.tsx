@@ -156,6 +156,11 @@ const filterStatuses: ReadonlyArray<{
   { value: "rejected", label: "Declined", countKey: "rejected" },
   { value: "withdrawn", label: "Withdrawn", countKey: "withdrawn" },
   { value: "reattempt", label: "Reattempts", countKey: "reattempt" },
+  {
+    value: "challenge_completed",
+    label: "Challenge completed",
+    countKey: "challenge_completed",
+  },
 ];
 
 const displayName = (candidate: Candidate): string =>

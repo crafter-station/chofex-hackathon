@@ -12,7 +12,11 @@ export const candidateStatuses = [
 
 export type CandidateStatus = (typeof candidateStatuses)[number];
 
-export const candidateFilters = [...candidateStatuses, "reattempt"] as const;
+export const candidateFilters = [
+  ...candidateStatuses,
+  "reattempt",
+  "challenge_completed",
+] as const;
 
 export type CandidateFilter = (typeof candidateFilters)[number];
 
@@ -90,6 +94,7 @@ export interface CandidateCounts {
   readonly rejected: number;
   readonly withdrawn: number;
   readonly reattempt: number;
+  readonly challenge_completed: number;
 }
 
 export interface CandidatePage {
