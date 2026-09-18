@@ -28,6 +28,21 @@ function cx(...parts: Array<string | false | null | undefined>) {
  * `data-cols` rides along so those queries can tell a two-column fact sheet,
  * which survives a tablet, from a four-column row, which does not.
  */
+/**
+ * A value slot sometimes holds a word instead of a number — `Producto` where
+ * the other three tiers carry a price, `Créditos` where the other two places
+ * carry an amount.
+ *
+ * A word is not a number and does not want a number's size. `$500` is four
+ * glyphs half of which are narrow; `Créditos` is eight wide ones, and at the
+ * same size it ran past the edge of its own cell on every screen under about
+ * 1230px. The step down is a typographic rule, not a breakpoint, so it holds at
+ * every width at once.
+ */
+function valueKind(value: string) {
+  return /\d/.test(value) ? undefined : "word";
+}
+
 function tableProps(
   template: string,
   count: number,
@@ -214,7 +229,12 @@ export function PrizePodium({
           key={place.place}
         >
           <span className="deck-label">{place.place}</span>
-          <span className="deck-stat-value mt-2">{place.amount}</span>
+          <span
+            className="deck-stat-value mt-2"
+            data-kind={valueKind(place.amount)}
+          >
+            {place.amount}
+          </span>
           {place.note ? <p className="deck-copy mt-2">{place.note}</p> : null}
         </div>
       ))}
@@ -261,7 +281,9 @@ export function SponsorTier({
         ) : null}
       </div>
       <div>
-        <p className="deck-tier-price">{price}</p>
+        <p className="deck-tier-price" data-kind={valueKind(price)}>
+          {price}
+        </p>
         <p className="deck-copy mt-3">{covers.join(" · ")}</p>
       </div>
     </div>

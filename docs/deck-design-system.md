@@ -237,40 +237,74 @@ es del monitor, es de la lámina. El chrome se alinea al marco con
 `max(1rem, var(--deck-frame) * 0.45)`, así que en pantallas chicas queda donde
 siempre estuvo.
 
-### Cómo pliega en móvil
+### Cómo pliega, y contra qué
 
-Las retículas no colapsan todas a una columna. El doblez es por forma:
+El doblez mide **el ancho de la slide, no el de la ventana**, y esa distinción
+es toda la regla. El escenario va enmarcado: una ventana de 1024 le entrega 955
+a la slide, y una de 2560 le entrega 1747. Un media query mide la caja
+equivocada en las dos direcciones — un portátil de 1024×768 se quedaba con
+cuatro columnas que no tenía ancho para sostener, mientras que un ultrawide las
+habría conservado sobre una slide del mismo tamaño. `@container` mide la caja de
+la que salen las columnas.
 
-| `data-cols` | ≤900px | ≤620px |
-| --- | --- | --- |
-| 4 | 2 | 1 |
-| 3 | 2 | 1 |
-| 2 (celdas de copy) | 2 | 1 |
-| 2 con `data-shape="rows"` | 2 | **2** — apilar una etiqueta sobre su valor duplica las filas y lee peor, y ninguna mitad es una medida de lectura |
+`.deck-stage-frame` es `container-type: size` con `container-name: deck-stage`.
 
-El 4 pasó una versión en 2×2, con la teoría de que cuatro celdas apiladas son un
-scroll que nadie termina. Medido: 2×2 deja 103px de contenido por celda en un
-teléfono de 412, y la palabra más ancha del slide de tiers —`Producto`— mide
-134px al tamaño de display. Imprimía por encima del borde de su propia celda.
-Una columna de copy necesita una medida, y media pantalla de teléfono no lo es.
+| Ancho de slide | 3 y 4 columnas | 2 columnas de copy | 2 de etiqueta/valor |
+| --- | --- | --- | --- |
+| > 1100px | como se escribió | 2 | 2 |
+| ≤ 1100px | 2 | 2 | 2 |
+| ≤ 620px | 1 | 1 | **2** |
 
-En una sola columna, `SponsorTier` pone el precio **al lado** del nombre y no
-debajo: son unos 44px por tier, y cuatro tiers en columna es justo donde un
-teléfono se queda sin slide. `display: contents` sobre el envoltorio del precio
-es lo que deja que precio y contrapartidas entren a la retícula del tier sin que
-el componente sepa nada del asunto.
+Dos pasos y no uno: una slide de 1000px tiene ancho para dos columnas y no para
+cuatro, y plegarla directo a una convertía el slide de tiers en 500px de scroll.
+Un paso solo es correcto cuando ya no queda una segunda columna que tener.
+
+La pareja etiqueta/valor nunca se apila: ninguna de sus mitades es una medida de
+lectura, y apilarlas duplica las filas para nada.
 
 Esto funciona porque la lista de tracks viaja como **custom property**. Antes era
 un `grid-template-columns` en línea, y un estilo en línea no lo puede pisar
 ninguna hoja de estilos: las cuatro columnas seguían siendo cuatro por angosta
 que fuera la pantalla. Son dos nombres, además, y el orden importa:
 `--deck-cols` lo escribe el componente en línea y `--deck-cols-narrow` solo lo
-escriben los media queries. Con un solo nombre el valor en línea gana igual.
+escriben los container queries. Con un solo nombre el valor en línea gana igual.
 
-El marco de una slide partida (§ el marco) vive dentro de `@media (min-width:
-801px)` en vez de deshacerse en un bloque angosto más abajo: esas reglas van a
-cuatro y cinco selectores de profundidad, y un bloque de colapso tenía que
-igualar esa profundidad para ganar.
+La slide partida usa el mismo criterio: colapsa cuando la slide baja de 900px,
+no cuando la ventana lo hace. Y el marco de la foto vive dentro de `@container
+deck-stage (min-width: 901px)` en vez de deshacerse en un bloque angosto más
+abajo: esas reglas van a cuatro y cinco selectores de profundidad, y un bloque
+de colapso tenía que igualar esa profundidad para ganar.
+
+### La escala tipográfica escala con la slide
+
+Todos los tamaños son `clamp(piso, N cqmin, techo)` contra `deck-stage`.
+
+`cqmin` es el 1% del lado corto de la slide. En cualquier escenario apaisado ese
+lado es el alto, que es la medida honesta de qué tan grande es una slide; en un
+teléfono, donde el escenario es vertical y es alto sin ser grande, es el ancho, y
+cada `clamp` cae en su piso y el deck conserva exactamente los tamaños con los
+que se afinó ahí.
+
+Los pisos son lo que el deck medía a 1600×900, así que nada encoge. Los techos
+son donde crecer deja de servir. Antes eran `vw` y píxeles fijos, y las dos
+mitades del problema estaban ahí a la vez: `vw` dimensiona para una ventana que
+en ultrawide es vez y media la slide, y un píxel fijo deja una etiqueta de 10px
+debajo de un título de 68px en un monitor de 27 pulgadas.
+
+| | 1600×900 | 1920×1080 | 2560×1440 | teléfono |
+| --- | --- | --- | --- | --- |
+| Título | 68 | 82 | 88 | 32 |
+| Lead | 19.2 | 23 | 27.2 | 16 |
+| Copy | 14.4 | 17.2 | 21.6 | 14.4 |
+| Etiqueta | 10 | 12 | 15.2 | 10 |
+
+**Un valor que es una palabra baja un escalón.** `Producto` donde los otros tres
+tiers llevan precio, `Créditos` donde los otros dos puestos llevan monto. `$500`
+son cuatro glifos y la mitad angostos; `Créditos` son ocho anchos, y al mismo
+tamaño se salía del borde de su propia celda en toda pantalla por debajo de unos
+1230px. `valueKind` en `slide-components.tsx` marca el que no lleva dígitos y el
+CSS lo pone en la escala de titular. Es una regla tipográfica, no un breakpoint,
+así que vale en todos los anchos a la vez.
 
 ### Las cards de T4
 

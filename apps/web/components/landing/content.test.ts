@@ -3,6 +3,7 @@ import { inflateSync } from "node:zlib";
 
 import {
   applyCopy,
+  brandName,
   chromeCopy,
   eventCopy,
   eventItems,
@@ -227,11 +228,26 @@ test("publishes a senior, hundred-seat, three-track event", () => {
   );
 });
 
-test("keeps the social preview lockup free of sponsor-principal phrasing", async () => {
-  const og = await Bun.file(
-    new URL("../../app/opengraph-image.tsx", import.meta.url),
+test("ships one social preview card for every public link", async () => {
+  // The card is a static file rather than an `ImageResponse`, so the guarantee
+  // is that every name Next's file convention reads is actually on disk: drop
+  // one and the route it belongs to silently loses its preview.
+  for (const name of [
+    "opengraph-image.jpg",
+    "opengraph-image.alt.txt",
+    "twitter-image.jpg",
+    "twitter-image.alt.txt",
+  ]) {
+    const file = Bun.file(new URL(`../../app/${name}`, import.meta.url));
+    expect(await file.exists()).toBe(true);
+    expect(file.size).toBeGreaterThan(0);
+  }
+
+  const alt = await Bun.file(
+    new URL("../../app/opengraph-image.alt.txt", import.meta.url),
   ).text();
-  expect(og).not.toMatch(/sponsor principal/i);
+  expect(alt).not.toMatch(/sponsor principal/i);
+  expect(alt).toContain(brandName);
 });
 
 test("fits the prizes lockup inside one viewport column", async () => {
