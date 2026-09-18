@@ -16,8 +16,13 @@ test("ships a decorative static valley when the live hero cannot draw", async ()
 });
 
 test("uses a shared tighter vertical rhythm for content sections", async () => {
-  const shell = await Bun.file(new URL("./shell.tsx", import.meta.url)).text();
-  expect(shell).toContain('landingSectionYClassName = "py-14 sm:py-20"');
+  const brand = await Bun.file(
+    new URL(
+      "../../../../packages/ui/src/components/brand.tsx",
+      import.meta.url,
+    ),
+  ).text();
+  expect(brand).toContain('brandSectionClassName = "py-14 sm:py-20"');
 
   const sections = [
     "apply.tsx",
@@ -30,21 +35,28 @@ test("uses a shared tighter vertical rhythm for content sections", async () => {
   ];
   for (const file of sections) {
     const source = await Bun.file(new URL(`./${file}`, import.meta.url)).text();
-    expect(source).toContain("landingSectionYClassName");
+    expect(source).toContain("brandSectionClassName");
   }
 });
 
 test("keeps meaningful landing metadata at a readable rem size", async () => {
-  const css = await Bun.file(new URL("./landing.css", import.meta.url)).text();
-  const hud = await Bun.file(new URL("./hud.tsx", import.meta.url)).text();
+  const css = await Bun.file(
+    new URL("../../../../packages/ui/src/styles/globals.css", import.meta.url),
+  ).text();
+  const brand = await Bun.file(
+    new URL(
+      "../../../../packages/ui/src/components/brand.tsx",
+      import.meta.url,
+    ),
+  ).text();
   const prizes = await Bun.file(
     new URL("./prizes.tsx", import.meta.url),
   ).text();
 
   expect(css).toMatch(/\.landing-type-meta[\s\S]*?font-size:\s*0\.75rem/);
   expect(css).toContain("forced-colors");
-  expect(hud).toContain("landing-type-meta");
-  expect(hud).not.toMatch(/text-\[10px\]/);
+  expect(brand).toContain("brand-kicker");
+  expect(brand).not.toMatch(/text-\[10px\]/);
   expect(prizes).toContain("landing-type-meta");
   expect(prizes).not.toMatch(/text-\[10px\]/);
 });

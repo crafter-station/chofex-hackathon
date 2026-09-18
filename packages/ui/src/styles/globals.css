@@ -7,9 +7,11 @@
 @source "../**/*.{ts,tsx}";
 
 @theme inline {
-  --font-heading: var(--font-geist-sans), sans-serif;
-  --font-sans: var(--font-geist-sans), sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
+  --font-brand: var(--font-hta-brand), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-hta-display), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-hta-display), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-hta-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-hta-mono), ui-monospace, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -50,73 +52,112 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+/*
+ * Hack the Andes design tokens.
+ *
+ * The public landing is the reference surface for this package. Product pages
+ * consume the semantic shadcn roles below, while campaign and editorial work
+ * can still address the more expressive --hud-* roles directly.
+ */
+:root,
+.dark,
+.brand-dark {
+  color-scheme: dark;
+
+  --hud-paper: #050406;
+  --hud-card: rgb(246 243 238 / 5%);
+  --hud-panel: rgb(246 243 238 / 5%);
+  --hud-field: rgb(246 243 238 / 8%);
+  --hud-footer: transparent;
+  --hud-ink: #f6f3ee;
+  --hud-type: #f6f3ee;
+  --hud-action: #6f9bff;
+  --hud-action-hover: #9dbcff;
+  --hud-status: #f59d91;
+  --hud-accent: #ddcfbd;
+  --hud-kicker: #ddcfbd;
+  --hud-muted: #bec3c9;
+  --hud-muted-on-light: #bec3c9;
+
+  --background: var(--hud-paper);
+  --foreground: var(--hud-ink);
+  --card: var(--hud-card);
+  --card-foreground: var(--hud-ink);
+  --popover: #12101a;
+  --popover-foreground: var(--hud-ink);
+  --primary: var(--hud-action);
+  --primary-foreground: var(--hud-paper);
+  --secondary: var(--hud-card);
+  --secondary-foreground: var(--hud-ink);
+  --muted: var(--hud-card);
+  --muted-foreground: var(--hud-muted);
+  --accent: var(--hud-field);
+  --accent-foreground: var(--hud-ink);
+  --destructive: var(--hud-status);
+  --border: rgb(246 243 238 / 22%);
+  --input: rgb(246 243 238 / 22%);
+  --ring: var(--hud-action);
+  --chart-1: var(--hud-action);
+  --chart-2: var(--hud-status);
+  --chart-3: var(--hud-accent);
+  --chart-4: var(--hud-muted);
+  --chart-5: var(--hud-ink);
+  --radius: 0rem;
+  --sidebar: #0d0c11;
+  --sidebar-foreground: var(--hud-ink);
+  --sidebar-primary: var(--hud-action);
+  --sidebar-primary-foreground: var(--hud-paper);
+  --sidebar-accent: var(--hud-field);
+  --sidebar-accent-foreground: var(--hud-ink);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+/* Opt-in paper palette for editorial surfaces such as light presentation decks. */
+.brand-light {
+  color-scheme: light;
+
+  --hud-paper: #f3efe7;
+  --hud-card: #fbf8f2;
+  --hud-panel: #fbf8f2;
+  --hud-field: #0b1726;
+  --hud-footer: #0b1726;
+  --hud-ink: #0b1726;
+  --hud-type: #f3efe7;
+  --hud-action: #2459c9;
+  --hud-action-hover: #1b47a6;
+  --hud-status: #b83e35;
+  --hud-accent: #ddcfbd;
+  --hud-kicker: #2459c9;
+  --hud-muted: #5b5f65;
+  --hud-muted-on-light: #5b5f65;
+
+  --background: var(--hud-paper);
+  --foreground: var(--hud-ink);
+  --card: var(--hud-card);
+  --card-foreground: var(--hud-ink);
+  --popover: var(--hud-card);
+  --popover-foreground: var(--hud-ink);
+  --primary: var(--hud-action);
+  --primary-foreground: var(--hud-paper);
+  --secondary: var(--hud-card);
+  --secondary-foreground: var(--hud-ink);
+  --muted: var(--hud-card);
+  --muted-foreground: var(--hud-muted);
+  --accent: var(--hud-accent);
+  --accent-foreground: var(--hud-ink);
+  --destructive: var(--hud-status);
+  --border: rgb(11 23 38 / 22%);
+  --input: rgb(11 23 38 / 22%);
+  --ring: var(--hud-action);
+  --sidebar: var(--hud-card);
+  --sidebar-foreground: var(--hud-ink);
+  --sidebar-primary: var(--hud-action);
+  --sidebar-primary-foreground: var(--hud-paper);
+  --sidebar-accent: var(--hud-accent);
+  --sidebar-accent-foreground: var(--hud-ink);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
 @layer base {
@@ -126,5 +167,248 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+.brand-page {
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: rgb(36 89 201 / 16%);
+}
+
+@supports (overflow: clip) {
+  .brand-page {
+    overflow-x: clip;
+  }
+}
+
+.brand-page :is(section, footer)[id] {
+  scroll-margin-top: 4.5rem;
+}
+
+.brand-page :is(a, button) {
+  touch-action: manipulation;
+}
+
+.brand-page :is(a, button):focus {
+  outline: none;
+}
+
+.brand-page :is(a, button):focus-visible {
+  outline: 2px solid var(--hud-action);
+  outline-offset: 3px;
+}
+
+.brand-kicker,
+.landing-type-meta {
+  font-family: var(--font-hta-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.landing-type-lede {
+  font-size: 1.05rem;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+@media (min-width: 768px) {
+  .landing-type-lede {
+    font-size: 1.2rem;
+  }
+}
+
+.landing-glass-panel {
+  border: 1px solid rgb(243 239 231 / 18%);
+  background: rgb(11 23 38 / 82%);
+  color: var(--hud-type);
+  backdrop-filter: blur(18px);
+}
+
+.brand-topography,
+.landing-topography {
+  background-color: var(--hud-paper);
+  background-image:
+    radial-gradient(circle at 24% 18%, rgb(210 22 36 / 8%), transparent 20rem),
+    repeating-radial-gradient(
+      ellipse at 80% 20%,
+      transparent 0 20px,
+      rgb(246 243 238 / 4%) 21px 22px
+    );
+}
+
+.hud-halftone {
+  background-image: radial-gradient(
+    rgb(246 243 238 / 16%) 0.7px,
+    transparent 0.8px
+  );
+  background-size: 5px 5px;
+}
+
+.hud-scanlines {
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgb(246 243 238 / 5%) 0 1px,
+    transparent 1px 4px
+  );
+}
+
+.brand-frame,
+.hud-box {
+  position: relative;
+}
+
+.hud-box {
+  border: 1px solid var(--border);
+}
+
+.hud-box::before,
+.hud-box::after {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--hud-status);
+  content: "";
+}
+
+.hud-box::before {
+  top: -2px;
+  left: -2px;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.hud-box::after {
+  right: -2px;
+  bottom: -2px;
+  border-top: 0;
+  border-left: 0;
+}
+
+.hud-cross {
+  position: relative;
+}
+
+.hud-cross::before,
+.hud-cross::after {
+  position: absolute;
+  background: var(--hud-status);
+  content: "";
+}
+
+.hud-cross::before {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
+
+.hud-cross::after {
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100%;
+}
+
+.landing-skip {
+  position: absolute;
+  z-index: 70;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.landing-skip a {
+  position: absolute;
+  top: 0.75rem;
+  left: 1rem;
+  padding: 0.55rem 0.9rem;
+  background: var(--hud-action);
+  color: var(--hud-paper);
+  font-family: var(--font-hta-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: translateY(-160%);
+}
+
+.landing-skip a + a {
+  left: 12.5rem;
+}
+
+.landing-skip a:focus,
+.landing-skip a:focus-visible {
+  transform: none;
+}
+
+.brand-prose h1 {
+  max-width: 18ch;
+  font-family: var(--font-hta-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(3rem, 8vw, 5rem);
+  line-height: 0.88;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  text-transform: uppercase;
+}
+
+.brand-prose h2,
+.brand-prose h3 {
+  font-family: var(--font-hta-display), ui-sans-serif, system-ui, sans-serif;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.brand-prose h2 {
+  margin-top: 3.5rem;
+  font-size: 2rem;
+}
+
+.brand-prose h3 {
+  margin-top: 2.5rem;
+  font-size: 1.5rem;
+}
+
+.brand-prose p,
+.brand-prose ul,
+.brand-prose ol {
+  margin-top: 1rem;
+  color: var(--hud-muted);
+  line-height: 1.75;
+}
+
+.brand-prose ul,
+.brand-prose ol {
+  padding-left: 1.5rem;
+}
+
+.brand-prose ul {
+  list-style: disc;
+}
+
+.brand-prose ol {
+  list-style: decimal;
+}
+
+.brand-prose li + li {
+  margin-top: 0.5rem;
+}
+
+.brand-prose a:any-link {
+  color: var(--hud-action);
+  font-weight: 600;
+  text-underline-offset: 0.2em;
+}
+
+.brand-prose strong {
+  color: var(--hud-ink);
+  font-weight: 600;
+}
+
+@media (forced-colors: active) {
+  .brand-page :is(a, button):focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 3px;
   }
 }

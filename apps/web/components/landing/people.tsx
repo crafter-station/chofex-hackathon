@@ -1,12 +1,11 @@
-import Image from "next/image";
-
-import { panelBrands, peopleCopy } from "@/components/landing/content";
-import { HudLabel } from "@/components/landing/hud";
 import {
-  LandingContainer,
-  LandingSectionHead,
-  landingSectionYClassName,
-} from "@/components/landing/shell";
+  BrandContainer,
+  BrandKicker,
+  BrandSectionHeader,
+  brandSectionClassName,
+} from "@chofex/ui/components/brand";
+import Image from "next/image";
+import { panelBrands, peopleCopy } from "@/components/landing/content";
 
 /**
  * Panel chapter: talent framing plus institutional backgrounds.
@@ -22,12 +21,12 @@ export function LandingPeople() {
       className="bg-[var(--hud-paper)]"
       id="people"
     >
-      <LandingContainer className={landingSectionYClassName}>
-        <LandingSectionHead title={peopleCopy.title} titleId="people-heading" />
+      <BrandContainer className={brandSectionClassName}>
+        <BrandSectionHeader title={peopleCopy.title} titleId="people-heading" />
 
-        <HudLabel className="mb-4 text-[var(--hud-muted)]">
+        <BrandKicker className="mb-4 text-[var(--hud-muted)]">
           {peopleCopy.brandsLabel}
-        </HudLabel>
+        </BrandKicker>
         <ul className="flex flex-wrap justify-center border-[var(--hud-ink)]/15 border-y">
           {panelBrands.map((brand) => (
             <li
@@ -45,7 +44,7 @@ export function LandingPeople() {
             </li>
           ))}
         </ul>
-      </LandingContainer>
+      </BrandContainer>
     </section>
   );
 }

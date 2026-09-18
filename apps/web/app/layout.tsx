@@ -1,24 +1,21 @@
+import { brandClerkAppearance } from "@chofex/ui/lib/clerk-appearance";
 import { ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/ui/themes";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import { DocumentLang } from "@/components/document-lang";
 import { brandName, metadataCopy } from "@/components/landing/content";
+import {
+  landingBrand,
+  landingDisplay,
+  landingMono,
+  landingSans,
+} from "@/components/landing/fonts";
 import { PostHogAnalytics } from "@/components/posthog-analytics";
 import { QueryProvider } from "@/components/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import "@chofex/ui/globals.css";
 import "./globals.css";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://hacktheandes.com"),
@@ -56,7 +53,7 @@ export default function RootLayout({
   if (clerkConfigured) {
     content = (
       <ClerkProvider
-        appearance={{ theme: shadcn }}
+        appearance={{ theme: shadcn, ...brandClerkAppearance }}
         signInFallbackRedirectUrl="/auth/complete"
         signUpFallbackRedirectUrl="/auth/complete"
       >
@@ -68,7 +65,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-svh font-sans antialiased`}
+        className={`${landingBrand.variable} ${landingDisplay.variable} ${landingSans.variable} ${landingMono.variable} min-h-svh font-sans antialiased`}
       >
         <DocumentLang />
         {/*

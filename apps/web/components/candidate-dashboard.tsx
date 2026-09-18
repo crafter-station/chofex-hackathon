@@ -2,6 +2,15 @@
 
 import { Badge } from "@chofex/ui/components/badge";
 import {
+  BrandCenteredPage,
+  BrandContainer,
+  BrandHeader,
+  BrandKicker,
+  BrandPage,
+  BrandTitle,
+  BrandWordmark,
+} from "@chofex/ui/components/brand";
+import {
   Button,
   ButtonLink,
   buttonVariants,
@@ -480,7 +489,7 @@ const CandidateDrawer = ({
       }}
       swipeDirection="right"
     >
-      <DrawerContent size="wide" className="shadow-2xl sm:rounded-l-2xl">
+      <DrawerContent size="wide" className="shadow-2xl">
         <DrawerHeader className="border-b bg-background/95 p-4 backdrop-blur-xl">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -532,7 +541,7 @@ const CandidateDrawer = ({
             <div className="flex items-start gap-4">
               <CandidateAvatar
                 candidate={candidate}
-                className="grid size-14 shrink-0 place-items-center rounded-2xl bg-muted text-sm font-semibold text-muted-foreground"
+                className="grid size-14 shrink-0 place-items-center border border-border bg-muted text-sm font-semibold text-muted-foreground"
               />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -662,7 +671,7 @@ const CandidateDrawer = ({
                     </Button>
                   )}
                   {feedback && (
-                    <p className="rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
+                    <p className="border border-border bg-muted px-3 py-2 text-xs text-muted-foreground">
                       {feedback}
                     </p>
                   )}
@@ -734,7 +743,7 @@ const CandidateDrawer = ({
                 {candidate.challenges.map((challenge) => (
                   <div
                     key={challenge.slug}
-                    className="rounded-xl border bg-background p-4"
+                    className="border bg-background p-4"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
@@ -826,7 +835,7 @@ const CandidateDrawer = ({
                   {candidate.decisionHistory.map((decision) => (
                     <li
                       key={decision.applicationId}
-                      className="rounded-xl border bg-background p-4"
+                      className="border bg-background p-4"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
@@ -1065,231 +1074,236 @@ export function CandidateDashboard({
   );
 
   return (
-    <div className="min-h-svh overflow-hidden bg-background">
-      <header className="border-b bg-background">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <div className="grid size-9 place-items-center rounded-xl bg-foreground text-background shadow-sm">
-              <SparklesIcon className="size-4" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold tracking-tight">
-                {brandName}
-              </p>
-              <p className="text-[11px] text-muted-foreground">
-                Lima, participant operations
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="hidden sm:inline-flex">
-              Admin workspace
-            </Badge>
-            <UserButton
-              appearance={{
-                elements: {
-                  userButtonTrigger: buttonVariants({
-                    variant: "ghost",
-                    size: "icon",
-                  }),
-                },
-              }}
-            />
-          </div>
+    <BrandPage className="overflow-hidden">
+      <BrandHeader>
+        <div>
+          <BrandWordmark>
+            <a className="text-inherit" href="/">
+              {brandName}
+            </a>
+          </BrandWordmark>
+          <BrandKicker className="mt-1 text-muted-foreground">
+            Lima / participant operations
+          </BrandKicker>
         </div>
-      </header>
-
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-        <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
-          <div>
-            <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
-              <span>{brandName.toUpperCase()} 2026</span>
-              <span aria-hidden="true">—</span>
-              <span>Applications</span>
-            </div>
-            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-              Meet the candidates
-            </h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-              Review every application, keep decisions moving, and make each
-              response feel personal.
-            </p>
-          </div>
-          <Badge variant="outline">
-            <CalendarDaysIcon className="size-4" />
-            On-site in Lima, Peru
+        <div className="flex items-center gap-3">
+          <ButtonLink
+            variant="outline"
+            size="sm"
+            href="/admin/utm"
+            className="hidden sm:inline-flex"
+          >
+            UTM builder
+          </ButtonLink>
+          <Badge variant="outline" className="hidden sm:inline-flex">
+            Admin workspace
           </Badge>
-        </section>
+          <UserButton
+            appearance={{
+              elements: {
+                userButtonTrigger: buttonVariants({
+                  variant: "ghost",
+                  size: "icon",
+                }),
+              },
+            }}
+          />
+        </div>
+      </BrandHeader>
 
-        <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          <StatCard
-            label="Clerk users"
-            value={currentData.clerkUserCount}
-            icon={<UsersIcon className="size-4 text-muted-foreground" />}
-          />
-          <StatCard
-            label="Registrations started"
-            value={currentData.counts.all}
-            icon={
-              <UserRoundPlusIcon className="size-4 text-muted-foreground" />
-            }
-          />
-          <StatCard
-            label="Needs review"
-            value={reviewCount}
-            icon={
-              <CircleUserRoundIcon className="size-4 text-muted-foreground" />
-            }
-          />
-          <StatCard
-            label="Accepted"
-            value={currentData.counts.accepted}
-            icon={<CheckIcon className="size-4 text-muted-foreground" />}
-          />
-          <StatCard
-            label="Challenges completed"
-            value={currentData.completedChallengeCount}
-            icon={<TrophyIcon className="size-4 text-muted-foreground" />}
-          />
-          <StatCard
-            label="Challenges in progress"
-            value={currentData.inProgressChallengeCount}
-            icon={<ActivityIcon className="size-4 text-muted-foreground" />}
-          />
-        </section>
+      <main>
+        <BrandContainer className="max-w-6xl py-10 sm:py-14">
+          <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+            <div>
+              <BrandKicker className="mb-3 text-primary">
+                {brandName} 2026 / applications
+              </BrandKicker>
+              <BrandTitle as="h1" size="page">
+                Meet the candidates
+              </BrandTitle>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
+                Review every application, keep decisions moving, and make each
+                response feel personal.
+              </p>
+            </div>
+            <Badge variant="outline">
+              <CalendarDaysIcon className="size-4" />
+              On-site in Lima, Peru
+            </Badge>
+          </section>
 
-        <section className="mt-8">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <form onSubmit={handleSearch} className="w-full lg:max-w-sm">
-              <InputGroup>
-                <InputGroupAddon>
-                  <SearchIcon />
-                </InputGroupAddon>
-                <InputGroupInput
-                  type="search"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search name, email, or organization"
+          <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            <StatCard
+              label="Clerk users"
+              value={currentData.clerkUserCount}
+              icon={<UsersIcon className="size-4 text-muted-foreground" />}
+            />
+            <StatCard
+              label="Registrations started"
+              value={currentData.counts.all}
+              icon={
+                <UserRoundPlusIcon className="size-4 text-muted-foreground" />
+              }
+            />
+            <StatCard
+              label="Needs review"
+              value={reviewCount}
+              icon={
+                <CircleUserRoundIcon className="size-4 text-muted-foreground" />
+              }
+            />
+            <StatCard
+              label="Accepted"
+              value={currentData.counts.accepted}
+              icon={<CheckIcon className="size-4 text-muted-foreground" />}
+            />
+            <StatCard
+              label="Challenges completed"
+              value={currentData.completedChallengeCount}
+              icon={<TrophyIcon className="size-4 text-muted-foreground" />}
+            />
+            <StatCard
+              label="Challenges in progress"
+              value={currentData.inProgressChallengeCount}
+              icon={<ActivityIcon className="size-4 text-muted-foreground" />}
+            />
+          </section>
+
+          <section className="mt-8">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <form onSubmit={handleSearch} className="w-full lg:max-w-sm">
+                <InputGroup>
+                  <InputGroupAddon>
+                    <SearchIcon />
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    type="search"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Search name, email, or organization"
+                  />
+                </InputGroup>
+              </form>
+              <div className="flex gap-1 overflow-x-auto border bg-background p-1">
+                {filterStatuses.map((filter) => {
+                  const active = filter.value === filters.status;
+                  const variant = active ? "default" : "ghost";
+                  return (
+                    <ButtonLink
+                      key={filter.label}
+                      variant={variant}
+                      size="sm"
+                      className="shrink-0"
+                      href={pageHref(1, filters.query, filter.value)}
+                      onClick={(event) =>
+                        navigateFromClick(event, {
+                          page: 1,
+                          query: filters.query,
+                          status: filter.value,
+                        })
+                      }
+                    >
+                      {filter.label}
+                      <span className="ml-1.5 opacity-65">
+                        {currentData.counts[filter.countKey]}
+                      </span>
+                    </ButtonLink>
+                  );
+                })}
+              </div>
+            </div>
+
+            {candidateQuery.isError && (
+              <p
+                role="alert"
+                className="mt-4 border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+              >
+                {candidateQuery.error.message}
+              </p>
+            )}
+            <div
+              className="mt-4 overflow-hidden border bg-card"
+              aria-busy={candidateQuery.isFetching}
+            >
+              <div className="hidden grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_8rem_7rem] gap-4 border-b bg-muted/35 px-5 py-3 text-[11px] font-medium tracking-wide text-muted-foreground uppercase sm:grid">
+                <span>Candidate</span>
+                <span>Background</span>
+                <span>Status</span>
+                <span>Challenge</span>
+                <span className="text-right">Submitted</span>
+              </div>
+              {currentData.candidates.length === 0 && <EmptyCandidates />}
+              {currentData.candidates.length > 0 && (
+                <CandidateRows
+                  candidates={currentData.candidates}
+                  onSelect={setSelectedId}
                 />
-              </InputGroup>
-            </form>
-            <div className="flex gap-1 overflow-x-auto rounded-xl border bg-background p-1">
-              {filterStatuses.map((filter) => {
-                const active = filter.value === filters.status;
-                const variant = active ? "default" : "ghost";
-                return (
+              )}
+            </div>
+
+            <div className="mt-4 flex flex-col items-center justify-between gap-3 text-xs text-muted-foreground sm:flex-row">
+              <span>
+                Showing {firstResult}–{lastResult} of {currentData.total}
+              </span>
+              <nav
+                aria-label="Candidate pagination"
+                className="flex items-center gap-1"
+              >
+                <PaginationArrow
+                  href={pageHref(
+                    Math.max(1, currentData.page - 1),
+                    filters.query,
+                    filters.status,
+                  )}
+                  onClick={(event) =>
+                    navigateFromClick(event, {
+                      ...filters,
+                      page: Math.max(1, currentData.page - 1),
+                    })
+                  }
+                  disabled={currentData.page === 1}
+                  label="Previous page"
+                  icon={<ArrowLeftIcon className="size-3.5" />}
+                />
+                {pageNumbers.map((page) => (
                   <ButtonLink
-                    key={filter.label}
-                    variant={variant}
-                    size="sm"
-                    className="shrink-0"
-                    href={pageHref(1, filters.query, filter.value)}
+                    key={page}
+                    variant={page === currentData.page ? "default" : "outline"}
+                    size="icon"
+                    href={pageHref(page, filters.query, filters.status)}
                     onClick={(event) =>
-                      navigateFromClick(event, {
-                        page: 1,
-                        query: filters.query,
-                        status: filter.value,
-                      })
+                      navigateFromClick(event, { ...filters, page })
+                    }
+                    aria-current={
+                      page === currentData.page ? "page" : undefined
                     }
                   >
-                    {filter.label}
-                    <span className="ml-1.5 opacity-65">
-                      {currentData.counts[filter.countKey]}
-                    </span>
+                    {page}
                   </ButtonLink>
-                );
-              })}
-            </div>
-          </div>
-
-          {candidateQuery.isError && (
-            <p
-              role="alert"
-              className="mt-4 rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-            >
-              {candidateQuery.error.message}
-            </p>
-          )}
-          <div
-            className="mt-4 overflow-hidden rounded-2xl border bg-card"
-            aria-busy={candidateQuery.isFetching}
-          >
-            <div className="hidden grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_8rem_7rem] gap-4 border-b bg-muted/35 px-5 py-3 text-[11px] font-medium tracking-wide text-muted-foreground uppercase sm:grid">
-              <span>Candidate</span>
-              <span>Background</span>
-              <span>Status</span>
-              <span>Challenge</span>
-              <span className="text-right">Submitted</span>
-            </div>
-            {currentData.candidates.length === 0 && <EmptyCandidates />}
-            {currentData.candidates.length > 0 && (
-              <CandidateRows
-                candidates={currentData.candidates}
-                onSelect={setSelectedId}
-              />
-            )}
-          </div>
-
-          <div className="mt-4 flex flex-col items-center justify-between gap-3 text-xs text-muted-foreground sm:flex-row">
-            <span>
-              Showing {firstResult}–{lastResult} of {currentData.total}
-            </span>
-            <nav
-              aria-label="Candidate pagination"
-              className="flex items-center gap-1"
-            >
-              <PaginationArrow
-                href={pageHref(
-                  Math.max(1, currentData.page - 1),
-                  filters.query,
-                  filters.status,
-                )}
-                onClick={(event) =>
-                  navigateFromClick(event, {
-                    ...filters,
-                    page: Math.max(1, currentData.page - 1),
-                  })
-                }
-                disabled={currentData.page === 1}
-                label="Previous page"
-                icon={<ArrowLeftIcon className="size-3.5" />}
-              />
-              {pageNumbers.map((page) => (
-                <ButtonLink
-                  key={page}
-                  variant={page === currentData.page ? "default" : "outline"}
-                  size="icon"
-                  href={pageHref(page, filters.query, filters.status)}
+                ))}
+                <PaginationArrow
+                  href={pageHref(
+                    Math.min(currentData.totalPages, currentData.page + 1),
+                    filters.query,
+                    filters.status,
+                  )}
                   onClick={(event) =>
-                    navigateFromClick(event, { ...filters, page })
+                    navigateFromClick(event, {
+                      ...filters,
+                      page: Math.min(
+                        currentData.totalPages,
+                        currentData.page + 1,
+                      ),
+                    })
                   }
-                  aria-current={page === currentData.page ? "page" : undefined}
-                >
-                  {page}
-                </ButtonLink>
-              ))}
-              <PaginationArrow
-                href={pageHref(
-                  Math.min(currentData.totalPages, currentData.page + 1),
-                  filters.query,
-                  filters.status,
-                )}
-                onClick={(event) =>
-                  navigateFromClick(event, {
-                    ...filters,
-                    page: Math.min(
-                      currentData.totalPages,
-                      currentData.page + 1,
-                    ),
-                  })
-                }
-                disabled={currentData.page === currentData.totalPages}
-                label="Next page"
-                icon={<ArrowRightIcon className="size-3.5" />}
-              />
-            </nav>
-          </div>
-        </section>
+                  disabled={currentData.page === currentData.totalPages}
+                  label="Next page"
+                  icon={<ArrowRightIcon className="size-3.5" />}
+                />
+              </nav>
+            </div>
+          </section>
+        </BrandContainer>
       </main>
 
       <CandidateDrawer
@@ -1326,7 +1340,7 @@ export function CandidateDashboard({
             currentData.page < currentData.totalPages)
         }
       />
-    </div>
+    </BrandPage>
   );
 }
 
@@ -1341,11 +1355,13 @@ const StatCard = ({
 }) => (
   <Card size="sm" className="gap-3">
     <CardHeader className="flex flex-row items-center justify-between">
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <BrandKicker className="text-muted-foreground">{label}</BrandKicker>
       {icon}
     </CardHeader>
     <CardContent>
-      <p className="text-2xl font-semibold tabular-nums">{value}</p>
+      <p className="font-display text-3xl leading-none font-semibold tabular-nums">
+        {value}
+      </p>
     </CardContent>
   </Card>
 );
@@ -1353,7 +1369,7 @@ const StatCard = ({
 const EmptyCandidates = () => (
   <div className="grid min-h-64 place-items-center px-6 text-center">
     <div>
-      <div className="mx-auto grid size-11 place-items-center rounded-2xl bg-muted">
+      <div className="mx-auto grid size-11 place-items-center border border-border bg-muted">
         <SearchIcon className="size-5 text-muted-foreground" />
       </div>
       <p className="mt-3 text-sm font-medium">No candidates found</p>
@@ -1390,7 +1406,7 @@ const CandidateRows = ({
           <span className="flex min-w-0 items-center gap-3">
             <CandidateAvatar
               candidate={candidate}
-              className="grid size-9 shrink-0 place-items-center rounded-xl bg-muted text-[11px] font-semibold text-muted-foreground"
+              className="grid size-9 shrink-0 place-items-center border border-border bg-muted text-[11px] font-semibold text-muted-foreground"
             />
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">
@@ -1465,9 +1481,9 @@ const PaginationArrow = ({
 };
 
 export const AdminAccessDenied = () => (
-  <main className="grid min-h-svh place-items-center bg-muted/30 px-6">
+  <BrandCenteredPage>
     <Card className="w-full max-w-md p-4 text-center">
-      <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-muted">
+      <div className="mx-auto grid size-12 place-items-center border border-border bg-muted">
         <ShieldAlertIcon className="size-5 text-muted-foreground" />
       </div>
       <h1 className="mt-5 text-xl font-semibold">Admin access required</h1>
@@ -1482,5 +1498,5 @@ export const AdminAccessDenied = () => (
         Use another account
       </ButtonLink>
     </Card>
-  </main>
+  </BrandCenteredPage>
 );

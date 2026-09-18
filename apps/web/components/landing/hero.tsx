@@ -1,5 +1,7 @@
 "use client";
 
+import { BrandKicker } from "@chofex/ui/components/brand";
+import { buttonVariants } from "@chofex/ui/components/button";
 import Image from "next/image";
 
 import {
@@ -8,11 +10,6 @@ import {
   heroCopy,
   partners,
 } from "@/components/landing/content";
-import { HudLabel } from "@/components/landing/hud";
-import {
-  landingCtaClassName,
-  landingSecondaryCtaClassName,
-} from "@/components/landing/shell";
 import { Terrain } from "@/components/landing/terrain";
 
 /**
@@ -108,7 +105,7 @@ export function LandingHero() {
                */}
               <h1
                 className={
-                  "font-[family-name:var(--font-landing-brand)] font-semibold leading-[0.88] tracking-[0.012em] max-w-[16ch] text-[clamp(2.6rem,8vw,6.8rem)] uppercase"
+                  "font-[family-name:var(--font-hta-brand)] font-semibold leading-[0.88] tracking-[0.012em] max-w-[16ch] text-[clamp(2.6rem,8vw,6.8rem)] uppercase"
                 }
               >
                 {/*
@@ -127,7 +124,7 @@ export function LandingHero() {
                 </span>
               </h1>
 
-              <p className="flex flex-col font-[family-name:var(--font-landing-mono)] text-sm text-[var(--hud-type)] uppercase tracking-[0.2em] sm:text-base">
+              <p className="flex flex-col font-[family-name:var(--font-hta-mono)] text-sm text-[var(--hud-type)] uppercase tracking-[0.2em] sm:text-base">
                 <span>{heroCopy.metaDate}</span>
                 <span>{heroCopy.metaLocation}</span>
               </p>
@@ -135,13 +132,20 @@ export function LandingHero() {
               <div className="mt-1 flex w-full max-w-xl flex-col items-center gap-3">
                 <div className="flex w-full flex-col justify-center gap-3 sm:flex-row">
                   <a
-                    className={`pointer-events-auto w-full sm:w-auto ${landingCtaClassName}`}
+                    className={buttonVariants({
+                      size: "landing",
+                      className: "pointer-events-auto w-full sm:w-auto",
+                    })}
                     href="#apply"
                   >
                     <span>{heroCopy.cta}</span>
                   </a>
                   <a
-                    className={`pointer-events-auto w-full sm:w-auto ${landingSecondaryCtaClassName}`}
+                    className={buttonVariants({
+                      variant: "outline",
+                      size: "landing",
+                      className: "pointer-events-auto w-full sm:w-auto",
+                    })}
                     href="/discord"
                   >
                     <span>{discordCopy.cta}</span>
@@ -207,10 +211,10 @@ export function LandingHero() {
               className="border-[var(--hud-type)]/15 border-r px-3 py-3 text-[var(--hud-type)] last:border-r-0"
               key={fact.label}
             >
-              <HudLabel className="mb-1 text-[var(--hud-type)]/75">
+              <BrandKicker className="mb-1 text-[var(--hud-type)]/75">
                 {fact.label}
-              </HudLabel>
-              <p className="font-[family-name:var(--font-landing-display)] text-xl leading-none">
+              </BrandKicker>
+              <p className="font-[family-name:var(--font-hta-display)] text-xl leading-none">
                 {fact.value}
               </p>
             </li>

@@ -17,7 +17,7 @@ import {
  */
 export const landingBrand = Stack_Sans_Notch({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-landing-brand",
+  variable: "--font-hta-brand",
   display: "swap",
   adjustFontFallback: false,
 });
@@ -25,7 +25,7 @@ export const landingBrand = Stack_Sans_Notch({
 export const landingDisplay = Barlow_Condensed({
   subsets: ["latin"],
   weight: ["500", "600", "700"],
-  variable: "--font-landing-display",
+  variable: "--font-hta-display",
 });
 
 /**
@@ -39,7 +39,7 @@ export const landingDisplay = Barlow_Condensed({
  */
 export const landingSans = Google_Sans_Flex({
   subsets: ["latin", "latin-ext"],
-  variable: "--font-landing-sans",
+  variable: "--font-hta-sans",
   display: "swap",
   adjustFontFallback: false,
 });
@@ -47,5 +47,5 @@ export const landingSans = Google_Sans_Flex({
 export const landingMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-landing-mono",
+  variable: "--font-hta-mono",
 });

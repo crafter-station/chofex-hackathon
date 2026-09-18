@@ -1,10 +1,8 @@
 "use client";
 
+import { BrandKicker, brandFrameClassName } from "@chofex/ui/components/brand";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-import { HudLabel } from "@/components/landing/hud";
-import { landingFrameClassName } from "@/components/landing/shell";
 import {
   formatRankingVisibleAtInPeru,
   rankingCountdownParts,
@@ -50,10 +48,10 @@ export function RankingCountdown({
   ];
 
   return (
-    <div className={`p-6 sm:p-8 ${landingFrameClassName}`}>
-      <HudLabel className="text-[var(--hud-kicker)]">
+    <div className={`p-6 sm:p-8 ${brandFrameClassName}`}>
+      <BrandKicker className="text-[var(--hud-kicker)]">
         El ranking se publica en
-      </HudLabel>
+      </BrandKicker>
       <div
         aria-label={`${parts.days} días, ${parts.hours} horas, ${parts.minutes} minutos y ${parts.seconds} segundos`}
         className="mt-6 grid grid-cols-2 gap-px overflow-hidden border border-[var(--hud-ink)]/15 bg-[var(--hud-ink)]/15 sm:grid-cols-4"
@@ -64,12 +62,12 @@ export function RankingCountdown({
             className="bg-[var(--hud-card)] px-3 py-5 text-center sm:py-7"
             key={unit.label}
           >
-            <div className="font-[family-name:var(--font-landing-display)] text-4xl leading-none text-[var(--hud-action)] sm:text-5xl">
+            <div className="font-[family-name:var(--font-hta-display)] text-4xl leading-none text-[var(--hud-action)] sm:text-5xl">
               {twoDigits(unit.value)}
             </div>
-            <HudLabel className="mt-2 text-[var(--hud-muted)]">
+            <BrandKicker className="mt-2 text-[var(--hud-muted)]">
               {unit.label}
-            </HudLabel>
+            </BrandKicker>
           </div>
         ))}
       </div>

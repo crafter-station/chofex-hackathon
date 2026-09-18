@@ -1,10 +1,10 @@
-import { discordCopy, faqCopy, faqItems } from "@/components/landing/content";
 import {
-  LandingContainer,
-  LandingSectionHead,
-  landingSecondaryCtaClassName,
-  landingSectionYClassName,
-} from "@/components/landing/shell";
+  BrandContainer,
+  BrandSectionHeader,
+  brandSectionClassName,
+} from "@chofex/ui/components/brand";
+import { buttonVariants } from "@chofex/ui/components/button";
+import { discordCopy, faqCopy, faqItems } from "@/components/landing/content";
 
 export function LandingFaq() {
   return (
@@ -13,8 +13,8 @@ export function LandingFaq() {
       className="bg-[var(--hud-paper)]"
       id="faq"
     >
-      <LandingContainer className={landingSectionYClassName}>
-        <LandingSectionHead title={faqCopy.title} titleId="faq-heading" />
+      <BrandContainer className={brandSectionClassName}>
+        <BrandSectionHeader title={faqCopy.title} titleId="faq-heading" />
         <div className="border-[var(--hud-ink)]/15 border-t">
           {faqItems.map((item) => (
             <details
@@ -25,7 +25,7 @@ export function LandingFaq() {
                 <span>{item.question}</span>
                 <span
                   aria-hidden="true"
-                  className="font-[family-name:var(--font-landing-mono)] text-[var(--hud-action)] transition-transform group-open:rotate-45"
+                  className="font-[family-name:var(--font-hta-mono)] text-[var(--hud-action)] transition-transform group-open:rotate-45"
                 >
                   +
                 </span>
@@ -38,7 +38,7 @@ export function LandingFaq() {
         </div>
         <div className="mt-10 flex flex-col items-start justify-between gap-6 border-[var(--hud-ink)]/15 border-y py-7 sm:flex-row sm:items-center">
           <div className="max-w-2xl">
-            <h3 className="font-[family-name:var(--font-landing-display)] text-2xl uppercase sm:text-3xl">
+            <h3 className="font-[family-name:var(--font-hta-display)] text-2xl uppercase sm:text-3xl">
               {discordCopy.title}
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-[var(--hud-muted)] sm:text-base">
@@ -46,13 +46,17 @@ export function LandingFaq() {
             </p>
           </div>
           <a
-            className={`w-full shrink-0 sm:w-auto ${landingSecondaryCtaClassName}`}
+            className={buttonVariants({
+              variant: "outline",
+              size: "landing",
+              className: "w-full shrink-0 sm:w-auto",
+            })}
             href="/discord"
           >
             <span>{discordCopy.cta}</span>
           </a>
         </div>
-      </LandingContainer>
+      </BrandContainer>
     </section>
   );
 }
