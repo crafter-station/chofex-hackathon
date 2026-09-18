@@ -7,7 +7,6 @@ import {
   BrandTitle,
   BrandWordmark,
 } from "@chofex/ui/components/brand";
-import { buttonVariants } from "@chofex/ui/components/button";
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -37,19 +36,13 @@ export default async function UtmBuilderPage() {
             {brandName}
           </Link>
         </BrandWordmark>
-        <Link
-          className={buttonVariants({ variant: "outline", size: "sm" })}
-          href="/admin/participants"
-        >
-          Participants
-        </Link>
       </BrandHeader>
       <main>
         <BrandContainer className="max-w-3xl py-14 sm:py-20">
           <BrandKicker className="text-primary">
             Admin / campaign ops
           </BrandKicker>
-          <BrandTitle as="h1" className="mt-3" size="page">
+          <BrandTitle as="h1" className="mt-3">
             UTM builder
           </BrandTitle>
           <p className="mt-5 mb-10 max-w-xl text-base leading-relaxed text-muted-foreground">

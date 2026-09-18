@@ -1,5 +1,13 @@
 import { expect, test } from "bun:test";
 
+test("loads landing-only motion and fallback styles from the route", async () => {
+  const page = await Bun.file(
+    new URL("../../app/page.tsx", import.meta.url),
+  ).text();
+
+  expect(page).toContain('import "@/components/landing/landing.css";');
+});
+
 test("ships a decorative static valley when the live hero cannot draw", async () => {
   const fallback = await Bun.file(
     new URL("./terrain-fallback.tsx", import.meta.url),

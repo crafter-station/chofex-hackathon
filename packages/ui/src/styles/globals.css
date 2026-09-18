@@ -78,6 +78,7 @@
   --hud-kicker: #ddcfbd;
   --hud-muted: #bec3c9;
   --hud-muted-on-light: #bec3c9;
+  --hud-dossier-line: rgb(246 243 238 / 7%);
 
   --background: var(--hud-paper);
   --foreground: var(--hud-ink);
@@ -131,6 +132,7 @@
   --hud-kicker: #2459c9;
   --hud-muted: #5b5f65;
   --hud-muted-on-light: #5b5f65;
+  --hud-dossier-line: rgb(11 23 38 / 7%);
 
   --background: var(--hud-paper);
   --foreground: var(--hud-ink);
@@ -198,6 +200,15 @@
   outline-offset: 3px;
 }
 
+.brand-page :is(a, button).landing-cta:focus-visible {
+  outline-color: var(--hud-ink);
+  box-shadow: 0 0 0 3px var(--hud-ink);
+}
+
+.brand-row-action__button:focus-visible {
+  outline-offset: -3px;
+}
+
 .brand-kicker,
 .landing-type-meta {
   font-family: var(--font-hta-mono), ui-monospace, monospace;
@@ -212,6 +223,20 @@
   font-size: 1.05rem;
   line-height: 1.45;
   text-wrap: pretty;
+}
+
+.landing-dark :is(.brand-kicker, .landing-type-meta) {
+  color: var(--hud-kicker);
+}
+
+.landing-dark .landing-cta {
+  background-color: var(--hud-action);
+  color: var(--hud-paper);
+}
+
+.landing-dark .landing-cta:hover {
+  background-color: var(--hud-action-hover);
+  color: var(--hud-paper);
 }
 
 @media (min-width: 768px) {
@@ -258,6 +283,18 @@
 .brand-frame,
 .hud-box {
   position: relative;
+}
+
+.landing-dossier::before {
+  position: absolute;
+  inset: 0;
+  background: repeating-radial-gradient(
+    ellipse at 82% 18%,
+    transparent 0 15px,
+    var(--hud-dossier-line) 16px 17px
+  );
+  content: "";
+  mask-image: linear-gradient(to bottom left, black, transparent 70%);
 }
 
 .hud-box {
@@ -410,5 +447,10 @@
   .brand-page :is(a, button):focus-visible {
     outline: 3px solid Highlight;
     outline-offset: 3px;
+  }
+
+  .brand-page :is(a, button).landing-cta:focus-visible {
+    outline-color: Highlight;
+    box-shadow: none;
   }
 }

@@ -15,13 +15,15 @@ import { LandingSponsors } from "@/components/landing/sponsors";
 import { LandingTracks } from "@/components/landing/tracks";
 
 import "@/components/landing/dark.css";
+import "@/components/landing/landing.css";
 
 /**
  * The landing.
  *
  * Black, and opening on the Sacred Valley drawn in white contour lines from a
  * parked vantage inside the range — turned by dragging, not flown through.
- * Theme tokens live in `components/landing/dark.css`.
+ * Shared theme tokens live in `@chofex/ui/globals.css`; landing-only effects
+ * live in `components/landing/dark.css` and `components/landing/landing.css`.
  *
  * Section order after the hero is locked:
  * Evento (#why) → Premios → Panel → Tracks → Challenges → Postular →

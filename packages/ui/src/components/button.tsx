@@ -31,8 +31,6 @@ const buttonVariants = cva(
         "icon-xs": "size-8 [&_svg:not([class*='size-'])]:size-3",
         "icon-sm": "size-9 [&_svg:not([class*='size-'])]:size-3.5",
         "icon-lg": "size-12",
-        "table-row":
-          "grid h-auto w-full grid-cols-1 justify-start gap-3 px-4 py-4 text-left font-sans font-normal whitespace-normal normal-case tracking-normal sm:items-center sm:gap-4 sm:px-5",
       },
     },
     defaultVariants: {

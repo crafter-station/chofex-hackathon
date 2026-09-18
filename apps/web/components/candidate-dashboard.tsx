@@ -30,6 +30,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@chofex/ui/components/input-group";
+import { RowAction } from "@chofex/ui/components/row-action";
 import { Textarea } from "@chofex/ui/components/textarea";
 import { UserButton } from "@clerk/nextjs";
 import {
@@ -1087,14 +1088,6 @@ export function CandidateDashboard({
           </BrandKicker>
         </div>
         <div className="flex items-center gap-3">
-          <ButtonLink
-            variant="outline"
-            size="sm"
-            href="/admin/utm"
-            className="hidden sm:inline-flex"
-          >
-            UTM builder
-          </ButtonLink>
           <Badge variant="outline" className="hidden sm:inline-flex">
             Admin workspace
           </Badge>
@@ -1118,9 +1111,7 @@ export function CandidateDashboard({
               <BrandKicker className="mb-3 text-primary">
                 {brandName} 2026 / applications
               </BrandKicker>
-              <BrandTitle as="h1" size="page">
-                Meet the candidates
-              </BrandTitle>
+              <BrandTitle as="h1">Meet the candidates</BrandTitle>
               <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
                 Review every application, keep decisions moving, and make each
                 response feel personal.
@@ -1395,13 +1386,11 @@ const CandidateRows = ({
       let submitted = "Not submitted";
       if (candidate.submittedAt) submitted = formatDate(candidate.submittedAt);
       return (
-        <Button
-          type="button"
-          variant="ghost"
-          size="table-row"
+        <RowAction
+          label={`Review ${displayName(candidate)}`}
           key={candidate.id}
           onClick={() => onSelect(candidate.id)}
-          className="group sm:grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_8rem_7rem]"
+          contentClassName="grid w-full grid-cols-1 justify-start gap-3 px-4 py-4 text-left sm:grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_8rem_7rem] sm:items-center sm:gap-4 sm:px-5"
         >
           <span className="flex min-w-0 items-center gap-3">
             <CandidateAvatar
@@ -1440,7 +1429,7 @@ const CandidateRows = ({
             {submitted}
             <ChevronRightIcon className="size-4 opacity-0 transition-opacity group-hover:opacity-100" />
           </span>
-        </Button>
+        </RowAction>
       );
     })}
   </div>

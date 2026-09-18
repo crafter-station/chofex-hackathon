@@ -38,7 +38,7 @@ export function BrandHeader({
       )}
       {...props}
     >
-      <BrandContainer className="flex min-h-16 items-center justify-between gap-4 py-3">
+      <BrandContainer className="flex min-h-16 flex-wrap items-center justify-between gap-x-4 gap-y-3 py-3 [&>*]:min-w-0">
         {children}
       </BrandContainer>
     </header>
@@ -88,13 +88,12 @@ export function BrandTitle({
   ...props
 }: ComponentProps<"h2"> & {
   readonly as?: "h1" | "h2" | "h3";
-  readonly size?: "page" | "section" | "card";
+  readonly size?: "section" | "card";
 }) {
   return (
     <Heading
       className={cn(
         "text-balance font-display leading-[0.88] tracking-[-0.025em] uppercase",
-        size === "page" && "text-5xl sm:text-7xl",
         size === "section" && "text-5xl sm:text-7xl",
         size === "card" && "text-3xl sm:text-4xl",
         className,
@@ -109,7 +108,6 @@ export function BrandSectionHeader({
   subtitle,
   titleId,
   children,
-  align = "left",
   headingLevel = "h2",
   className,
 }: {
@@ -117,21 +115,11 @@ export function BrandSectionHeader({
   readonly subtitle?: string;
   readonly titleId?: string;
   readonly children?: ReactNode;
-  readonly align?: "left" | "center";
   readonly headingLevel?: "h1" | "h2";
   readonly className?: string;
 }) {
-  let alignment = "items-start text-left";
-  if (align === "center") alignment = "items-center text-center";
-
   return (
-    <div
-      className={cn(
-        "mb-10 flex max-w-3xl flex-col gap-3",
-        alignment,
-        className,
-      )}
-    >
+    <div className={cn("mb-10 flex max-w-3xl flex-col gap-3", className)}>
       <BrandTitle as={headingLevel} id={titleId}>
         <span className="block">{title}</span>
         {subtitle ? <span className="block">{subtitle}</span> : null}
@@ -166,5 +154,23 @@ export function BrandCenteredPage({
     >
       <div className={cn("w-full max-w-lg", contentClassName)}>{children}</div>
     </main>
+  );
+}
+
+export function BrandAuthPage({
+  brand,
+  children,
+  className,
+  ...props
+}: ComponentProps<"main"> & { readonly brand: ReactNode }) {
+  return (
+    <BrandCenteredPage
+      className={className}
+      contentClassName="flex max-w-md flex-col items-center"
+      {...props}
+    >
+      <BrandWordmark className="mb-8 text-2xl">{brand}</BrandWordmark>
+      {children}
+    </BrandCenteredPage>
   );
 }
