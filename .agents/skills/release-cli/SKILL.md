@@ -5,9 +5,7 @@ description: Release chofex-cli to npm and GitHub. Use when asked to publish the
 
 # Release CLI
 
-Use `.github/workflows/publish-cli.yml` as the single release path. It assigns
-the version, tests and publishes `chofex-cli`, promotes npm's `latest` tag, and
-creates the matching GitHub release.
+Use `.github/workflows/publish-cli.yml` as the single release path.
 
 ## Gate
 
@@ -27,37 +25,49 @@ released and that commit is the remote default branch tip.
 
 ## Run
 
-1. Find a publish run for the approved commit:
+1. Resolve the default branch, verify its remote tip still equals the approved
+   commit, and dispatch that exact pairing:
 
    ```sh
-   gh run list --workflow publish-cli.yml --commit "$(git rev-parse HEAD)" --limit 1 \
-     --json databaseId,status,conclusion,url
+   default_branch="$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name')"
+   approved_sha="$(git rev-parse HEAD)"
+   remote_sha="$(git ls-remote origin "refs/heads/${default_branch}" | cut -f1)"
+   test "$approved_sha" = "$remote_sha"
+   gh workflow run publish-cli.yml --ref "$default_branch" \
+     -f commit_sha="$approved_sha"
    ```
 
-2. If no run exists, dispatch one and then find the run for the commit:
+2. Find the dispatched run for the approved commit:
 
    ```sh
-   gh workflow run publish-cli.yml --ref main
+   gh run list --workflow publish-cli.yml --event workflow_dispatch \
+     --commit "$approved_sha" --limit 1 \
+     --json databaseId,headSha,status,conclusion,url
    ```
 
 3. Watch the run through completion with `gh run watch <run-id> --exit-status`.
+   Verify `headSha` from `gh run view <run-id> --json headSha` equals the
+   approved SHA.
    On failure, inspect it with `gh run view <run-id> --log-failed`, fix the
    cause, and obtain fresh approval before dispatching another release.
 
 ## Verify
 
-Read the latest npm version without activating the root workspace's
-package-manager guard, then inspect both the matching release and GitHub's
-latest marker:
+Inspect GitHub's latest release, verify it targets the approved commit, then
+compare its tag with npm's `latest` version:
 
 ```sh
 npm_version="$(npm --prefix apps/cli --workspaces=false view chofex-cli version)"
-gh release view "v${npm_version}" \
+release_tag="$(gh release list --limit 1 --json tagName,isLatest --jq 'map(select(.isLatest))[0].tagName')"
+release_target="$(gh release view "$release_tag" --json targetCommitish --jq '.targetCommitish')"
+gh release view "$release_tag" \
   --json tagName,isDraft,publishedAt,url,targetCommitish
-gh release list --limit 1 --json tagName,isLatest
+test "$release_tag" = "v${npm_version}"
+test "$release_target" = "$approved_sha"
 ```
 
 The release is complete only when the workflow succeeded, npm returns the new
-version, the matching non-draft GitHub release exists, and GitHub marks it as
-latest. Report the version, npm package URL, GitHub release URL, and workflow
-run URL.
+version, the matching non-draft GitHub release targets the approved commit, and
+GitHub marks it as latest. npm propagation may take a few minutes; use bounded
+retries before reporting a mismatch. Report the version, npm package URL,
+GitHub release URL, and workflow run URL.
