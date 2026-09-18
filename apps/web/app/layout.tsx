@@ -15,7 +15,7 @@ import { PostHogAnalytics } from "@/components/posthog-analytics";
 import { QueryProvider } from "@/components/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import "@chofex/ui/globals.css";
-import "./globals.css";
+import "@clerk/ui/themes/shadcn.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://hacktheandes.com"),

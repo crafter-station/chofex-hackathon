@@ -1101,7 +1101,7 @@ export function CandidateDashboard({
       </BrandHeader>
 
       <main>
-        <BrandContainer className="max-w-6xl py-10 sm:py-14">
+        <BrandContainer className="py-10 sm:py-14">
           <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
             <div>
               <BrandKicker className="mb-3 text-primary">
