@@ -84,8 +84,8 @@ chofex --output json status
 If one exists, report its status and follow **Next steps**. Start an application
 when there is no application, resume and submit it when the status is `draft`,
 or let a rejected participant apply again. A rejected application remains in
-history. The Black Box solution is optional and does not need to be completed
-before applying.
+history. The Black Box does not need to be completed before applying. Every
+challenge winner must still submit an application before being accepted.
 
 Get a fresh input template instead of relying on a memorized schema:
 
@@ -173,11 +173,12 @@ require rebuilding it.
 
 ## Black Box challenge
 
-**The Shipping Machine** is optional and provides organizers with another review
-metric. It does not decide admission and is not required to submit an
-application. Ask whether the participant wants to try it before or after
-submitting. If they do, list challenges, then inspect their personalized Black
-Box:
+**The Shipping Machine** is not required to submit an application. Top-ranked
+applicants receive a direct pass; other results provide organizers with another
+review metric. Winning does not replace the application, and organizers record
+acceptance manually on that application. Ask whether the participant wants to
+try it before or after submitting. If they do, list challenges, then inspect
+their personalized Black Box:
 
 ```sh
 chofex --output json challenge list
@@ -231,8 +232,8 @@ Interpret the returned state as follows:
 
 - `draft`: this is an application left by an older CLI flow. Show
   `requirements.parts` and missing fields, collect the complete application,
-  and use `chofex register` to submit it. Offer the Black Box as an optional
-  challenge, but do not delay submission for it.
+  and use `chofex register` to submit it. Offer the Black Box as a route to a
+  direct pass, but do not delay submission for it.
 - `submitted`, `under_review`, or `waitlisted`: report the exact
   status and requirements. When the requirements stage is `review`, no action
   is needed while organizers review the application.

@@ -334,7 +334,7 @@ describe("registration contract", () => {
     expect(withoutChallenge.missing).toEqual([]);
   });
 
-  test("keeps challenge performance out of the admissions decision", () => {
+  test("keeps challenge performance from changing the application workflow", () => {
     const challenge = {
       slug: "black-box" as const,
       title: "The Shipping Machine",

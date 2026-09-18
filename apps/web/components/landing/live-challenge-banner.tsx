@@ -15,7 +15,9 @@ function BannerGroup({
           key={`${groupInstance}-${itemId}`}
         >
           <span className="landing-live-banner-dot" />
-          Challenge 1 is live
+          Challenge 1 / live
+          <span aria-hidden="true">—</span>
+          Compite por pase directo
           <span aria-hidden="true">—</span>
           The Shipping Machine
           <span aria-hidden="true">→</span>
@@ -28,12 +30,12 @@ function BannerGroup({
 export function LiveChallengeBanner() {
   return (
     <Link
-      aria-label="Challenge 1 is live. View The Shipping Machine details and instructions."
+      aria-label="Challenge 1 está abierto. Compite por un pase directo con The Shipping Machine."
       className="landing-live-banner"
       href="/challenges/black-box"
     >
       <span className="sr-only">
-        Challenge 1 is live. View details and instructions.
+        Challenge 1 está abierto. Compite por un pase directo.
       </span>
       <span aria-hidden="true" className="landing-live-banner-track">
         <BannerGroup groupInstance="first" />

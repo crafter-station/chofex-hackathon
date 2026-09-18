@@ -3,6 +3,7 @@
 import { BrandKicker } from "@chofex/ui/components/brand";
 import { buttonVariants } from "@chofex/ui/components/button";
 import Image from "next/image";
+import Link from "next/link";
 
 import {
   discordCopy,
@@ -140,20 +141,27 @@ export function LandingHero() {
                   >
                     <span>{heroCopy.cta}</span>
                   </a>
-                  <a
+                  <Link
                     className={buttonVariants({
                       variant: "outline",
                       size: "landing",
-                      className: "pointer-events-auto w-full sm:w-auto",
+                      className:
+                        "pointer-events-auto w-full whitespace-nowrap sm:w-auto",
                     })}
-                    href="/discord"
+                    href="/challenges/black-box"
                   >
-                    <span>{discordCopy.cta}</span>
-                  </a>
+                    <span>{heroCopy.challengeCta}</span>
+                  </Link>
                 </div>
                 <p className="max-w-lg text-balance text-xs leading-relaxed text-[var(--hud-type)]/80 sm:text-sm">
-                  {discordCopy.description}
+                  {heroCopy.admission}
                 </p>
+                <Link
+                  className="pointer-events-auto font-mono text-xs text-[var(--hud-type)]/80 uppercase tracking-[0.12em] underline underline-offset-4 hover:text-[var(--hud-type)]"
+                  href="/discord"
+                >
+                  {discordCopy.cta}
+                </Link>
               </div>
 
               {/*
