@@ -6,7 +6,7 @@
   overflow: hidden;
   border-bottom: 1px solid rgb(5 4 6 / 35%);
   background: var(--hud-status);
-  color: var(--hud-type);
+  color: var(--hud-paper);
   font-family: var(--font-hta-mono), ui-monospace, monospace;
   font-size: 0.75rem;
   font-weight: 600;
