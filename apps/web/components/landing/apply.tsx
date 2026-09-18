@@ -22,6 +22,14 @@ export function LandingApply() {
             <p className="text-lg leading-relaxed text-[var(--hud-ink)]/75">
               {applyCopy.lede}
             </p>
+            <div className="mt-7 border border-[var(--hud-action)]/35 bg-[var(--hud-action)]/5 p-5">
+              <HudLabel className="mb-3 text-[var(--hud-action)]">
+                {applyCopy.travelTitle}
+              </HudLabel>
+              <p className="text-sm leading-relaxed text-[var(--hud-ink)]/75 sm:text-base">
+                {applyCopy.travelSupport}
+              </p>
+            </div>
             <div className="mt-7 border-[var(--hud-ink)]/15 border-t pt-5">
               <HudLabel className="mb-4 text-[var(--hud-muted)]">
                 {applyCopy.criteriaTitle}

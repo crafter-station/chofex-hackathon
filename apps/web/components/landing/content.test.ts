@@ -7,6 +7,7 @@ import {
   eventCopy,
   eventItems,
   facts,
+  faqItems,
   footerCopy,
   formatSoles,
   heroCopy,
@@ -225,6 +226,19 @@ test("publishes a senior, hundred-seat, three-track event", () => {
   expect(eventItems.filter((item) => /comida/i.test(item.body))).toHaveLength(
     1,
   );
+});
+
+test("encourages strong applicants outside Lima and promises flight support", () => {
+  expect(applyCopy.travelTitle).toMatch(/fuera de Lima/i);
+  expect(applyCopy.travelSupport).toMatch(/postula igual/i);
+  expect(applyCopy.travelSupport).toMatch(/cubriremos tus vuelos a Lima/i);
+  expect(applyCopy.travelSupport).toMatch(/dinero no debería ser una barrera/i);
+
+  const travelFaq = faqItems.find((item) =>
+    /fuera de Lima/i.test(item.question),
+  );
+  expect(travelFaq?.answer).toMatch(/estés donde estés/i);
+  expect(travelFaq?.answer).toMatch(/cubriremos tus vuelos a Lima/i);
 });
 
 test("keeps the social preview lockup free of sponsor-principal phrasing", async () => {

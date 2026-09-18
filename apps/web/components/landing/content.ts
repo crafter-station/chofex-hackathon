@@ -266,6 +266,9 @@ export const panelBrands = [
 export const applyCopy = {
   title: "Postula desde tu terminal",
   lede: "La postulación regular sigue abierta. Cuéntanos qué lanzaste, qué construirías aquí y dónde podemos ver tu trabajo. Si prefieres demostrarlo construyendo, los mejores resultados de cada challenge reciben pase directo.",
+  travelTitle: "¿Fuera de Lima?",
+  travelSupport:
+    "Postula igual. Si demuestras que tienes lo necesario para estar en la hackathon y el costo del viaje es lo que te frena, cubriremos tus vuelos a Lima. El dinero no debería ser una barrera; encontraremos la forma.",
   criteriaTitle: "Qué revisamos",
   criteria: [
     "Un producto o sistema que ya pusiste en manos de usuarios.",
@@ -376,6 +379,11 @@ export const faqItems = [
     question: "¿Necesito un equipo?",
     answer:
       "No. Los equipos pueden tener de 1 a 4 personas y podrás conectar con otros participantes aceptados.",
+  },
+  {
+    question: "¿Puedo postular si vivo fuera de Lima?",
+    answer:
+      "Sí. Queremos que postules estés donde estés. Si demuestras que tienes lo necesario para estar en la hackathon y el costo del viaje es lo que te frena, cubriremos tus vuelos a Lima. El dinero no debería ser una barrera; encontraremos la forma.",
   },
   {
     question: "¿Cuándo se revelan los tracks?",
