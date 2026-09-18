@@ -35,6 +35,7 @@ describe("chunk load recovery", () => {
 
   test("does not classify unrelated errors as chunk failures", () => {
     expect(isChunkLoadError(new Error("Request failed"))).toBe(false);
+    expect(isChunkLoadError("Loading chunk 123 failed.")).toBe(false);
   });
 
   test("allows only one automatic reload until a successful load", () => {

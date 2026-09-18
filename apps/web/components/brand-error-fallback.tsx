@@ -3,6 +3,7 @@
 import { BrandStatusPage } from "@chofex/ui/components/brand";
 import { Button } from "@chofex/ui/components/button";
 import { useEffect } from "react";
+import { claimChunkReload, isChunkLoadError } from "@/lib/chunk-load-recovery";
 
 export interface BrandErrorFallbackProps {
   readonly error: unknown;
@@ -17,11 +18,24 @@ export function BrandErrorFallback({
   retry,
   description = "No pudimos cargar esta página. Intenta nuevamente.",
 }: BrandErrorFallbackProps) {
+  const chunkError = isChunkLoadError(error);
+
   useEffect(() => {
     console.error(error);
-  }, [error]);
 
-  const recover = retry ?? reset;
+    if (chunkError && claimChunkReload(() => window.sessionStorage)) {
+      window.location.reload();
+    }
+  }, [chunkError, error]);
+
+  const recover = () => {
+    if (chunkError) {
+      window.location.reload();
+      return;
+    }
+    const retrySegment = retry ?? reset;
+    retrySegment();
+  };
 
   return (
     <BrandStatusPage

@@ -1,10 +1,5 @@
 export const CHUNK_RELOAD_GUARD_KEY = "hta:chunk-reload-attempted";
 
-interface ErrorLike {
-  readonly name?: string;
-  readonly message?: string;
-}
-
 interface StorageLike {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
@@ -27,12 +22,23 @@ export function clerkUiComponentForPath(
   return null;
 }
 
-export function isChunkLoadError(error: ErrorLike): boolean {
-  if (error.name === "ChunkLoadError") {
+export function isChunkLoadError(error: unknown): boolean {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const errorLike = error as {
+    readonly name?: unknown;
+    readonly message?: unknown;
+  };
+  if (errorLike.name === "ChunkLoadError") {
     return true;
   }
 
-  const message = error.message ?? "";
+  if (typeof errorLike.message !== "string") {
+    return false;
+  }
+  const message = errorLike.message;
   return (
     /loading (?:css )?chunk [^\s]+ failed/i.test(message) ||
     /failed to fetch dynamically imported module/i.test(message) ||
