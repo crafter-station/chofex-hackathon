@@ -345,39 +345,43 @@ const whoamiCommand = Command.make(
   }),
 ).pipe(Command.withDescription("Verify the current Clerk authentication"));
 
-const upgradeCommand = Command.make(
-  "upgrade",
-  {},
-  Effect.fn("upgradeCommand")(function* () {
-    const options = yield* root;
-    const operation = Effect.tryPromise({
-      try: async () => {
-        await upgradeCli();
-        return {
-          version: 1 as const,
-          ok: true as const,
-          requestId: crypto.randomUUID(),
-          data: {
-            packageName: cliPackageName,
-            requestedVersion: upgradeVersion,
-          },
-        };
-      },
-      catch: (error) =>
-        cliError(
-          "UPGRADE_FAILED",
-          `npm could not update ${cliPackageName}`,
-          false,
-          String(error),
-        ),
-    });
-    yield* execute(
-      options.output,
-      operation,
-      () => `Updated ${cliPackageName} to the ${upgradeVersion} version.`,
-    );
-  }),
-).pipe(Command.withDescription("Update chofex-cli to the latest version"));
+const makeUpgradeCommand = (name: "update" | "upgrade") =>
+  Command.make(
+    name,
+    {},
+    Effect.fn("upgradeCommand")(function* () {
+      const options = yield* root;
+      const operation = Effect.tryPromise({
+        try: async () => {
+          await upgradeCli();
+          return {
+            version: 1 as const,
+            ok: true as const,
+            requestId: crypto.randomUUID(),
+            data: {
+              packageName: cliPackageName,
+              requestedVersion: upgradeVersion,
+            },
+          };
+        },
+        catch: (error) =>
+          cliError(
+            "UPGRADE_FAILED",
+            `npm could not update ${cliPackageName}`,
+            false,
+            String(error),
+          ),
+      });
+      yield* execute(
+        options.output,
+        operation,
+        () => `Updated ${cliPackageName} to the ${upgradeVersion} version.`,
+      );
+    }),
+  ).pipe(Command.withDescription("Update chofex-cli to the latest version"));
+
+const updateCommand = makeUpgradeCommand("update");
+const upgradeCommand = makeUpgradeCommand("upgrade");
 
 const inputValidation = (stage: InputStage, path: string | undefined) => {
   if (stage === "application") {
@@ -467,6 +471,7 @@ export const command = root.pipe(
     loginCommand,
     logoutCommand,
     whoamiCommand,
+    updateCommand,
     upgradeCommand,
     validateCommand,
     registerCommand,

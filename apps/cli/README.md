@@ -13,6 +13,7 @@ The installed command is `chofex`:
 ```sh
 chofex
 chofex whoami
+chofex update
 chofex upgrade
 chofex register
 chofex status
@@ -25,6 +26,9 @@ chofex challenge evaluate --source ./shipping.js
 chofex challenge ranking
 chofex confirm
 ```
+
+`chofex update` and `chofex upgrade` are interchangeable; both update the CLI
+to the latest published version.
 
 `chofex register` collects and submits an application with full name, role,
 optional bio, portfolio URL, shipped project, LinkedIn and GitHub URLs, and

@@ -79,10 +79,11 @@ describe("CLI JSON mode", () => {
     expect(help.stdout).toContain("Verify the current Clerk authentication");
   });
 
-  test("advertises the CLI upgrade command", async () => {
+  test("advertises the equivalent CLI update and upgrade commands", async () => {
     const help = await runCli("--help");
 
     expect(help.exitCode).toBe(0);
+    expect(help.stdout).toContain("update");
     expect(help.stdout).toContain("upgrade");
     expect(help.stdout).toContain("Update chofex-cli to the latest version");
   });
