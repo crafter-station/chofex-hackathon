@@ -4,6 +4,7 @@ export {
   count,
   desc,
   eq,
+  gt,
   ilike,
   inArray,
   isNull,

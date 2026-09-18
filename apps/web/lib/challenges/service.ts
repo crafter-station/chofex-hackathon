@@ -19,7 +19,17 @@ import {
   ShipmentSchema,
 } from "@chofex/challenges-contract";
 import { db } from "@chofex/db";
-import { and, asc, count, desc, eq, inArray } from "@chofex/db/orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gt,
+  inArray,
+  isNull,
+  or,
+} from "@chofex/db/orm";
 import {
   challengeAttempts,
   challengeBestEvaluations,
@@ -423,6 +433,27 @@ export const countCompletedChallenges = async (): Promise<number> => {
       eq(challengeAttempts.id, challengeBestEvaluations.attemptId),
     )
     .where(eq(challengeAttempts.challengeVersion, currentChallengeVersion));
+  return result?.value ?? 0;
+};
+
+export const countChallengesInProgress = async (): Promise<number> => {
+  const [result] = await db
+    .select({ value: count() })
+    .from(challengeAttempts)
+    .leftJoin(
+      challengeBestEvaluations,
+      eq(challengeBestEvaluations.attemptId, challengeAttempts.id),
+    )
+    .where(
+      and(
+        eq(challengeAttempts.challengeVersion, currentChallengeVersion),
+        isNull(challengeBestEvaluations.attemptId),
+        or(
+          gt(challengeAttempts.queriesUsed, 0),
+          gt(challengeAttempts.evaluationsUsed, 0),
+        ),
+      ),
+    );
   return result?.value ?? 0;
 };
 

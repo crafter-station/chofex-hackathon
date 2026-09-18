@@ -30,6 +30,7 @@ import {
 } from "@chofex/ui/components/input-group";
 import { Textarea } from "@chofex/ui/components/textarea";
 import {
+  ActivityIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
   CalendarDaysIcon,
@@ -1118,7 +1119,7 @@ export function CandidateDashboard({
           </Badge>
         </section>
 
-        <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           <StatCard
             label="Clerk users"
             value={currentData.clerkUserCount}
@@ -1147,6 +1148,11 @@ export function CandidateDashboard({
             label="Challenges completed"
             value={currentData.completedChallengeCount}
             icon={<TrophyIcon className="size-4 text-muted-foreground" />}
+          />
+          <StatCard
+            label="Challenges in progress"
+            value={currentData.inProgressChallengeCount}
+            icon={<ActivityIcon className="size-4 text-muted-foreground" />}
           />
         </section>
 

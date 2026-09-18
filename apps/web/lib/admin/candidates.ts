@@ -21,6 +21,7 @@ import {
 import { HttpError } from "@/lib/registration/http";
 import {
   challengeProgressForParticipants,
+  countChallengesInProgress,
   countCompletedChallenges,
 } from "../challenges/service";
 import { candidateAvatarUrl } from "./avatars";
@@ -353,6 +354,7 @@ export const listCandidates = async (
     reattemptResult,
     clerkUserCount,
     completedChallengeCount,
+    inProgressChallengeCount,
   ] = await Promise.all([
     db
       .select({ value: count() })
@@ -371,6 +373,7 @@ export const listCandidates = async (
       .where(isReattemptCondition),
     clerk.users.getCount(),
     countCompletedChallenges(),
+    countChallengesInProgress(),
   ]);
 
   const total = totalResult[0]?.value ?? 0;
@@ -412,6 +415,7 @@ export const listCandidates = async (
     candidates,
     clerkUserCount,
     completedChallengeCount,
+    inProgressChallengeCount,
     counts,
     page: currentPage,
     pageSize,
