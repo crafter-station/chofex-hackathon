@@ -12,12 +12,13 @@ Use `.github/workflows/publish-cli.yml` as the single release path.
 1. Inspect the changes since the latest GitHub release, or the repository's
    history when no release exists. Account for changes in `apps/cli`, the
    workspace packages bundled by it, `bun.lock`, and the publishing workflow.
-2. If the skill was invoked because CLI-affecting work was detected but the
-   user did not request a release, summarize the impact and ask whether to
-   release. Publishing requires explicit approval in the current conversation.
+2. Resolve the candidate's full commit SHA and show it with the CLI impact. Ask
+   the user to approve that exact SHA. Record the approved SHA as an immutable
+   value for every later step; do not derive it from `HEAD` again.
 3. Release only committed code from the remote default branch. Keep unrelated
-   working-tree files out of the release commit. A release request authorizes
-   pushing its committed release changes; report any other unpushed commits and
+   working-tree files out of the release commit. If the skill was invoked by
+   detected CLI work rather than a release request, this approval is the point
+   where the user decides whether to release. Report other unpushed commits and
    ask before including them.
 
 The gate is complete when the user has approved the exact commit that will be
@@ -25,29 +26,30 @@ released and that commit is the remote default branch tip.
 
 ## Run
 
-1. Resolve the default branch, verify its remote tip still equals the approved
-   commit, and dispatch that exact pairing:
+1. Resolve the default branch, verify its remote tip still equals the recorded
+   approved commit, and capture the URL of the newly dispatched run:
 
    ```sh
    default_branch="$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name')"
-   approved_sha="$(git rev-parse HEAD)"
+   approved_sha="<full SHA approved above>"
    remote_sha="$(git ls-remote origin "refs/heads/${default_branch}" | cut -f1)"
    test "$approved_sha" = "$remote_sha"
-   gh workflow run publish-cli.yml --ref "$default_branch" \
-     -f commit_sha="$approved_sha"
+   run_url="$(gh workflow run publish-cli.yml --ref "$default_branch" \
+     -f commit_sha="$approved_sha")"
+   run_id="${run_url##*/}"
+   test -n "$run_id"
    ```
 
-2. Find the dispatched run for the approved commit:
+2. Read that run by its captured ID and verify it uses the approved commit.
+   GitHub may need a few seconds to expose a new run, so use bounded retries:
 
    ```sh
-   gh run list --workflow publish-cli.yml --event workflow_dispatch \
-     --commit "$approved_sha" --limit 1 \
+   gh run view "$run_id" \
      --json databaseId,headSha,status,conclusion,url
    ```
 
 3. Watch the run through completion with `gh run watch <run-id> --exit-status`.
-   Verify `headSha` from `gh run view <run-id> --json headSha` equals the
-   approved SHA.
+   Verify `headSha` equals the approved SHA.
    On failure, inspect it with `gh run view <run-id> --log-failed`, fix the
    cause, and obtain fresh approval before dispatching another release.
 
