@@ -11,12 +11,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/crafter-station/chofex-hackathon.git",
+    "url": "git+https://github.com/crafter-station/hack-the-andes.git",
     "directory": "apps/cli"
   },
-  "homepage": "https://github.com/crafter-station/chofex-hackathon#readme",
+  "homepage": "https://github.com/crafter-station/hack-the-andes#readme",
   "bugs": {
-    "url": "https://github.com/crafter-station/chofex-hackathon/issues"
+    "url": "https://github.com/crafter-station/hack-the-andes/issues"
   },
   "license": "MIT",
   "keywords": [

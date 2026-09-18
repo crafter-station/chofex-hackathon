@@ -1,3 +1,4 @@
+import { brandColors } from "@chofex/ui/lib/brand-theme";
 import sharp from "sharp";
 
 import {
@@ -13,7 +14,7 @@ export const preparePixelArtInput = async (
     .rotate()
     .resize(pixelArtInputMaxSize, pixelArtInputMaxSize, {
       fit: "contain",
-      background: "#111827",
+      background: brandColors.dark.paper,
       withoutEnlargement: true,
     })
     .jpeg({

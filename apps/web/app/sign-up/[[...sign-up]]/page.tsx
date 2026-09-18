@@ -1,16 +1,11 @@
+import { BrandAuthPage } from "@chofex/ui/components/brand";
 import { SignUp } from "@clerk/nextjs";
+import { brandName } from "@/components/landing/content";
 
 export default function SignUpPage() {
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+    <BrandAuthPage brandName={brandName}>
       <SignUp />
-    </div>
+    </BrandAuthPage>
   );
 }

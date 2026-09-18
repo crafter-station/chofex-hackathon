@@ -1,6 +1,16 @@
+import {
+  BrandContainer,
+  BrandFrame,
+  BrandHeader,
+  BrandKicker,
+  BrandPage,
+  BrandTitle,
+  BrandWordmarkLink,
+} from "@chofex/ui/components/brand";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
+import { brandName } from "@/components/landing/content";
 import { UtmBuilder } from "@/components/utm-builder";
 import { getAdminIdentity } from "@/lib/admin/auth";
 
@@ -18,12 +28,27 @@ export default async function UtmBuilderPage() {
   if (!admin) redirect("/welcome");
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-5 py-12">
-      <h1 className="font-heading text-2xl font-medium">UTM builder</h1>
-      <p className="mt-2 mb-8 text-sm text-muted-foreground">
-        Pick the network and the post, then paste the link in the post itself.
-      </p>
-      <UtmBuilder />
-    </main>
+    <BrandPage>
+      <BrandHeader>
+        <BrandWordmarkLink href="/">{brandName}</BrandWordmarkLink>
+      </BrandHeader>
+      <main>
+        <BrandContainer className="max-w-3xl py-14 sm:py-20">
+          <BrandKicker className="text-primary">
+            Admin / campaign ops
+          </BrandKicker>
+          <BrandTitle as="h1" className="mt-3">
+            UTM builder
+          </BrandTitle>
+          <p className="mt-5 mb-10 max-w-xl text-base leading-relaxed text-muted-foreground">
+            Pick the network and the post, then paste the generated link in the
+            post itself.
+          </p>
+          <BrandFrame className="p-5 sm:p-8">
+            <UtmBuilder />
+          </BrandFrame>
+        </BrandContainer>
+      </main>
+    </BrandPage>
   );
 }

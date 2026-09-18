@@ -2,6 +2,7 @@
 
 import { Button } from "@chofex/ui/components/button";
 import { CheckIcon, CopyIcon, TriangleAlertIcon } from "lucide-react";
+import posthog from "posthog-js";
 import { useEffect, useRef, useState } from "react";
 import { agentApplicationPrompt } from "@/lib/agent-prompt";
 
@@ -38,8 +39,12 @@ export function CopyAgentPrompt() {
     try {
       const prompt = agentApplicationPrompt(window.location.origin);
       await navigator.clipboard.writeText(prompt);
+      posthog.capture("application_prompt_copied", {
+        conversion_stage: "application_intent",
+      });
       setStatus("copied");
-    } catch {
+    } catch (error) {
+      posthog.captureException(error);
       setStatus("failed");
     }
 
@@ -53,13 +58,7 @@ export function CopyAgentPrompt() {
         “Help me apply to Hack the Andes using the Chofex CLI. Ask me for every
         answer and get my approval before submitting.”
       </blockquote>
-      <Button
-        type="button"
-        size="lg"
-        variant="outline"
-        className="landing-cta h-11 rounded-none border-0 bg-[var(--hud-action)] px-5 font-[family-name:var(--font-landing-mono)] text-[var(--hud-paper)] uppercase tracking-[0.12em] hover:bg-[var(--hud-action-hover)] hover:text-[var(--hud-paper)]"
-        onClick={copyPrompt}
-      >
+      <Button type="button" size="lg" onClick={copyPrompt}>
         {iconForStatus(status)}
         {labelForStatus(status)}
       </Button>

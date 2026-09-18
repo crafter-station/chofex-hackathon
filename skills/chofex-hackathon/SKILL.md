@@ -95,7 +95,8 @@ chofex schema --stage application
 
 The output is an example shape, not an application draft. It contains every
 supported JSON key. Copy those keys exactly; for example, use `fullName`,
-`role`, `githubUrl`, and `linkedInUrl`. Never save or submit the example values.
+`role`, `bio`, `portfolioUrl`, and `shippedProject`. Never save or submit the
+example values.
 
 Collect every field in one compact batch when practical. Accept a natural,
 unlabeled reply and map it using context; numbered formatting is optional. For
@@ -106,7 +107,8 @@ participant has not already answered. Group the questionnaire so the participant
 can scan and answer it naturally:
 
 - required profile: full name and role;
-- optional profile: LinkedIn and GitHub URLs; and
+- optional profile: bio, portfolio URL, something they have shipped, LinkedIn,
+  and GitHub URLs; and
 - required Terms and Conditions.
 
 Explain these rules while collecting answers:
@@ -114,7 +116,8 @@ Explain these rules while collecting answers:
 - Registration is for the in-person event in Lima, Peru. The application uses
   the authenticated account's primary email and records Peru as the country.
 - `fullName` and `role` are required.
-- `githubUrl` and `linkedInUrl` are optional.
+- `bio`, `portfolioUrl`, `shippedProject`, `githubUrl`, and `linkedInUrl` are
+  optional.
 - `codeOfConductAccepted` must be the participant's explicit `true`; an agent
   cannot consent for them.
 

@@ -8,10 +8,12 @@
     "lint": "turbo run lint",
     "format": "biome format --write .",
     "check-types": "turbo run check-types",
-    "deck:pdf": "node scripts/export-deck-pdf.mjs"
+    "deck:pdf": "node scripts/export-deck-pdf.mjs",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
+    "husky": "^9.1.7",
     "playwright": "^1.63.0",
     "turbo": "^2.10.12",
     "typescript": "7.0.2"

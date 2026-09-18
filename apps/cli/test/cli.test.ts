@@ -79,10 +79,11 @@ describe("CLI JSON mode", () => {
     expect(help.stdout).toContain("Verify the current Clerk authentication");
   });
 
-  test("advertises the CLI upgrade command", async () => {
+  test("advertises the equivalent CLI update and upgrade commands", async () => {
     const help = await runCli("--help");
 
     expect(help.exitCode).toBe(0);
+    expect(help.stdout).toContain("update");
     expect(help.stdout).toContain("upgrade");
     expect(help.stdout).toContain("Update chofex-cli to the latest version");
   });
@@ -543,8 +544,10 @@ describe("CLI JSON mode", () => {
     expect(template).toHaveProperty("linkedInUrl");
     expect(template).toHaveProperty("fullName");
     expect(template).toHaveProperty("role");
+    expect(template).toHaveProperty("bio");
+    expect(template).toHaveProperty("portfolioUrl");
+    expect(template).toHaveProperty("shippedProject");
     expect(template).toHaveProperty("codeOfConductAccepted");
-    expect(template).not.toHaveProperty("portfolioUrl");
     expect(template).not.toHaveProperty("email");
     expect(template).not.toHaveProperty("countryCode");
     expect(template).not.toHaveProperty("participationMode");
@@ -670,6 +673,9 @@ describe("CLI JSON mode", () => {
             acceptedFields: expect.arrayContaining([
               "fullName",
               "role",
+              "bio",
+              "portfolioUrl",
+              "shippedProject",
               "githubUrl",
               "linkedInUrl",
             ]),
@@ -749,6 +755,9 @@ describe("CLI JSON mode", () => {
         JSON.stringify({
           fullName: " Anthony Cueva ",
           role: "Builder",
+          bio: "I build developer tools.",
+          portfolioUrl: "cueva.io",
+          shippedProject: "A collaborative coding environment.",
           githubUrl: "github.com/cuevaio",
           codeOfConductAccepted: true,
         }),
@@ -776,6 +785,9 @@ describe("CLI JSON mode", () => {
       expect(submittedBody).toEqual({
         fullName: "Anthony Cueva",
         role: "Builder",
+        bio: "I build developer tools.",
+        portfolioUrl: "https://cueva.io",
+        shippedProject: "A collaborative coding environment.",
         githubUrl: "https://github.com/cuevaio",
         codeOfConductAccepted: true,
       });

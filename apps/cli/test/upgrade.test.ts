@@ -15,14 +15,16 @@ describe("CLI upgrade", () => {
       return { exitCode: 0, stderr: "" };
     });
 
-    expect(calls).toEqual([[
-      "install",
-      "--global",
-      "chofex-cli@latest",
-      "--force",
-      "--prefer-online",
-      `--cache=${cacheDirectory}`,
-    ]]);
+    expect(calls).toEqual([
+      [
+        "install",
+        "--global",
+        "chofex-cli@latest",
+        "--force",
+        "--prefer-online",
+        `--cache=${cacheDirectory}`,
+      ],
+    ]);
     expect(stat(cacheDirectory)).rejects.toThrow();
   });
 

@@ -1,10 +1,15 @@
 "use client";
 
+import { BrandKicker } from "@chofex/ui/components/brand";
+import { buttonVariants } from "@chofex/ui/components/button";
 import Image from "next/image";
 
-import { facts, heroCopy, partners } from "@/components/landing/content";
-import { HudLabel } from "@/components/landing/hud";
-import { landingCtaClassName } from "@/components/landing/shell";
+import {
+  discordCopy,
+  facts,
+  heroCopy,
+  partners,
+} from "@/components/landing/content";
 import { Terrain } from "@/components/landing/terrain";
 
 /**
@@ -65,11 +70,11 @@ export function LandingHero() {
            */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[34%] bg-gradient-to-t from-[#050406]/95 via-[#050406]/58 to-transparent"
+            className="landing-hero-floor-fade pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[34%]"
           />
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 top-0 z-10 h-44 bg-gradient-to-b from-[#050406] via-[#050406]/70 to-transparent"
+            className="landing-hero-sky-fade pointer-events-none absolute inset-x-0 top-0 z-10 h-44"
           />
           {/*
            * And one soft ellipse under the lockup.
@@ -82,7 +87,7 @@ export function LandingHero() {
            */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(ellipse_58%_38%_at_50%_49%,rgba(5,4,6,0.93)_0%,rgba(5,4,6,0.68)_46%,transparent_84%)]"
+            className="landing-hero-lockup-wash pointer-events-none absolute inset-0 z-10"
           />
 
           {/*
@@ -100,7 +105,7 @@ export function LandingHero() {
                */}
               <h1
                 className={
-                  "font-[family-name:var(--font-landing-brand)] font-semibold leading-[0.88] tracking-[0.012em] max-w-[16ch] text-[clamp(2.6rem,8vw,6.8rem)] uppercase"
+                  "font-brand font-semibold leading-[0.88] tracking-[0.012em] max-w-[16ch] text-[clamp(2.6rem,8vw,6.8rem)] uppercase"
                 }
               >
                 {/*
@@ -119,17 +124,37 @@ export function LandingHero() {
                 </span>
               </h1>
 
-              <p className="flex flex-col font-[family-name:var(--font-landing-mono)] text-sm text-[var(--hud-type)] uppercase tracking-[0.2em] sm:text-base">
+              <p className="flex flex-col font-mono text-sm text-[var(--hud-type)] uppercase tracking-[0.2em] sm:text-base">
                 <span>{heroCopy.metaDate}</span>
                 <span>{heroCopy.metaLocation}</span>
               </p>
 
-              <a
-                className={`pointer-events-auto mt-1 w-full sm:w-auto ${landingCtaClassName}`}
-                href="#apply"
-              >
-                <span>{heroCopy.cta}</span>
-              </a>
+              <div className="mt-1 flex w-full max-w-xl flex-col items-center gap-3">
+                <div className="flex w-full flex-col justify-center gap-3 sm:flex-row">
+                  <a
+                    className={buttonVariants({
+                      size: "landing",
+                      className: "pointer-events-auto w-full sm:w-auto",
+                    })}
+                    href="#apply"
+                  >
+                    <span>{heroCopy.cta}</span>
+                  </a>
+                  <a
+                    className={buttonVariants({
+                      variant: "outline",
+                      size: "landing",
+                      className: "pointer-events-auto w-full sm:w-auto",
+                    })}
+                    href="/discord"
+                  >
+                    <span>{discordCopy.cta}</span>
+                  </a>
+                </div>
+                <p className="max-w-lg text-balance text-xs leading-relaxed text-[var(--hud-type)]/80 sm:text-sm">
+                  {discordCopy.description}
+                </p>
+              </div>
 
               {/*
                * The partners as marks, not as a line of type.
@@ -180,18 +205,16 @@ export function LandingHero() {
          * labels came back at 1.3:1. Everything else in the hero is display
          * size or sits inside the lockup's scrim.
          */}
-        <ul className="grid grid-cols-2 border-[var(--hud-type)]/20 border-y bg-[#050406]/88 lg:grid-cols-4">
+        <ul className="landing-hero-facts grid grid-cols-2 border-[var(--hud-type)]/20 border-y lg:grid-cols-4">
           {facts.map((fact) => (
             <li
               className="border-[var(--hud-type)]/15 border-r px-3 py-3 text-[var(--hud-type)] last:border-r-0"
               key={fact.label}
             >
-              <HudLabel className="mb-1 text-[var(--hud-type)]/75">
+              <BrandKicker className="mb-1 text-[var(--hud-type)]/75">
                 {fact.label}
-              </HudLabel>
-              <p className="font-[family-name:var(--font-landing-display)] text-xl leading-none">
-                {fact.value}
-              </p>
+              </BrandKicker>
+              <p className="font-display text-xl leading-none">{fact.value}</p>
             </li>
           ))}
         </ul>

@@ -25,8 +25,8 @@ describe("ranking countdown", () => {
   });
 
   test("labels the configured reveal time in Peru", () => {
-    expect(formatRankingVisibleAtInPeru("2026-09-18T14:00:00.000Z")).toBe(
-      "18 de septiembre de 2026 · 09:00 (hora de Perú, UTC−5)",
+    expect(formatRankingVisibleAtInPeru("2026-09-19T02:00:00.000Z")).toBe(
+      "18 de septiembre de 2026 · 21:00 (hora de Perú, UTC−5)",
     );
   });
 });

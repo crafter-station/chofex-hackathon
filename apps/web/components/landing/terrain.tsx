@@ -1,12 +1,10 @@
 "use client";
 
+import posthog from "posthog-js";
 import { useEffect, useRef, useState } from "react";
 
 import { HeroPoster } from "@/components/landing/hero-poster";
-import {
-  scheduleWhenIdle,
-  startHeroModelPreload,
-} from "@/components/landing/sacred-valley-preload";
+import { scheduleWhenIdle } from "@/components/landing/sacred-valley-preload";
 import { TerrainFallback } from "@/components/landing/terrain-fallback";
 import {
   detectWebGL,
@@ -38,6 +36,12 @@ type NavigatorWithMemory = Navigator & { deviceMemory?: number };
  */
 export function Terrain({ className }: { readonly className?: string }) {
   const rootRef = useRef<HTMLDivElement>(null);
+  /*
+   * The drawn event is the numerator of the hero-drawn rate: fired once, the
+   * first time the valley paints, it gives the load-failed events a success
+   * baseline to measure a fall-through rate against.
+   */
+  const drawnReported = useRef(false);
   const [intersecting, setIntersecting] = useState(false);
   const [documentVisible, setDocumentVisible] = useState(true);
   const [presentation, setPresentation] = useState<WorldPresentation>({
@@ -85,7 +89,9 @@ export function Terrain({ className }: { readonly className?: string }) {
     }
 
     return scheduleWhenIdle(() => {
-      startHeroModelPreload();
+      // `preloadHeroTerrain` is the single warm path: it hands the loader the
+      // exact request it will reuse when the canvas mounts. A separate warm
+      // fetch here only downloaded the same mesh a second time.
       void import("@/components/landing/terrain-canvas").then((module) => {
         module.preloadHeroTerrain();
         setCanvas(() => module.TerrainCanvas);
@@ -183,7 +189,13 @@ export function Terrain({ className }: { readonly className?: string }) {
               setContextLost(true);
               setDrawn(false);
             }}
-            onDrawn={() => setDrawn(true)}
+            onDrawn={() => {
+              setDrawn(true);
+              if (!drawnReported.current) {
+                drawnReported.current = true;
+                posthog.capture("hero_terrain_drawn");
+              }
+            }}
             quality={presentation.quality}
             reducedMotion={reducedMotion}
             running={running}

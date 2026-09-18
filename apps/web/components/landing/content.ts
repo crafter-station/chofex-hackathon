@@ -40,7 +40,7 @@ export const qualifierChallengeCount = 5;
 
 export const metadataCopy = {
   title: `${brandName} — Lima, 17–18 oct 2026`,
-  description: `100 cupos para AI, product y software engineers con experiencia. ${trackCount} tracks, 30 horas y una entrega funcionando.`,
+  description: `100 cupos para AI, product y software engineers que demuestran que construyen y shippean. ${trackCount} tracks, 30 horas y una entrega funcionando.`,
 } as const;
 
 export const cliCommands = [
@@ -87,6 +87,13 @@ export const heroCopy = {
   skipToWhy: "Conocer el evento",
 } as const;
 
+export const discordCopy = {
+  cta: "Únete al Discord",
+  title: "Conecta con la comunidad",
+  description:
+    "Preséntate, conoce a otros participantes, encuentra equipo y haz tus preguntas antes del evento.",
+} as const;
+
 export const eventCopy = {
   title: "Crear soluciones reales para problemas reales",
   lede: "Los verdaderos retos no siempre son los más trending. Requieren tiempo, esfuerzo y creatividad para resolver lo que los demás aceptan como status quo.",
@@ -97,7 +104,7 @@ export const eventCopy = {
 export const eventItems = [
   {
     title: "Ship mata cartón",
-    body: "Construyes y lanzas. El filtro es lo que ya pusiste en producción.",
+    body: "Construyes y shippeas. El filtro es lo que ya pusiste en producción.",
   },
   {
     title: "Equipos de 1–4",
@@ -138,11 +145,11 @@ export const trackSeats = [
 export const qualifierChallengesCopy = {
   title: "Challenges de clasificación",
   subtitle: "Demuestra que estás cracked",
-  lede: `Los ${qualifierChallengeCount} challenges son pruebas técnicas individuales que ocurren antes del evento. No son los tracks de la hackathon: aquí compites para demostrar lo que puedes hacer, y los mejores resultados de cada challenge obtienen pase directo al evento.`,
+  lede: `Los ${qualifierChallengeCount} challenges son pruebas técnicas individuales que ocurren antes del evento. Publicaremos uno cada semana: aquí compites para demostrar lo que puedes hacer, y los mejores resultados de cada challenge obtienen pase directo al evento.`,
   tracksLabel: "Tracks / durante el evento",
   tracksBody: `Son ${trackCount} temas para construir en equipo durante 30 horas. Los eliges presencialmente en Lima.`,
   challengesLabel: "Challenges / antes del evento",
-  challengesBody: `Son ${qualifierChallengeCount} pruebas técnicas para clasificar. Resuelve una, sube al ranking y compite por un pase directo.`,
+  challengesBody: `Son ${qualifierChallengeCount} pruebas técnicas, una nueva cada semana. Resuelve una, sube al ranking y compite por un pase directo.`,
   liveKicker: "Challenge 1 / live",
   liveTitle: "The Shipping Machine",
   liveBody:
@@ -265,12 +272,18 @@ export const panelBrands = [
 
 export const applyCopy = {
   title: "Postula desde tu terminal",
-  lede: "La postulación regular sigue abierta. Cuéntanos qué lanzaste, qué construirías aquí y dónde podemos ver tu trabajo. Si prefieres demostrarlo construyendo, los mejores resultados de cada challenge reciben pase directo.",
+  lede: "Las inscripciones están abiertas hasta el 9 de octubre de 2026. Cuéntanos qué construiste y shippeaste, qué construirías aquí y dónde podemos ver tu trabajo. Si prefieres demostrarlo construyendo, los mejores resultados de cada challenge reciben pase directo.",
+  deadlineLabel: "Cierre de inscripciones",
+  deadline: "9 oct 2026",
+  travelTitle: "¿Fuera de Lima?",
+  travelSupport:
+    "Postula igual. Si demuestras que tienes lo necesario para estar en la hackathon y el costo del viaje es lo que te frena, cubriremos tus vuelos a Lima. El dinero no debería ser una barrera; encontraremos la forma.",
   criteriaTitle: "Qué revisamos",
   criteria: [
-    "Un producto o sistema que ya pusiste en manos de usuarios.",
+    "Evidencia en tu GitHub, LinkedIn o productos publicados de que construyes y shippeas.",
     "La claridad con la que explicas decisiones y tradeoffs.",
     "La ambición y viabilidad de lo que quieres construir.",
+    "Tu entrega en un challenge si tus perfiles todavía no muestran lo que puedes hacer.",
   ],
   cliTitle: "Ruta directa",
   agentKicker: "agent",
@@ -368,14 +381,29 @@ export const faqCopy = {
 
 export const faqItems = [
   {
-    question: "¿Tengo que tener el cargo de senior?",
+    question: "¿Necesito experiencia previa o un tipo de proyecto específico?",
     answer:
-      "No. Buscamos evidencia de experiencia y autonomía, no una palabra en LinkedIn.",
+      "No. Puedes estar estudiando o tener años de experiencia, y no exigimos un sector o tipo de proyecto específico. Buscamos reunir a los mejores engineers de Perú: personas que puedan demostrar que saben construir y shippear.",
+  },
+  {
+    question: "¿Hasta cuándo puedo postular?",
+    answer:
+      "Las inscripciones cierran el 9 de octubre de 2026, pero recomendamos postular cuanto antes y estar atento a los challenges. Publicaremos uno cada semana y los mejores resultados de cada challenge obtienen pase directo al evento.",
+  },
+  {
+    question: "¿Qué revisarán de mi perfil?",
+    answer:
+      "Revisaremos tu GitHub y LinkedIn para encontrar evidencia concreta de que construyes y shippeas: productos en uso, repositorios activos, demos, contribuciones o experiencia con resultados. Si tus perfiles todavía no lo muestran, tu entrega en un challenge también puede demostrarlo.",
   },
   {
     question: "¿Necesito un equipo?",
     answer:
       "No. Los equipos pueden tener de 1 a 4 personas y podrás conectar con otros participantes aceptados.",
+  },
+  {
+    question: "¿Puedo postular si vivo fuera de Lima?",
+    answer:
+      "Sí. Queremos que postules estés donde estés. Si demuestras que tienes lo necesario para estar en la hackathon y el costo del viaje es lo que te frena, cubriremos tus vuelos a Lima. El dinero no debería ser una barrera; encontraremos la forma.",
   },
   {
     question: "¿Cuándo se revelan los tracks?",

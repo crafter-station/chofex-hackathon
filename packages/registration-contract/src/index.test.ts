@@ -59,14 +59,20 @@ describe("registration contract", () => {
     });
   });
 
-  test("accepts only the shortened applicant-provided fields", () => {
+  test("accepts optional application profile fields", () => {
     const decoded = Schema.decodeUnknownSync(ApplicationInput)({
       ...application,
       githubUrl: "github.com/cuevaio",
+      bio: "I build tools for developers.",
+      portfolioUrl: "ada.dev",
+      shippedProject: "An analytical engine simulator.",
     });
     expect(decoded.fullName).toBe("Ada Lovelace");
     expect(decoded.role).toBe("Programmer");
     expect(decoded.githubUrl).toBe("https://github.com/cuevaio");
+    expect(decoded.bio).toBe("I build tools for developers.");
+    expect(decoded.portfolioUrl).toBe("https://ada.dev");
+    expect(decoded.shippedProject).toBe("An analytical engine simulator.");
     expect(decoded).not.toHaveProperty("email");
     expect(decoded).not.toHaveProperty("firstName");
     expect(decoded).not.toHaveProperty("city");
@@ -94,7 +100,7 @@ describe("registration contract", () => {
         firstName: "Ada",
         lastName: "Lovelace",
         city: "Lima",
-        bio: "I build analytical engines.",
+        organization: "Analytical Engines Inc.",
       }),
     ).toThrow();
   });
@@ -105,11 +111,17 @@ describe("registration contract", () => {
         role: null,
         githubUrl: null,
         linkedInUrl: null,
+        bio: null,
+        portfolioUrl: null,
+        shippedProject: null,
       }),
     ).toEqual({
       role: null,
       githubUrl: null,
       linkedInUrl: null,
+      bio: null,
+      portfolioUrl: null,
+      shippedProject: null,
     });
   });
 
@@ -163,9 +175,12 @@ describe("registration contract", () => {
     ]);
   });
 
-  test("does not require profile URLs", () => {
+  test("does not require optional application fields", () => {
     const decoded = Schema.decodeUnknownSync(ApplicationInput)(application);
     expect(applicationSemanticRequirements(decoded)).toEqual([]);
+    expect(decoded).not.toHaveProperty("bio");
+    expect(decoded).not.toHaveProperty("portfolioUrl");
+    expect(decoded).not.toHaveProperty("shippedProject");
     expect(decoded).not.toHaveProperty("githubUrl");
     expect(decoded).not.toHaveProperty("linkedInUrl");
   });

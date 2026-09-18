@@ -9,7 +9,7 @@ Install the Hack the Andes application skill in a supported coding agent with
 [skills.sh](https://skills.sh):
 
 ```sh
-npx skills add https://github.com/crafter-station/chofex-hackathon --skill chofex-hackathon -g -y
+npx skills add https://github.com/crafter-station/hack-the-andes --skill chofex-hackathon -g -y
 ```
 
 This installs the skill globally for agents that support global skills; the
@@ -96,7 +96,8 @@ defaults, so pressing Enter keeps an answer and Ctrl+U clears it for a
 replacement.
 Registration is for the on-site event in Lima: the API uses the participant's
 primary Clerk email and records Peru as the country. The application asks for
-full name, role, optional LinkedIn and GitHub URLs, and Terms and Conditions.
+full name, role, optional bio, portfolio URL, shipped project, LinkedIn and
+GitHub URLs, and Terms and Conditions.
 
 For agents and scripts, inspect the templates, save completed answers in separate
 JSON files, validate them locally, and request JSON output:

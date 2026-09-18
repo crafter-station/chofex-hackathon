@@ -36,7 +36,7 @@ policy, then publish the landing.
 
 ## Links
 
-- GitHub: https://github.com/crafter-station/chofex-hackathon
+- GitHub: https://github.com/crafter-station/hack-the-andes
 - README: `README.md`
 - Landing copy: `apps/web/components/landing/content.ts`
 - Participant skill: `skills/chofex-hackathon/SKILL.md`

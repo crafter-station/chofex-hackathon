@@ -1,4 +1,5 @@
 import { requireAuthenticatedParticipantProfile } from "@/lib/auth";
+import { captureProductEvent } from "@/lib/posthog-server";
 import { jsonSuccess, withApiHandler } from "@/lib/registration/http";
 import { submitRegistration } from "@/lib/registration/service";
 
@@ -7,12 +8,17 @@ export const runtime = "nodejs";
 export const POST = (request: Request): Promise<Response> =>
   withApiHandler(request, async (requestId) => {
     const participant = await requireAuthenticatedParticipantProfile(request);
-    return jsonSuccess(
-      requestId,
-      await submitRegistration({
-        clerkUserId: participant.clerkUserId,
-        email: participant.email,
-      }),
-      201,
-    );
+    const result = await submitRegistration({
+      clerkUserId: participant.clerkUserId,
+      email: participant.email,
+    });
+    await captureProductEvent({
+      distinctId: participant.clerkUserId,
+      event: "application_submitted",
+      properties: {
+        auth_token_type: participant.tokenType,
+        application_status: result.registration.status,
+      },
+    });
+    return jsonSuccess(requestId, result, 201);
   });

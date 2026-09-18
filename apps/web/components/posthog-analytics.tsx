@@ -3,26 +3,43 @@
 import posthog from "posthog-js";
 import { useEffect } from "react";
 
-import { isTrackableUrl, posthogHost, posthogKey } from "@/lib/analytics";
+import {
+  campaignPropertiesFromUrl,
+  isExtensionNoiseException,
+  isPostHogConfigured,
+  isTrackableUrl,
+  posthogHost,
+  posthogKey,
+} from "@/lib/analytics";
 
 /**
- * Campaign reporting. Pageviews are captured on history changes, so the UTM
- * parameters the campaign links carry ride along in `$current_url` without any
- * wiring here.
+ * Pageviews capture the campaign landing URL. Registering the UTM dimensions
+ * also carries that campaign into later conversion events in the same browser.
  */
 export function PostHogAnalytics() {
   useEffect(() => {
-    if (!posthogKey) return;
+    if (!isPostHogConfigured(posthogKey)) {
+      if (process.env.NODE_ENV === "development") {
+        console.error(
+          new Error(
+            "NEXT_PUBLIC_POSTHOG_KEY variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once NEXT_PUBLIC_POSTHOG_KEY is configured",
+          ),
+        );
+      }
+      return;
+    }
 
     posthog.init(posthogKey, {
       api_host: posthogHost,
       defaults: "2025-05-24",
       before_send: (event) => {
         if (!event) return event;
+        if (isExtensionNoiseException(event)) return null;
         if (isTrackableUrl(event.properties?.$current_url)) return event;
         return null;
       },
     });
+    posthog.register(campaignPropertiesFromUrl(window.location.href));
   }, []);
 
   return null;

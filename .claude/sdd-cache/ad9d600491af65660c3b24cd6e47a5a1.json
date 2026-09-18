@@ -1,8 +1,0 @@
-{
-  "url": "https://raw.githubusercontent.com/imputnet/cobalt/main/api/src/processing/services/instagram.js",
-  "prompt": "Quote any regex patterns used to parse Instagram URLs (post/reel/tv/stories/share shortcodes). Quote exact code.",
-  "etag": "\"3823dbddb1a2c42683b367f9fa3fd51d509ba7973262a0ed2304ba1c558fc60a\"",
-  "last_modified": "",
-  "content": "# Regex Patterns for Instagram URL Parsing\n\nThe code uses the following regex patterns to extract Instagram data:\n\n**DTSG Token extraction:**\n```javascript\n/\"dtsg\":{\"token\":\"(.*?)\"/\n```\n\n**Query parameter extraction:**\n```javascript\nnew RegExp(name + '=(\\\\d+)')\n```\n\n**JSON object extraction:**\n```javascript\nnew RegExp('\\\\[\"' + name + '\",.*?,({.*?}),\\\\d+\\\\]')\n```\n\n**Media ID and owner ID extraction:**\n```javascript\n/\"media_id\":\\s*?\"(\\d+)\",\"media_owner_id\":\\s*?\"(\\d+)\"/\n```\n\n**Trace policy detection:**\n```javascript\n/\"tracePolicy\":\"polaris.privatePostPage\"/\n```\n\n**GraphQL response parsing:**\n```javascript\n/\"init\",\\[\\],\\[(.*?)\\]\\],/\n```\n\nNote: The code doesn't use explicit URL shortcode patterns. Instead, it constructs URLs dynamically using `postId`, `username`, and `storyId` parameters passed to the function, then uses these patterns to parse response data rather than the original URLs.",
-  "fetched_at": 1789706345
-}

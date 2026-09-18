@@ -10,7 +10,14 @@ import {
   type PostUrlMatch,
   postUrlKindLabels,
 } from "@/lib/post-url";
-import { buildUtmLink, type UtmSource, utmSources } from "@/lib/utm";
+import {
+  buildUtmLink,
+  defaultUtmCampaign,
+  type UtmMedium,
+  type UtmSource,
+  utmMediums,
+  utmSources,
+} from "@/lib/utm";
 
 type CopyStatus = "idle" | "copied" | "failed";
 
@@ -51,6 +58,8 @@ function hintForInput(detected: PostUrlMatch | null): string {
 
 export function UtmBuilder() {
   const [source, setSource] = useState<UtmSource>("instagram");
+  const [medium, setMedium] = useState<UtmMedium>("organic_social");
+  const [campaign, setCampaign] = useState(defaultUtmCampaign);
   const [postId, setPostId] = useState("");
   const [status, setStatus] = useState<CopyStatus>("idle");
   const resetTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
@@ -67,7 +76,12 @@ export function UtmBuilder() {
   const detected = detectPostUrl(postId);
   // A recognised link speaks for itself; anything else is taken as a typed id.
   const resolvedPostId = detected ? (detected.id ?? "") : postId;
-  const link = buildUtmLink({ source, postId: resolvedPostId });
+  const link = buildUtmLink({
+    source,
+    medium,
+    campaign,
+    postId: resolvedPostId,
+  });
   const hint = hintForInput(detected);
 
   const copyLink = async () => {
@@ -86,6 +100,11 @@ export function UtmBuilder() {
 
   const selectSource = (next: UtmSource) => {
     setSource(next);
+    setStatus("idle");
+  };
+
+  const selectMedium = (next: UtmMedium) => {
+    setMedium(next);
     setStatus("idle");
   };
 
@@ -117,6 +136,44 @@ export function UtmBuilder() {
           ))}
         </div>
       </fieldset>
+
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-2 text-sm font-medium">Medium</legend>
+        <div className="flex flex-wrap gap-2">
+          {utmMediums.map((option) => (
+            <Button
+              key={option.id}
+              type="button"
+              size="lg"
+              variant={option.id === medium ? "default" : "outline"}
+              aria-pressed={option.id === medium}
+              onClick={() => selectMedium(option.id)}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
+      </fieldset>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium" htmlFor="utm-campaign">
+          Campaign
+        </label>
+        <Input
+          id="utm-campaign"
+          size="lg"
+          autoComplete="off"
+          placeholder={defaultUtmCampaign}
+          value={campaign}
+          onChange={(event) => {
+            setCampaign(event.target.value);
+            setStatus("idle");
+          }}
+        />
+        <p className="text-sm text-muted-foreground">
+          Keep one campaign name across every post you want to compare.
+        </p>
+      </div>
 
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium" htmlFor="utm-post-id">
@@ -151,7 +208,7 @@ export function UtmBuilder() {
 
       <div className="flex flex-col gap-3">
         <span className="text-sm font-medium">Link</span>
-        <code className="block overflow-x-auto rounded-lg bg-muted px-3 py-2 font-mono text-sm break-all">
+        <code className="block overflow-x-auto border border-border bg-muted px-3 py-3 font-mono text-sm break-all">
           {link ?? "Enter a post link or id to generate the link."}
         </code>
         <div className="flex items-center gap-3">

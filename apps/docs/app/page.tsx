@@ -1,5 +1,5 @@
-import Image, { type ImageProps } from "next/image";
 import { Button } from "@chofex/ui/components/button";
+import Image, { type ImageProps } from "next/image";
 import styles from "./page.module.css";
 
 type Props = Omit<ImageProps, "src"> & {

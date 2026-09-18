@@ -13,6 +13,7 @@ The installed command is `chofex`:
 ```sh
 chofex
 chofex whoami
+chofex update
 chofex upgrade
 chofex register
 chofex status
@@ -26,11 +27,14 @@ chofex challenge ranking
 chofex confirm
 ```
 
+`chofex update` and `chofex upgrade` are interchangeable; both update the CLI
+to the latest published version.
+
 `chofex register` collects and submits an application with full name, role,
-optional LinkedIn and GitHub URLs, and Terms and Conditions. Use `--input` to
-submit a completed JSON application. The Black Box is optional: its progress
-and score give organizers another review metric, but never decide admission or
-block an application submission.
+optional bio, portfolio URL, shipped project, LinkedIn and GitHub URLs, and
+Terms and Conditions. Use `--input` to submit a completed JSON application. The
+Black Box is optional: its progress and score give organizers another review
+metric, but never decide admission or block an application submission.
 
 The public ranking is read-only at `https://hacktheandes.com/challenges`.
 

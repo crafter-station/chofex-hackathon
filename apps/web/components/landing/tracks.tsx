@@ -1,11 +1,11 @@
-import { trackSeats, tracksCopy } from "@/components/landing/content";
-import { HudLabel } from "@/components/landing/hud";
-import { ContourSeal } from "@/components/landing/illustrations";
 import {
-  LandingContainer,
-  LandingSectionHead,
-  landingSectionYClassName,
-} from "@/components/landing/shell";
+  BrandContainer,
+  BrandKicker,
+  BrandSectionHeader,
+  brandSectionClassName,
+} from "@chofex/ui/components/brand";
+import { trackSeats, tracksCopy } from "@/components/landing/content";
+import { ContourSeal } from "@/components/landing/illustrations";
 
 /**
  * Formation parameters for each sealed track card.
@@ -29,8 +29,8 @@ export function LandingTracks() {
       className="bg-[var(--hud-card)]"
       id="tracks"
     >
-      <LandingContainer className={landingSectionYClassName}>
-        <LandingSectionHead
+      <BrandContainer className={brandSectionClassName}>
+        <BrandSectionHeader
           title={tracksCopy.title}
           subtitle={tracksCopy.subtitle}
           titleId="tracks-heading"
@@ -38,7 +38,7 @@ export function LandingTracks() {
           <p className="max-w-xl text-lg leading-relaxed text-[var(--hud-ink)]/75">
             {tracksCopy.lede}
           </p>
-        </LandingSectionHead>
+        </BrandSectionHeader>
 
         <ol className="grid gap-4 md:grid-cols-3">
           {trackSeats.map((track, index) => {
@@ -66,23 +66,23 @@ export function LandingTracks() {
                 />
 
                 <div className="relative z-10 flex w-full flex-col justify-between p-6 sm:p-8">
-                  <HudLabel className="text-[var(--hud-muted)]">
+                  <BrandKicker className="text-[var(--hud-muted)]">
                     Track {track.index}
-                  </HudLabel>
+                  </BrandKicker>
 
                   <p className="max-w-[28ch] text-lg leading-snug text-[var(--hud-ink)]">
                     {track.hint}
                   </p>
 
-                  <HudLabel className="border-[var(--hud-ink)]/15 border-t pt-4 text-[var(--hud-muted)]">
+                  <BrandKicker className="border-[var(--hud-ink)]/15 border-t pt-4 text-[var(--hud-muted)]">
                     {tracksCopy.reveal}
-                  </HudLabel>
+                  </BrandKicker>
                 </div>
               </li>
             );
           })}
         </ol>
-      </LandingContainer>
+      </BrandContainer>
     </section>
   );
 }

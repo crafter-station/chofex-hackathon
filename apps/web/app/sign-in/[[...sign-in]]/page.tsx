@@ -1,16 +1,11 @@
+import { BrandAuthPage } from "@chofex/ui/components/brand";
 import { SignIn } from "@clerk/nextjs";
+import { brandName } from "@/components/landing/content";
 
 export default function SignInPage() {
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+    <BrandAuthPage brandName={brandName}>
       <SignIn />
-    </div>
+    </BrandAuthPage>
   );
 }
