@@ -1167,17 +1167,20 @@
 }
 
 /*
- * The second fold, and it is not "everything to one column".
+ * The second fold: everything to one column except a label/value pair.
  *
- * A four-up stays two-up: 2×2 reads at 412px, and four cells stacked is a
- * scroll nobody finishes. A three-up has no honest two-column form — one cell
- * is always orphaned — so it stacks. A two-up of copy stacks. A two-up that is
- * a label and its value keeps both columns, because stacking a label over its
- * value doubles the rows and reads worse than the pair.
+ * A four-up spent a version at 2×2, on the theory that four stacked cells are a
+ * scroll nobody finishes. Measured, 2×2 leaves each cell 103px of content on a
+ * 412px phone, and the widest word in the tiers slide — `Producto` — is 134px
+ * at the display size. It printed over the cell's own border. A column of copy
+ * needs a measure, and half a phone is not one.
+ *
+ * A label and its value is the exception: stacking a label over its value
+ * doubles the row count and reads worse than the pair, and neither half of it
+ * is a measure of copy.
  */
 @media (max-width: 620px) {
-  .deck-table[data-cols="2"]:not([data-shape="rows"]),
-  .deck-table[data-cols="3"] {
+  .deck-table[data-cols]:not([data-shape="rows"]) {
     --deck-cols-narrow: minmax(0, 1fr);
   }
 
@@ -1221,6 +1224,37 @@
   .deck-tier-price,
   .deck-stat-value {
     font-size: 2rem;
+  }
+
+  /*
+   * A stacked tier puts its price beside its name instead of under it.
+   *
+   * The price on its own line costs about 44px, and four tiers in a column is
+   * where a phone runs out of slide. `display: contents` on the wrapper is what
+   * lets the price and the benefits become items of the tier's own grid without
+   * the component knowing anything about it.
+   */
+  .deck-tier {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    column-gap: 0.75rem;
+  }
+
+  .deck-tier > div:last-child {
+    display: contents;
+  }
+
+  .deck-tier .deck-tier-price {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 1.75rem;
+  }
+
+  .deck-tier .deck-copy {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    margin-top: 0.5rem;
   }
 
   /*

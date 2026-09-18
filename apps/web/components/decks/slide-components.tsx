@@ -247,7 +247,7 @@ export function SponsorTier({
   return (
     <div
       className={cx(
-        "deck-cell flex min-h-60 flex-col justify-between",
+        "deck-tier deck-cell flex min-h-60 flex-col justify-between",
         feature && "deck-cell-invert",
       )}
     >

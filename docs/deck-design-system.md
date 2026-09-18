@@ -243,10 +243,22 @@ Las retículas no colapsan todas a una columna. El doblez es por forma:
 
 | `data-cols` | ≤900px | ≤620px |
 | --- | --- | --- |
-| 4 | 2 | **2** — 2×2 se lee a 412px; cuatro apiladas son un scroll que nadie termina |
-| 3 | 2 | 1 — tres no tienen forma honesta de dos columnas, siempre sobra una |
+| 4 | 2 | 1 |
+| 3 | 2 | 1 |
 | 2 (celdas de copy) | 2 | 1 |
-| 2 con `data-shape="rows"` | 2 | **2** — apilar una etiqueta sobre su valor duplica las filas y lee peor |
+| 2 con `data-shape="rows"` | 2 | **2** — apilar una etiqueta sobre su valor duplica las filas y lee peor, y ninguna mitad es una medida de lectura |
+
+El 4 pasó una versión en 2×2, con la teoría de que cuatro celdas apiladas son un
+scroll que nadie termina. Medido: 2×2 deja 103px de contenido por celda en un
+teléfono de 412, y la palabra más ancha del slide de tiers —`Producto`— mide
+134px al tamaño de display. Imprimía por encima del borde de su propia celda.
+Una columna de copy necesita una medida, y media pantalla de teléfono no lo es.
+
+En una sola columna, `SponsorTier` pone el precio **al lado** del nombre y no
+debajo: son unos 44px por tier, y cuatro tiers en columna es justo donde un
+teléfono se queda sin slide. `display: contents` sobre el envoltorio del precio
+es lo que deja que precio y contrapartidas entren a la retícula del tier sin que
+el componente sepa nada del asunto.
 
 Esto funciona porque la lista de tracks viaja como **custom property**. Antes era
 un `grid-template-columns` en línea, y un estilo en línea no lo puede pisar
