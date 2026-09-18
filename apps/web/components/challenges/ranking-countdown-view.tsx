@@ -62,7 +62,7 @@ export function RankingCountdown({
             className="bg-[var(--hud-card)] px-3 py-5 text-center sm:py-7"
             key={unit.label}
           >
-            <div className="font-[family-name:var(--font-hta-display)] text-4xl leading-none text-[var(--hud-action)] sm:text-5xl">
+            <div className="font-display text-4xl leading-none text-[var(--hud-action)] sm:text-5xl">
               {twoDigits(unit.value)}
             </div>
             <BrandKicker className="mt-2 text-[var(--hud-muted)]">

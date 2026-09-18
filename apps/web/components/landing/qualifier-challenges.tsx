@@ -62,7 +62,7 @@ export function LandingQualifierChallenges() {
             <BrandKicker className="text-[var(--hud-status)]">
               {qualifierChallengesCopy.liveKicker}
             </BrandKicker>
-            <h3 className="mt-8 max-w-xl font-[family-name:var(--font-hta-display)] text-4xl leading-none uppercase sm:text-5xl">
+            <h3 className="mt-8 max-w-xl font-display text-4xl leading-none uppercase sm:text-5xl">
               {qualifierChallengesCopy.liveTitle}
             </h3>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-[var(--hud-ink)]/75">

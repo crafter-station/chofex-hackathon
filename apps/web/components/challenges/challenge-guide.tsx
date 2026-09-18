@@ -42,7 +42,7 @@ export function BlackBoxChallengeGuide() {
           Challenge de clasificación / no es un track
         </BrandKicker>
         <h2
-          className="font-[family-name:var(--font-hta-display)] text-4xl leading-none uppercase sm:text-5xl"
+          className="font-display text-4xl leading-none uppercase sm:text-5xl"
           id="challenge-brief-heading"
         >
           El reto
@@ -67,9 +67,7 @@ export function BlackBoxChallengeGuide() {
                 Oracle
               </BrandKicker>
             </dt>
-            <dd className="mt-2 font-[family-name:var(--font-hta-display)] text-3xl uppercase">
-              25 queries
-            </dd>
+            <dd className="mt-2 font-display text-3xl uppercase">25 queries</dd>
           </div>
           <div className="bg-[var(--hud-card)] p-5">
             <dt>
@@ -77,7 +75,7 @@ export function BlackBoxChallengeGuide() {
                 Hidden set
               </BrandKicker>
             </dt>
-            <dd className="mt-2 font-[family-name:var(--font-hta-display)] text-3xl uppercase">
+            <dd className="mt-2 font-display text-3xl uppercase">
               1,000 envíos
             </dd>
           </div>
@@ -87,7 +85,7 @@ export function BlackBoxChallengeGuide() {
                 Intentos
               </BrandKicker>
             </dt>
-            <dd className="mt-2 font-[family-name:var(--font-hta-display)] text-3xl uppercase">
+            <dd className="mt-2 font-display text-3xl uppercase">
               3 evaluaciones oficiales
             </dd>
           </div>
@@ -99,7 +97,7 @@ export function BlackBoxChallengeGuide() {
           Field guide
         </BrandKicker>
         <h2
-          className="font-[family-name:var(--font-hta-display)] text-4xl leading-none uppercase sm:text-5xl"
+          className="font-display text-4xl leading-none uppercase sm:text-5xl"
           id="challenge-instructions-heading"
         >
           Cómo participar
@@ -110,7 +108,7 @@ export function BlackBoxChallengeGuide() {
               className={`grid gap-5 p-5 sm:grid-cols-[3rem_minmax(0,1fr)] sm:p-6 ${brandFrameClassName}`}
               key={item.title}
             >
-              <span className="font-[family-name:var(--font-hta-mono)] text-[var(--hud-action)]">
+              <span className="font-mono text-[var(--hud-action)]">
                 {String(index + 1).padStart(2, "0")}
               </span>
               <div className="min-w-0">

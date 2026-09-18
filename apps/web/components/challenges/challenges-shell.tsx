@@ -1,7 +1,7 @@
 import {
   BrandHeader,
   BrandPage,
-  BrandWordmark,
+  BrandWordmarkLink,
 } from "@chofex/ui/components/brand";
 import { buttonVariants } from "@chofex/ui/components/button";
 import Link from "next/link";
@@ -19,11 +19,7 @@ export function ChallengesShell({
     <BrandPage className="landing-dark flex flex-col" id="top">
       <LandingSkipLinks applyHref="/#apply" />
       <BrandHeader>
-        <BrandWordmark>
-          <Link className="text-inherit" href="/">
-            {brandName}
-          </Link>
-        </BrandWordmark>
+        <BrandWordmarkLink href="/">{brandName}</BrandWordmarkLink>
         <nav
           aria-label="Navegación principal"
           className="flex items-center gap-3 font-mono text-xs uppercase tracking-[0.12em] sm:gap-5"

@@ -51,7 +51,7 @@ const RankingResults = ({
               className="border-[var(--hud-ink)]/10 border-t"
               key={`${entry.shareCode}-${entry.rank}`}
             >
-              <td className="px-4 py-3 font-[family-name:var(--font-hta-mono)] text-[var(--hud-action)]">
+              <td className="px-4 py-3 font-mono text-[var(--hud-action)]">
                 #{entry.rank}
               </td>
               <td className="px-4 py-3">
@@ -60,18 +60,12 @@ const RankingResults = ({
                   #{entry.shareCode}
                 </div>
               </td>
-              <td className="px-4 py-3 font-[family-name:var(--font-hta-mono)]">
-                {percent(entry.accuracy)}
-              </td>
-              <td className="px-4 py-3 font-[family-name:var(--font-hta-mono)]">
+              <td className="px-4 py-3 font-mono">{percent(entry.accuracy)}</td>
+              <td className="px-4 py-3 font-mono">
                 {entry.exactCount}/{entry.sampleSize}
               </td>
-              <td className="px-4 py-3 font-[family-name:var(--font-hta-mono)]">
-                {entry.queriesUsed}
-              </td>
-              <td className="px-4 py-3 font-[family-name:var(--font-hta-mono)]">
-                {entry.runtimeMs} ms
-              </td>
+              <td className="px-4 py-3 font-mono">{entry.queriesUsed}</td>
+              <td className="px-4 py-3 font-mono">{entry.runtimeMs} ms</td>
             </tr>
           ))}
         </tbody>
@@ -143,7 +137,7 @@ export function ChallengeRankingView({
             <BrandKicker className="text-[var(--hud-muted)]">
               Participantes
             </BrandKicker>
-            <p className="mt-2 font-[family-name:var(--font-hta-display)] text-4xl">
+            <p className="mt-2 font-display text-4xl">
               {rankingVisible ? competitorCount : "—"}
             </p>
           </div>
@@ -151,15 +145,13 @@ export function ChallengeRankingView({
             <BrandKicker className="text-[var(--hud-muted)]">
               Estado
             </BrandKicker>
-            <p className="mt-2 font-[family-name:var(--font-hta-mono)] text-sm uppercase tracking-[0.12em] text-[var(--hud-action)]">
+            <p className="mt-2 font-mono text-sm uppercase tracking-[0.12em] text-[var(--hud-action)]">
               {challengeState}
             </p>
           </div>
           <div>
             <BrandKicker className="text-[var(--hud-muted)]">CLI</BrandKicker>
-            <p className="mt-2 break-words font-[family-name:var(--font-hta-mono)] text-sm">
-              {cliHint}
-            </p>
+            <p className="mt-2 break-words font-mono text-sm">{cliHint}</p>
           </div>
         </div>
 
@@ -170,7 +162,7 @@ export function ChallengeRankingView({
             resultados oficiales
           </BrandKicker>
           <h2
-            className="font-[family-name:var(--font-hta-display)] text-4xl leading-none uppercase sm:text-5xl"
+            className="font-display text-4xl leading-none uppercase sm:text-5xl"
             id="ranking-heading"
           >
             Ranking

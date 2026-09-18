@@ -29,6 +29,11 @@
   z-index: 1;
 }
 
+/* Preserve the reference landing's cream-on-sandstone text selection. */
+.landing-dark ::selection {
+  color: var(--hud-ink);
+}
+
 /*
  * The hero's one departure: the lockup's accent is the burnt red rather than
  * the sandstone the sections use for their metrics, because at display size on

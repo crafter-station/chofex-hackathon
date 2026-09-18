@@ -46,6 +46,37 @@
   animation-play-state: paused;
 }
 
+.landing-hero-floor-fade {
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--hud-paper) 95%, transparent),
+    color-mix(in srgb, var(--hud-paper) 58%, transparent),
+    transparent
+  );
+}
+
+.landing-hero-sky-fade {
+  background: linear-gradient(
+    to bottom,
+    var(--hud-paper),
+    color-mix(in srgb, var(--hud-paper) 70%, transparent),
+    transparent
+  );
+}
+
+.landing-hero-lockup-wash {
+  background: radial-gradient(
+    ellipse 58% 38% at 50% 49%,
+    color-mix(in srgb, var(--hud-paper) 93%, transparent) 0%,
+    color-mix(in srgb, var(--hud-paper) 68%, transparent) 46%,
+    transparent 84%
+  );
+}
+
+.landing-hero-facts {
+  background-color: color-mix(in srgb, var(--hud-paper) 88%, transparent);
+}
+
 @keyframes landing-live-banner-scroll {
   to {
     transform: translateX(-50%);
@@ -84,6 +115,10 @@
 
 .landing-world-fallback--ready {
   opacity: 0;
+}
+
+.landing-world-overlay {
+  background-color: color-mix(in srgb, var(--hud-paper) 62%, transparent);
 }
 
 .landing-scan-box {

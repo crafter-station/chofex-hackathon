@@ -2,7 +2,7 @@ import {
   BrandContainer,
   BrandHeader,
   BrandPage,
-  BrandWordmark,
+  BrandWordmarkLink,
 } from "@chofex/ui/components/brand";
 import { buttonVariants } from "@chofex/ui/components/button";
 import Link from "next/link";
@@ -24,11 +24,7 @@ export function LegalPage({
   return (
     <BrandPage className="flex flex-col">
       <BrandHeader>
-        <BrandWordmark>
-          <Link className="text-inherit" href="/">
-            {brandName}
-          </Link>
-        </BrandWordmark>
+        <BrandWordmarkLink href="/">{brandName}</BrandWordmarkLink>
         <nav className="flex flex-wrap gap-2" aria-label="Legal pages">
           <Link className={buttonVariants({ variant: "outline" })} href="/">
             Inicio

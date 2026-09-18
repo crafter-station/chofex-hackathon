@@ -80,7 +80,7 @@ export function ChallengesIndex({
                   </div>
 
                   <div className="my-10 max-w-xl">
-                    <h2 className="font-[family-name:var(--font-hta-display)] text-3xl leading-none uppercase sm:text-4xl">
+                    <h2 className="font-display text-3xl leading-none uppercase sm:text-4xl">
                       {challenge.title}
                     </h2>
                     <p className="mt-4 max-w-[48ch] text-sm leading-relaxed text-[var(--hud-muted)]">
@@ -94,7 +94,7 @@ export function ChallengesIndex({
                     </BrandKicker>
                     <Link
                       aria-label={`Ver detalles, instrucciones y ranking de ${challenge.title}`}
-                      className="font-[family-name:var(--font-hta-mono)] text-sm uppercase tracking-[0.12em] text-[var(--hud-action)] underline-offset-4 hover:text-[var(--hud-action-hover)] hover:underline"
+                      className="font-mono text-sm uppercase tracking-[0.12em] text-[var(--hud-action)] underline-offset-4 hover:text-[var(--hud-action-hover)] hover:underline"
                       href={challenge.rankingPath}
                     >
                       Ver detalles y ranking →

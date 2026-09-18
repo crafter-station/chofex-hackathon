@@ -5,10 +5,9 @@ import {
   BrandKicker,
   BrandPage,
   BrandTitle,
-  BrandWordmark,
+  BrandWordmarkLink,
 } from "@chofex/ui/components/brand";
 import { auth } from "@clerk/nextjs/server";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { brandName } from "@/components/landing/content";
@@ -31,11 +30,7 @@ export default async function UtmBuilderPage() {
   return (
     <BrandPage>
       <BrandHeader>
-        <BrandWordmark>
-          <Link className="text-inherit" href="/">
-            {brandName}
-          </Link>
-        </BrandWordmark>
+        <BrandWordmarkLink href="/">{brandName}</BrandWordmarkLink>
       </BrandHeader>
       <main>
         <BrandContainer className="max-w-3xl py-14 sm:py-20">

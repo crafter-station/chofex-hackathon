@@ -25,7 +25,7 @@ export function LandingFaq() {
                 <span>{item.question}</span>
                 <span
                   aria-hidden="true"
-                  className="font-[family-name:var(--font-hta-mono)] text-[var(--hud-action)] transition-transform group-open:rotate-45"
+                  className="font-mono text-[var(--hud-action)] transition-transform group-open:rotate-45"
                 >
                   +
                 </span>
@@ -38,7 +38,7 @@ export function LandingFaq() {
         </div>
         <div className="mt-10 flex flex-col items-start justify-between gap-6 border-[var(--hud-ink)]/15 border-y py-7 sm:flex-row sm:items-center">
           <div className="max-w-2xl">
-            <h3 className="font-[family-name:var(--font-hta-display)] text-2xl uppercase sm:text-3xl">
+            <h3 className="font-display text-2xl uppercase sm:text-3xl">
               {discordCopy.title}
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-[var(--hud-muted)] sm:text-base">

@@ -26,7 +26,7 @@ export function LandingApply() {
               <BrandKicker className="text-[var(--hud-muted)]">
                 {applyCopy.deadlineLabel}
               </BrandKicker>
-              <p className="font-[family-name:var(--font-hta-display)] text-2xl leading-none uppercase">
+              <p className="font-display text-2xl leading-none uppercase">
                 {applyCopy.deadline}
               </p>
             </div>
@@ -71,10 +71,10 @@ export function LandingApply() {
                 className="size-5 text-[var(--hud-muted)]"
               />
             </div>
-            <h3 className="font-[family-name:var(--font-hta-display)] text-3xl leading-none uppercase">
+            <h3 className="font-display text-3xl leading-none uppercase">
               {applyCopy.cliTitle}
             </h3>
-            <ol className="mt-6 overflow-hidden border border-[var(--hud-ink)]/10 bg-[var(--hud-ink)] font-[family-name:var(--font-hta-mono)] text-sm text-[var(--hud-type)]">
+            <ol className="mt-6 overflow-hidden border border-[var(--hud-ink)]/10 bg-[var(--hud-ink)] font-mono text-sm text-[var(--hud-type)]">
               {cliCommands.map((command, index) => (
                 <li
                   /*
@@ -112,7 +112,7 @@ export function LandingApply() {
                 {applyCopy.agentKicker}
               </BrandKicker>
             </div>
-            <h3 className="font-[family-name:var(--font-hta-display)] text-3xl leading-none uppercase">
+            <h3 className="font-display text-3xl leading-none uppercase">
               {applyCopy.agentTitle}
             </h3>
             <CopyAgentPrompt />

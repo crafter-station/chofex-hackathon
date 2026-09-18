@@ -8,6 +8,19 @@ test("loads landing-only motion and fallback styles from the route", async () =>
   expect(page).toContain('import "@/components/landing/landing.css";');
 });
 
+test("preserves the reference landing CTA and selection treatment", async () => {
+  const buttons = await Bun.file(
+    new URL(
+      "../../../../packages/ui/src/components/button.tsx",
+      import.meta.url,
+    ),
+  ).text();
+  const darkCss = await Bun.file(new URL("./dark.css", import.meta.url)).text();
+
+  expect(buttons).toMatch(/landing:\s*"[^"]*min-h-12[^"]*tracking-\[0\.12em\]/);
+  expect(darkCss).toMatch(/\.landing-dark ::selection[\s\S]*?--hud-ink/);
+});
+
 test("ships a decorative static valley when the live hero cannot draw", async () => {
   const fallback = await Bun.file(
     new URL("./terrain-fallback.tsx", import.meta.url),

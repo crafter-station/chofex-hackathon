@@ -8,7 +8,7 @@ import {
   BrandKicker,
   BrandPage,
   BrandTitle,
-  BrandWordmark,
+  BrandWordmarkLink,
 } from "@chofex/ui/components/brand";
 import {
   Button,
@@ -1078,11 +1078,7 @@ export function CandidateDashboard({
     <BrandPage className="overflow-hidden">
       <BrandHeader>
         <div>
-          <BrandWordmark>
-            <a className="text-inherit" href="/">
-              {brandName}
-            </a>
-          </BrandWordmark>
+          <BrandWordmarkLink href="/">{brandName}</BrandWordmarkLink>
           <BrandKicker className="mt-1 text-muted-foreground">
             Lima / participant operations
           </BrandKicker>
@@ -1256,22 +1252,25 @@ export function CandidateDashboard({
                   label="Previous page"
                   icon={<ArrowLeftIcon className="size-3.5" />}
                 />
-                {pageNumbers.map((page) => (
-                  <ButtonLink
-                    key={page}
-                    variant={page === currentData.page ? "default" : "outline"}
-                    size="icon"
-                    href={pageHref(page, filters.query, filters.status)}
-                    onClick={(event) =>
-                      navigateFromClick(event, { ...filters, page })
-                    }
-                    aria-current={
-                      page === currentData.page ? "page" : undefined
-                    }
-                  >
-                    {page}
-                  </ButtonLink>
-                ))}
+                {pageNumbers.map((page) => {
+                  const isCurrentPage = page === currentData.page;
+                  const variant = isCurrentPage ? "default" : "outline";
+                  const ariaCurrent = isCurrentPage ? "page" : undefined;
+                  return (
+                    <ButtonLink
+                      key={page}
+                      variant={variant}
+                      size="icon"
+                      href={pageHref(page, filters.query, filters.status)}
+                      onClick={(event) =>
+                        navigateFromClick(event, { ...filters, page })
+                      }
+                      aria-current={ariaCurrent}
+                    >
+                      {page}
+                    </ButtonLink>
+                  );
+                })}
                 <PaginationArrow
                   href={pageHref(
                     Math.min(currentData.totalPages, currentData.page + 1),

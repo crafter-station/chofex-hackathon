@@ -30,7 +30,7 @@ export function LandingEvent() {
             aria-hidden="true"
             className="flex w-full max-w-xl items-end justify-between self-start overflow-hidden border border-[var(--hud-ink)]/20 px-5 py-6 sm:max-w-2xl sm:px-6 sm:py-8"
           >
-            <span className="font-[family-name:var(--font-hta-display)] text-[clamp(7.25rem,28vw,13.5rem)] leading-[0.68] tracking-[-0.06em] text-[var(--hud-type)]">
+            <span className="font-display text-[clamp(7.25rem,28vw,13.5rem)] leading-[0.68] tracking-[-0.06em] text-[var(--hud-type)]">
               30
             </span>
             <div className="mb-1 ml-5 flex min-w-24 flex-1 flex-col gap-3">
@@ -51,7 +51,7 @@ export function LandingEvent() {
                   0{index + 1}
                 </BrandKicker>
                 <div className="grid gap-2 sm:grid-cols-[minmax(9rem,0.55fr)_1fr] sm:gap-6">
-                  <h3 className="font-[family-name:var(--font-hta-display)] text-2xl leading-none">
+                  <h3 className="font-display text-2xl leading-none">
                     {item.title}
                   </h3>
                   <p className="text-sm leading-relaxed text-[var(--hud-muted)]">

@@ -9,6 +9,9 @@ export const brandSectionClassName = "py-14 sm:py-20";
 export const brandFrameClassName =
   "brand-frame border border-foreground/10 bg-card text-card-foreground";
 
+export const brandWordmarkClassName =
+  "font-brand text-xl leading-none font-medium tracking-[0.012em] text-foreground";
+
 export function BrandPage({ className, ...props }: ComponentProps<"div">) {
   return <div className={cn(brandPageClassName, className)} {...props} />;
 }
@@ -66,15 +69,14 @@ export function BrandFooter({
 }
 
 export function BrandWordmark({ className, ...props }: ComponentProps<"div">) {
-  return (
-    <div
-      className={cn(
-        "font-brand text-xl leading-none font-medium tracking-[0.012em] text-foreground",
-        className,
-      )}
-      {...props}
-    />
-  );
+  return <div className={cn(brandWordmarkClassName, className)} {...props} />;
+}
+
+export function BrandWordmarkLink({
+  className,
+  ...props
+}: ComponentProps<"a">) {
+  return <a className={cn(brandWordmarkClassName, className)} {...props} />;
 }
 
 export function BrandKicker({ className, ...props }: ComponentProps<"p">) {
@@ -84,18 +86,15 @@ export function BrandKicker({ className, ...props }: ComponentProps<"p">) {
 export function BrandTitle({
   as: Heading = "h2",
   className,
-  size = "section",
   ...props
 }: ComponentProps<"h2"> & {
-  readonly as?: "h1" | "h2" | "h3";
-  readonly size?: "section" | "card";
+  readonly as?: "h1" | "h2";
 }) {
   return (
     <Heading
       className={cn(
         "text-balance font-display leading-[0.88] tracking-[-0.025em] uppercase",
-        size === "section" && "text-5xl sm:text-7xl",
-        size === "card" && "text-3xl sm:text-4xl",
+        "text-5xl sm:text-7xl",
         className,
       )}
       {...props}
@@ -158,18 +157,20 @@ export function BrandCenteredPage({
 }
 
 export function BrandAuthPage({
-  brand,
+  brandName,
   children,
   className,
   ...props
-}: ComponentProps<"main"> & { readonly brand: ReactNode }) {
+}: ComponentProps<"main"> & { readonly brandName: string }) {
   return (
     <BrandCenteredPage
       className={className}
       contentClassName="flex max-w-md flex-col items-center"
       {...props}
     >
-      <BrandWordmark className="mb-8 text-2xl">{brand}</BrandWordmark>
+      <BrandWordmarkLink className="mb-8 text-2xl" href="/">
+        {brandName}
+      </BrandWordmarkLink>
       {children}
     </BrandCenteredPage>
   );
