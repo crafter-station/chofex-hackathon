@@ -10,8 +10,8 @@ function isPublicMarketingPath(pathname: string) {
     pathname === "/privacy" ||
     pathname === "/challenges" ||
     pathname === "/credits" ||
-    pathname === "/opengraph-image" ||
-    pathname === "/twitter-image" ||
+    pathname === "/opengraph-image.jpg" ||
+    pathname === "/twitter-image.jpg" ||
     pathname === "/api/v1/challenges"
   ) {
     return true;

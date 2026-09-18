@@ -3,6 +3,7 @@ import { inflateSync } from "node:zlib";
 
 import {
   applyCopy,
+  brandName,
   chromeCopy,
   discordCopy,
   eventCopy,
@@ -288,11 +289,28 @@ test("encourages strong applicants outside Lima and promises flight support", ()
   expect(travelFaq?.answer).toMatch(/cubriremos tus vuelos a Lima/i);
 });
 
-test("keeps the social preview lockup free of sponsor-principal phrasing", async () => {
-  const og = await Bun.file(
-    new URL("../../app/opengraph-image.tsx", import.meta.url),
+test("ships one social preview card for every public link", async () => {
+  // The card is a static file rather than an `ImageResponse`, so the guarantee
+  // is that every name Next's file convention reads is actually on disk: drop
+  // one and the routes it covers lose their preview without failing anything.
+  for (const name of [
+    "opengraph-image.jpg",
+    "opengraph-image.alt.txt",
+    "twitter-image.jpg",
+    "twitter-image.alt.txt",
+  ]) {
+    const file = Bun.file(new URL(`../../app/${name}`, import.meta.url));
+    expect(await file.exists()).toBe(true);
+    expect(file.size).toBeGreaterThan(0);
+  }
+
+  // The phrasing rule outlived the lockup it was written for: the alt text is
+  // now the only prose the card carries.
+  const alt = await Bun.file(
+    new URL("../../app/opengraph-image.alt.txt", import.meta.url),
   ).text();
-  expect(og).not.toMatch(/sponsor principal/i);
+  expect(alt).not.toMatch(/sponsor principal/i);
+  expect(alt).toContain(brandName);
 });
 
 test("fits the prizes lockup inside one viewport column", async () => {
