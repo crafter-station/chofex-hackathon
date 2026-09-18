@@ -46,6 +46,7 @@ import {
   SparklesIcon,
   SquareCodeIcon,
   TriangleAlertIcon,
+  UserRoundPlusIcon,
   UsersIcon,
   XIcon,
 } from "lucide-react";
@@ -1116,11 +1117,18 @@ export function CandidateDashboard({
           </Badge>
         </section>
 
-        <section className="mt-8 grid gap-3 sm:grid-cols-3">
+        <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            label="Total participants"
-            value={currentData.counts.all}
+            label="Clerk users"
+            value={currentData.clerkUserCount}
             icon={<UsersIcon className="size-4 text-muted-foreground" />}
+          />
+          <StatCard
+            label="Registrations started"
+            value={currentData.counts.all}
+            icon={
+              <UserRoundPlusIcon className="size-4 text-muted-foreground" />
+            }
           />
           <StatCard
             label="Needs review"

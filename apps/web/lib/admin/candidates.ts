@@ -302,6 +302,7 @@ export interface CandidateListInput {
 export const listCandidates = async (
   input: CandidateListInput,
 ): Promise<CandidatePage> => {
+  const clerk = await clerkClient();
   const requestedPage = Math.max(1, Math.floor(input.page ?? 1));
   const search = input.query?.trim();
   let searchCondition: SQL | undefined;
@@ -343,23 +344,34 @@ export const listCandidates = async (
     reattemptCondition,
   );
 
-  const [totalResult, statusResults, reattemptResult] = await Promise.all([
-    db
-      .select({ value: count() })
-      .from(applications)
-      .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
-      .where(whereCondition),
-    db
-      .select({ status: applications.status, value: count() })
-      .from(applications)
-      .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
-      .groupBy(applications.status),
-    db
-      .select({ value: count() })
-      .from(applications)
-      .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
-      .where(isReattemptCondition),
-  ]);
+  const [totalResult, statusResults, reattemptResult, clerkUserCount] =
+    await Promise.all([
+      db
+        .select({ value: count() })
+        .from(applications)
+        .innerJoin(
+          latestApplications,
+          eq(latestApplications.id, applications.id),
+        )
+        .where(whereCondition),
+      db
+        .select({ status: applications.status, value: count() })
+        .from(applications)
+        .innerJoin(
+          latestApplications,
+          eq(latestApplications.id, applications.id),
+        )
+        .groupBy(applications.status),
+      db
+        .select({ value: count() })
+        .from(applications)
+        .innerJoin(
+          latestApplications,
+          eq(latestApplications.id, applications.id),
+        )
+        .where(isReattemptCondition),
+      clerk.users.getCount(),
+    ]);
 
   const total = totalResult[0]?.value ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -398,6 +410,7 @@ export const listCandidates = async (
 
   return {
     candidates,
+    clerkUserCount,
     counts,
     page: currentPage,
     pageSize,
