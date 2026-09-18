@@ -1,4 +1,4 @@
-import { challengeSeats, challengesCopy } from "@/components/landing/content";
+import { trackSeats, tracksCopy } from "@/components/landing/content";
 import { HudLabel } from "@/components/landing/hud";
 import { ContourSeal } from "@/components/landing/illustrations";
 import {
@@ -8,49 +8,51 @@ import {
 } from "@/components/landing/shell";
 
 /**
- * Formation parameters for each sealed challenge card.
+ * Formation parameters for each sealed track card.
  * Each index gets a distinct topographic signature — different ridge shape —
- * so the three cards read as three genuinely separate sealed formations.
+ * so the five cards read as genuinely separate sealed formations.
  *
  *   01 — broad E-W ridge (elongated, low): wide challenge space
  *   02 — steep symmetric peak (nearly circular): concentrated, intense
  *   03 — tilted elongated formation: irregular, asymmetric problem
  */
-const CHALLENGE_FORMATIONS = [
+const TRACK_FORMATIONS = [
   { rxOuter: 98, ryOuter: 66, rotateDeg: 0 },
   { rxOuter: 80, ryOuter: 78, rotateDeg: 0 },
   { rxOuter: 94, ryOuter: 58, rotateDeg: -8 },
+  { rxOuter: 88, ryOuter: 70, rotateDeg: 12 },
+  { rxOuter: 100, ryOuter: 52, rotateDeg: -4 },
 ] as const;
 
-export function LandingChallenges() {
+export function LandingTracks() {
   return (
     <section
-      aria-labelledby="challenges-heading"
+      aria-labelledby="tracks-heading"
       className="bg-[var(--hud-card)]"
-      id="challenges"
+      id="tracks"
     >
       <LandingContainer className={landingSectionYClassName}>
         <LandingSectionHead
-          title={challengesCopy.title}
-          subtitle={challengesCopy.subtitle}
-          titleId="challenges-heading"
+          title={tracksCopy.title}
+          subtitle={tracksCopy.subtitle}
+          titleId="tracks-heading"
         >
           <p className="max-w-xl text-lg leading-relaxed text-[var(--hud-ink)]/75">
-            {challengesCopy.lede}
+            {tracksCopy.lede}
           </p>
         </LandingSectionHead>
 
-        <ol className="grid gap-4 md:grid-cols-3">
-          {challengeSeats.map((seat, index) => {
-            const formation = CHALLENGE_FORMATIONS[index] ?? {
+        <ol className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          {trackSeats.map((track, index) => {
+            const formation = TRACK_FORMATIONS[index] ?? {
               rxOuter: 96,
               ryOuter: 74,
               rotateDeg: 0,
             };
             return (
               <li
-                className="landing-dossier relative flex min-h-[24rem] overflow-hidden border border-[var(--hud-ink)]/15 bg-[var(--hud-paper)]"
-                key={seat.index}
+                className="landing-dossier relative flex min-h-[22rem] overflow-hidden border border-[var(--hud-ink)]/15 bg-[var(--hud-paper)]"
+                key={track.index}
               >
                 {/*
                  * Contour seal — topographic formation unique to this brief.
@@ -67,15 +69,15 @@ export function LandingChallenges() {
 
                 <div className="relative z-10 flex w-full flex-col justify-between p-6 sm:p-8">
                   <HudLabel className="text-[var(--hud-muted)]">
-                    Track {seat.index}
+                    Track {track.index}
                   </HudLabel>
 
                   <p className="max-w-[28ch] text-lg leading-snug text-[var(--hud-ink)]">
-                    {seat.hint}
+                    {track.hint}
                   </p>
 
                   <HudLabel className="border-[var(--hud-ink)]/15 border-t pt-4 text-[var(--hud-muted)]">
-                    {challengesCopy.reveal}
+                    {tracksCopy.reveal}
                   </HudLabel>
                 </div>
               </li>

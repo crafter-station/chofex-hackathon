@@ -18,9 +18,9 @@ export const generateMetadata = async ({
 }: ChallengeRankingPageProps): Promise<Metadata> => {
   const { slug } = await params;
   const challenge = challengeBySlug(slug);
-  if (!challenge) return { title: "Challenge ranking | Hack the Andes" };
+  if (!challenge) return { title: "Challenge | Hack the Andes" };
   return {
-    title: `${challenge.title} ranking | Hack the Andes`,
+    title: `${challenge.title} | Challenge de Hack the Andes`,
     description: challenge.summary,
   };
 };

@@ -34,17 +34,18 @@ export function ChallengesIndex({
     >
       <LandingContainer className={landingSectionYClassName}>
         <HudLabel className="mb-3 text-[var(--hud-kicker)]">
-          challenges / ranking
+          challenges / clasificación
         </HudLabel>
         <LandingSectionHead
           headingLevel="h1"
-          title="Mini technical challenges"
+          title="Challenges técnicos"
           titleId="challenges-index-heading"
         >
           <p className="max-w-2xl text-lg leading-relaxed text-[var(--hud-ink)]/75">
-            El ranking es público y de solo lectura. Las soluciones se envían
-            por la CLI. Cada participante recibe una variante personalizada, así
-            que compartir un score no revela el algoritmo.
+            Estos 5 challenges ocurren antes del evento y no son los tracks de
+            la hackathon. Resuelve uno para demostrar lo que puedes hacer: los
+            mejores resultados de cada challenge obtienen pase directo. Las
+            soluciones se envían por la CLI y el ranking es público.
           </p>
         </LandingSectionHead>
         <div className="grid gap-4 md:grid-cols-2">
@@ -92,11 +93,11 @@ export function ChallengesIndex({
                       {challenge.formatLabel} · {challenge.coreSkill}
                     </HudLabel>
                     <Link
-                      aria-label={`Ver ranking de ${challenge.title}`}
+                      aria-label={`Ver detalles, instrucciones y ranking de ${challenge.title}`}
                       className="font-[family-name:var(--font-landing-mono)] text-sm uppercase tracking-[0.12em] text-[var(--hud-action)] underline-offset-4 hover:text-[var(--hud-action-hover)] hover:underline"
                       href={challenge.rankingPath}
                     >
-                      Ver ranking →
+                      Ver detalles y ranking →
                     </Link>
                   </div>
                 </div>

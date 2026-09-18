@@ -35,19 +35,20 @@ export const formatSoles = (amount: number): string =>
 export const brandName = "Hack the Andes";
 
 export const seatCount = 100;
-export const challengeCount = 3;
+export const trackCount = 5;
+export const qualifierChallengeCount = 5;
 
 export const metadataCopy = {
   title: `${brandName} — Lima, 17–18 oct 2026`,
   description:
-    "100 cupos para AI, product y software engineers con experiencia. 3 challenges, 30 horas y una entrega funcionando.",
+    "100 cupos para AI, product y software engineers con experiencia. 5 tracks, 30 horas y una entrega funcionando.",
 } as const;
 
 export const cliCommands = [
   "npm install --global chofex-cli@latest",
   "chofex login",
   "chofex register",
-  "chofex challenge query",
+  "chofex status",
 ] as const;
 
 export const skipLinks = [
@@ -55,12 +56,13 @@ export const skipLinks = [
   { href: "#apply", label: "Saltar a aplicar" },
 ] as const;
 
-/** Locked jump order: Evento → Premios → Panel → Tracks → Postular → FAQs → Organizadores. */
+/** Locked jump order: Evento → Premios → Panel → Tracks → Challenges → Postular → FAQs → Organizadores. */
 export const sectionNav = [
   { href: "#why", label: "Evento" },
   { href: "#prizes", label: "Premios" },
   { href: "#people", label: "Panel" },
-  { href: "#challenges", label: "Tracks" },
+  { href: "#tracks", label: "Tracks" },
+  { href: "#qualifier-challenges", label: "Challenges" },
   { href: "#apply", label: "Postular" },
   { href: "#faq", label: "FAQs" },
   { href: "#sponsors", label: "Organizadores" },
@@ -112,14 +114,14 @@ export const eventItems = [
   },
 ] as const;
 
-export const challengesCopy = {
-  title: "3 Tracks centrales",
+export const tracksCopy = {
+  title: "5 Tracks centrales",
   subtitle: "∞ Posibilidades de soluciones",
-  lede: "Las personas aceptadas conocerán los 3 briefs al iniciar la hackathon. Cada equipo elegirá uno y tendrá 30 horas para entregar un producto funcionando.",
+  lede: "Los tracks son los temas de trabajo del día del evento. Las personas aceptadas conocerán los 5 briefs en Lima, elegirán en cuál quieren trabajar y tendrán 30 horas para entregar un producto funcionando.",
   reveal: "Se revela en Lima, 17 oct",
 } as const;
 
-export const challengeSeats = [
+export const trackSeats = [
   {
     index: "01",
     hint: "Una señal cambia. Tu sistema tiene que entenderla y responder.",
@@ -132,7 +134,33 @@ export const challengeSeats = [
     index: "03",
     hint: "La interfaz es parte del problema. El producto también es la respuesta.",
   },
+  {
+    index: "04",
+    hint: "Un sistema esencial opera al límite. Encuentra una forma más resiliente.",
+  },
+  {
+    index: "05",
+    hint: "Decisiones complejas exigen mejores herramientas. Diseña una que cambie el resultado.",
+  },
 ] as const;
+
+export const qualifierChallengesCopy = {
+  title: "Challenges de clasificación",
+  subtitle: "Demuestra que estás cracked",
+  lede: `Los ${qualifierChallengeCount} challenges son pruebas técnicas individuales que ocurren antes del evento. No son los tracks de la hackathon: aquí compites para demostrar lo que puedes hacer, y los mejores resultados de cada challenge obtienen pase directo al evento.`,
+  tracksLabel: "Tracks / durante el evento",
+  tracksBody:
+    "Son 5 temas para construir en equipo durante 30 horas. Los eliges presencialmente en Lima.",
+  challengesLabel: "Challenges / antes del evento",
+  challengesBody:
+    "Son 5 pruebas técnicas para clasificar. Resuelve una, sube al ranking y compite por un pase directo.",
+  liveKicker: "Challenge 1 / live",
+  liveTitle: "The Shipping Machine",
+  liveBody:
+    "Investiga una máquina de precios sin documentación, descubre sus reglas y construye un reemplazo compatible.",
+  liveMeta: "25 queries · 3 evaluaciones oficiales · AI permitida",
+  liveCta: "Ver reto e instrucciones →",
+} as const;
 
 export const peopleCopy = {
   title: "El talento más top de Perú",
@@ -248,7 +276,7 @@ export const panelBrands = [
 
 export const applyCopy = {
   title: "Postula desde tu terminal",
-  lede: "La postulación es parte del filtro. Cuéntanos qué lanzaste, qué construirías aquí y dónde podemos ver tu trabajo. El Black Box es una métrica opcional para la revisión y no decide la admisión.",
+  lede: "La postulación regular sigue abierta. Cuéntanos qué lanzaste, qué construirías aquí y dónde podemos ver tu trabajo. Si prefieres demostrarlo construyendo, los mejores resultados de cada challenge reciben pase directo.",
   criteriaTitle: "Qué revisamos",
   criteria: [
     "Un producto o sistema que ya pusiste en manos de usuarios.",
@@ -361,9 +389,14 @@ export const faqItems = [
       "No. Los equipos pueden tener de 1 a 4 personas y podrás conectar con otros participantes aceptados.",
   },
   {
-    question: "¿Cuándo se revelan los challenges?",
+    question: "¿Cuándo se revelan los tracks?",
     answer:
-      "Al iniciar la hackathon, el 17 de octubre. Los equipos aceptados conocerán los 3 briefs y elegirán uno.",
+      "Al iniciar la hackathon, el 17 de octubre. Las personas aceptadas conocerán los 5 briefs y elegirán presencialmente en cuál quieren trabajar.",
+  },
+  {
+    question: "¿Cuál es la diferencia entre tracks y challenges?",
+    answer:
+      "Los tracks son los temas de trabajo que eliges durante la hackathon. Los challenges son pruebas técnicas previas: los mejores resultados de cada uno obtienen pase directo al evento.",
   },
   {
     question: "¿Cómo se seleccionan los 100 cupos?",
@@ -378,7 +411,7 @@ export const footerCopy = {
   credits: "Créditos",
   terms: "Términos",
   privacy: "Privacidad",
-  ranking: "Ranking",
+  ranking: "Challenges",
 } as const;
 
 export const chromeCopy = {

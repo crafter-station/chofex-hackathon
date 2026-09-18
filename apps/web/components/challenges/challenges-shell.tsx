@@ -16,7 +16,6 @@ import {
 } from "@/components/landing/shell";
 import { LandingSkipLinks } from "@/components/landing/skip-links";
 
-
 export function ChallengesShell({
   children,
 }: {
@@ -52,7 +51,7 @@ export function ChallengesShell({
               className="text-[var(--hud-muted)] underline-offset-4 hover:text-[var(--hud-ink)] hover:underline"
               href="/challenges"
             >
-              Ranking
+              Challenges
             </Link>
             <Link
               className={`${landingCtaBaseClassName} min-h-10 px-4 py-2 text-xs sm:px-5`}

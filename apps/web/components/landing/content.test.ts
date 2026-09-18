@@ -3,9 +3,6 @@ import { inflateSync } from "node:zlib";
 
 import {
   applyCopy,
-  challengeCount,
-  challengeSeats,
-  challengesCopy,
   chromeCopy,
   eventCopy,
   eventItems,
@@ -20,10 +17,14 @@ import {
   prizeAmountsPen,
   prizeAmountsUsd,
   prizesCopy,
+  qualifierChallengesCopy,
   seatCount,
   sectionNav,
   skipLinks,
   sponsorsCopy,
+  trackCount,
+  trackSeats,
+  tracksCopy,
 } from "./content";
 
 test("publishes the 17–18 octubre 2026 weekend in participant-facing copy", () => {
@@ -193,15 +194,18 @@ test("keeps panel brand marks light on transparent for the black page", async ()
   }
 });
 
-test("publishes a senior, hundred-seat, three-challenge event", () => {
+test("publishes a senior, hundred-seat, five-track event", () => {
   expect(seatCount).toBe(100);
-  expect(challengeCount).toBe(3);
-  expect(challengesCopy.title).toBe("3 Tracks centrales");
-  expect(challengesCopy.subtitle).toBe("∞ Posibilidades de soluciones");
-  expect(challengeSeats).toHaveLength(3);
-  expect(challengeSeats.every((challenge) => challenge.hint.length > 0)).toBe(
-    true,
-  );
+  expect(trackCount).toBe(5);
+  expect(tracksCopy.title).toBe("5 Tracks centrales");
+  expect(tracksCopy.subtitle).toBe("∞ Posibilidades de soluciones");
+  expect(trackSeats).toHaveLength(5);
+  expect(trackSeats.every((track) => track.hint.length > 0)).toBe(true);
+  expect(tracksCopy.lede).toMatch(/día del evento/i);
+  expect(tracksCopy.lede).toMatch(/elegir/i);
+  expect(qualifierChallengesCopy.title).toBe("Challenges de clasificación");
+  expect(qualifierChallengesCopy.lede).toMatch(/antes del evento/i);
+  expect(qualifierChallengesCopy.lede).toMatch(/pase directo/i);
   expect(facts.find((fact) => fact.label === "Cupos")?.value).toBe("100");
   expect(metadataCopy.description).toContain("100 cupos");
   expect(eventCopy.title).toBe("Crear soluciones reales para problemas reales");
@@ -253,13 +257,29 @@ test("keeps Premios dense on phones with a larger cash headline", async () => {
   expect(source).toContain("lg:text-[clamp(3.25rem,9vw,7.25rem)]");
 });
 
-test("labels challenge cards as tracks", async () => {
+test("labels track cards as tracks", async () => {
   const source = await Bun.file(
-    new URL("./challenges.tsx", import.meta.url),
+    new URL("./tracks.tsx", import.meta.url),
   ).text();
-  expect(source).toContain("challengesCopy.subtitle");
-  expect(source).toContain("Track {seat.index}");
+  expect(source).toContain("tracksCopy.subtitle");
+  expect(source).toContain("Track {track.index}");
   expect(source).not.toContain("Challenge {seat.index}");
+});
+
+test("announces the live qualifier in a sticky moving banner", async () => {
+  const source = await Bun.file(
+    new URL("./live-challenge-banner.tsx", import.meta.url),
+  ).text();
+  const styles = await Bun.file(
+    new URL("./landing.css", import.meta.url),
+  ).text();
+
+  expect(source).toContain('href="/challenges/black-box"');
+  expect(source).toMatch(/Challenge 1.*live/i);
+  expect(source).toContain("landing-live-banner-track");
+  expect(styles).toContain("position: sticky");
+  expect(styles).toContain("@keyframes landing-live-banner-scroll");
+  expect(styles).toContain("prefers-reduced-motion: reduce");
 });
 
 test("exposes skip links and section jumps for keyboard users", async () => {
@@ -275,7 +295,8 @@ test("exposes skip links and section jumps for keyboard users", async () => {
     "#why",
     "#prizes",
     "#people",
-    "#challenges",
+    "#tracks",
+    "#qualifier-challenges",
     "#apply",
     "#faq",
     "#sponsors",
@@ -285,6 +306,7 @@ test("exposes skip links and section jumps for keyboard users", async () => {
     "Premios",
     "Panel",
     "Tracks",
+    "Challenges",
     "Postular",
     "FAQs",
     "Organizadores",

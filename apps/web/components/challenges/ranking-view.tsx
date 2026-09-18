@@ -9,6 +9,7 @@ import {
   landingFrameClassName,
   landingSectionYClassName,
 } from "@/components/landing/shell";
+import { ChallengeGuide } from "./challenge-guide";
 import { RankingCountdown } from "./ranking-countdown-view";
 
 const percent = (value: number): string => `${(value * 100).toFixed(2)}%`;
@@ -125,9 +126,7 @@ export function ChallengeRankingView({
           titleId="challenge-ranking-heading"
         >
           <p className="max-w-2xl text-lg leading-relaxed text-[var(--hud-ink)]/75">
-            {challenge.summary} Ranking público de solo lectura: accuracy,
-            empates por predicciones exactas, menos queries y runtime. Las
-            implementaciones no se publican.
+            {challenge.summary}
           </p>
         </LandingSectionHead>
 
@@ -156,7 +155,25 @@ export function ChallengeRankingView({
           </div>
         </div>
 
-        {rankingContent}
+        <ChallengeGuide challenge={challenge} />
+
+        <section aria-labelledby="ranking-heading" className="mt-14">
+          <HudLabel className="mb-3 text-[var(--hud-kicker)]">
+            resultados oficiales
+          </HudLabel>
+          <h2
+            className="font-[family-name:var(--font-landing-display)] text-4xl leading-none uppercase sm:text-5xl"
+            id="ranking-heading"
+          >
+            Ranking
+          </h2>
+          <p className="mt-4 mb-8 max-w-2xl text-sm leading-relaxed text-[var(--hud-muted)]">
+            Ranking público de solo lectura: accuracy, empates por predicciones
+            exactas, menos queries y runtime. Las implementaciones no se
+            publican.
+          </p>
+          {rankingContent}
+        </section>
       </LandingContainer>
     </section>
   );

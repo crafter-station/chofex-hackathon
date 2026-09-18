@@ -21,11 +21,12 @@ test("uses a shared tighter vertical rhythm for content sections", async () => {
 
   const sections = [
     "apply.tsx",
-    "challenges.tsx",
     "event.tsx",
     "faq.tsx",
     "people.tsx",
+    "qualifier-challenges.tsx",
     "sponsors.tsx",
+    "tracks.tsx",
   ];
   for (const file of sections) {
     const source = await Bun.file(new URL(`./${file}`, import.meta.url)).text();

@@ -1,7 +1,6 @@
 import { cn } from "@chofex/ui/lib/utils";
 
 import { LandingApply } from "@/components/landing/apply";
-import { LandingChallenges } from "@/components/landing/challenges";
 import { LandingEvent } from "@/components/landing/event";
 import { LandingFaq } from "@/components/landing/faq";
 import {
@@ -12,12 +11,15 @@ import {
 } from "@/components/landing/fonts";
 import { LandingFooter } from "@/components/landing/footer";
 import { LandingHero } from "@/components/landing/hero";
+import { HERO_POSTER_PRELOAD } from "@/components/landing/hero-poster";
+import { LiveChallengeBanner } from "@/components/landing/live-challenge-banner";
 import { LandingPeople } from "@/components/landing/people";
 import { LandingPrizes } from "@/components/landing/prizes";
-import { HERO_POSTER_PRELOAD } from "@/components/landing/hero-poster";
+import { LandingQualifierChallenges } from "@/components/landing/qualifier-challenges";
 import { landingPageClassName } from "@/components/landing/shell";
 import { LandingSkipLinks } from "@/components/landing/skip-links";
 import { LandingSponsors } from "@/components/landing/sponsors";
+import { LandingTracks } from "@/components/landing/tracks";
 
 import "@/components/landing/dark.css";
 
@@ -29,8 +31,8 @@ import "@/components/landing/dark.css";
  * Theme tokens live in `components/landing/dark.css`.
  *
  * Section order after the hero is locked:
- * Evento (#why) → Premios → Panel → Tracks → Postular → FAQs →
- * Organizadores. Do not restore a separate experiencia chapter.
+ * Evento (#why) → Premios → Panel → Tracks → Challenges → Postular →
+ * FAQs → Organizadores. Do not restore a separate experiencia chapter.
  */
 export default function Home() {
   return (
@@ -56,11 +58,13 @@ export default function Home() {
       />
       <LandingSkipLinks />
       <main id="contenido">
+        <LiveChallengeBanner />
         <LandingHero />
         <LandingEvent />
         <LandingPrizes />
         <LandingPeople />
-        <LandingChallenges />
+        <LandingTracks />
+        <LandingQualifierChallenges />
         <LandingApply />
         <LandingFaq />
         <LandingSponsors />

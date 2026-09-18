@@ -61,7 +61,7 @@ test("does not reintroduce the invalid paragraph wrapper", async () => {
   );
 });
 
-test("locks landing chapters as Evento, Premios, Panel, Tracks, Postular, FAQs", async () => {
+test("locks landing chapters as Evento, Premios, Panel, Tracks, Challenges, Postular, FAQs", async () => {
   const page = await Bun.file(
     new URL("../../app/page.tsx", import.meta.url),
   ).text();
@@ -70,7 +70,8 @@ test("locks landing chapters as Evento, Premios, Panel, Tracks, Postular, FAQs",
     "LandingEvent",
     "LandingPrizes",
     "LandingPeople",
-    "LandingChallenges",
+    "LandingTracks",
+    "LandingQualifierChallenges",
     "LandingApply",
     "LandingFaq",
     "LandingSponsors",

@@ -9,9 +9,9 @@ import { ChallengesShell } from "@/components/challenges/challenges-shell";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Challenge ranking | Hack the Andes",
+  title: "Challenges de clasificación | Hack the Andes",
   description:
-    "Rankings públicos de los mini technical challenges de Hack the Andes.",
+    "Cinco challenges técnicos para demostrar tu nivel y competir por un pase directo a Hack the Andes.",
 };
 
 export default function ChallengesPage() {

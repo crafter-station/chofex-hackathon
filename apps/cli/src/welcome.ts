@@ -1,5 +1,7 @@
 import { CliOutput } from "effect/unstable/cli";
 
+import { eventName } from "./brand.js";
+
 // Each character is a landscape pixel, expanded to terminal cells at render time.
 // Background colors fill the cells even when a terminal uses generous line spacing.
 const valley = [
@@ -71,7 +73,7 @@ export const renderWelcome = ({
   const width = Math.max(1, Math.min(Math.floor(columns), 72));
   if (width < 24) {
     return [
-      "The Andes Hackathon",
+      eventName,
       "by Chofex",
       "S/8,000 in prizes",
       "Only for the best engineers from Peru.",
@@ -114,7 +116,7 @@ export const renderWelcome = ({
     });
     let heading = "";
     let foreground: string = palette.text;
-    if (y === 3) heading = "The Andes Hackathon";
+    if (y === 3) heading = eventName;
     if (y === 4) {
       heading = "by Chofex";
       foreground = palette.sun;

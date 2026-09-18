@@ -1,5 +1,6 @@
 import { Command, Flag } from "effect/unstable/cli";
 
+import { eventName } from "./brand.js";
 import { config } from "./config.js";
 
 export const root = Command.make("chofex").pipe(
@@ -19,7 +20,5 @@ export const root = Command.make("chofex").pipe(
       ),
     ),
   }),
-  Command.withDescription(
-    "Register for and manage your Hack the Andes application",
-  ),
+  Command.withDescription(`Register for and manage your ${eventName} application`),
 );

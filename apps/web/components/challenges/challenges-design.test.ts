@@ -35,3 +35,16 @@ test("challenge views use landing tokens instead of the retired neon palette", a
   expect(index).toContain("landingSectionYClassName");
   expect(index).toContain("ContourSeal");
 });
+
+test("the live challenge page includes the brief and CLI instructions", async () => {
+  const guide = await sourceFor("challenge-guide.tsx");
+  const ranking = await sourceFor("ranking-view.tsx");
+
+  expect(guide).toContain("25 queries");
+  expect(guide).toContain("3 evaluaciones oficiales");
+  expect(guide).toContain("calculateShipping(input)");
+  expect(guide).toContain("npm install --global chofex-cli@latest");
+  expect(guide).toContain("chofex challenge query");
+  expect(guide).toContain("chofex challenge evaluate --source ./shipping.js");
+  expect(ranking).toContain("ChallengeGuide");
+});

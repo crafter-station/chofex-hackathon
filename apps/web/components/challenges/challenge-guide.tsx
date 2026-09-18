@@ -1,0 +1,139 @@
+import {
+  blackBoxChallengeSlug,
+  type ChallengeCatalogItem,
+} from "@chofex/challenges-contract";
+
+import { HudLabel } from "@/components/landing/hud";
+import { landingFrameClassName } from "@/components/landing/shell";
+
+const workflow = [
+  {
+    title: "Instala la CLI",
+    command: "npm install --global chofex-cli@latest",
+    body: "Necesitas Node.js 24 o superior.",
+  },
+  {
+    title: "Inicia sesión y prepara tu archivo",
+    command: "chofex login && chofex challenge init",
+    body: "La CLI crea shipping.js sin sobrescribir archivos existentes.",
+  },
+  {
+    title: "Interroga la máquina",
+    command:
+      "chofex challenge query --distance 10 --weight 3 --hour 14 --fragile false --express false",
+    body: "Cambia una variable a la vez. Cada respuesta exitosa consume una de tus 25 queries.",
+  },
+  {
+    title: "Estudia tus observaciones",
+    command: "chofex challenge notebook",
+    body: "Busca umbrales, recargos fijos e interacciones entre los cinco inputs.",
+  },
+  {
+    title: "Implementa y prueba gratis",
+    command: "chofex challenge test --source ./shipping.js",
+    body: "Exporta calculateShipping(input) desde shipping.js. Los tests contra tu notebook no consumen evaluaciones.",
+  },
+  {
+    title: "Envía una evaluación oficial",
+    command: "chofex challenge evaluate --source ./shipping.js",
+    body: "La evaluación usa envíos ocultos y consume uno de tus 3 intentos oficiales. Hazlo cuando tu modelo esté listo.",
+  },
+] as const;
+
+export function ChallengeGuide({
+  challenge,
+}: {
+  readonly challenge: ChallengeCatalogItem;
+}) {
+  if (challenge.slug !== blackBoxChallengeSlug) return null;
+
+  return (
+    <div className="mt-14 space-y-14">
+      <section aria-labelledby="challenge-brief-heading">
+        <HudLabel className="mb-3 text-[var(--hud-status)]">
+          Challenge de clasificación / no es un track
+        </HudLabel>
+        <h2
+          className="font-[family-name:var(--font-landing-display)] text-4xl leading-none uppercase sm:text-5xl"
+          id="challenge-brief-heading"
+        >
+          El reto
+        </h2>
+        <p className="mt-5 max-w-3xl text-lg leading-relaxed text-[var(--hud-ink)]/75">
+          Una empresa de delivery retirará el servicio que calcula el precio de
+          cada envío. No hay documentación ni código fuente: solo cinco inputs y
+          el precio que devuelve la máquina. Descubre las reglas ocultas y
+          reemplázala con tu propia función{" "}
+          <code>calculateShipping(input)</code>.
+        </p>
+        <p className="mt-4 max-w-3xl text-sm leading-relaxed text-[var(--hud-muted)]">
+          Este challenge ocurre antes de la hackathon. Las reglas están
+          personalizadas para cada participante, puedes usar AI y los mejores
+          resultados obtienen pase directo al evento.
+        </p>
+
+        <dl className="mt-8 grid gap-px bg-[var(--hud-ink)]/10 sm:grid-cols-3">
+          <div className="bg-[var(--hud-card)] p-5">
+            <dt>
+              <HudLabel className="text-[var(--hud-muted)]">Oracle</HudLabel>
+            </dt>
+            <dd className="mt-2 font-[family-name:var(--font-landing-display)] text-3xl uppercase">
+              25 queries
+            </dd>
+          </div>
+          <div className="bg-[var(--hud-card)] p-5">
+            <dt>
+              <HudLabel className="text-[var(--hud-muted)]">
+                Hidden set
+              </HudLabel>
+            </dt>
+            <dd className="mt-2 font-[family-name:var(--font-landing-display)] text-3xl uppercase">
+              1,000 envíos
+            </dd>
+          </div>
+          <div className="bg-[var(--hud-card)] p-5">
+            <dt>
+              <HudLabel className="text-[var(--hud-muted)]">Intentos</HudLabel>
+            </dt>
+            <dd className="mt-2 font-[family-name:var(--font-landing-display)] text-3xl uppercase">
+              3 evaluaciones oficiales
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section aria-labelledby="challenge-instructions-heading">
+        <HudLabel className="mb-3 text-[var(--hud-kicker)]">
+          Field guide
+        </HudLabel>
+        <h2
+          className="font-[family-name:var(--font-landing-display)] text-4xl leading-none uppercase sm:text-5xl"
+          id="challenge-instructions-heading"
+        >
+          Cómo participar
+        </h2>
+        <ol className="mt-8 grid gap-4">
+          {workflow.map((item, index) => (
+            <li
+              className={`grid gap-5 p-5 sm:grid-cols-[3rem_minmax(0,1fr)] sm:p-6 ${landingFrameClassName}`}
+              key={item.title}
+            >
+              <span className="font-[family-name:var(--font-landing-mono)] text-[var(--hud-action)]">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <div className="min-w-0">
+                <h3 className="font-semibold">{item.title}</h3>
+                <pre className="mt-3 overflow-x-auto border border-[var(--hud-ink)]/10 bg-[var(--hud-paper)] p-4 text-sm text-[var(--hud-type)]">
+                  <code>{item.command}</code>
+                </pre>
+                <p className="mt-3 text-sm leading-relaxed text-[var(--hud-muted)]">
+                  {item.body}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+    </div>
+  );
+}

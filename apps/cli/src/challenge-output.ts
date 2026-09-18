@@ -14,6 +14,8 @@ import {
 } from "@chofex/challenges-contract";
 import type { RegistrationResult } from "@chofex/registration-contract";
 
+import { eventName } from "./brand.js";
+
 export const remainingBar = (used: number, limit: number): string => {
   if (limit <= 0) return "";
   const width = 20;
@@ -36,7 +38,7 @@ export const challengeLaunchNotice = (
 export const challengeListText = (
   catalog: ChallengeCatalogResponse,
 ): string => {
-  const lines = ["Hack the Andes challenges", ""];
+  const lines = [`${eventName} challenges`, ""];
   for (const challenge of catalog.challenges) {
     let state = "open";
     if (!challenge.open) {
