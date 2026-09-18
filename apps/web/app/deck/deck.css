@@ -40,6 +40,14 @@
   --deck-line-strong: color-mix(in srgb, var(--deck-ink) 28%, transparent);
 
   /*
+   * What the index dialog dims the deck with. It is its own role and not
+   * derived from the ink: it used to be the ink at 72%, which is right on a
+   * paper skin and inverted on this one — `terrain`'s ink is white, so opening
+   * the index washed the whole deck pale and left the panel floating on it.
+   */
+  --deck-scrim: color-mix(in srgb, var(--deck-ink) 72%, transparent);
+
+  /*
    * The brand face carries the event's name and nothing else — that is the
    * rule `fonts.ts` states for the landing, and the design base follows it.
    * Everything else that is "a heading" stays on the condensed display face.
@@ -160,6 +168,7 @@
    * below, and they exist because the design base does the same: its three
    * full-bleed scrims sit at 0.37, 0.52 and 0.54.
    */
+  --deck-scrim: rgb(0 0 0 / 82%);
   --deck-veil: rgb(0 0 0 / 58%);
   /*
    * What the split layouts leave on the half the type does not take. The base
@@ -500,7 +509,7 @@
 .deck-index-backdrop {
   position: absolute;
   inset: 0;
-  background-color: color-mix(in srgb, var(--deck-ink) 72%, transparent);
+  background-color: var(--deck-scrim);
 }
 
 .deck-index-panel {
@@ -512,7 +521,12 @@
   max-width: 520px;
   max-height: 80svh;
   border: 1px solid var(--deck-line-strong);
-  background-color: var(--deck-card);
+  /*
+   * The paper, not the card. `--deck-card` is translucent by design — it is the
+   * scrim a cell sits on, over a plate — and a dialog built out of it let the
+   * cover's own wordmark read straight through the list.
+   */
+  background-color: var(--deck-paper);
 }
 
 .deck-index-header {
@@ -561,13 +575,14 @@
 .deck-index-button:hover,
 .deck-index-button:focus-visible {
   border-color: var(--deck-line);
-  background-color: var(--deck-paper);
+  /* The panel is the paper now, so a row lifts with the card instead. */
+  background-color: var(--deck-card);
   color: var(--deck-ink);
 }
 
 .deck-index-button[aria-current="true"] {
   border-color: var(--deck-action);
-  background-color: var(--deck-paper);
+  background-color: var(--deck-card);
   color: var(--deck-action);
 }
 
@@ -622,6 +637,18 @@
  */
 .deck-table {
   display: grid;
+  /*
+   * Two names, and the order matters. `--deck-cols` is what the component sets
+   * inline; `--deck-cols-narrow` is only ever set by the media queries at the
+   * foot of this file. It has to be a separate name: an inline custom property
+   * beats a stylesheet declaration of the same name no matter the specificity,
+   * so a query that redefined `--deck-cols` would lose to the four the
+   * component wrote, which is the bug this replaced.
+   */
+  grid-template-columns: var(
+      --deck-cols-narrow,
+      var(--deck-cols, minmax(0, 1fr))
+    );
   border-top: 1px solid var(--deck-line-strong);
   border-left: 1px solid var(--deck-line-strong);
   background-color: var(--deck-card);
@@ -1014,141 +1041,200 @@
 }
 
 /*
- * A photograph accompanying a split slide.
+ * A photograph accompanying a split slide, placed only where a split exists.
  *
- * Out of flow, into the half the type leaves — the same half the plate's bright
- * mass was already shifted toward, so the drawing surrounds the photograph
- * rather than being replaced by it.
- *
- * Out of flow and not a grid column because the content column's children are
- * authored as a stack: turning it into a two-column grid would put each of
- * them — label, title, lead — in a track of its own. The width is the free
- * half expressed against the column that sets it: the column is 64% of the
- * slide, so what is left of it is 100/64 - 1 = 56.25% of the column's own
- * width, and the gutter comes off both edges. `.deck-slide-content` carries
- * the `position: relative` this measures against.
+ * The whole section is inside the query rather than undone by a narrow one
+ * below it: these rules run four and five selectors deep, and a collapse block
+ * had to match that depth to win, which is how the mobile photograph ended up
+ * with `aspect-ratio: auto` and a height nothing had chosen. Above 800px the
+ * placement applies; below it the base strip at the top of this file is simply
+ * what is left, which is what it was written to be.
  */
-.deck-pager[data-deck-style="terrain"]
-  .deck-slide[data-layout="split-left"]
-  .deck-photos,
-.deck-pager[data-deck-style="terrain"]
-  .deck-slide[data-layout="split-right"]
-  .deck-photos {
-  position: absolute;
-  top: 50%;
-  width: calc(56.25% - var(--deck-media-gap) * 2);
+@media (min-width: 801px) {
   /*
-   * A definite height is what lets two stacked photographs share it evenly.
-   * Without it each one takes its own aspect ratio and the pair runs past the
-   * bottom of the slide, which no amount of `max-height` recovers once the
-   * figure is out of flow.
+   * Out of flow, into the half the type leaves — the same half the plate's bright
+   * mass was already shifted toward, so the drawing surrounds the photograph
+   * rather than being replaced by it.
+   *
+   * Out of flow and not a grid column because the content column's children are
+   * authored as a stack: turning it into a two-column grid would put each of
+   * them — label, title, lead — in a track of its own. The width is the free
+   * half expressed against the column that sets it: the column is 64% of the
+   * slide, so what is left of it is 100/64 - 1 = 56.25% of the column's own
+   * width, and the gutter comes off both edges. `.deck-slide-content` carries
+   * the `position: relative` this measures against.
    */
-  height: 54svh;
-  transform: translateY(-50%);
-}
-
-.deck-pager[data-deck-style="terrain"]
-  .deck-slide[data-layout="split-left"]
-  .deck-photos {
-  left: calc(100% + var(--deck-media-gap));
-}
-
-.deck-pager[data-deck-style="terrain"]
-  .deck-slide[data-layout="split-right"]
-  .deck-photos {
-  right: calc(100% + var(--deck-media-gap));
-}
-
-/* Stacked, not side by side: the half is taller than it is wide. */
-.deck-pager[data-deck-style="terrain"]
-  .deck-slide[data-layout="split-left"]
-  .deck-photo-row,
-.deck-pager[data-deck-style="terrain"]
-  .deck-slide[data-layout="split-right"]
-  .deck-photo-row {
-  flex-direction: column;
-}
-
-/*
- * One photograph keeps its own proportions instead of filling the half.
- *
- * The child has to drop `flex: 1 1 0` with it. A zero basis is a zero *height*
- * once the column has no definite height of its own to distribute, and the
- * aspect ratio never gets to set one — the photograph collapses to a hairline.
- */
-.deck-pager[data-deck-style="terrain"]
-  .deck-slide[data-layout="split-left"]
-  .deck-photos[data-count="1"],
-.deck-pager[data-deck-style="terrain"]
-  .deck-slide[data-layout="split-right"]
-  .deck-photos[data-count="1"] {
-  height: auto;
-}
-
-.deck-pager[data-deck-style="terrain"]
-  .deck-slide[data-layout="split-left"]
-  .deck-photos[data-count="1"]
-  .deck-photo,
-.deck-pager[data-deck-style="terrain"]
-  .deck-slide[data-layout="split-right"]
-  .deck-photos[data-count="1"]
-  .deck-photo {
-  flex: 0 0 auto;
-}
-
-.deck-pager[data-deck-style="terrain"]
-  .deck-slide[data-layout="split-left"]
-  .deck-photos:not([data-count="1"])
-  .deck-photo,
-.deck-pager[data-deck-style="terrain"]
-  .deck-slide[data-layout="split-right"]
-  .deck-photos:not([data-count="1"])
-  .deck-photo {
-  aspect-ratio: auto;
-  height: auto;
-}
-
-/*
- * Below the split's breakpoint there is no free half to place a photograph in,
- * so it returns to the column as the strip it is everywhere else — after the
- * type, which is where it is authored.
- *
- * This block sits after the rules it undoes rather than in the media query
- * above with the rest of the collapse: it is the same specificity as the
- * placement, so only source order decides it.
- */
-@media (max-width: 800px) {
   .deck-pager[data-deck-style="terrain"]
     .deck-slide[data-layout="split-left"]
     .deck-photos,
   .deck-pager[data-deck-style="terrain"]
     .deck-slide[data-layout="split-right"]
     .deck-photos {
-    position: static;
-    width: 100%;
-    height: auto;
-    transform: none;
+    position: absolute;
+    top: 50%;
+    width: calc(56.25% - var(--deck-media-gap) * 2);
+    /*
+     * A definite height is what lets two stacked photographs share it evenly.
+     * Without it each one takes its own aspect ratio and the pair runs past the
+     * bottom of the slide, which no amount of `max-height` recovers once the
+     * figure is out of flow.
+     */
+    height: 54svh;
+    transform: translateY(-50%);
   }
 
+  .deck-pager[data-deck-style="terrain"]
+    .deck-slide[data-layout="split-left"]
+    .deck-photos {
+    left: calc(100% + var(--deck-media-gap));
+  }
+
+  .deck-pager[data-deck-style="terrain"]
+    .deck-slide[data-layout="split-right"]
+    .deck-photos {
+    right: calc(100% + var(--deck-media-gap));
+  }
+
+  /* Stacked, not side by side: the half is taller than it is wide. */
   .deck-pager[data-deck-style="terrain"]
     .deck-slide[data-layout="split-left"]
     .deck-photo-row,
   .deck-pager[data-deck-style="terrain"]
     .deck-slide[data-layout="split-right"]
     .deck-photo-row {
-    flex-direction: row;
+    flex-direction: column;
+  }
+
+  /*
+   * One photograph keeps its own proportions instead of filling the half.
+   *
+   * The child has to drop `flex: 1 1 0` with it. A zero basis is a zero *height*
+   * once the column has no definite height of its own to distribute, and the
+   * aspect ratio never gets to set one — the photograph collapses to a hairline.
+   */
+  .deck-pager[data-deck-style="terrain"]
+    .deck-slide[data-layout="split-left"]
+    .deck-photos[data-count="1"],
+  .deck-pager[data-deck-style="terrain"]
+    .deck-slide[data-layout="split-right"]
+    .deck-photos[data-count="1"] {
+    height: auto;
   }
 
   .deck-pager[data-deck-style="terrain"]
     .deck-slide[data-layout="split-left"]
-    .deck-photos
+    .deck-photos[data-count="1"]
     .deck-photo,
   .deck-pager[data-deck-style="terrain"]
     .deck-slide[data-layout="split-right"]
-    .deck-photos
+    .deck-photos[data-count="1"]
     .deck-photo {
-    aspect-ratio: 4 / 3;
+    flex: 0 0 auto;
+  }
+
+  .deck-pager[data-deck-style="terrain"]
+    .deck-slide[data-layout="split-left"]
+    .deck-photos:not([data-count="1"])
+    .deck-photo,
+  .deck-pager[data-deck-style="terrain"]
+    .deck-slide[data-layout="split-right"]
+    .deck-photos:not([data-count="1"])
+    .deck-photo {
+    aspect-ratio: auto;
     height: auto;
+  }
+}
+
+/* ---------- small screens ---------- */
+
+/*
+ * The grids fold in two steps.
+ *
+ * A row of three or four is the first thing a phone cannot hold: at 412px the
+ * four tiers came out about eighty pixels wide each, with the type of one
+ * column printing over the next. Two columns survive a tablet, so they wait for
+ * the second step.
+ *
+ * This works at all because the track list is a custom property. It used to be
+ * an inline `grid-template-columns`, which no stylesheet can override — the
+ * four columns stayed four columns however narrow the screen got.
+ */
+@media (max-width: 900px) {
+  .deck-table[data-cols="3"],
+  .deck-table[data-cols="4"] {
+    --deck-cols-narrow: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/*
+ * The second fold, and it is not "everything to one column".
+ *
+ * A four-up stays two-up: 2×2 reads at 412px, and four cells stacked is a
+ * scroll nobody finishes. A three-up has no honest two-column form — one cell
+ * is always orphaned — so it stacks. A two-up of copy stacks. A two-up that is
+ * a label and its value keeps both columns, because stacking a label over its
+ * value doubles the rows and reads worse than the pair.
+ */
+@media (max-width: 620px) {
+  .deck-table[data-cols="2"]:not([data-shape="rows"]),
+  .deck-table[data-cols="3"] {
+    --deck-cols-narrow: minmax(0, 1fr);
+  }
+
+  /*
+   * A phone spends its height on the slide, not on clearing the chrome. 2.9rem
+   * is what the top bar and the controls actually occupy plus a hair; the
+   * desktop floor of 4.5rem was two clear lines of nothing at each end.
+   */
+  .deck-pager {
+    --deck-stage-padding-y: 2.9rem;
+  }
+
+  .deck-slide-content {
+    gap: 1.15rem;
+  }
+
+  /*
+   * A 4:3 photograph is the tallest thing on a slide that already stacks. The
+   * crop is the cheapest height on the page, and these are group shots — the
+   * subject is in the middle band.
+   */
+  .deck-photo {
+    aspect-ratio: 16 / 10;
+  }
+
+  /*
+   * Stacked, a tier's floor height is dead space repeated four times. It is
+   * there to keep a row of tiers on one baseline, and in one column there is no
+   * row to keep.
+   */
+  .deck-table .deck-cell {
+    min-height: 0;
+    padding: 0.9rem 1rem;
+  }
+
+  /*
+   * The display sizes are cut for a slide that is wider than it is tall. On a
+   * phone their floors are what set them, and a floor picked against a desktop
+   * measure is simply too big: `$2.500` at 36px ran past its own cell.
+   */
+  .deck-tier-price,
+  .deck-stat-value {
+    font-size: 2rem;
+  }
+
+  /*
+   * 0.95 is set for a title that runs one or two lines across a slide. At phone
+   * width the same titles run three and four, and at that count the descenders
+   * of one line sit in the caps of the next.
+   */
+  .deck-title {
+    font-size: 2rem;
+    line-height: 1.02;
+  }
+
+  .deck-title-sm {
+    font-size: 1.5rem;
   }
 }
 

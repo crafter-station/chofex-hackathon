@@ -223,11 +223,18 @@ en el siguiente. Una métrica sin método de medición es una promesa.
 - **Cut test:** borra cada frase y mira cuál se extraña de verdad. Las que no,
   no vuelven.
 
-**La slide de la oferta es la excepción, y es la única.** Lleva dos ejes —lo que
-el sponsor da y lo que recibe— y eso no entra en 40 palabras sin romper la
-oferta. Hoy está en 51. El presupuesto existe para que nadie escriba párrafos en
-un slide, y ahí no hay uno solo: son etiquetas de tres columnas. Si alguna vez
-pasa de ~55, lo que sobra es contrapartida, no palabras.
+**Hay dos excepciones, y las dos se cuentan solas.**
+
+**La slide de la oferta.** Lleva dos ejes —lo que el sponsor da y lo que
+recibe— y eso no entra en 40 palabras sin romper la oferta. Hoy está en 51. El
+presupuesto existe para que nadie escriba párrafos en un slide, y ahí no hay uno
+solo: son etiquetas de tres columnas. Si alguna vez pasa de ~55, lo que sobra es
+contrapartida, no palabras.
+
+**La slide del equipo.** Está en 48, y diez de esas palabras son nombres
+propios: cuatro sedes y seis marcas. Un nombre propio no se lee, se reconoce —
+es la evidencia misma, no prosa sobre la evidencia. La prosa de ese slide son 19
+palabras. Si alguna vez hay que recortar ahí, se recortan marcas, no frases.
 
 ---
 
@@ -362,6 +369,6 @@ pinta la paleta. (Regla ya cerrada en el brief, no reabrir.)
 - [ ] Toda métrica prometida está en la columna ✅ de §5.
 - [ ] Los hechos canónicos coinciden con `content.ts`.
 - [ ] La fecha es la correcta.
-- [ ] Ningún slide pasa de 40 palabras de prosa.
+- [ ] Ningún slide pasa de 40 palabras de prosa (salvo oferta y equipo, § 6).
 - [ ] El cierre enuncia un cambio, no promete un resultado.
 - [ ] **El deck se entiende sin nadie narrándolo en vivo.**

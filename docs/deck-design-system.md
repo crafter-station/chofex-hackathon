@@ -237,6 +237,29 @@ es del monitor, es de la lámina. El chrome se alinea al marco con
 `max(1rem, var(--deck-frame) * 0.45)`, así que en pantallas chicas queda donde
 siempre estuvo.
 
+### Cómo pliega en móvil
+
+Las retículas no colapsan todas a una columna. El doblez es por forma:
+
+| `data-cols` | ≤900px | ≤620px |
+| --- | --- | --- |
+| 4 | 2 | **2** — 2×2 se lee a 412px; cuatro apiladas son un scroll que nadie termina |
+| 3 | 2 | 1 — tres no tienen forma honesta de dos columnas, siempre sobra una |
+| 2 (celdas de copy) | 2 | 1 |
+| 2 con `data-shape="rows"` | 2 | **2** — apilar una etiqueta sobre su valor duplica las filas y lee peor |
+
+Esto funciona porque la lista de tracks viaja como **custom property**. Antes era
+un `grid-template-columns` en línea, y un estilo en línea no lo puede pisar
+ninguna hoja de estilos: las cuatro columnas seguían siendo cuatro por angosta
+que fuera la pantalla. Son dos nombres, además, y el orden importa:
+`--deck-cols` lo escribe el componente en línea y `--deck-cols-narrow` solo lo
+escriben los media queries. Con un solo nombre el valor en línea gana igual.
+
+El marco de una slide partida (§ el marco) vive dentro de `@media (min-width:
+801px)` en vez de deshacerse en un bloque angosto más abajo: esas reglas van a
+cuatro y cinco selectores de profundidad, y un bloque de colapso tenía que
+igualar esa profundidad para ganar.
+
 ### Las cards de T4
 
 | Medida | Valor | Como %ancho |
@@ -305,6 +328,15 @@ que lo que queda de ella es `100/64 - 1 = 56.25%` de su propio ancho.
 La escala de grises se fuerza en CSS (`filter: grayscale(1)`) además de venir en
 el archivo. Una sola foto a color sobre una slide monocroma deshace la piel
 entera, y eso no debería depender de quién exportó el archivo.
+
+### El velo del índice
+
+`--deck-scrim`, y es un rol propio, no una derivada de la tinta. Era la tinta al
+72%, que está bien en una piel de papel y es exactamente al revés en esta: la
+tinta de `terrain` es blanca, así que abrir el índice lavaba el deck entero de
+gris claro y dejaba el panel flotando encima. En `terrain` es negro al 82%, y el
+panel es `--deck-paper` (opaco) y no `--deck-card` (traslúcido), porque un
+diálogo de card dejaba leer el wordmark de la portada a través de la lista.
 
 ### Grano
 
