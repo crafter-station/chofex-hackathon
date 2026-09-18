@@ -4,7 +4,7 @@ import { buildUtmLink, normalizePostId, utmSources } from "./utm";
 
 test("builds a landing link with source and post id", () => {
   expect(buildUtmLink({ source: "instagram", postId: "post-123" })).toBe(
-    "https://andes.crafter.run/?utm_source=instagram&utm_content=post-123",
+    "https://hacktheandes.com/?utm_source=instagram&utm_content=post-123",
   );
 });
 

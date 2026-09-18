@@ -7,7 +7,7 @@ export const utmSources = [
 
 export type UtmSource = (typeof utmSources)[number]["id"];
 
-export const utmSiteUrl = "https://andes.crafter.run";
+export const utmSiteUrl = "https://hacktheandes.com";
 
 /** Keeps post ids comparable across reports: one lowercase slug per post. */
 export function normalizePostId(value: string): string {
