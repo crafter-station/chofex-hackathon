@@ -1,5 +1,8 @@
-import type { ChallengeRanking } from "@chofex/challenges-contract";
-import { isChallengeRankingVisibleAt } from "@chofex/challenges-contract";
+import {
+  blackBoxChallengeSlug,
+  type ChallengeRanking,
+  isChallengeRankingVisibleAt,
+} from "@chofex/challenges-contract";
 import Link from "next/link";
 
 import { HudLabel } from "@/components/landing/hud";
@@ -9,7 +12,7 @@ import {
   landingFrameClassName,
   landingSectionYClassName,
 } from "@/components/landing/shell";
-import { ChallengeGuide } from "./challenge-guide";
+import { BlackBoxChallengeGuide } from "./challenge-guide";
 import { RankingCountdown } from "./ranking-countdown-view";
 
 const percent = (value: number): string => `${(value * 100).toFixed(2)}%`;
@@ -104,6 +107,10 @@ export function ChallengeRankingView({
       />
     );
   }
+  let challengeGuide = null;
+  if (challenge.slug === blackBoxChallengeSlug) {
+    challengeGuide = <BlackBoxChallengeGuide />;
+  }
 
   return (
     <section
@@ -155,7 +162,7 @@ export function ChallengeRankingView({
           </div>
         </div>
 
-        <ChallengeGuide challenge={challenge} />
+        {challengeGuide}
 
         <section aria-labelledby="ranking-heading" className="mt-14">
           <HudLabel className="mb-3 text-[var(--hud-kicker)]">

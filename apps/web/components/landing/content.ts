@@ -149,11 +149,9 @@ export const qualifierChallengesCopy = {
   subtitle: "Demuestra que estás cracked",
   lede: `Los ${qualifierChallengeCount} challenges son pruebas técnicas individuales que ocurren antes del evento. No son los tracks de la hackathon: aquí compites para demostrar lo que puedes hacer, y los mejores resultados de cada challenge obtienen pase directo al evento.`,
   tracksLabel: "Tracks / durante el evento",
-  tracksBody:
-    "Son 5 temas para construir en equipo durante 30 horas. Los eliges presencialmente en Lima.",
+  tracksBody: `Son ${trackCount} temas para construir en equipo durante 30 horas. Los eliges presencialmente en Lima.`,
   challengesLabel: "Challenges / antes del evento",
-  challengesBody:
-    "Son 5 pruebas técnicas para clasificar. Resuelve una, sube al ranking y compite por un pase directo.",
+  challengesBody: `Son ${qualifierChallengeCount} pruebas técnicas para clasificar. Resuelve una, sube al ranking y compite por un pase directo.`,
   liveKicker: "Challenge 1 / live",
   liveTitle: "The Shipping Machine",
   liveBody:

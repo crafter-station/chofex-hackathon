@@ -42,10 +42,11 @@ export function ChallengesIndex({
           titleId="challenges-index-heading"
         >
           <p className="max-w-2xl text-lg leading-relaxed text-[var(--hud-ink)]/75">
-            Estos 5 challenges ocurren antes del evento y no son los tracks de
-            la hackathon. Resuelve uno para demostrar lo que puedes hacer: los
-            mejores resultados de cada challenge obtienen pase directo. Las
-            soluciones se envían por la CLI y el ranking es público.
+            Estos {challenges.length} challenges ocurren antes del evento y no
+            son los tracks de la hackathon. Resuelve uno para demostrar lo que
+            puedes hacer: los mejores resultados de cada challenge obtienen pase
+            directo. Las soluciones se envían por la CLI y el ranking es
+            público.
           </p>
         </LandingSectionHead>
         <div className="grid gap-4 md:grid-cols-2">

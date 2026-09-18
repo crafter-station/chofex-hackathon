@@ -1,8 +1,3 @@
-import {
-  blackBoxChallengeSlug,
-  type ChallengeCatalogItem,
-} from "@chofex/challenges-contract";
-
 import { HudLabel } from "@/components/landing/hud";
 import { landingFrameClassName } from "@/components/landing/shell";
 
@@ -40,13 +35,7 @@ const workflow = [
   },
 ] as const;
 
-export function ChallengeGuide({
-  challenge,
-}: {
-  readonly challenge: ChallengeCatalogItem;
-}) {
-  if (challenge.slug !== blackBoxChallengeSlug) return null;
-
+export function BlackBoxChallengeGuide() {
   return (
     <div className="mt-14 space-y-14">
       <section aria-labelledby="challenge-brief-heading">

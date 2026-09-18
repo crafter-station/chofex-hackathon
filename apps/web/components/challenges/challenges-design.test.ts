@@ -46,5 +46,12 @@ test("the live challenge page includes the brief and CLI instructions", async ()
   expect(guide).toContain("npm install --global chofex-cli@latest");
   expect(guide).toContain("chofex challenge query");
   expect(guide).toContain("chofex challenge evaluate --source ./shipping.js");
-  expect(ranking).toContain("ChallengeGuide");
+  expect(ranking).toContain("BlackBoxChallengeGuide");
+});
+
+test("reviewer guidance recognizes challenge direct-pass winners", async () => {
+  const dashboard = await sourceFor("../candidate-dashboard.tsx");
+
+  expect(dashboard).toContain("direct-pass winners");
+  expect(dashboard).not.toContain("review metrics only");
 });

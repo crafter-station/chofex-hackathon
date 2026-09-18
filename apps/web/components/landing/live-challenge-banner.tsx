@@ -2,11 +2,18 @@ import Link from "next/link";
 
 const bannerItemIds = ["ridge", "summit", "valley", "pass"] as const;
 
-function BannerGroup({ copy }: { readonly copy: "first" | "second" }) {
+function BannerGroup({
+  groupInstance,
+}: {
+  readonly groupInstance: "first" | "second";
+}) {
   return (
     <span className="landing-live-banner-group">
       {bannerItemIds.map((itemId) => (
-        <span className="landing-live-banner-item" key={`${copy}-${itemId}`}>
+        <span
+          className="landing-live-banner-item"
+          key={`${groupInstance}-${itemId}`}
+        >
           <span className="landing-live-banner-dot" />
           Challenge 1 is live
           <span aria-hidden="true">—</span>
@@ -29,8 +36,8 @@ export function LiveChallengeBanner() {
         Challenge 1 is live. View details and instructions.
       </span>
       <span aria-hidden="true" className="landing-live-banner-track">
-        <BannerGroup copy="first" />
-        <BannerGroup copy="second" />
+        <BannerGroup groupInstance="first" />
+        <BannerGroup groupInstance="second" />
       </span>
     </Link>
   );

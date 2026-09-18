@@ -720,8 +720,9 @@ const CandidateDrawer = ({
                     Technical challenges
                   </h3>
                   <p className="mt-1 max-w-xl text-xs leading-5 text-muted-foreground">
-                    Challenge progress and scores are review metrics only. They
-                    never approve or reject an application automatically.
+                    Use the rankings to identify direct-pass winners. Other
+                    scores can inform regular review; decisions are still
+                    recorded manually.
                   </p>
                 </div>
                 <ButtonLink variant="outline" size="sm" href="/challenges">

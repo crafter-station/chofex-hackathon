@@ -1,10 +1,12 @@
 name: Publish CLI
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: Full commit SHA approved for release
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -15,9 +17,23 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RELEASE_VERSION: 0.1.${{ github.run_number }}
+      RELEASE_COMMIT: ${{ inputs.commit_sha }}
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
+
+      - name: Verify release target
+        run: |
+          if [[ "$GITHUB_SHA" != "$RELEASE_COMMIT" ]]; then
+            echo "The dispatched ref does not match the approved release commit."
+            exit 1
+          fi
+          default_branch_sha="$(git ls-remote origin "refs/heads/${DEFAULT_BRANCH}" | cut -f1)"
+          if [[ "$default_branch_sha" != "$RELEASE_COMMIT" ]]; then
+            echo "The approved release commit is not the current ${DEFAULT_BRANCH} tip."
+            exit 1
+          fi
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
@@ -55,26 +71,21 @@ jobs:
           NPM_CONFIG_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
         run: bun publish --access public --tag history --tolerate-republish
 
-      - name: Check whether this is the current main release
-        id: current_main
+      - name: Verify release is still current
         run: |
-          latest_main_sha="$(git ls-remote origin refs/heads/main | cut -f1)"
-          if [[ "$latest_main_sha" != "$GITHUB_SHA" ]]; then
-            echo "A newer main commit exists; leaving this version on the history tag."
-            echo "should_release=false" >> "$GITHUB_OUTPUT"
-            exit 0
+          default_branch_sha="$(git ls-remote origin "refs/heads/${DEFAULT_BRANCH}" | cut -f1)"
+          if [[ "$default_branch_sha" != "$RELEASE_COMMIT" ]]; then
+            echo "A newer ${DEFAULT_BRANCH} commit exists; leaving this version on the history tag."
+            exit 1
           fi
-          echo "should_release=true" >> "$GITHUB_OUTPUT"
 
-      - name: Promote current main release
-        if: steps.current_main.outputs.should_release == 'true'
+      - name: Promote current release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
           NPM_CONFIG_FORCE: "true"
         run: npm dist-tag add "chofex-cli@${RELEASE_VERSION}" latest
 
       - name: Create GitHub release
-        if: steps.current_main.outputs.should_release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

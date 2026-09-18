@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
+import { trackCount } from "@/components/landing/content";
 
-export const alt =
-  "Hack the Andes — 100 builders, 5 tracks, Lima, 17–18 de octubre";
+export const alt = `Hack the Andes — 100 builders, ${trackCount} tracks, Lima, 17–18 de octubre`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -68,7 +68,7 @@ export default function OpenGraphImage() {
             color: "#ddcfbd",
           }}
         >
-          100 builders con experiencia. 5 tracks. 30 horas.
+          100 builders con experiencia. {trackCount} tracks. 30 horas.
         </div>
       </div>
       <div
