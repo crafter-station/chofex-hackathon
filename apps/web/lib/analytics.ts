@@ -63,3 +63,30 @@ export function isTrackableUrl(url: unknown): boolean {
     return false;
   }
 }
+
+/**
+ * A browser extension rejects a promise with a plain string on almost every
+ * page. Exception autocapture reports it as a synthetic $exception that carries
+ * no first-party stack frame, and its value changes only by an incrementing id.
+ * This marker is the stable part of that value, so it identifies the noise.
+ */
+const extensionRejectionMarker = "Object Not Found Matching Id:";
+
+type ExceptionEvent = {
+  event?: string;
+  properties?: {
+    $exception_list?: Array<{ value?: unknown }>;
+  };
+};
+
+/** Extension promise rejections are not our code, so they never belong in error tracking. */
+export function isExtensionNoiseException(event: ExceptionEvent): boolean {
+  if (event.event !== "$exception") return false;
+  const exceptions = event.properties?.$exception_list;
+  if (!Array.isArray(exceptions)) return false;
+  return exceptions.some(
+    (exception) =>
+      typeof exception?.value === "string" &&
+      exception.value.includes(extensionRejectionMarker),
+  );
+}

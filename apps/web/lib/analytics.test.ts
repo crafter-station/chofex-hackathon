@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 
 import {
   campaignPropertiesFromUrl,
+  isExtensionNoiseException,
   isPostHogConfigured,
   isTrackablePath,
   isTrackableUrl,
@@ -68,4 +69,35 @@ test("fails closed on anything it cannot parse", () => {
   expect(isTrackableUrl("not a url")).toBe(false);
   expect(isTrackableUrl(undefined)).toBe(false);
   expect(isTrackableUrl(null)).toBe(false);
+});
+
+test("drops the browser extension promise rejection, whatever its id", () => {
+  const extensionEvent = (id: number) => ({
+    event: "$exception",
+    properties: {
+      $exception_list: [
+        {
+          value: `Non-Error promise rejection captured with value: Object Not Found Matching Id:${id}, MethodName:update, ParamCount:4`,
+        },
+      ],
+    },
+  });
+
+  expect(isExtensionNoiseException(extensionEvent(1))).toBe(true);
+  expect(isExtensionNoiseException(extensionEvent(2))).toBe(true);
+});
+
+test("keeps first-party exceptions and non-exception events", () => {
+  expect(
+    isExtensionNoiseException({
+      event: "$exception",
+      properties: {
+        $exception_list: [{ value: "Failed to fetch model.glb" }],
+      },
+    }),
+  ).toBe(false);
+  expect(isExtensionNoiseException({ event: "$pageview" })).toBe(false);
+  expect(
+    isExtensionNoiseException({ event: "$exception", properties: {} }),
+  ).toBe(false);
 });

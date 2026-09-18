@@ -5,6 +5,7 @@ import { useEffect } from "react";
 
 import {
   campaignPropertiesFromUrl,
+  isExtensionNoiseException,
   isPostHogConfigured,
   isTrackableUrl,
   posthogHost,
@@ -33,6 +34,7 @@ export function PostHogAnalytics() {
       defaults: "2025-05-24",
       before_send: (event) => {
         if (!event) return event;
+        if (isExtensionNoiseException(event)) return null;
         if (isTrackableUrl(event.properties?.$current_url)) return event;
         return null;
       },
