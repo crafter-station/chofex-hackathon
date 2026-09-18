@@ -138,8 +138,10 @@ lo acompaña pide uno.
 > **Este deck es para devtools.** Una empresa que quiere poner dinero, un lugar
 > de comida, alguien que pone merch o la sede no compran nada de esto: no tienen
 > créditos, no les sirve un reporte de uso, y "tu herramienta en manos de 100
-> builders" no les dice nada. Van por un deck aparte, con su propia tesis y sus
-> propios montos en efectivo.
+> builders" no les dice nada.
+>
+> Ésos van por **`content/decks/aliados`**, que vende otra cosa —estar en la
+> sala— con la escalera en efectivo de `budget-sponsors.md` §5.
 
 ---
 
