@@ -707,6 +707,7 @@ const CandidateDrawer = ({
                     .join(", ")}
                 </Detail>
                 <Detail label="Role">{candidate.role}</Detail>
+                <Detail label="Phone">{candidate.applicationPhone}</Detail>
                 <Detail label="Organization">{candidate.organization}</Detail>
                 <Detail label="Pronouns">{candidate.pronouns}</Detail>
                 <Detail label="Field of study">{candidate.fieldOfStudy}</Detail>

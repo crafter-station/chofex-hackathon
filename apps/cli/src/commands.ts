@@ -234,6 +234,7 @@ const confirmCommand = Command.make(
         {
           clerkPictureUrl: currentUser.data.clerkPictureUrl,
           githubUrl: current.data.registration.githubUrl,
+          currentPhone: current.data.registration.phone,
           currentFullName:
             joinFullName(
               current.data.registration.firstName,
@@ -416,6 +417,7 @@ const validateCommand = Command.make(
 const applicationTemplate = {
   fullName: "Ada Lovelace",
   role: "Programmer",
+  phone: "+51 999 999 999",
   bio: "I build tools that help people collaborate.",
   portfolioUrl: "https://ada.example.com",
   shippedProject: "An open-source analytical engine simulator.",

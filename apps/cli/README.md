@@ -31,8 +31,9 @@ chofex confirm
 to the latest published version.
 
 `chofex register` collects and submits an application with full name, role,
-optional bio, portfolio URL, shipped project, LinkedIn and GitHub URLs, and
-Terms and Conditions. Use `--input` to submit a completed JSON application.
+optional phone number, bio, portfolio URL, shipped project, LinkedIn and GitHub
+URLs, and Terms and Conditions. Use `--input` to submit a completed JSON
+application.
 The Black Box does not block submission, but every challenge winner must submit
 an application before being accepted. Top results receive a direct pass; other
 scores give organizers another review metric.

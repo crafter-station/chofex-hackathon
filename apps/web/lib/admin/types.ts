@@ -44,6 +44,7 @@ export interface Candidate {
   readonly participationMode?: "in_person" | "remote";
   readonly organization?: string;
   readonly role?: string;
+  readonly applicationPhone?: string;
   readonly fieldOfStudy?: string;
   readonly graduationYear?: number;
   readonly shippedProject?: string;

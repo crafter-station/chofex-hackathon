@@ -62,6 +62,7 @@ describe("registration contract", () => {
   test("accepts optional application profile fields", () => {
     const decoded = Schema.decodeUnknownSync(ApplicationInput)({
       ...application,
+      phone: "+51 999 999 999",
       githubUrl: "github.com/cuevaio",
       bio: "I build tools for developers.",
       portfolioUrl: "ada.dev",
@@ -69,6 +70,7 @@ describe("registration contract", () => {
     });
     expect(decoded.fullName).toBe("Ada Lovelace");
     expect(decoded.role).toBe("Programmer");
+    expect(decoded.phone).toBe("+51 999 999 999");
     expect(decoded.githubUrl).toBe("https://github.com/cuevaio");
     expect(decoded.bio).toBe("I build tools for developers.");
     expect(decoded.portfolioUrl).toBe("https://ada.dev");
@@ -109,6 +111,7 @@ describe("registration contract", () => {
     expect(
       Schema.decodeUnknownSync(ApplicationDraftInput)({
         role: null,
+        phone: null,
         githubUrl: null,
         linkedInUrl: null,
         bio: null,
@@ -117,6 +120,7 @@ describe("registration contract", () => {
       }),
     ).toEqual({
       role: null,
+      phone: null,
       githubUrl: null,
       linkedInUrl: null,
       bio: null,
@@ -179,6 +183,7 @@ describe("registration contract", () => {
     const decoded = Schema.decodeUnknownSync(ApplicationInput)(application);
     expect(applicationSemanticRequirements(decoded)).toEqual([]);
     expect(decoded).not.toHaveProperty("bio");
+    expect(decoded).not.toHaveProperty("phone");
     expect(decoded).not.toHaveProperty("portfolioUrl");
     expect(decoded).not.toHaveProperty("shippedProject");
     expect(decoded).not.toHaveProperty("githubUrl");

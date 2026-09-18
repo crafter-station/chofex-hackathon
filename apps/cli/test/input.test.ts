@@ -24,6 +24,7 @@ describe("CLI registration input", () => {
       firstName: "Anthony",
       lastName: "Cueva",
       email: "hi@cueva.io",
+      phone: "+51 999 999 999",
       role: "Builder",
       bio: "I build developer tools.",
       portfolioUrl: "https://cueva.io",
@@ -44,6 +45,7 @@ describe("CLI registration input", () => {
 
     expect(defaults).toEqual({
       fullName: "Anthony Cueva",
+      phone: "+51 999 999 999",
       role: "Builder",
       bio: "I build developer tools.",
       portfolioUrl: "https://cueva.io",

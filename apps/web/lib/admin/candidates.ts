@@ -117,6 +117,7 @@ const toCandidate = (
     participationMode: optional(application.participationMode),
     organization: optional(application.organization),
     role: optional(application.role),
+    applicationPhone: optional(application.phone),
     fieldOfStudy: optional(application.fieldOfStudy),
     graduationYear: optional(application.graduationYear),
     shippedProject: optional(application.shippedProject),
