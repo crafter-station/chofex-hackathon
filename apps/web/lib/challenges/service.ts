@@ -41,6 +41,7 @@ import { isConfirmedSolutionExecutionFailure } from "./failure-policy";
 import {
   challengeCompletionDurationMs,
   challengeProgressStatus,
+  earliestChallengeCompletionAt,
 } from "./progress";
 import { rankedEvaluationsFor, rankForAttempt } from "./ranking";
 import { competitionRanks } from "./ranking-policy";
@@ -329,18 +330,6 @@ const loadBestEvaluation = async (
   return evaluation;
 };
 
-const loadFirstEvaluation = async (
-  attempt: AttemptRecord,
-): Promise<EvaluationRecord | undefined> => {
-  const [evaluation] = await db
-    .select()
-    .from(challengeEvaluations)
-    .where(eq(challengeEvaluations.attemptId, attempt.id))
-    .orderBy(asc(challengeEvaluations.createdAt), asc(challengeEvaluations.id))
-    .limit(1);
-  return evaluation;
-};
-
 const loadObservations = async (
   attemptId: string,
 ): Promise<Array<ChallengeObservation>> => {
@@ -383,9 +372,10 @@ export const challengeProgressForParticipants = async (
   const completedAtByAttemptId = new Map<string, Date>();
   for (const evaluation of evaluations) {
     const completedAt = completedAtByAttemptId.get(evaluation.attemptId);
-    if (!completedAt || evaluation.createdAt < completedAt) {
-      completedAtByAttemptId.set(evaluation.attemptId, evaluation.createdAt);
-    }
+    completedAtByAttemptId.set(
+      evaluation.attemptId,
+      earliestChallengeCompletionAt(completedAt, evaluation.createdAt),
+    );
     const current = evaluationByAttemptId.get(evaluation.attemptId);
     if (
       !current ||
@@ -436,9 +426,8 @@ export const challengeProgressForParticipants = async (
       let evaluation: EvaluationRecord | undefined;
       if (attempt) evaluation = evaluationByAttemptId.get(attempt.id);
       const rank = attempt ? rankByAttemptId.get(attempt.id) : undefined;
-      const completedAt = attempt
-        ? completedAtByAttemptId.get(attempt.id)
-        : undefined;
+      let completedAt: Date | undefined;
+      if (attempt) completedAt = completedAtByAttemptId.get(attempt.id);
       return progressFrom(
         challenge,
         item,
@@ -491,23 +480,9 @@ export const getChallengeAttempt = async (
     rank = rankForAttempt(ranked, existing.id)?.rank;
   }
 
-  let evaluation: EvaluationRecord | undefined;
-  let firstEvaluation: EvaluationRecord | undefined;
-  if (existing) {
-    [evaluation, firstEvaluation] = await Promise.all([
-      loadBestEvaluation(existing),
-      loadFirstEvaluation(existing),
-    ]);
-  }
+  const evaluation = existing ? await loadBestEvaluation(existing) : undefined;
   const observations = existing ? await loadObservations(existing.id) : [];
-  const progress = progressFrom(
-    challenge,
-    item,
-    existing,
-    evaluation,
-    rank,
-    firstEvaluation?.createdAt,
-  );
+  const progress = progressFrom(challenge, item, existing, evaluation, rank);
 
   let latestEvaluation: ChallengeAttemptView["latestEvaluation"];
   if (evaluation && existing) {

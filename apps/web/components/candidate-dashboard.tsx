@@ -59,7 +59,6 @@ import {
   TriangleAlertIcon,
   TrophyIcon,
   UserRoundPlusIcon,
-  UsersIcon,
   XIcon,
 } from "lucide-react";
 import Image from "next/image";
@@ -75,14 +74,14 @@ import {
 import {
   applicationDataStatus,
   challengeReviewStatus,
-  completedChallengeAccuracy,
-  completedChallengeDurationMs,
+  completedChallengeMetrics,
   formatChallengeCompletionDuration,
 } from "@/lib/admin/review-metrics";
 import type {
   Candidate,
   CandidateCounts,
   CandidateFilter,
+  CandidateFunnelStatus,
   CandidatePage,
   CandidateStatus,
 } from "@/lib/admin/types";
@@ -110,7 +109,7 @@ interface StatusStyle {
     | "statusWithdrawn";
 }
 
-const statusStyles: Record<CandidateStatus, StatusStyle> = {
+const applicationStatusStyles: Record<CandidateStatus, StatusStyle> = {
   draft: {
     label: "Draft",
     variant: "statusDraft",
@@ -141,6 +140,33 @@ const statusStyles: Record<CandidateStatus, StatusStyle> = {
   },
 };
 
+const funnelStatusStyles: Record<CandidateFunnelStatus, StatusStyle> = {
+  registration_started: {
+    label: "Registration started",
+    variant: "statusDraft",
+  },
+  registration_completed: {
+    label: "Registration completed",
+    variant: "statusSubmitted",
+  },
+  challenge_started: {
+    label: "Challenge started",
+    variant: "statusUnderReview",
+  },
+  challenge_completed: {
+    label: "Challenge completed",
+    variant: "statusAccepted",
+  },
+  approved: {
+    label: "Approved",
+    variant: "statusAccepted",
+  },
+  declined: {
+    label: "Declined",
+    variant: "statusRejected",
+  },
+};
+
 const reviewableStatuses = new Set<CandidateStatus>(
   reviewableCandidateStatuses,
 );
@@ -152,18 +178,27 @@ const filterStatuses: ReadonlyArray<{
 }> = [
   { label: "All", countKey: "all" },
   {
+    value: "registration_started",
+    label: "Registration started",
+    countKey: "registration_started",
+  },
+  {
+    value: "registration_completed",
+    label: "Registration completed",
+    countKey: "registration_completed",
+  },
+  {
+    value: "challenge_started",
+    label: "Challenge started",
+    countKey: "challenge_started",
+  },
+  {
     value: "challenge_completed",
     label: "Challenge completed",
     countKey: "challenge_completed",
   },
-  { value: "draft", label: "Drafts", countKey: "draft" },
-  { value: "submitted", label: "Submitted", countKey: "submitted" },
-  { value: "under_review", label: "In review", countKey: "under_review" },
-  { value: "waitlisted", label: "Waitlisted", countKey: "waitlisted" },
-  { value: "accepted", label: "Accepted", countKey: "accepted" },
-  { value: "rejected", label: "Declined", countKey: "rejected" },
-  { value: "withdrawn", label: "Withdrawn", countKey: "withdrawn" },
-  { value: "reattempt", label: "Reattempts", countKey: "reattempt" },
+  { value: "approved", label: "Approved", countKey: "approved" },
+  { value: "declined", label: "Declined", countKey: "declined" },
 ];
 
 const displayName = (candidate: Candidate): string =>
@@ -248,8 +283,26 @@ const safeUrl = (value: string | undefined): string | undefined => {
   return undefined;
 };
 
-const StatusBadge = ({ status }: { readonly status: CandidateStatus }) => {
-  const style = statusStyles[status];
+const ApplicationStatusBadge = ({
+  status,
+}: {
+  readonly status: CandidateStatus;
+}) => {
+  const style = applicationStatusStyles[status];
+  return (
+    <Badge variant={style.variant}>
+      <span className="size-1.5 rounded-full bg-current opacity-60" />
+      {style.label}
+    </Badge>
+  );
+};
+
+const FunnelStatusBadge = ({
+  status,
+}: {
+  readonly status: CandidateFunnelStatus;
+}) => {
+  const style = funnelStatusStyles[status];
   return (
     <Badge variant={style.variant}>
       <span className="size-1.5 rounded-full bg-current opacity-60" />
@@ -290,12 +343,16 @@ const formatPercent = (value: number): string => `${(value * 100).toFixed(2)}%`;
 const completedChallengeSummary = (
   candidate: Candidate,
 ): string | undefined => {
-  const accuracy = completedChallengeAccuracy(candidate.challenges);
-  const durationMs = completedChallengeDurationMs(candidate.challenges);
+  const metrics = completedChallengeMetrics(candidate.challenges);
+  if (!metrics) return undefined;
   const details: Array<string> = [];
-  if (accuracy !== undefined) details.push(`Score ${formatPercent(accuracy)}`);
-  if (durationMs !== undefined) {
-    details.push(`Time ${formatChallengeCompletionDuration(durationMs)}`);
+  if (metrics.accuracy !== undefined) {
+    details.push(`Score ${formatPercent(metrics.accuracy)}`);
+  }
+  if (metrics.durationMs !== undefined) {
+    details.push(
+      `Time ${formatChallengeCompletionDuration(metrics.durationMs)}`,
+    );
   }
   if (details.length === 0) return undefined;
   return details.join(" · ");
@@ -416,7 +473,7 @@ const CandidateDrawer = ({
   readonly onPrevious: () => void;
   readonly onNext: () => void;
   readonly onCandidateUpdated: (
-    previousStatus: CandidateStatus,
+    previousStatus: CandidateFunnelStatus,
     candidate: Candidate,
   ) => void;
   readonly hasPrevious: boolean;
@@ -427,7 +484,8 @@ const CandidateDrawer = ({
   const decisionMutation = useMutation({
     mutationFn: submitCandidateDecision,
     onSuccess: (result) => {
-      const previousStatus = candidate?.status ?? result.candidate.status;
+      const previousStatus =
+        candidate?.funnelStatus ?? result.candidate.funnelStatus;
       onCandidateUpdated(previousStatus, result.candidate);
     },
   });
@@ -592,7 +650,7 @@ const CandidateDrawer = ({
                       )}
                     </div>
                   </div>
-                  <StatusBadge status={candidate.status} />
+                  <FunnelStatusBadge status={candidate.funnelStatus} />
                 </div>
                 <p className="mt-2 text-xs font-medium text-muted-foreground">
                   Attempt {candidate.attemptNumber}
@@ -710,6 +768,9 @@ const CandidateDrawer = ({
             <div>
               <h3 className="text-sm font-semibold">Application</h3>
               <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-5">
+                <Detail label="Application state">
+                  <ApplicationStatusBadge status={candidate.status} />
+                </Detail>
                 <Detail label="Application data">{dataStatus}</Detail>
                 <Detail label="Submitted at">
                   {candidate.submittedAt &&
@@ -866,7 +927,7 @@ const CandidateDrawer = ({
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <StatusBadge status={decision.decision} />
+                          <ApplicationStatusBadge status={decision.decision} />
                           <span className="text-xs text-muted-foreground">
                             Attempt {decision.attemptNumber}
                           </span>
@@ -1055,7 +1116,7 @@ export function CandidateDashboard({
   };
 
   const handleCandidateUpdated = (
-    previousStatus: CandidateStatus,
+    previousStatus: CandidateFunnelStatus,
     updatedCandidate: Candidate,
   ) => {
     queryClient.setQueriesData<CandidatePage>(
@@ -1063,11 +1124,12 @@ export function CandidateDashboard({
       (cachedPage) => {
         if (!cachedPage) return cachedPage;
         let counts = cachedPage.counts;
-        if (previousStatus !== updatedCandidate.status) {
+        if (previousStatus !== updatedCandidate.funnelStatus) {
           counts = {
             ...counts,
             [previousStatus]: Math.max(0, counts[previousStatus] - 1),
-            [updatedCandidate.status]: counts[updatedCandidate.status] + 1,
+            [updatedCandidate.funnelStatus]:
+              counts[updatedCandidate.funnelStatus] + 1,
           };
         }
         const candidates = cachedPage.candidates.map((candidate) => {
@@ -1087,10 +1149,6 @@ export function CandidateDashboard({
     () => visiblePages(currentData.page, currentData.totalPages),
     [currentData.page, currentData.totalPages],
   );
-  const reviewCount =
-    currentData.counts.submitted +
-    currentData.counts.under_review +
-    currentData.counts.waitlisted;
   let firstResult = 0;
   if (currentData.total > 0) {
     firstResult = (currentData.page - 1) * currentData.pageSize + 1;
@@ -1147,38 +1205,38 @@ export function CandidateDashboard({
 
           <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
             <StatCard
-              label="Clerk users"
-              value={currentData.clerkUserCount}
-              icon={<UsersIcon className="size-4 text-muted-foreground" />}
-            />
-            <StatCard
-              label="Registrations started"
-              value={currentData.counts.all}
+              label="Registration started"
+              value={currentData.counts.registration_started}
               icon={
                 <UserRoundPlusIcon className="size-4 text-muted-foreground" />
               }
             />
             <StatCard
-              label="Needs review"
-              value={reviewCount}
+              label="Registration completed"
+              value={currentData.counts.registration_completed}
               icon={
                 <CircleUserRoundIcon className="size-4 text-muted-foreground" />
               }
             />
             <StatCard
-              label="Accepted"
-              value={currentData.counts.accepted}
-              icon={<CheckIcon className="size-4 text-muted-foreground" />}
+              label="Challenge started"
+              value={currentData.counts.challenge_started}
+              icon={<ActivityIcon className="size-4 text-muted-foreground" />}
             />
             <StatCard
-              label="Challenges completed"
-              value={currentData.completedChallengeCount}
+              label="Challenge completed"
+              value={currentData.counts.challenge_completed}
               icon={<TrophyIcon className="size-4 text-muted-foreground" />}
             />
             <StatCard
-              label="Challenges in progress"
-              value={currentData.inProgressChallengeCount}
-              icon={<ActivityIcon className="size-4 text-muted-foreground" />}
+              label="Approved"
+              value={currentData.counts.approved}
+              icon={<CheckIcon className="size-4 text-muted-foreground" />}
+            />
+            <StatCard
+              label="Declined"
+              value={currentData.counts.declined}
+              icon={<XIcon className="size-4 text-muted-foreground" />}
             />
           </section>
 
@@ -1238,11 +1296,10 @@ export function CandidateDashboard({
               className="mt-4 overflow-hidden border bg-card"
               aria-busy={candidateQuery.isFetching}
             >
-              <div className="hidden grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_8rem_7rem] gap-4 border-b bg-muted/35 px-5 py-3 text-[11px] font-medium tracking-wide text-muted-foreground uppercase sm:grid">
+              <div className="hidden grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_12rem_7rem] gap-4 border-b bg-muted/35 px-5 py-3 text-[11px] font-medium tracking-wide text-muted-foreground uppercase sm:grid">
                 <span>Candidate</span>
                 <span>Background</span>
                 <span>Status</span>
-                <span>Challenge</span>
                 <span className="text-right">Submitted</span>
               </div>
               {currentData.candidates.length === 0 && <EmptyCandidates />}
@@ -1339,7 +1396,7 @@ export function CandidateDashboard({
           if (
             selectedCandidate &&
             filters.status &&
-            selectedCandidate.status !== filters.status
+            selectedCandidate.funnelStatus !== filters.status
           ) {
             void queryClient.invalidateQueries({
               queryKey: candidateKeys.list(filters),
@@ -1405,9 +1462,6 @@ const CandidateRows = ({
 }) => (
   <div className="divide-y">
     {candidates.map((candidate) => {
-      const primaryChallenge = candidate.challenges.find(
-        (challenge) => challenge.playable,
-      );
       const challengeSummary = completedChallengeSummary(candidate);
       let submitted = "Not submitted";
       if (candidate.submittedAt) submitted = formatDate(candidate.submittedAt);
@@ -1416,7 +1470,7 @@ const CandidateRows = ({
           label={`Review ${displayName(candidate)}`}
           key={candidate.id}
           onClick={() => onSelect(candidate.id)}
-          contentClassName="grid w-full grid-cols-1 justify-start gap-3 px-4 py-4 text-left sm:grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_8rem_7rem] sm:items-center sm:gap-4 sm:px-5"
+          contentClassName="grid w-full grid-cols-1 justify-start gap-3 px-4 py-4 text-left sm:grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_12rem_7rem] sm:items-center sm:gap-4 sm:px-5"
         >
           <span className="flex min-w-0 items-center gap-3">
             <CandidateAvatar
@@ -1445,12 +1499,7 @@ const CandidateRows = ({
             </span>
           </span>
           <span className="ml-12 sm:ml-0">
-            <StatusBadge status={candidate.status} />
-          </span>
-          <span className="hidden sm:block">
-            {primaryChallenge && (
-              <ChallengeStatusBadge challenge={primaryChallenge} />
-            )}
+            <FunnelStatusBadge status={candidate.funnelStatus} />
           </span>
           <span className="hidden items-center justify-end gap-2 text-xs text-muted-foreground sm:flex">
             {submitted}

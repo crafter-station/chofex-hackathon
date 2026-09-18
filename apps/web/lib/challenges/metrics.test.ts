@@ -8,6 +8,7 @@ import {
   type ChallengeMetricsDatabase,
   challengeActivityCounts,
   completedChallengeParticipantCondition,
+  startedChallengeParticipantCondition,
 } from "./metrics";
 import { challengeProgressStatus } from "./progress";
 
@@ -124,6 +125,20 @@ describe("challenge activity metrics", () => {
     `);
     expect(completedParticipants.rows.map((row) => row.participant_id)).toEqual(
       [firstCompletedId, secondCompletedId].sort(),
+    );
+
+    const startedParticipants = await database.execute<{
+      participant_id: string;
+    }>(sql`
+      select application.participant_id
+      from applications as application
+      where ${startedChallengeParticipantCondition(
+        sql`application.participant_id`,
+      )}
+      order by application.participant_id
+    `);
+    expect(startedParticipants.rows.map((row) => row.participant_id)).toEqual(
+      [firstCompletedId, secondCompletedId, inProgressId].sort(),
     );
   });
 });

@@ -13,25 +13,23 @@ export const challengeReviewStatus = (
   return "Not started";
 };
 
-export const completedChallengeAccuracy = (
-  challenges: ReadonlyArray<ParticipantChallengeProgress>,
-): number | undefined =>
-  challenges.find(
-    (challenge) =>
-      challenge.playable &&
-      challenge.status === "evaluated" &&
-      challenge.bestAccuracy !== undefined,
-  )?.bestAccuracy;
+export interface CompletedChallengeMetrics {
+  readonly accuracy?: number;
+  readonly durationMs?: number;
+}
 
-export const completedChallengeDurationMs = (
+export const completedChallengeMetrics = (
   challenges: ReadonlyArray<ParticipantChallengeProgress>,
-): number | undefined =>
-  challenges.find(
-    (challenge) =>
-      challenge.playable &&
-      challenge.status === "evaluated" &&
-      challenge.completionDurationMs !== undefined,
-  )?.completionDurationMs;
+): CompletedChallengeMetrics | undefined => {
+  const challenge = challenges.find(
+    (challenge) => challenge.playable && challenge.status === "evaluated",
+  );
+  if (!challenge) return undefined;
+  return {
+    accuracy: challenge.bestAccuracy,
+    durationMs: challenge.completionDurationMs,
+  };
+};
 
 export const formatChallengeCompletionDuration = (
   durationMs: number,
