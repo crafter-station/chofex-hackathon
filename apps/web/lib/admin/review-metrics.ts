@@ -12,3 +12,13 @@ export const challengeReviewStatus = (
   if (challenge.status === "in_progress") return "In progress";
   return "Not started";
 };
+
+export const completedChallengeAccuracy = (
+  challenges: ReadonlyArray<ParticipantChallengeProgress>,
+): number | undefined =>
+  challenges.find(
+    (challenge) =>
+      challenge.playable &&
+      challenge.status === "evaluated" &&
+      challenge.bestAccuracy !== undefined,
+  )?.bestAccuracy;

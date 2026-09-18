@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 
-import { applicationDataStatus, challengeReviewStatus } from "./review-metrics";
+import {
+  applicationDataStatus,
+  challengeReviewStatus,
+  completedChallengeAccuracy,
+} from "./review-metrics";
 
 const challenge = {
   slug: "black-box" as const,
@@ -31,5 +35,28 @@ describe("admin review metrics", () => {
     expect(challengeReviewStatus({ ...challenge, status: "evaluated" })).toBe(
       "Completed",
     );
+  });
+
+  test("returns a score only for a completed playable challenge", () => {
+    expect(
+      completedChallengeAccuracy([
+        { ...challenge, status: "evaluated", bestAccuracy: 0.9876 },
+      ]),
+    ).toBe(0.9876);
+    expect(
+      completedChallengeAccuracy([
+        { ...challenge, status: "in_progress", bestAccuracy: 0.5 },
+      ]),
+    ).toBeUndefined();
+    expect(
+      completedChallengeAccuracy([
+        {
+          ...challenge,
+          playable: false,
+          status: "evaluated",
+          bestAccuracy: 0.5,
+        },
+      ]),
+    ).toBeUndefined();
   });
 });

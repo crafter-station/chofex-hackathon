@@ -75,6 +75,7 @@ import {
 import {
   applicationDataStatus,
   challengeReviewStatus,
+  completedChallengeAccuracy,
 } from "@/lib/admin/review-metrics";
 import type {
   Candidate,
@@ -148,6 +149,11 @@ const filterStatuses: ReadonlyArray<{
   readonly countKey: keyof CandidateCounts;
 }> = [
   { label: "All", countKey: "all" },
+  {
+    value: "challenge_completed",
+    label: "Challenge completed",
+    countKey: "challenge_completed",
+  },
   { value: "draft", label: "Drafts", countKey: "draft" },
   { value: "submitted", label: "Submitted", countKey: "submitted" },
   { value: "under_review", label: "In review", countKey: "under_review" },
@@ -156,11 +162,6 @@ const filterStatuses: ReadonlyArray<{
   { value: "rejected", label: "Declined", countKey: "rejected" },
   { value: "withdrawn", label: "Withdrawn", countKey: "withdrawn" },
   { value: "reattempt", label: "Reattempts", countKey: "reattempt" },
-  {
-    value: "challenge_completed",
-    label: "Challenge completed",
-    countKey: "challenge_completed",
-  },
 ];
 
 const displayName = (candidate: Candidate): string =>
@@ -283,6 +284,12 @@ const challengeAvailability = (challenge: ChallengeProgress): string => {
 };
 
 const formatPercent = (value: number): string => `${(value * 100).toFixed(2)}%`;
+
+const completedChallengeScore = (candidate: Candidate): string | undefined => {
+  const accuracy = completedChallengeAccuracy(candidate.challenges);
+  if (accuracy === undefined) return undefined;
+  return formatPercent(accuracy);
+};
 
 const EmptyValue = () => (
   <span className="text-muted-foreground/60">Not provided</span>
@@ -442,6 +449,8 @@ const CandidateDrawer = ({
 
   if (!candidate) return null;
 
+  const challengeScore = completedChallengeScore(candidate);
+
   const submitDecision = (decision: "accepted" | "rejected") => {
     decisionMutation.mutate({
       candidateId: candidate.id,
@@ -577,6 +586,7 @@ const CandidateDrawer = ({
                 </div>
                 <p className="mt-2 text-xs font-medium text-muted-foreground">
                   Attempt {candidate.attemptNumber}
+                  {challengeScore && ` · Score ${challengeScore}`}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <CandidateLink
@@ -1388,6 +1398,7 @@ const CandidateRows = ({
       const primaryChallenge = candidate.challenges.find(
         (challenge) => challenge.playable,
       );
+      const challengeScore = completedChallengeScore(candidate);
       let submitted = "Not submitted";
       if (candidate.submittedAt) submitted = formatDate(candidate.submittedAt);
       return (
@@ -1407,6 +1418,7 @@ const CandidateRows = ({
                 {displayName(candidate)}
                 <span className="ml-2 text-[11px] font-normal text-muted-foreground">
                   Attempt {candidate.attemptNumber}
+                  {challengeScore && ` · Score ${challengeScore}`}
                 </span>
               </span>
               <span className="mt-0.5 block truncate text-xs text-muted-foreground">
