@@ -1,9 +1,6 @@
 import { expect, test } from "bun:test";
 
-import {
-  candidateFunnelIncludesApplication,
-  candidateFunnelStatusFor,
-} from "./funnel-status";
+import { candidateFunnelStatusFor } from "./funnel-status";
 import { candidateFunnelStatuses, parseCandidateFilter } from "./types";
 
 test("publishes the candidate funnel in operating order", () => {
@@ -77,10 +74,4 @@ test("derives one candidate funnel status with decisions taking precedence", () 
       challenge("evaluated"),
     ]),
   ).toBe("declined");
-});
-
-test("keeps withdrawn applications out of the operating funnel", () => {
-  expect(candidateFunnelIncludesApplication("withdrawn")).toBe(false);
-  expect(candidateFunnelIncludesApplication("rejected")).toBe(true);
-  expect(candidateFunnelIncludesApplication("submitted")).toBe(true);
 });

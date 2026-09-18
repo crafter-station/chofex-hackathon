@@ -1116,8 +1116,8 @@ export function CandidateDashboard({
     previousStatus: CandidateFunnelStatus,
     updatedCandidate: Candidate,
   ) => {
-    queryClient.setQueriesData<CandidatePage>(
-      { queryKey: candidateKeys.all },
+    queryClient.setQueryData<CandidatePage>(
+      candidateKeys.list(filters),
       (cachedPage) => {
         if (!cachedPage) return cachedPage;
         let counts = cachedPage.counts;

@@ -32,10 +32,6 @@ export const candidateFunnelStatusFor = (
   return "registration_completed";
 };
 
-export const candidateFunnelIncludesApplication = (
-  applicationStatus: CandidateStatus,
-): boolean => applicationStatus !== "withdrawn";
-
 export const candidateFunnelApplicationCondition = (): SQL =>
   sql`${applications.status} <> 'withdrawn'`;
 
