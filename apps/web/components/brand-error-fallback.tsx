@@ -39,6 +39,7 @@ export function BrandErrorFallback({
 
   return (
     <BrandStatusPage
+      data-app-error-fallback=""
       kicker="Error / 500"
       title="Algo salió mal"
       description={description}

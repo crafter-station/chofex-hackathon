@@ -17,24 +17,30 @@ export function ChunkLoadRecoverySuccess() {
       clearChunkReloadGuard(() => window.sessionStorage);
     };
 
-    if (!clerkComponent) {
-      clearGuard();
-      return;
-    }
+    const routeHasRecovered = () => {
+      return !document.querySelector("[data-app-error-fallback]");
+    };
 
-    const selector = `[data-clerk-component="${clerkComponent}"]`;
-    const clerkUiHasRendered = () => {
+    const criticalUiHasRendered = () => {
+      if (!clerkComponent) {
+        return true;
+      }
+      const selector = `[data-clerk-component="${clerkComponent}"]`;
       const root = document.querySelector(selector);
       return Boolean(root?.childElementCount);
     };
 
-    if (clerkUiHasRendered()) {
+    const recoverySucceeded = () => {
+      return routeHasRecovered() && criticalUiHasRendered();
+    };
+
+    if (recoverySucceeded()) {
       clearGuard();
       return;
     }
 
     const observer = new MutationObserver(() => {
-      if (clerkUiHasRendered()) {
+      if (recoverySucceeded()) {
         clearGuard();
         observer.disconnect();
       }
