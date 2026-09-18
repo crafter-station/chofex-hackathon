@@ -1,5 +1,5 @@
 import { brandClerkAppearance } from "@chofex/ui/lib/clerk-appearance";
-import { ClerkLoaded, ClerkProvider } from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/ui/themes";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
@@ -49,12 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const queryProvider = <QueryProvider>{children}</QueryProvider>;
-  let content = (
-    <>
-      {queryProvider}
-      <ChunkLoadRecoverySuccess />
-    </>
-  );
+  let content = queryProvider;
 
   if (clerkConfigured) {
     content = (
@@ -64,9 +59,6 @@ export default function RootLayout({
         signUpFallbackRedirectUrl="/auth/complete"
       >
         {queryProvider}
-        <ClerkLoaded>
-          <ChunkLoadRecoverySuccess />
-        </ClerkLoaded>
       </ClerkProvider>
     );
   }
@@ -89,6 +81,7 @@ export default function RootLayout({
           forcedTheme="dark"
         >
           {content}
+          <ChunkLoadRecoverySuccess />
         </ThemeProvider>
         <Analytics />
         <PostHogAnalytics />

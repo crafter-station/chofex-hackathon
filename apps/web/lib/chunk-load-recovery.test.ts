@@ -3,6 +3,7 @@ import {
   CHUNK_RELOAD_GUARD_KEY,
   claimChunkReload,
   clearChunkReloadGuard,
+  clerkUiComponentForPath,
   isChunkLoadError,
 } from "./chunk-load-recovery";
 
@@ -38,17 +39,18 @@ describe("chunk load recovery", () => {
 
   test("allows only one automatic reload until a successful load", () => {
     const storage = createStorage();
+    const getStorage = () => storage;
 
-    expect(claimChunkReload(storage)).toBe(true);
+    expect(claimChunkReload(getStorage)).toBe(true);
     expect(storage.value()).toBe("true");
-    expect(claimChunkReload(storage)).toBe(false);
+    expect(claimChunkReload(getStorage)).toBe(false);
 
-    clearChunkReloadGuard(storage);
+    clearChunkReloadGuard(getStorage);
     expect(storage.value()).toBeNull();
-    expect(claimChunkReload(storage)).toBe(true);
+    expect(claimChunkReload(getStorage)).toBe(true);
   });
 
-  test("keeps storage failures from escaping the recovery boundary", () => {
+  test("keeps storage method failures from escaping the recovery boundary", () => {
     const unavailableStorage = {
       getItem: () => {
         throw new Error("Storage blocked");
@@ -61,11 +63,29 @@ describe("chunk load recovery", () => {
       },
     };
 
-    expect(claimChunkReload(unavailableStorage)).toBe(false);
-    expect(() => clearChunkReloadGuard(unavailableStorage)).not.toThrow();
+    const getStorage = () => unavailableStorage;
+    expect(claimChunkReload(getStorage)).toBe(false);
+    expect(() => clearChunkReloadGuard(getStorage)).not.toThrow();
+  });
+
+  test("keeps storage getter failures from escaping the recovery boundary", () => {
+    const getStorage = () => {
+      throw new Error("Storage getter blocked");
+    };
+
+    expect(claimChunkReload(getStorage)).toBe(false);
+    expect(() => clearChunkReloadGuard(getStorage)).not.toThrow();
   });
 
   test("uses a stable session-storage key", () => {
     expect(CHUNK_RELOAD_GUARD_KEY).toBe("hta:chunk-reload-attempted");
+  });
+
+  test("waits for Clerk auth UI on its catch-all routes", () => {
+    expect(clerkUiComponentForPath("/sign-in")).toBe("SignIn");
+    expect(clerkUiComponentForPath("/sign-in/factor-one")).toBe("SignIn");
+    expect(clerkUiComponentForPath("/sign-up")).toBe("SignUp");
+    expect(clerkUiComponentForPath("/sign-up/verify")).toBe("SignUp");
+    expect(clerkUiComponentForPath("/challenges")).toBeNull();
   });
 });

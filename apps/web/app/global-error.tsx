@@ -20,7 +20,7 @@ export default function GlobalError({
   useEffect(() => {
     console.error(error);
 
-    if (chunkError && claimChunkReload(window.sessionStorage)) {
+    if (chunkError && claimChunkReload(() => window.sessionStorage)) {
       window.location.reload();
     }
   }, [chunkError, error]);
