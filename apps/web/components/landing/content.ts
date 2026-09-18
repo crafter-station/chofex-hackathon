@@ -35,13 +35,12 @@ export const formatSoles = (amount: number): string =>
 export const brandName = "Hack the Andes";
 
 export const seatCount = 100;
-export const trackCount = 5;
+export const trackCount = 3;
 export const qualifierChallengeCount = 5;
 
 export const metadataCopy = {
   title: `${brandName} — Lima, 17–18 oct 2026`,
-  description:
-    "100 cupos para AI, product y software engineers con experiencia. 5 tracks, 30 horas y una entrega funcionando.",
+  description: `100 cupos para AI, product y software engineers con experiencia. ${trackCount} tracks, 30 horas y una entrega funcionando.`,
 } as const;
 
 export const cliCommands = [
@@ -115,9 +114,9 @@ export const eventItems = [
 ] as const;
 
 export const tracksCopy = {
-  title: "5 Tracks centrales",
+  title: `${trackCount} Tracks centrales`,
   subtitle: "∞ Posibilidades de soluciones",
-  lede: "Los tracks son los temas de trabajo del día del evento. Las personas aceptadas conocerán los 5 briefs en Lima, elegirán en cuál quieren trabajar y tendrán 30 horas para entregar un producto funcionando.",
+  lede: `Los tracks son los temas de trabajo del día del evento. Las personas aceptadas conocerán los ${trackCount} briefs en Lima, elegirán en cuál quieren trabajar y tendrán 30 horas para entregar un producto funcionando.`,
   reveal: "Se revela en Lima, 17 oct",
 } as const;
 
@@ -133,14 +132,6 @@ export const trackSeats = [
   {
     index: "03",
     hint: "La interfaz es parte del problema. El producto también es la respuesta.",
-  },
-  {
-    index: "04",
-    hint: "Un sistema esencial opera al límite. Encuentra una forma más resiliente.",
-  },
-  {
-    index: "05",
-    hint: "Decisiones complejas exigen mejores herramientas. Diseña una que cambie el resultado.",
   },
 ] as const;
 
@@ -388,8 +379,7 @@ export const faqItems = [
   },
   {
     question: "¿Cuándo se revelan los tracks?",
-    answer:
-      "Al iniciar la hackathon, el 17 de octubre. Las personas aceptadas conocerán los 5 briefs y elegirán presencialmente en cuál quieren trabajar.",
+    answer: `Al iniciar la hackathon, el 17 de octubre. Las personas aceptadas conocerán los ${trackCount} briefs y elegirán presencialmente en cuál quieren trabajar.`,
   },
   {
     question: "¿Cuál es la diferencia entre tracks y challenges?",

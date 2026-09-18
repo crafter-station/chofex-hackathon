@@ -10,7 +10,7 @@ import {
 /**
  * Formation parameters for each sealed track card.
  * Each index gets a distinct topographic signature — different ridge shape —
- * so the five cards read as genuinely separate sealed formations.
+ * so the three cards read as genuinely separate sealed formations.
  *
  *   01 — broad E-W ridge (elongated, low): wide challenge space
  *   02 — steep symmetric peak (nearly circular): concentrated, intense
@@ -20,8 +20,6 @@ const TRACK_FORMATIONS = [
   { rxOuter: 98, ryOuter: 66, rotateDeg: 0 },
   { rxOuter: 80, ryOuter: 78, rotateDeg: 0 },
   { rxOuter: 94, ryOuter: 58, rotateDeg: -8 },
-  { rxOuter: 88, ryOuter: 70, rotateDeg: 12 },
-  { rxOuter: 100, ryOuter: 52, rotateDeg: -4 },
 ] as const;
 
 export function LandingTracks() {
@@ -42,7 +40,7 @@ export function LandingTracks() {
           </p>
         </LandingSectionHead>
 
-        <ol className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <ol className="grid gap-4 md:grid-cols-3">
           {trackSeats.map((track, index) => {
             const formation = TRACK_FORMATIONS[index] ?? {
               rxOuter: 96,
@@ -51,7 +49,7 @@ export function LandingTracks() {
             };
             return (
               <li
-                className="landing-dossier relative flex min-h-[22rem] overflow-hidden border border-[var(--hud-ink)]/15 bg-[var(--hud-paper)]"
+                className="landing-dossier relative flex min-h-[24rem] overflow-hidden border border-[var(--hud-ink)]/15 bg-[var(--hud-paper)]"
                 key={track.index}
               >
                 {/*
