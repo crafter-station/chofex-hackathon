@@ -1,0 +1,8 @@
+{
+  "url": "https://gist.github.com/sclark39/9daf13eea9c0b381667b61e3d2e7bc11",
+  "prompt": "Extract the exact algorithm and character set used to convert between Instagram media id and shortcode. Quote any code showing the base64 alphabet used (characters), padding, and typical shortcode length.",
+  "etag": "W/\"8deb9d345f1ddaba85f160947fee2038\"",
+  "last_modified": "",
+  "content": "# Instagram ID to Shortcode Conversion Algorithm\n\n## Character Set\n\nThe conversion uses a custom base64 alphabet: `\"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_\"`\n\nThis replaces the standard base64 alphabet with Instagram's variant that uses hyphens and underscores instead of `+` and `/`.\n\n## Algorithm Overview\n\nThe process involves:\n\n1. **Encoding (ID → Shortcode)**: Convert the numeric ID to base-64 representation using the custom alphabet, then map each character position through the Instagram alphabet.\n\n2. **Decoding (Shortcode → ID)**: Reverse the process by mapping Instagram alphabet characters back to base-64 equivalents, padding with 'A' characters to 12 total length, then converting from base-64 to decimal.\n\n## Shortcode Characteristics\n\n- **Typical length**: 11 characters (can vary)\n- **Padding**: Shortcodes are padded to 12 characters with 'A' before base-64 decoding\n- **Alphabet**: 64 characters (A-Z, a-z, 0-9, `-`, `_`)\n\n## Code Reference\n\nThe gist shows: `\"toShortcode( '908540701891980503' ) // s.b. 'ybyPRoQWzX'\"` demonstrating conversion of an 18-digit ID to an 11-character shortcode.\n\n**Important Note**: Multiple commenters report this works for Instagram's public shortcodes but *not* for Facebook Graph API media IDs, which use different encoding.",
+  "fetched_at": 1789706274
+}

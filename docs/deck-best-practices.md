@@ -108,25 +108,38 @@ general con un logo pegado.
 
 ## 3. El ask repetible
 
-| Situación | Ask |
+**No se pide efectivo, y no se pone una cifra.** Los devtools ya tienen montos
+fijos que dan —uno siempre da $20 por persona, otro $50— y no los van a cambiar
+por nosotros. Poner un número solo sirve para que uno de los dos se sienta
+fuera.
+
+Lo que el deck le pide al sponsor no es *cuánto*, es **hasta dónde**:
+
+| Tier | Lo que da |
 | --- | --- |
-| Preferido | **Title Partner $1.000** — galardón propio, keynote, jurado |
-| Alternativa | **Award Partner $500** — galardón propio, espacio mayor, reporte de uso |
-| Devtools en lote | **Kit Partner $200** — galardón propio, créditos en el kit |
-| Siempre, además | créditos para el kit, licencias, mentores, jurado, swag, sede, workshops |
+| **Kit** | Créditos para los 100 participantes |
+| **Kit + podio** | Y créditos para el podio |
+| **Kit + podio + sala** | Y una persona que dé el workshop |
 
-**No se pide efectivo.** Todo el aporte es en créditos: para un devtool el costo
-marginal es casi cero, que es exactamente por qué este modelo funciona sin caja.
+Cada escalón agrega sobre el anterior, y la escalera tiene una sola variable:
+**el alcance de los créditos**, hasta que el tercero agrega gente.
 
-**Los montos son el galardón, no el kit.** Los créditos del kit se negocian
-aparte y no llevan cifra en el deck, porque el volumen razonable depende de qué
-cuesta una hora de ese producto.
+El tercero es el que conviene entender bien: **no cuesta más plata, cuesta más
+gente.** Pide un vuelo, dos días y un DevRel. Eso cambia a quién se le vende —
+un devtool con equipo en la región puede decir que sí sin presupuesto, y uno sin
+gente en Perú no puede aunque quiera.
 
-Montos y slots vienen de [`budget-sponsors.md`](./budget-sponsors.md), que es la
-única fuente. No los escribas de memoria en un slide.
+Slots y contrapartidas vienen de [`budget-sponsors.md`](./budget-sponsors.md),
+que es la única fuente.
 
 **Un solo ask por mensaje.** El deck puede mostrar los tres tiers; el correo que
 lo acompaña pide uno.
+
+> **Este deck es para devtools.** Una empresa que quiere poner dinero, un lugar
+> de comida, alguien que pone merch o la sede no compran nada de esto: no tienen
+> créditos, no les sirve un reporte de uso, y "tu herramienta en manos de 100
+> builders" no les dice nada. Van por un deck aparte, con su propia tesis y sus
+> propios montos en efectivo.
 
 ---
 
@@ -195,6 +208,12 @@ en el siguiente. Una métrica sin método de medición es una promesa.
 - **Cut test:** borra cada frase y mira cuál se extraña de verdad. Las que no,
   no vuelven.
 
+**La slide de la oferta es la excepción, y es la única.** Lleva dos ejes —lo que
+el sponsor da y lo que recibe— y eso no entra en 40 palabras sin romper la
+oferta. Hoy está en 51. El presupuesto existe para que nadie escriba párrafos en
+un slide, y ahí no hay uno solo: son etiquetas de tres columnas. Si alguna vez
+pasa de ~55, lo que sobra es contrapartida, no palabras.
+
 ---
 
 ## 7. El slide de cierre
@@ -241,7 +260,7 @@ un sponsor verifica contra la landing.
 
 ---
 
-## 9. El kit y el galardón
+## 9. El kit y el podio
 
 **Los partners no son dueños de challenges.** Los 3 challenges son producto de
 participante: sellados hasta el kickoff, elegidos por cada equipo, sin marca
@@ -263,23 +282,24 @@ real y sigue cerrando ventas; lo que cambió es la razón: antes era *nadie más
 puede ser obligatorio en tu capa*, ahora es *tus créditos no compiten con otros
 tres iguales*.
 
-### 2. Un galardón propio
+### 2. Créditos para el podio
 
-El partner pone un premio en créditos con **su nombre y su ganador**: "Mejor uso
-de X". Es lo que reemplaza a la obligatoriedad como motor de uso, y es mejor por
-dos razones: no le quita horas al equipo, y no compite con el premio en efectivo
-—tiene su propia categoría, así que $500 en créditos no se lee al lado de
-$2.000 en plata.
+A partir del segundo tier el partner suma créditos para los equipos que ganan.
+Es lo que reemplaza a la obligatoriedad como motor de uso: no obliga, tira. Y no
+le quita horas a nadie — el equipo ya estaba compitiendo.
 
-También es lo que hace que el partner **posea algo nombrable**, que es un punto
-del checklist de §11.
+⚠️ **Pendiente.** El evento premia **dos** puestos (`content.ts`: `first` y
+`second`), y la conversación que definió este modelo describía **tres**. O el
+evento suma un tercer puesto, o los créditos se reparten en dos. No pueden
+convivir: el sponsor lee "créditos para el podio" dos slides después de ver un
+podio de dos.
 
 ### Lo que esto compra, dicho con números
 
 | Oferta | Lo que se puede prometer |
 | --- | --- |
 | Créditos en el kit | **100 kits entregados**; claims y cuentas creadas |
-| Galardón propio | ganador nombrado, mención en la premiación |
+| Créditos para el podio | ganador nombrado, mención en la premiación |
 | Workshop | asistencia y feedback técnico en sala |
 
 Ninguna fila promete adopción. La primera es lo único garantizado por
@@ -317,8 +337,7 @@ pinta la paleta. (Regla ya cerrada en el brief, no reabrir.)
 ## 11. Checklist antes de mandar un deck
 
 - [ ] La tesis del slide 2 **falla** el test de intercambiabilidad.
-- [ ] El partner **posee** algo nombrable: su galardón, un workshop, un puesto
-      en el jurado.
+- [ ] El partner **posee** algo nombrable: los créditos del podio, el workshop.
 - [ ] Ninguna métrica de la columna 🤝 de §5 aparece como promesa.
 - [ ] Ningún slide habla de obligatoriedad, requisito de entrega ni exclusividad
       de capa: describen un modelo que ya no existe.
