@@ -38,7 +38,10 @@ import {
   currentChallengeVersion,
 } from "./engine";
 import { isConfirmedSolutionExecutionFailure } from "./failure-policy";
-import { challengeProgressStatus } from "./progress";
+import {
+  challengeCompletionDurationMs,
+  challengeProgressStatus,
+} from "./progress";
 import { rankedEvaluationsFor, rankForAttempt } from "./ranking";
 import { competitionRanks } from "./ranking-policy";
 import {
@@ -231,12 +234,21 @@ const progressStatus = (
   });
 };
 
+const completionDurationFor = (
+  attempt: AttemptRecord | undefined,
+  completedAt: Date | undefined,
+): number | undefined => {
+  if (!attempt || !completedAt) return undefined;
+  return challengeCompletionDurationMs(attempt.createdAt, completedAt);
+};
+
 const progressFrom = (
   challenge: ChallengeDefinition,
   item: ChallengeCatalogItem,
   attempt: AttemptRecord | undefined,
   evaluation: EvaluationRecord | undefined,
   rank?: number,
+  completedAt?: Date,
 ): ParticipantChallengeProgress => ({
   slug: challenge.slug,
   title: challenge.title,
@@ -250,6 +262,7 @@ const progressFrom = (
   evaluationsLimit: attempt?.evaluationsLimit ?? challenge.evaluationLimit,
   bestAccuracy: evaluation?.accuracy,
   bestExactCount: evaluation?.exactCount,
+  completionDurationMs: completionDurationFor(attempt, completedAt),
   shareCode: attempt?.shareCode,
   rank,
 });
@@ -316,6 +329,18 @@ const loadBestEvaluation = async (
   return evaluation;
 };
 
+const loadFirstEvaluation = async (
+  attempt: AttemptRecord,
+): Promise<EvaluationRecord | undefined> => {
+  const [evaluation] = await db
+    .select()
+    .from(challengeEvaluations)
+    .where(eq(challengeEvaluations.attemptId, attempt.id))
+    .orderBy(asc(challengeEvaluations.createdAt), asc(challengeEvaluations.id))
+    .limit(1);
+  return evaluation;
+};
+
 const loadObservations = async (
   attemptId: string,
 ): Promise<Array<ChallengeObservation>> => {
@@ -355,7 +380,12 @@ export const challengeProgressForParticipants = async (
       .where(inArray(challengeEvaluations.attemptId, attemptIds));
   }
   const evaluationByAttemptId = new Map<string, EvaluationRecord>();
+  const completedAtByAttemptId = new Map<string, Date>();
   for (const evaluation of evaluations) {
+    const completedAt = completedAtByAttemptId.get(evaluation.attemptId);
+    if (!completedAt || evaluation.createdAt < completedAt) {
+      completedAtByAttemptId.set(evaluation.attemptId, evaluation.createdAt);
+    }
     const current = evaluationByAttemptId.get(evaluation.attemptId);
     if (
       !current ||
@@ -406,7 +436,17 @@ export const challengeProgressForParticipants = async (
       let evaluation: EvaluationRecord | undefined;
       if (attempt) evaluation = evaluationByAttemptId.get(attempt.id);
       const rank = attempt ? rankByAttemptId.get(attempt.id) : undefined;
-      return progressFrom(challenge, item, attempt, evaluation, rank);
+      const completedAt = attempt
+        ? completedAtByAttemptId.get(attempt.id)
+        : undefined;
+      return progressFrom(
+        challenge,
+        item,
+        attempt,
+        evaluation,
+        rank,
+        completedAt,
+      );
     });
     progressByParticipant.set(participantId, progress);
   }
@@ -451,9 +491,23 @@ export const getChallengeAttempt = async (
     rank = rankForAttempt(ranked, existing.id)?.rank;
   }
 
-  const evaluation = existing ? await loadBestEvaluation(existing) : undefined;
+  let evaluation: EvaluationRecord | undefined;
+  let firstEvaluation: EvaluationRecord | undefined;
+  if (existing) {
+    [evaluation, firstEvaluation] = await Promise.all([
+      loadBestEvaluation(existing),
+      loadFirstEvaluation(existing),
+    ]);
+  }
   const observations = existing ? await loadObservations(existing.id) : [];
-  const progress = progressFrom(challenge, item, existing, evaluation, rank);
+  const progress = progressFrom(
+    challenge,
+    item,
+    existing,
+    evaluation,
+    rank,
+    firstEvaluation?.createdAt,
+  );
 
   let latestEvaluation: ChallengeAttemptView["latestEvaluation"];
   if (evaluation && existing) {

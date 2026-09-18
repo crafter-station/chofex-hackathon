@@ -22,3 +22,30 @@ export const completedChallengeAccuracy = (
       challenge.status === "evaluated" &&
       challenge.bestAccuracy !== undefined,
   )?.bestAccuracy;
+
+export const completedChallengeDurationMs = (
+  challenges: ReadonlyArray<ParticipantChallengeProgress>,
+): number | undefined =>
+  challenges.find(
+    (challenge) =>
+      challenge.playable &&
+      challenge.status === "evaluated" &&
+      challenge.completionDurationMs !== undefined,
+  )?.completionDurationMs;
+
+export const formatChallengeCompletionDuration = (
+  durationMs: number,
+): string => {
+  const minuteMs = 60_000;
+  if (durationMs < minuteMs) return "<1m";
+
+  const totalMinutes = Math.floor(durationMs / minuteMs);
+  const days = Math.floor(totalMinutes / (24 * 60));
+  const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+  const minutes = totalMinutes % 60;
+  const parts: Array<string> = [];
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0) parts.push(`${hours}h`);
+  if (minutes > 0) parts.push(`${minutes}m`);
+  return parts.join(" ");
+};

@@ -266,6 +266,7 @@ export const ParticipantChallengeProgressSchema = Schema.Struct({
   evaluationsLimit: Schema.Number,
   bestAccuracy: Schema.optional(Schema.Number),
   bestExactCount: Schema.optional(Schema.Number),
+  completionDurationMs: Schema.optional(Schema.Number),
   shareCode: Schema.optional(Schema.String),
   rank: Schema.optional(Schema.Number),
 });

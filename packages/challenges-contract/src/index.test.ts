@@ -8,6 +8,7 @@ import {
   formatChallengeOpeningInPeru,
   isChallengeOpenAt,
   isChallengeRankingVisibleAt,
+  ParticipantChallengeProgressSchema,
   ShipmentSchema,
   scoreFromPredictions,
 } from "./index.js";
@@ -56,6 +57,29 @@ describe("challenge catalog", () => {
         new Date("2026-09-19T02:00:00.000Z"),
       ),
     ).toBe(true);
+  });
+});
+
+describe("participant challenge progress", () => {
+  test("carries the elapsed time to the first completed evaluation", () => {
+    const progress = Schema.decodeUnknownSync(
+      ParticipantChallengeProgressSchema,
+    )({
+      slug: "black-box",
+      title: "The Shipping Machine",
+      theme: "Black Box",
+      status: "evaluated",
+      open: true,
+      playable: true,
+      queriesUsed: 10,
+      queriesLimit: 25,
+      evaluationsUsed: 1,
+      evaluationsLimit: 3,
+      bestAccuracy: 0.98,
+      completionDurationMs: 5_400_000,
+    });
+
+    expect(progress.completionDurationMs).toBe(5_400_000);
   });
 });
 

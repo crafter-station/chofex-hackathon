@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
-import { challengeProgressStatus } from "./progress";
+import {
+  challengeCompletionDurationMs,
+  challengeProgressStatus,
+} from "./progress";
 
 describe("challenge progress", () => {
   test("requires a persisted evaluation before reporting completion", () => {
@@ -33,4 +36,13 @@ describe("challenge progress", () => {
       }),
     ).toBe("evaluated");
   });
+});
+
+test("measures challenge completion from attempt creation", () => {
+  expect(
+    challengeCompletionDurationMs(
+      new Date("2026-09-18T10:00:00.000Z"),
+      new Date("2026-09-18T11:30:00.000Z"),
+    ),
+  ).toBe(5_400_000);
 });
