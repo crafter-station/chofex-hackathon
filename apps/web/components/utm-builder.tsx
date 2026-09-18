@@ -1,9 +1,15 @@
 "use client";
 
+import { Badge } from "@chofex/ui/components/badge";
 import { Button } from "@chofex/ui/components/button";
 import { Input } from "@chofex/ui/components/input";
 import { CheckIcon, CopyIcon, TriangleAlertIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import {
+  detectPostUrl,
+  type PostUrlMatch,
+  postUrlKindLabels,
+} from "@/lib/post-url";
 import { buildUtmLink, type UtmSource, utmSources } from "@/lib/utm";
 
 type CopyStatus = "idle" | "copied" | "failed";
@@ -22,6 +28,27 @@ function iconForStatus(status: CopyStatus) {
   return <CopyIcon data-icon="inline-start" />;
 }
 
+function labelForSource(source: UtmSource): string {
+  return utmSources.find((option) => option.id === source)?.label ?? source;
+}
+
+/** Explains why a pasted link gave us nothing, so the fix is obvious. */
+function hintForInput(detected: PostUrlMatch | null): string {
+  if (!detected) {
+    return "Paste the post link and we read its id, or type an id yourself. Spaces and symbols become dashes.";
+  }
+  if (!detected.network) {
+    return "That link is not from Instagram, LinkedIn, X or Facebook.";
+  }
+  if (detected.kind === "share") {
+    return `${labelForSource(detected.network)} share links hide the post id. Open the link and copy the url from the address bar.`;
+  }
+  if (!detected.id) {
+    return `We found no post id in that ${labelForSource(detected.network)} link. It may point at a profile instead of a post.`;
+  }
+  return "";
+}
+
 export function UtmBuilder() {
   const [source, setSource] = useState<UtmSource>("instagram");
   const [postId, setPostId] = useState("");
@@ -37,7 +64,11 @@ export function UtmBuilder() {
     [],
   );
 
-  const link = buildUtmLink({ source, postId });
+  const detected = detectPostUrl(postId);
+  // A recognised link speaks for itself; anything else is taken as a typed id.
+  const resolvedPostId = detected ? (detected.id ?? "") : postId;
+  const link = buildUtmLink({ source, postId: resolvedPostId });
+  const hint = hintForInput(detected);
 
   const copyLink = async () => {
     if (!link) return;
@@ -56,6 +87,15 @@ export function UtmBuilder() {
   const selectSource = (next: UtmSource) => {
     setSource(next);
     setStatus("idle");
+  };
+
+  const changePostId = (next: string) => {
+    setPostId(next);
+    setStatus("idle");
+
+    // A link tells us its own network, so the source follows the paste.
+    const match = detectPostUrl(next);
+    if (match?.network && match.id) setSource(match.network);
   };
 
   return (
@@ -80,28 +120,39 @@ export function UtmBuilder() {
 
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium" htmlFor="utm-post-id">
-          Post id
+          Post link or id
         </label>
         <Input
           id="utm-post-id"
           size="lg"
           autoComplete="off"
-          placeholder="launch-reel"
+          placeholder="https://instagram.com/p/C7_Hlo8y9aP/"
           value={postId}
-          onChange={(event) => {
-            setPostId(event.target.value);
-            setStatus("idle");
-          }}
+          onChange={(event) => changePostId(event.target.value)}
         />
-        <p className="text-sm text-muted-foreground">
-          Anything that identifies the post. Spaces and symbols become dashes.
-        </p>
+        <div aria-live="polite">
+          {detected?.network && detected.id && detected.kind ? (
+            <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <Badge variant="secondary">
+                {labelForSource(detected.network)}{" "}
+                {postUrlKindLabels[detected.kind]}
+              </Badge>
+              <span>
+                Post id{" "}
+                <code className="font-mono break-all">{detected.id}</code>
+              </span>
+            </p>
+          ) : null}
+          {hint ? (
+            <p className="text-sm text-muted-foreground">{hint}</p>
+          ) : null}
+        </div>
       </div>
 
       <div className="flex flex-col gap-3">
         <span className="text-sm font-medium">Link</span>
         <code className="block overflow-x-auto rounded-lg bg-muted px-3 py-2 font-mono text-sm break-all">
-          {link ?? "Enter a post id to generate the link."}
+          {link ?? "Enter a post link or id to generate the link."}
         </code>
         <div className="flex items-center gap-3">
           <Button type="button" size="lg" disabled={!link} onClick={copyLink}>

@@ -8,6 +8,7 @@ import {
   FlowMap,
   Lead,
   Logo,
+  LogoRow,
   LogoWall,
   MdxA,
   MdxBlockquote,
@@ -87,6 +88,7 @@ export function mdxComponentsFor(lang: DeckLang) {
     PhaseTimeline,
     // logos
     Logo,
+    LogoRow,
     LogoWall,
     // lists
     BulletList,

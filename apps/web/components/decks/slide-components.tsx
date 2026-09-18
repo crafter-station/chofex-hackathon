@@ -454,6 +454,48 @@ export function Logo({
   return <img alt={alt} src={src} style={{ height, width: "auto" }} />;
 }
 
+/**
+ * The partner lockup: a quiet row of marks with a hairline between each.
+ *
+ * `LogoWall` is the other shape — a bordered grid, for a slide whose subject is
+ * who backs the event. This is the footer of a cover: the marks sit in the
+ * page's own rhythm and the rules between them are the only structure.
+ *
+ * Height is per logo because these marks are not one aspect ratio. The two
+ * wordmarks run about 4:1 and the stacked one is nearly square, so a single
+ * height makes one of them either tiny or enormous. Optical size is a judgement
+ * the slide makes, not something a component can average.
+ */
+export function LogoRow({
+  logos,
+  height = 28,
+}: {
+  logos: Array<{ src: string; alt: string; height?: number }>;
+  height?: number;
+}) {
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-5 sm:gap-7">
+      {logos.map((logo, index) => (
+        <div className="flex items-center gap-5 sm:gap-7" key={logo.src}>
+          {index > 0 ? (
+            <span
+              aria-hidden="true"
+              className="h-8 w-px"
+              style={{ backgroundColor: "var(--deck-line-strong)" }}
+            />
+          ) : null}
+          {/* biome-ignore lint/performance/noImgElement: static deck asset */}
+          <img
+            alt={logo.alt}
+            src={logo.src}
+            style={{ height: logo.height ?? height, width: "auto" }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function LogoWall({
   logos,
   columns = 4,
