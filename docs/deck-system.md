@@ -168,6 +168,8 @@ scripting: no hay estado que deshacer antes de hidratar ni flash de entrada.
 
 **Evento** — `TrackCard` · `Timeline` · `TimelineRow` · `PhaseTimeline`
 
+**Fotografías** — `Photos`
+
 **Logos** — `Logo` · `LogoRow` · `LogoWall`
 
 **Listas** — `BulletList` · `ChipGrid`

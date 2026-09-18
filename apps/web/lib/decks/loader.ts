@@ -46,10 +46,11 @@ function parseDeckLang(value: unknown, slug: string): DeckLang {
  * The backdrops a slide can sit on, named rather than pathed so a slide never
  * hardcodes a file and swapping the art is one change in `deck.css`.
  *
- * Two kinds. The drawn plates — summit, range, peak, canyon, contour — are the
- * event's own world. The photographic ones are the team's previous hackathons,
- * in greyscale so they sit in the same monochrome as everything else, and they
- * are the only evidence in the deck that this team has run one before.
+ * All five are drawn: the terrain, which is the event's own world. Photographs
+ * are deliberately not in this list. They were, briefly, and a photograph makes
+ * a bad backdrop — it has no dark mass of its own for the veil to work with, so
+ * the type lands on faces. Photographs enter a slide through `Photos` instead,
+ * as an object beside the type rather than the ground under it.
  *
  * They are a handful of monochrome plates across the whole deck on purpose:
  * the design base draws one world, and a backdrop per slide would read as a
@@ -62,9 +63,6 @@ export const DECK_BACKDROPS = [
   "peak",
   "canyon",
   "contour",
-  "sala-bogota",
-  "equipos-lima",
-  "organizadores",
   "none",
 ] as const;
 

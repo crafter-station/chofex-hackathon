@@ -211,6 +211,32 @@ En CSS va como `clamp(1.25rem, 12.35vw, 4rem)`: el 12.35% de un teléfono no es
 un margen, es un canal, y el piso sostiene la slide legible mucho antes que la
 proporción.
 
+### El marco
+
+Todas las slides viven dentro de un margen negro, `--deck-frame`, que en CSS es
+`clamp(0px, 4.5vmin, 5rem)`. El `.deck-stage` lleva ese padding y adentro va
+`.deck-stage-frame`, que es el bloque contenedor de la slide — la lámina se
+enmarca junto con el tipo, porque un marco que solo encierra el texto deja el
+dibujo sangrando hasta el borde y no sirve de nada.
+
+`vmin` y no `vw`: en un teléfono el lado corto es justo el que no puede regalar
+margen, y 4.5vw de una tablet apaisada es un borde, no un marco. El piso en 0 es
+a propósito: por debajo de unos 300px ya no queda nada que enmarcar.
+
+Pasado 16:9 el marco deja de ensancharse y se lleva el sobrante como negro:
+
+```css
+@media (min-aspect-ratio: 16 / 9) {
+  .deck-stage-frame { width: auto; aspect-ratio: 16 / 9; }
+}
+```
+
+Ese es el caso que motiva todo. Una lámina son 2048px de dibujo; pedirle a
+`cover` que los estire sobre los 3440px de un ultrawide devuelve suavidad que no
+es del monitor, es de la lámina. El chrome se alinea al marco con
+`max(1rem, var(--deck-frame) * 0.45)`, así que en pantallas chicas queda donde
+siempre estuvo.
+
 ### Las cards de T4
 
 | Medida | Valor | Como %ancho |
@@ -257,6 +283,28 @@ agrimensura del campo fluido que dibuja la base.
 
 El dato de elevación exige atribución, y ahora tiene un consumidor más: está en
 `content/legal/credits.md` y en `public/models/README.md`.
+
+### Fotografías
+
+Tres láminas en escala de grises de las hackathones anteriores del equipo:
+`organizadores`, `sala-bogota`, `equipos-lima`.
+
+**No son fondos.** Lo fueron un rato y estuvo mal por dos motivos. Una fotografía
+no tiene masa oscura propia, así que el velo direccional del que vive una slide
+partida no tiene de dónde morder: el tipo cae sobre caras. Y una fotografía
+debajo de todo reemplaza el terreno, que es la identidad — el dibujo es el mundo
+del deck y las fotos son evidencia puesta adentro de él.
+
+Entran por el componente `Photos`, como objeto al lado del tipo. En una slide
+partida el CSS lo saca del flujo hacia la mitad que el tipo deja libre, que es la
+misma hacia la que ya se corrió la parte brillante de la lámina; por debajo de
+800px vuelve a la columna como tira horizontal. El ancho es la mitad libre
+expresada contra la columna que la define: la columna es el 64% de la slide, así
+que lo que queda de ella es `100/64 - 1 = 56.25%` de su propio ancho.
+
+La escala de grises se fuerza en CSS (`filter: grayscale(1)`) además de venir en
+el archivo. Una sola foto a color sobre una slide monocroma deshace la piel
+entera, y eso no debería depender de quién exportó el archivo.
 
 ### Grano
 
