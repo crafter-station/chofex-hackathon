@@ -67,8 +67,11 @@ describe("admin review metrics", () => {
   });
 
   test("formats challenge completion time", () => {
-    expect(formatChallengeCompletionDuration(30_000)).toBe("<1m");
-    expect(formatChallengeCompletionDuration(95 * 60_000)).toBe("1h 35m");
-    expect(formatChallengeCompletionDuration(1_565 * 60_000)).toBe("1d 2h 5m");
+    expect(formatChallengeCompletionDuration(30_000)).toBe("30s");
+    expect(formatChallengeCompletionDuration(207_406)).toBe("3m 27s");
+    expect(formatChallengeCompletionDuration(95 * 60_000)).toBe("1h 35m 0s");
+    expect(formatChallengeCompletionDuration(1_565 * 60_000)).toBe(
+      "1d 2h 5m 0s",
+    );
   });
 });

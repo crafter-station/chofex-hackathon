@@ -34,16 +34,15 @@ export const completedChallengeMetrics = (
 export const formatChallengeCompletionDuration = (
   durationMs: number,
 ): string => {
-  const minuteMs = 60_000;
-  if (durationMs < minuteMs) return "<1m";
-
-  const totalMinutes = Math.floor(durationMs / minuteMs);
-  const days = Math.floor(totalMinutes / (24 * 60));
-  const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
-  const minutes = totalMinutes % 60;
+  const totalSeconds = Math.floor(durationMs / 1_000);
+  const days = Math.floor(totalSeconds / (24 * 60 * 60));
+  const hours = Math.floor((totalSeconds % (24 * 60 * 60)) / (60 * 60));
+  const minutes = Math.floor((totalSeconds % (60 * 60)) / 60);
+  const seconds = totalSeconds % 60;
   const parts: Array<string> = [];
   if (days > 0) parts.push(`${days}d`);
   if (hours > 0) parts.push(`${hours}h`);
   if (minutes > 0) parts.push(`${minutes}m`);
+  parts.push(`${seconds}s`);
   return parts.join(" ");
 };
