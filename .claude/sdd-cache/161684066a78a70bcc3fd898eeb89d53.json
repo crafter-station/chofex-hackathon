@@ -1,0 +1,8 @@
+{
+  "url": "https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/extractor/facebook.py",
+  "prompt": "Search this file for the string \"share/\" (as in facebook.com/share/p/, /share/r/, /share/v/) and for \"fb.watch\" and \"_real_extract\" redirect handling. Quote any code, regex, or comments that reference these share link paths or fb.watch short links, including how they are resolved (e.g. following redirects rather than regex extraction).",
+  "etag": "W/\"22613781839a3da6abf178edbffca0dc\"",
+  "last_modified": "",
+  "content": "# Analysis of Facebook Video Extractor\n\nI searched the provided code for references to \"share/\" paths, \"fb.watch\" short links, and redirect handling mechanisms.\n\n## Findings\n\n**Share link path coverage:** The regex patterns in `_VALID_URL` do not explicitly include \"/share/\" path variants. The current patterns match:\n- `facebook.com/[user]/videos/`\n- `facebook.com/[user]/posts/`\n- `facebook.com/video.php?v=`\n- `facebook.com/watch/`\n\n**fb.watch handling:** No explicit references to \"fb.watch\" short links appear in the displayed code sections.\n\n**Redirect mechanism:** The `FacebookRedirectURLIE` class handles Facebook redirect URLs:\n\n> \"redirect_url = url_or_none(parse_qs(url).get('u', [None])[-1])\"\n\nThis extractor processes `facebook.com/flx/warn/?` URLs by extracting the `u` parameter and passing it to `url_result()`, delegating resolution to the target extractor rather than applying regex extraction.\n\n**Key limitation:** The primary `FacebookIE` class appears to rely on regex matching rather than following HTTP redirects for short link resolution. Share link variants would require explicit regex pattern additions if they use distinct URL structures.",
+  "fetched_at": 1789706306
+}

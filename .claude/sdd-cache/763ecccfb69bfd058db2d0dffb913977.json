@@ -1,0 +1,8 @@
+{
+  "url": "https://docs.unifapi.com/api/instagram/resolve/shortcode/get",
+  "prompt": "Extract details on how this API resolves an Instagram post shortcode from a URL: what URL formats are supported (feed posts, reels, tv, share links), any regex or pattern shown, and example URLs with their expected shortcode.",
+  "etag": "\"80e39d19900b05da8f69b0cf9c14bf33\"",
+  "last_modified": "",
+  "content": "# Instagram Shortcode Resolution API Analysis\n\nBased on the provided content, I can only confirm the following:\n\n**API Endpoint:** `/api/instagram/resolve/shortcode/get`\n\n**Pricing:** \"Billed per record at *1 credit ($0.001)** each, with a *1-credit ($0.001)** minimum per call.\"\n\n## Limitations\n\nUnfortunately, the webpage excerpt provided doesn't contain the specific technical details you requested. The content shows only the pricing information and endpoint name, but lacks:\n\n- Supported URL format specifications (feed posts, reels, TV, share links)\n- Regular expression patterns or matching rules\n- Example URLs with corresponding shortcode outputs\n- Implementation details or parameter documentation\n\nTo obtain these specifics, you would need to access the full API documentation page, which would typically include request/response examples, supported formats, and usage patterns.",
+  "fetched_at": 1789706283
+}

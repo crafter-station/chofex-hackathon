@@ -1,0 +1,8 @@
+{
+  "url": "https://gist.github.com/t-wy/66faed8679d127793891ecb775efdaa9",
+  "prompt": "Extract any information about the pfbid format: its prefix, character set (is it base64 standard, base64url, alphanumeric only?), typical length, and any regex patterns used to match/extract it from Facebook URLs. Also note any example URLs shown.",
+  "etag": "W/\"08379beda69bf47a65577bc5a2a73d66\"",
+  "last_modified": "",
+  "content": "# PFBID Format Information from GitHub Gist\n\nBased on the shared gist content, here's what's documented about the pfbid format:\n\n## Format Characteristics\nThe pfbid appears in URLs following the pattern: `facebook.com/.../posts/pfbid...`. One regex pattern shown captures it as:\n- `\"/pfbid[0-9a-zA-Z]+/\"` \n\nThis indicates pfbid uses alphanumeric characters (0-9, a-z, A-Z) only—not standard base64.\n\n## Typical Length\nThe gist mentions \"data-content-len\" attributes but doesn't specify exact pfbid length. One comment references looking for values matching `\\S{20,60}`, suggesting variable-length strings in that range.\n\n## Key Challenge\nAs noted: \"for those looking like `https://www.facebook.com/.../posts/pfbid...`, the post ID can no longer be found in any element\" using older methods. The canonical post ID must be extracted from page metadata (the `share_fbid` field) rather than the URL itself.\n\n## Example Pattern\nOne simplified extraction method referenced: `share_fbid\":\"(.+?)\",\"` pulls the actual numeric post ID from embedded script tags, which can then replace the pfbid in URLs as `facebook.com/[numeric-id]`.",
+  "fetched_at": 1789706272
+}

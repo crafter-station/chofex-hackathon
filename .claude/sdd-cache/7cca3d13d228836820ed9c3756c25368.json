@@ -1,0 +1,8 @@
+{
+  "url": "https://huggingface.co/spaces/playingapi/cobalt/blob/main/api/src/processing/url.js",
+  "prompt": "Find and quote any code related to Instagram URL parsing: regex patterns, handling of /p/, /reel/, /reels/, /tv/, /stories/, /share/ paths, shortcode extraction, and how share links (with opaque tokens) are handled (e.g. resolved via redirect vs regex). Quote exact code blocks.",
+  "etag": "W/\"3bfcb-A4Y+mI8q24jwH8/G8L8pP+Y9r24\"",
+  "last_modified": "",
+  "content": "# Instagram URL Parsing Analysis\n\nBased on the provided code, here's the relevant Instagram handling:\n\n**Instagram URL Aliasing:**\n```\ncase \"ddinstagram\":\nif (services.instagram.altDomains.includes(host.domain) && \n[null, 'd', 'g'].includes(host.subdomain)) {\n  url.hostname = 'instagram.com';\n}\n```\n\nThis code normalizes Instagram alternative domains (like `ddinstagram`) by converting them to the standard `instagram.com` hostname, but only when subdomains are null, 'd', or 'g'.\n\n**Limitations:** The file does not contain explicit regex patterns for Instagram path parsing (such as `/p/`, `/reel/`, `/stories/`, etc.), shortcode extraction logic, or special handling for share links with opaque tokens. The actual pattern matching appears to be delegated to the `services.instagram.patterns` configuration object referenced elsewhere in the codebase, which is not included in this code snippet.",
+  "fetched_at": 1789706335
+}

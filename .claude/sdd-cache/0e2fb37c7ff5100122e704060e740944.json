@@ -1,0 +1,8 @@
+{
+  "url": "https://trevorfox.com/tools/linkedin/post-urn-extractor/",
+  "prompt": "Extract any details about the regex or ID formats used to identify LinkedIn post URLs: activity ID length, character set, and what URL shapes (posts/, feed/update/, share/, pulse/) are supported. Quote the exact logic/regex if shown.",
+  "etag": "\"7efb7813d833073277d95e2e855020eb\"",
+  "last_modified": "",
+  "content": "# LinkedIn Post ID Format Details\n\n## ID Length & Character Set\nThe post identifier is a **19-digit integer**. The documentation states: \"the post ID is a 19-digit, 64-bit integer that uniquely identifies the post.\"\n\n## URL Shapes Supported\nThe tool recognizes multiple LinkedIn URL formats:\n- `/posts/...-activity-ID-.../` (from the share menu)\n- `/feed/update/urn:li:activity:ID/` (from the address bar)\n\n## Extraction Logic\nRather than providing a regex pattern, the documentation describes the approach: \"The tool scans the URL for the first run of 19 consecutive digits and builds the URN around it.\"\n\n## Key Limitation\nThe extraction uses simple pattern matching: \"It takes the first 19-digit run it finds. The match isn't anchored to a particular position in the URL.\" This means for URLs with multiple long numbers, the leftmost 19-digit sequence wins.\n\n## URN Format\nExtracted IDs are wrapped as: `urn:li:activity:[19-digit-ID]`\n\nThe tool prioritizes activity URNs over ugcPost URNs, though the content notes they're \"not interchangeable in every API.\"",
+  "fetched_at": 1789706265
+}

@@ -78,42 +78,53 @@ que hay que multiplicar — no el total.
 
 ---
 
-## 5. El tier sheet
+## 5. Los dos sheets
 
-**No se pide efectivo.** Todo el aporte de un partner de tecnología es en
-créditos: para un devtool el costo marginal es casi cero, que es exactamente por
-qué este modelo funciona sin caja. Ninguna herramienta es obligatoria.
+Hay **dos decks y dos escaleras**, y mezclarlas es cómo se manda una propuesta
+que no cierra.
 
-Tres niveles. El monto es **el galardón** — el premio en créditos que el partner
-pone con su nombre — y no los créditos del kit, que se negocian aparte y no
-llevan cifra en el deck porque el volumen razonable depende de qué cuesta una
-hora de ese producto.
+### Devtools — sin efectivo, sin cifra
 
-| Tier | Galardón | Slots | Qué incluye |
-| --- | ---: | :---: | --- |
-| **Title Partner** | $1.000 | 1 | Galardón propio · créditos en el kit · lockup junto a la marca · keynote de apertura · puesto en el jurado · reporte de uso |
-| **Award Partner** | $500 | 3 | Galardón propio · créditos en el kit · espacio mayor en la web · workshop de 45 min o mentor en sala · reporte de uso |
-| **Kit Partner** | $200 | 5 | Galardón propio · créditos en el kit · logo en la grilla · mención en kickoff · reporte de claims |
-| **In-kind** | producto | ∞ | Sede, comida, swag, mentores, jurado, premios adicionales |
+Un devtool ya tiene un monto fijo que da por persona, y no lo cambia. La
+pregunta que se le hace no es cuánto, es **hasta dónde llegan sus créditos**.
 
-**Chofex ocupa el slot Title Partner**: la landing ya lo llama "Sponsor
-principal".
+| Tier | Lo que da | Lo que recibe |
+| --- | --- | --- |
+| **Kit** | Créditos para los 100 | Logo en la landing · assets de anuncio · reporte de claims |
+| **Kit + podio** | Y créditos para el podio | Todo lo anterior · promoción en LinkedIn · mención en la premiación · reporte de uso |
+| **Kit + podio + sala** | Y una persona que dé el workshop | Todo lo anterior · 45 min con los 100 · informe de fricción |
 
-$200 es el piso a propósito: es lo que un DevRel aprueba sin pasar por nadie, y
-lo que hace que el tier de entrada sea un sí de una llamada.
+**El tercero no cuesta más plata, cuesta más gente**: un vuelo, dos días y un
+DevRel. Es el tier que un devtool con equipo en la región puede firmar sin
+presupuesto, y que uno sin gente acá no puede aunque quiera pagar.
 
-> **Los tiers ya no se venden por challenge ni por obligatoriedad.** Los 3
-> challenges son producto de participante y van sin marca. Lo que se vende es
-> **presencia en el kit más un galardón propio**: el partner pone créditos para
-> los 100 y un premio con su nombre, y recibe un reporte de qué se reclamó.
->
-> El galardón es lo que reemplaza a la obligatoriedad como motor de uso. No le
-> quita horas al equipo y no compite con el premio en efectivo, porque tiene su
-> propia categoría y su propio ganador.
->
-> **Una herramienta por categoría** —inferencia, datos, auth, infra,
-> observabilidad— para que los créditos de un partner no se diluyan entre cuatro
-> de lo mismo. Las reglas están en `deck-best-practices.md` §9.
+**Una herramienta por categoría** —inferencia, datos, auth, infra,
+observabilidad— para que los créditos de un partner no se diluyan entre cuatro
+de lo mismo.
+
+### Efectivo — para todo el resto
+
+Una empresa que quiere poner dinero, un lugar de comida, merch, la sede. No
+tienen créditos y no les sirve un reporte de uso, así que compran otra cosa:
+presencia, y su producto en la mano de 100 personas durante 30 horas.
+
+Acá sí hay montos, y son los que financian el presupuesto de §4.
+
+| Tier | Aporte | PEN | Slots |
+| --- | ---: | ---: | :---: |
+| **Title** | $2.500 | S/ 8,375 | 1 |
+| **Core** | $1.000 | S/ 3,350 | 2 |
+| **Apoyo** | $500 | S/ 1,675 | 6 |
+| **En especie** | producto | — | ∞ |
+
+**Chofex ocupa el slot Title**: la landing ya lo llama "Sponsor principal".
+
+$500 está fijado a propósito: es el umbral que en la mayoría de las empresas
+entra en presupuesto discrecional sin pasar por legal. Bajarlo no acelera el sí;
+subirlo lo manda a un comité.
+
+> Estos montos ya existían en este sheet y se habían reescrito a créditos cuando
+> el modelo de devtools cambió. Nunca fueron del deck de devtools — son de este.
 
 ### Cuántos slots abre la landing
 

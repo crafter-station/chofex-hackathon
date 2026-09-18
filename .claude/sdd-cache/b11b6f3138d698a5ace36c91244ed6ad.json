@@ -1,0 +1,8 @@
+{
+  "url": "https://apify.com/fetch_cat/facebook-url-to-id-scraper",
+  "prompt": "List every Facebook URL format/pattern this tool supports for extracting IDs (posts, photos, videos, reels, groups, permalink.php, share links, pfbid, etc). Include example URLs and what part of each is extracted as the ID.",
+  "etag": "\"13rvpk6i3a2an03\"",
+  "last_modified": "",
+  "content": "# Facebook URL Formats Supported by the Scraper\n\nBased on the documentation, here are the supported URL patterns:\n\n## Directly Supported Formats\n\n**Pages & Profiles:**\n- Numeric paths: `https://www.facebook.com/[numeric-id]`\n- Query parameter: `https://www.facebook.com/profile.php?id=[id]`\n- Vanity handles: `https://www.facebook.com/[handle]` (publicly visible only)\n\n**Posts:**\n- Numeric post paths: `https://www.facebook.com/[id]/posts/[post-id]`\n- Group post/permalink: `https://www.facebook.com/[id]/permalink/[post-id]`\n- Story format: URLs with `story_fbid` parameter\n\n**Photos:**\n- Photo format: `https://www.facebook.com/photo.php?fbid=[id]`\n\n**Videos & Reels:**\n- Video paths: `https://www.facebook.com/[id]/videos/[video-id]`\n- Reel paths: `https://www.facebook.com/reel/[reel-id]`\n- Watch format: `https://www.facebook.com/watch/?v=[id]`\n\n**Groups & Events:**\n- Groups: `https://www.facebook.com/groups/[numeric-id]`\n- Events: `https://www.facebook.com/events/[numeric-id]`\n\n## Not Extractable\n\nPer the documentation: \"Opaque `pfbid...` tokens, vanity groups/events, private objects, deleted links\" return as unresolved. The tool \"never guesses an ID\"—it either resolves definitively or flags as unresolved rather than speculate.",
+  "fetched_at": 1789706273
+}
