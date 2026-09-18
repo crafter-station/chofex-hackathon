@@ -8,6 +8,7 @@ import {
   challengeActivityCounts,
   type ChallengeMetricsDatabase,
 } from "./metrics";
+import { challengeProgressStatus } from "./progress";
 
 describe("challenge activity metrics", () => {
   let client: PGlite;
@@ -81,9 +82,33 @@ describe("challenge activity metrics", () => {
       [firstCompletedId, secondCompletedId, hiddenCompletedId],
     );
 
-    await expect(challengeActivityCounts(database)).resolves.toEqual({
-      completed: 2,
-      inProgress: 1,
-    });
+    const representedStatuses = [
+      challengeProgressStatus({
+        hasPersistedEvaluation: true,
+        queriesUsed: 2,
+        evaluationsUsed: 1,
+      }),
+      challengeProgressStatus({
+        hasPersistedEvaluation: true,
+        queriesUsed: 2,
+        evaluationsUsed: 1,
+      }),
+      challengeProgressStatus({
+        hasPersistedEvaluation: false,
+        queriesUsed: 1,
+        evaluationsUsed: 0,
+      }),
+    ];
+    const expectedCounts = {
+      completed: representedStatuses.filter((status) => status === "evaluated")
+        .length,
+      inProgress: representedStatuses.filter(
+        (status) => status === "in_progress",
+      ).length,
+    };
+
+    await expect(challengeActivityCounts(database)).resolves.toEqual(
+      expectedCounts,
+    );
   });
 });
