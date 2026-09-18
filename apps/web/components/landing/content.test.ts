@@ -196,7 +196,7 @@ test("keeps panel brand marks light on transparent for the black page", async ()
   }
 });
 
-test("publishes a senior, hundred-seat, three-track event", () => {
+test("publishes a hundred-seat, three-track event", () => {
   expect(seatCount).toBe(100);
   expect(trackCount).toBe(3);
   expect(tracksCopy.title).toBe("3 Tracks centrales");
@@ -208,6 +208,7 @@ test("publishes a senior, hundred-seat, three-track event", () => {
   expect(tracksCopy.lede).toMatch(/elegir/i);
   expect(qualifierChallengesCopy.title).toBe("Challenges de clasificación");
   expect(qualifierChallengesCopy.lede).toMatch(/antes del evento/i);
+  expect(qualifierChallengesCopy.lede).toMatch(/cada semana/i);
   expect(qualifierChallengesCopy.lede).toMatch(/pase directo/i);
   expect(facts.find((fact) => fact.label === "Cupos")?.value).toBe("100");
   expect(metadataCopy.description).toContain("100 cupos");
@@ -226,6 +227,39 @@ test("publishes a senior, hundred-seat, three-track event", () => {
   expect(eventItems.filter((item) => /comida/i.test(item.body))).toHaveLength(
     1,
   );
+});
+
+test("answers application deadline, eligibility, and review questions", () => {
+  expect(applyCopy.deadline).toBe("9 oct 2026");
+  expect(applyCopy.lede).toMatch(/construiste y shippeaste/i);
+  expect(applyCopy.criteria.join(" ")).toMatch(/GitHub/i);
+  expect(applyCopy.criteria.join(" ")).toMatch(/LinkedIn/i);
+
+  const deadlineFaq = faqItems.find((item) =>
+    /hasta cuándo puedo postular/i.test(item.question),
+  );
+  expect(deadlineFaq?.answer).toMatch(/9 de octubre de 2026/i);
+  expect(deadlineFaq?.answer).toMatch(/cuanto antes/i);
+  expect(deadlineFaq?.answer).toMatch(/cada semana/i);
+
+  const experienceFaq = faqItems.find((item) =>
+    /experiencia.*proyecto/i.test(item.question),
+  );
+  expect(experienceFaq?.answer).toMatch(/estudiando/i);
+  expect(experienceFaq?.answer).toMatch(/años de experiencia/i);
+  expect(experienceFaq?.answer).toMatch(/construir y shippear/i);
+
+  const profileFaq = faqItems.find((item) =>
+    /perfil/i.test(item.question),
+  );
+  expect(profileFaq?.answer).toMatch(/GitHub/i);
+  expect(profileFaq?.answer).toMatch(/LinkedIn/i);
+  expect(profileFaq?.answer).toMatch(/challenge/i);
+
+  expect(metadataCopy.description).not.toMatch(/con experiencia/i);
+  expect(
+    JSON.stringify({ applyCopy, eventItems, faqItems, metadataCopy }),
+  ).not.toMatch(/lanz(?:a|an|ar|as|aste)/i);
 });
 
 test("encourages strong applicants outside Lima and promises flight support", () => {
