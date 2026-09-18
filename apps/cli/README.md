@@ -31,7 +31,7 @@ submit a completed JSON application. The Black Box is optional: its progress
 and score give organizers another review metric, but never decide admission or
 block an application submission.
 
-The public ranking is read-only at `https://andes.crafter.run/challenges`.
+The public ranking is read-only at `https://hacktheandes.com/challenges`.
 
 Run `chofex` for a compact retro welcome screen with a pixel Sacred Valley and
 the main commands. Run `chofex --help` for the full command reference. The
@@ -66,8 +66,8 @@ confirmation prompts for the choice and local file path. For JSON input, set
 `pictureSource` and pass `--picture /path/to/image` when its value is `upload`.
 Uploads show percentage progress and accept JPEG, PNG, or WebP files up to 5 MB.
 
-API requests use `https://andes.crafter.run` by default. Use `CHOFEX_API_URL` to
+API requests use `https://hacktheandes.com` by default. Use `CHOFEX_API_URL` to
 override the API URL when running against a local or preview Chofex instance.
 
-Registration links use `https://andes.crafter.run` by default. Local or preview
+Registration links use `https://hacktheandes.com` by default. Local or preview
 environments can override that origin with `CHOFEX_PUBLIC_SITE_URL`.

@@ -21,7 +21,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://andes.crafter.run"),
+  metadataBase: new URL("https://hacktheandes.com"),
   title: metadataCopy.title,
   description: metadataCopy.description,
   openGraph: {

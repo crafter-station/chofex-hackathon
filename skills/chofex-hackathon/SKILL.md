@@ -124,7 +124,7 @@ when the schema and error details do not resolve the problem.
 
 Before requesting required consent, give the participant this link:
 
-- `https://andes.crafter.run/terms`
+- `https://hacktheandes.com/terms`
 
 Ask for the Terms and Conditions decision by name. An agent cannot consent for
 the participant. If they do not accept, do not discard the answers already

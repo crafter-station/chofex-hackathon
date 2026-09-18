@@ -2,7 +2,7 @@
 
 The landing opens on a parked-in-range drawing of the Sacred Valley
 (`/models/sacred-valley.glb`). The citadel GLB from PR #33 is no longer
-shipped — `https://andes.crafter.run/models/machu-picchu.glb` is 404 —
+shipped — `https://hacktheandes.com/models/machu-picchu.glb` is 404 —
 so this budget is for the contour-ink hero that replaced it.
 
 Numbers below are **file sizes and responses measured in this cloud
@@ -43,7 +43,7 @@ ls -l apps/web/public/hero/sacred-valley-poster.webp \
       apps/web/public/models/site-structures.glb \
       apps/web/public/draco/draco_decoder.wasm
 
-curl -sI https://andes.crafter.run/models/sacred-valley.glb | grep -i content-length
+curl -sI https://hacktheandes.com/models/sacred-valley.glb | grep -i content-length
 ```
 
 A production Lighthouse pass on desktop and a throttled mid-range
