@@ -1,6 +1,5 @@
 "use client";
 
-import { UserButton } from "@clerk/nextjs";
 import { Badge } from "@chofex/ui/components/badge";
 import {
   Button,
@@ -9,12 +8,6 @@ import {
 } from "@chofex/ui/components/button";
 import { Card, CardContent, CardHeader } from "@chofex/ui/components/card";
 import { Checkbox } from "@chofex/ui/components/checkbox";
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
 import {
   Drawer,
   DrawerClose,
@@ -29,6 +22,13 @@ import {
   InputGroupInput,
 } from "@chofex/ui/components/input-group";
 import { Textarea } from "@chofex/ui/components/textarea";
+import { UserButton } from "@clerk/nextjs";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   ActivityIcon,
   ArrowLeftIcon,
@@ -55,12 +55,17 @@ import {
 import Image from "next/image";
 import { type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
+import { brandName } from "@/components/landing/content";
 import {
   type CandidateFilters,
   candidateKeys,
   candidateListOptions,
   submitCandidateDecision,
 } from "@/lib/admin/candidate-queries";
+import {
+  applicationDataStatus,
+  challengeReviewStatus,
+} from "@/lib/admin/review-metrics";
 import type {
   Candidate,
   CandidateCounts,
@@ -72,10 +77,6 @@ import {
   parseCandidateFilter,
   reviewableCandidateStatuses,
 } from "@/lib/admin/types";
-import {
-  applicationDataStatus,
-  challengeReviewStatus,
-} from "@/lib/admin/review-metrics";
 
 interface CandidateDashboardProps {
   readonly data: CandidatePage;
@@ -1072,7 +1073,7 @@ export function CandidateDashboard({
             </div>
             <div>
               <p className="text-sm font-semibold tracking-tight">
-                Chofex Hackathon
+                {brandName}
               </p>
               <p className="text-[11px] text-muted-foreground">
                 Lima, participant operations
@@ -1101,7 +1102,7 @@ export function CandidateDashboard({
         <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
             <div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground">
-              <span>CHOFEX 2026</span>
+              <span>{brandName.toUpperCase()} 2026</span>
               <span aria-hidden="true">—</span>
               <span>Applications</span>
             </div>

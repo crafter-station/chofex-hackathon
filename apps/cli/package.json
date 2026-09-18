@@ -1,7 +1,7 @@
 {
   "name": "chofex-cli",
   "version": "0.1.0",
-  "description": "Command-line client for the Chofex Hackathon",
+  "description": "Command-line client for Hack the Andes",
   "type": "module",
   "bin": {
     "chofex": "./dist/index.js"

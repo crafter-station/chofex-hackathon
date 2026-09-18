@@ -1,6 +1,6 @@
 # chofex-cli
 
-Command-line client for the Chofex Hackathon.
+Command-line client for Hack the Andes.
 
 ## Install
 

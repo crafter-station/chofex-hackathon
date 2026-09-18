@@ -1,9 +1,9 @@
 ---
 name: chofex-hackathon
-description: Apply to the Chofex Hackathon for a human with the Chofex CLI, check an existing application, or guide accepted-participant next steps. Use when a person wants an agent to apply, check their Chofex status, understand requirements, reapply after rejection, or confirm attendance.
+description: Apply to Hack the Andes for a human with the Chofex CLI, check an existing application, or guide accepted-participant next steps. Use when a person wants an agent to apply, check their Hack the Andes status, understand requirements, reapply after rejection, or confirm attendance.
 ---
 
-# Chofex Hackathon
+# Hack the Andes
 
 Use the Chofex CLI to act on the participant's behalf while keeping identity,
 consent, and final submission decisions with the participant.

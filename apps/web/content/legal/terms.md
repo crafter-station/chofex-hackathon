@@ -2,7 +2,7 @@
 
 **Last updated: September 9, 2026**
 
-These terms apply to participation in the Chofex Hackathon in Lima, Peru. You must accept them to submit an application.
+These terms apply to participation in Hack the Andes in Lima, Peru. You must accept them to submit an application.
 
 ## Participation terms
 

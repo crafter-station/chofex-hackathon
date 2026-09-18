@@ -1,6 +1,6 @@
 import { buttonVariants } from "@chofex/ui/components/button";
 import Link from "next/link";
-
+import { brandName } from "@/components/landing/content";
 import { LegalDocument } from "@/components/legal-document";
 
 interface LegalPageProps {
@@ -19,7 +19,7 @@ export function LegalPage({
       <article className="mx-auto max-w-3xl">
         <nav className="mb-10 flex flex-wrap gap-3" aria-label="Legal pages">
           <Link className={buttonVariants({ variant: "outline" })} href="/">
-            Chofex Hackathon
+            {brandName}
           </Link>
           <Link
             className={buttonVariants({ variant: "ghost" })}

@@ -2,8 +2,10 @@ import { buttonVariants } from "@chofex/ui/components/button";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { brandName } from "@/components/landing/content";
+
 export const metadata: Metadata = {
-  title: "Welcome | Chofex Hackathon",
+  title: `Welcome | ${brandName}`,
 };
 
 export default function WelcomePage() {

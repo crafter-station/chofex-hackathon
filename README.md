@@ -1,11 +1,11 @@
-# Chofex Hackathon
+# Hack the Andes
 
 Participant registration API and Effect v4 CLI. The CLI supports guided input
 for people and stable JSON input/output for agents.
 
 ## Agent skill
 
-Install the Chofex Hackathon skill in a supported coding agent with
+Install the Hack the Andes application skill in a supported coding agent with
 [skills.sh](https://skills.sh):
 
 ```sh

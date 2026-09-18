@@ -2,12 +2,12 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import type { Metadata } from "next";
-
+import { brandName } from "@/components/landing/content";
 import { LegalPage } from "@/components/legal-page";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Chofex Hackathon",
-  description: "Privacy Policy for Chofex Hackathon registration.",
+  title: `Privacy Policy | ${brandName}`,
+  description: `Privacy Policy for ${brandName} registration.`,
 };
 
 export default async function PrivacyPage() {

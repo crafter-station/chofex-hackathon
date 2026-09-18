@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Idempotent Cloud Agent bootstrap for the Chofex Hackathon monorepo.
+# Idempotent Cloud Agent bootstrap for the Hack the Andes monorepo.
 # Installs the pinned Bun toolchain, restores workspace dependencies, and
 # seeds a local web env file so the dev server can boot for demos.
 

@@ -2,7 +2,7 @@
 
 **Last updated: September 9, 2026**
 
-This policy explains how Chofex handles personal information provided for the Chofex Hackathon. You must accept this policy to submit an application.
+This policy explains how Chofex handles personal information provided for Hack the Andes. You must accept this policy to submit an application.
 
 ## Information collected
 
