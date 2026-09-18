@@ -1,5 +1,4 @@
 import { db } from "@chofex/db";
-import { clerkClient } from "@clerk/nextjs/server";
 import {
   and,
   count,
@@ -8,8 +7,8 @@ import {
   ilike,
   inArray,
   or,
-  sql,
   type SQL,
+  sql,
 } from "@chofex/db/orm";
 import {
   acceptanceDetails,
@@ -17,6 +16,7 @@ import {
   participantBadges,
   participants,
 } from "@chofex/db/schema";
+import { clerkClient } from "@clerk/nextjs/server";
 
 import { HttpError } from "@/lib/registration/http";
 import { challengeActivityCounts } from "../challenges/metrics";

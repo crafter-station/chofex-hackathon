@@ -45,8 +45,8 @@
    * Everything else that is "a heading" stays on the condensed display face.
    */
   --deck-brand: var(--font-landing-brand), ui-sans-serif, system-ui, sans-serif;
-  --deck-display: var(--font-landing-display), ui-sans-serif, system-ui,
-    sans-serif;
+  --deck-display:
+    var(--font-landing-display), ui-sans-serif, system-ui, sans-serif;
   --deck-mono: var(--font-landing-mono), ui-monospace, monospace;
   /* The body face is a monospace, so the fallback has to be one too — a
      proportional fallback would reflow every slide while the font loads. */

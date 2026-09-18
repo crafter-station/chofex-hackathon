@@ -30,11 +30,7 @@ import {
   requirementsOnlyText,
 } from "./output.js";
 import { uploadPicture } from "./picture-upload.js";
-import {
-  cliPackageName,
-  upgradeCli,
-  upgradeVersion,
-} from "./upgrade.js";
+import { cliPackageName, upgradeCli, upgradeVersion } from "./upgrade.js";
 
 type InputStage = "application" | "acceptance";
 
@@ -105,10 +101,7 @@ const registerCommand = Command.make(
       yield* rejectIfApplicationLocked(current);
 
       if (Option.isSome(input)) {
-        const body = yield* applicationInput(
-          input.value,
-          config.publicSiteUrl,
-        );
+        const body = yield* applicationInput(input.value, config.publicSiteUrl);
         return yield* register(client, body);
       }
 

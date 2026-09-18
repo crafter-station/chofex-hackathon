@@ -509,10 +509,7 @@ export function LogoWall({
       style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
     >
       {logos.map((logo) => (
-        <div
-          className="deck-cell grid h-28 place-items-center"
-          key={logo.alt}
-        >
+        <div className="deck-cell grid h-28 place-items-center" key={logo.alt}>
           <Logo alt={logo.alt} src={logo.src} />
         </div>
       ))}

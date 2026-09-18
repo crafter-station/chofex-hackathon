@@ -1,3 +1,4 @@
+import type { DeckLang } from "@/lib/decks/loader";
 import {
   BenefitGrid,
   BulletList,
@@ -42,8 +43,6 @@ import {
   TrackCard,
   Wordmark,
 } from "./slide-components";
-
-import type { DeckLang } from "@/lib/decks/loader";
 
 /**
  * The closed vocabulary injected into every slide. A slide cannot `import`, so

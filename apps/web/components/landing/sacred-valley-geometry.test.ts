@@ -1,14 +1,12 @@
 import { expect, test } from "bun:test";
-
-import { SACRED_VALLEY_MODEL_PATH } from "./sacred-valley-place";
 import {
   clamp01,
   lerp,
   METERS_PER_UNIT,
   SACRED_SITES,
   SACRED_VALLEY_GLB,
-  samplePath,
   SCENE_FAR_PLANE,
+  samplePath,
   smoothstep,
   TERRAIN_MODEL_SCALE,
   TERRAIN_SIZE,
@@ -17,6 +15,7 @@ import {
   WORLD_FIGURES,
   worldScrollTop,
 } from "./sacred-valley-geometry";
+import { SACRED_VALLEY_MODEL_PATH } from "./sacred-valley-place";
 
 test("points the hero model at the public glb path, content-stamped", () => {
   expect(SACRED_VALLEY_MODEL_PATH).toBe("/models/sacred-valley.glb");

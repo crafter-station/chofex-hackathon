@@ -5,8 +5,8 @@ import { drizzle } from "drizzle-orm/pglite";
 
 import { currentChallengeVersion } from "./engine";
 import {
-  challengeActivityCounts,
   type ChallengeMetricsDatabase,
+  challengeActivityCounts,
 } from "./metrics";
 import { challengeProgressStatus } from "./progress";
 

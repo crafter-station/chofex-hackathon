@@ -1,5 +1,5 @@
-import type * as React from "react";
 import { cn } from "cn";
+import type * as React from "react";
 
 import { Input } from "#components/input";
 

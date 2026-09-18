@@ -20,5 +20,7 @@ export const root = Command.make("chofex").pipe(
       ),
     ),
   }),
-  Command.withDescription(`Register for and manage your ${eventName} application`),
+  Command.withDescription(
+    `Register for and manage your ${eventName} application`,
+  ),
 );

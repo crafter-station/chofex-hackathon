@@ -242,11 +242,11 @@ export function DeckPager({
             key={slide.id}
           >
             {/*
-              * The backdrop is its own element rather than a background on the
-              * section: it carries the plate, the scrim and the grain as three
-              * stacked layers, and `aria-hidden` keeps all of it out of the
-              * accessibility tree — it is atmosphere, never content.
-              */}
+             * The backdrop is its own element rather than a background on the
+             * section: it carries the plate, the scrim and the grain as three
+             * stacked layers, and `aria-hidden` keeps all of it out of the
+             * accessibility tree — it is atmosphere, never content.
+             */}
             <div
               aria-hidden="true"
               className="deck-backdrop"
