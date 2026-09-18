@@ -175,3 +175,30 @@ export function BrandAuthPage({
     </BrandCenteredPage>
   );
 }
+
+export function BrandStatusPage({
+  kicker,
+  title,
+  description,
+  children,
+  ...props
+}: ComponentProps<"main"> & {
+  readonly kicker: string;
+  readonly title: string;
+  readonly description: string;
+}) {
+  return (
+    <BrandCenteredPage contentClassName="max-w-2xl text-center" {...props}>
+      <BrandFrame className="hud-box flex flex-col items-center px-6 py-12 sm:px-12 sm:py-16">
+        <BrandKicker className="text-primary">{kicker}</BrandKicker>
+        <BrandTitle as="h1" className="mt-6">
+          {title}
+        </BrandTitle>
+        <p className="mt-6 max-w-md text-pretty leading-relaxed text-muted-foreground">
+          {description}
+        </p>
+        {children}
+      </BrandFrame>
+    </BrandCenteredPage>
+  );
+}
