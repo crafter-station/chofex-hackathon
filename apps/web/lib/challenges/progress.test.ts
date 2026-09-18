@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import {
   challengeCompletionDurationMs,
   challengeProgressStatus,
+  earliestChallengeCompletionAt,
 } from "./progress";
 
 describe("challenge progress", () => {
@@ -45,4 +46,13 @@ test("measures challenge completion from attempt creation", () => {
       new Date("2026-09-18T11:30:00.000Z"),
     ),
   ).toBe(5_400_000);
+});
+
+test("keeps the first successful evaluation as the completion time", () => {
+  const first = new Date("2026-09-18T11:30:00.000Z");
+  const later = new Date("2026-09-18T12:00:00.000Z");
+
+  expect(earliestChallengeCompletionAt(undefined, later)).toBe(later);
+  expect(earliestChallengeCompletionAt(later, first)).toBe(first);
+  expect(earliestChallengeCompletionAt(first, later)).toBe(first);
 });

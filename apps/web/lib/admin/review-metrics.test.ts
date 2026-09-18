@@ -3,8 +3,7 @@ import { describe, expect, test } from "bun:test";
 import {
   applicationDataStatus,
   challengeReviewStatus,
-  completedChallengeAccuracy,
-  completedChallengeDurationMs,
+  completedChallengeMetrics,
   formatChallengeCompletionDuration,
 } from "./review-metrics";
 
@@ -39,19 +38,24 @@ describe("admin review metrics", () => {
     );
   });
 
-  test("returns a score only for a completed playable challenge", () => {
+  test("returns metrics only for a completed playable challenge", () => {
     expect(
-      completedChallengeAccuracy([
-        { ...challenge, status: "evaluated", bestAccuracy: 0.9876 },
+      completedChallengeMetrics([
+        {
+          ...challenge,
+          status: "evaluated",
+          bestAccuracy: 0.9876,
+          completionDurationMs: 95 * 60_000,
+        },
       ]),
-    ).toBe(0.9876);
+    ).toEqual({ accuracy: 0.9876, durationMs: 95 * 60_000 });
     expect(
-      completedChallengeAccuracy([
+      completedChallengeMetrics([
         { ...challenge, status: "in_progress", bestAccuracy: 0.5 },
       ]),
     ).toBeUndefined();
     expect(
-      completedChallengeAccuracy([
+      completedChallengeMetrics([
         {
           ...challenge,
           playable: false,
@@ -62,25 +66,7 @@ describe("admin review metrics", () => {
     ).toBeUndefined();
   });
 
-  test("returns and formats the completion time for a completed challenge", () => {
-    expect(
-      completedChallengeDurationMs([
-        {
-          ...challenge,
-          status: "evaluated",
-          completionDurationMs: 95 * 60_000,
-        },
-      ]),
-    ).toBe(95 * 60_000);
-    expect(
-      completedChallengeDurationMs([
-        {
-          ...challenge,
-          status: "in_progress",
-          completionDurationMs: 95 * 60_000,
-        },
-      ]),
-    ).toBeUndefined();
+  test("formats challenge completion time", () => {
     expect(formatChallengeCompletionDuration(30_000)).toBe("<1m");
     expect(formatChallengeCompletionDuration(95 * 60_000)).toBe("1h 35m");
     expect(formatChallengeCompletionDuration(1_565 * 60_000)).toBe("1d 2h 5m");

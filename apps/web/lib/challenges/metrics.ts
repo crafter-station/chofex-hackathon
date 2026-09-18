@@ -49,6 +49,25 @@ export const completedChallengeParticipantCondition = (
   )`;
 };
 
+export const startedChallengeParticipantCondition = (
+  participantId: SQL,
+): SQL => {
+  const playableSlugList = playableChallengeSlugList();
+  if (!playableSlugList) return sql`false`;
+
+  return sql<boolean>`exists (
+    select 1
+    from "challenge_attempts" as "started_challenge_attempt"
+    where "started_challenge_attempt"."participant_id" = ${participantId}
+      and "started_challenge_attempt"."challenge_version" = ${currentChallengeVersion}
+      and "started_challenge_attempt"."challenge_slug" in (${playableSlugList})
+      and (
+        "started_challenge_attempt"."queries_used" > 0
+        or "started_challenge_attempt"."evaluations_used" > 0
+      )
+  )`;
+};
+
 export const challengeActivityCounts = async (
   database?: ChallengeMetricsDatabase,
 ): Promise<ChallengeActivityCounts> => {
