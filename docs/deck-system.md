@@ -199,7 +199,7 @@ al DOM como `data-deck-style` en `.deck-pager`.
 | --- | --- | --- |
 | `editorial` (default de facto) | La mayoría | Barlow Condensed en títulos sobre IBM Plex Mono en chrome. Papel claro. |
 | `plain` | Decks institucionales | Una sola familia (IBM Plex Mono). El condensed a escala de titular lee como marketing; para una universidad o un fondo público, no sirve. |
-| `terrain` | El deck de patrocinio | Invierte la página a negro, retira todo el croma, pone los títulos en la cara de marca y pinta las láminas de fondo. Redeclara los roles en vez de heredar los claros que trae `palette.css` — ver [`deck-design-system.md`](./deck-design-system.md). |
+| `terrain` | El deck de patrocinio | Invierte la página a negro, retira todo el croma, pone los títulos en la cara de marca y pinta las láminas de fondo. Redeclara los roles en vez de usar `.brand-light` de `@chofex/ui/globals.css` — ver [`deck-design-system.md`](./deck-design-system.md). |
 
 `terrain` agrega tres campos al frontmatter de un slide: `backdrop` (qué lámina),
 `veil` (cuánto se la tapa) y `layout` (cuál de las cuatro plantillas). Los otros

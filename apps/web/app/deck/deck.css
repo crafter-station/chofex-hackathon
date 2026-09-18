@@ -1,20 +1,12 @@
-@import "../../components/landing/palette.css";
-
 /*
  * Deck chrome and slide vocabulary.
  *
  * The deck wears the Hack the Andes identity, not Chofex's.
  *
- * `palette.css` is imported rather than copied, which was once the whole point:
- * it declared the --hud-* roles for both `.landing-page` and `.deck-pager`, so
- * a palette change on the landing reached the decks in the same commit. That
- * has stopped being true. The landing carries `.landing-dark`, and `dark.css`
- * redefines every token `palette.css` declares — so the import now brings the
- * light base and nothing the landing actually paints with.
- *
- * It still earns its place for `editorial` and `plain`, which are light styles
- * and want exactly those values. `terrain`, below, redeclares the roles on
- * black and is what every shipping deck uses.
+ * Shared --hud-* roles now come from `@chofex/ui/globals.css`. The pager opts
+ * into that package's paper palette with `.brand-light`; `terrain`, below,
+ * redeclares the local deck roles on black and is what every shipping deck
+ * uses.
  *
  * The --deck-* names below are local aliases, so the rest of this file reads in
  * deck terms and a role rename upstream is a one-line change here.
@@ -44,10 +36,9 @@
    * rule `fonts.ts` states for the landing, and the design base follows it.
    * Everything else that is "a heading" stays on the condensed display face.
    */
-  --deck-brand: var(--font-landing-brand), ui-sans-serif, system-ui, sans-serif;
-  --deck-display:
-    var(--font-landing-display), ui-sans-serif, system-ui, sans-serif;
-  --deck-mono: var(--font-landing-mono), ui-monospace, monospace;
+  --deck-brand: var(--font-hta-brand), ui-sans-serif, system-ui, sans-serif;
+  --deck-display: var(--font-hta-display), ui-sans-serif, system-ui, sans-serif;
+  --deck-mono: var(--font-hta-mono), ui-monospace, monospace;
   /* The body face is a monospace, so the fallback has to be one too — a
      proportional fallback would reflow every slide while the font loads. */
   --deck-body: var(--font-deck-body), ui-monospace, monospace;
@@ -79,7 +70,7 @@
  * mono carries hierarchy with weight and scale instead.
  */
 .deck-pager[data-deck-style="plain"] {
-  --deck-display: var(--font-landing-mono), ui-monospace, monospace;
+  --deck-display: var(--font-hta-mono), ui-monospace, monospace;
   background: var(--deck-paper);
 }
 
@@ -87,7 +78,7 @@
  * "terrain": the sponsorship skin, and the one the design base specifies.
  *
  * It inverts the page, so it redeclares the roles rather than inheriting the
- * light ones `palette.css` brings. The override lives here, scoped to the
+ * light ones the design system brings. The override lives here, scoped to the
  * attribute, so a deck opts in through `deck.json` and nothing else moves.
  *
  * The landing is black too, by its own route (`dark.css`), and solves contrast

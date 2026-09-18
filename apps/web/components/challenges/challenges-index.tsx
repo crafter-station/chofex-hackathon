@@ -2,16 +2,15 @@ import {
   type ChallengeCatalogItem,
   challengeCatalog,
 } from "@chofex/challenges-contract";
-import Link from "next/link";
-
-import { HudLabel } from "@/components/landing/hud";
-import { ContourSeal } from "@/components/landing/illustrations";
 import {
-  LandingContainer,
-  LandingSectionHead,
-  landingFrameClassName,
-  landingSectionYClassName,
-} from "@/components/landing/shell";
+  BrandContainer,
+  BrandKicker,
+  BrandSectionHeader,
+  brandFrameClassName,
+  brandSectionClassName,
+} from "@chofex/ui/components/brand";
+import Link from "next/link";
+import { ContourSeal } from "@/components/landing/illustrations";
 import { catalogItemFor } from "@/lib/challenges/catalog";
 
 const CHALLENGE_SEAL_GEOMETRIES = [
@@ -32,11 +31,11 @@ export function ChallengesIndex({
       aria-labelledby="challenges-index-heading"
       className="bg-[var(--hud-paper)]"
     >
-      <LandingContainer className={landingSectionYClassName}>
-        <HudLabel className="mb-3 text-[var(--hud-kicker)]">
+      <BrandContainer className={brandSectionClassName}>
+        <BrandKicker className="mb-3 text-[var(--hud-kicker)]">
           challenges / clasificación
-        </HudLabel>
-        <LandingSectionHead
+        </BrandKicker>
+        <BrandSectionHeader
           headingLevel="h1"
           title="Challenges técnicos"
           titleId="challenges-index-heading"
@@ -48,7 +47,7 @@ export function ChallengesIndex({
             directo. Las soluciones se envían por la CLI y el ranking es
             público.
           </p>
-        </LandingSectionHead>
+        </BrandSectionHeader>
         <div className="grid gap-4 md:grid-cols-2">
           {challenges.map((challenge, index) => {
             const sealGeometry =
@@ -60,7 +59,7 @@ export function ChallengesIndex({
 
             return (
               <article
-                className={`landing-dossier relative flex min-h-[22rem] overflow-hidden ${landingFrameClassName}`}
+                className={`landing-dossier relative flex min-h-[22rem] overflow-hidden ${brandFrameClassName}`}
                 key={challenge.slug}
               >
                 <ContourSeal
@@ -72,16 +71,16 @@ export function ChallengesIndex({
 
                 <div className="relative z-10 flex w-full flex-col p-6 sm:p-8">
                   <div className="flex flex-wrap items-start justify-between gap-3">
-                    <HudLabel className="text-[var(--hud-kicker)]">
+                    <BrandKicker className="text-[var(--hud-kicker)]">
                       {challenge.code} / {challenge.theme}
-                    </HudLabel>
-                    <HudLabel className={stateClassName}>
+                    </BrandKicker>
+                    <BrandKicker className={stateClassName}>
                       {challenge.open ? "abierto" : "programado"}
-                    </HudLabel>
+                    </BrandKicker>
                   </div>
 
                   <div className="my-10 max-w-xl">
-                    <h2 className="font-[family-name:var(--font-landing-display)] text-3xl leading-none uppercase sm:text-4xl">
+                    <h2 className="font-display text-3xl leading-none uppercase sm:text-4xl">
                       {challenge.title}
                     </h2>
                     <p className="mt-4 max-w-[48ch] text-sm leading-relaxed text-[var(--hud-muted)]">
@@ -90,12 +89,12 @@ export function ChallengesIndex({
                   </div>
 
                   <div className="mt-auto border-[var(--hud-ink)]/15 border-t pt-4">
-                    <HudLabel className="mb-4 text-[var(--hud-muted)]">
+                    <BrandKicker className="mb-4 text-[var(--hud-muted)]">
                       {challenge.formatLabel} · {challenge.coreSkill}
-                    </HudLabel>
+                    </BrandKicker>
                     <Link
                       aria-label={`Ver detalles, instrucciones y ranking de ${challenge.title}`}
-                      className="font-[family-name:var(--font-landing-mono)] text-sm uppercase tracking-[0.12em] text-[var(--hud-action)] underline-offset-4 hover:text-[var(--hud-action-hover)] hover:underline"
+                      className="font-mono text-sm uppercase tracking-[0.12em] text-[var(--hud-action)] underline-offset-4 hover:text-[var(--hud-action-hover)] hover:underline"
                       href={challenge.rankingPath}
                     >
                       Ver detalles y ranking →
@@ -106,7 +105,7 @@ export function ChallengesIndex({
             );
           })}
         </div>
-      </LandingContainer>
+      </BrandContainer>
     </section>
   );
 }
