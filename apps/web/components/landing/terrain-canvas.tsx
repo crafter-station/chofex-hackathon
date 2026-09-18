@@ -2,6 +2,7 @@
 
 import { useGLTF } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import posthog from "posthog-js";
 import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
@@ -289,6 +290,19 @@ function TurningCamera({
   return null;
 }
 
+/**
+ * Report a hero mesh that failed to load. The boundary swallows the error, so
+ * without this the fall-through is invisible: no exception reaches error
+ * tracking, and there is no counterpart to the drawn event to measure a
+ * fall-through rate against.
+ */
+function reportModelLoadFailure(model: string) {
+  return (error: unknown, attempt: number) => {
+    posthog.capture("hero_terrain_load_failed", { model, attempt });
+    posthog.captureException(error, { hero_model: model, attempt });
+  };
+}
+
 export type TerrainCanvasProps = {
   readonly quality: "low" | "high";
   readonly reducedMotion?: boolean;
@@ -351,12 +365,20 @@ export function TerrainCanvas({
         }}
       >
         <TurningCamera profileRef={profileRef} reducedMotion={reducedMotion} />
-        <ModelErrorBoundary fallback={null}>
+        <ModelErrorBoundary
+          fallback={null}
+          onError={reportModelLoadFailure("sacred-valley")}
+          onRetry={() => useGLTF.clear(SACRED_VALLEY_GLB)}
+        >
           <Suspense fallback={null}>
             <ValleyInk onDrawn={onDrawn} profileRef={profileRef} />
           </Suspense>
         </ModelErrorBoundary>
-        <ModelErrorBoundary fallback={null}>
+        <ModelErrorBoundary
+          fallback={null}
+          onError={reportModelLoadFailure("site-structures")}
+          onRetry={() => useGLTF.clear(SITE_STRUCTURES_GLB)}
+        >
           <Suspense fallback={null}>
             <StructuresInk />
           </Suspense>
