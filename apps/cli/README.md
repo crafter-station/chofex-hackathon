@@ -13,6 +13,7 @@ The installed command is `chofex`:
 ```sh
 chofex
 chofex whoami
+chofex upgrade
 chofex register
 chofex status
 chofex requirements

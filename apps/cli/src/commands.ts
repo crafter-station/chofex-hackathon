@@ -30,6 +30,11 @@ import {
   requirementsOnlyText,
 } from "./output.js";
 import { uploadPicture } from "./picture-upload.js";
+import {
+  cliPackageName,
+  upgradeCli,
+  upgradeVersion,
+} from "./upgrade.js";
 
 type InputStage = "application" | "acceptance";
 
@@ -340,6 +345,40 @@ const whoamiCommand = Command.make(
   }),
 ).pipe(Command.withDescription("Verify the current Clerk authentication"));
 
+const upgradeCommand = Command.make(
+  "upgrade",
+  {},
+  Effect.fn("upgradeCommand")(function* () {
+    const options = yield* root;
+    const operation = Effect.tryPromise({
+      try: async () => {
+        await upgradeCli();
+        return {
+          version: 1 as const,
+          ok: true as const,
+          requestId: crypto.randomUUID(),
+          data: {
+            packageName: cliPackageName,
+            requestedVersion: upgradeVersion,
+          },
+        };
+      },
+      catch: (error) =>
+        cliError(
+          "UPGRADE_FAILED",
+          `npm could not update ${cliPackageName}`,
+          false,
+          String(error),
+        ),
+    });
+    yield* execute(
+      options.output,
+      operation,
+      () => `Updated ${cliPackageName} to the ${upgradeVersion} version.`,
+    );
+  }),
+).pipe(Command.withDescription("Update chofex-cli to the latest version"));
+
 const inputValidation = (stage: InputStage, path: string | undefined) => {
   if (stage === "application") {
     return applicationInput(path, config.publicSiteUrl).pipe(Effect.asVoid);
@@ -425,6 +464,7 @@ export const command = root.pipe(
     loginCommand,
     logoutCommand,
     whoamiCommand,
+    upgradeCommand,
     validateCommand,
     registerCommand,
     statusCommand,
