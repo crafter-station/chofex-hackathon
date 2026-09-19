@@ -2,7 +2,7 @@
 
 The public website and private challenge engine run as separate Dokploy projects on `vps.cueva.io`. GitHub Actions builds SHA-addressable GHCR images from each repository; Dokploy pulls those images and serves them through Let's Encrypt domains.
 
-The initial production rehearsal uses `andes.cueva.io` and `andes-engine.cueva.io`. It intentionally does not modify `hacktheandes.com`, which remains on Vercel until a separately approved cutover.
+The public application uses `hacktheandes.com`; the private challenge API uses `engine.hacktheandes.com`.
 
 ## Local secrets
 
@@ -28,4 +28,4 @@ Database migrations remain explicit:
 bun --env-file=.env.production.local --filter @chofex/db db:migrate
 ```
 
-DNS is a separate cutover. Point `andes.cueva.io` and `andes-engine.cueva.io` at the IP reported by `deploy:plan` after both images are available and the Dokploy applications have been created. A first `deploy:apply` creates HTTP routes without requesting certificates; after DNS resolves to the VPS, a second apply enables Let's Encrypt.
+DNS is a separate cutover. Point `hacktheandes.com` and `engine.hacktheandes.com` at the IP reported by `deploy:plan` after both images are available and the Dokploy applications have been created. A first `deploy:apply` creates HTTP routes without requesting certificates; after DNS resolves to the VPS, a second apply enables Let's Encrypt.

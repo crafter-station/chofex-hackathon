@@ -11,7 +11,7 @@
       "githubRepository": "crafter-station/hack-the-andes",
       "imageRepository": "ghcr.io/crafter-station/hack-the-andes",
       "privateImage": true,
-      "domain": "andes.cueva.io",
+      "domain": "hacktheandes.com",
       "port": 3000,
       "healthPath": "/api/health",
       "environmentVariables": [
@@ -45,7 +45,7 @@
       "githubRepository": "crafter-station/chofex-challenges-private",
       "imageRepository": "ghcr.io/crafter-station/chofex-challenges-private",
       "privateImage": true,
-      "domain": "andes-engine.cueva.io",
+      "domain": "engine.hacktheandes.com",
       "port": 3000,
       "healthPath": "/api/health",
       "environmentVariables": [
