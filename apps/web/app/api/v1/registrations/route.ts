@@ -1,4 +1,5 @@
 import { requireAuthenticatedParticipantProfile } from "@/lib/auth";
+import { enqueueFunnelReminderBestEffort } from "@/lib/funnel-reminders/enqueue";
 import { captureProductEvent } from "@/lib/posthog-server";
 import { jsonSuccess, readJson, withApiHandler } from "@/lib/registration/http";
 import { createRegistration } from "@/lib/registration/service";
@@ -16,6 +17,12 @@ export const POST = (request: Request): Promise<Response> =>
       await readJson(request),
     );
     const created = result.registration.status === "submitted";
+    if (created) {
+      await enqueueFunnelReminderBestEffort({
+        clerkUserId: participant.clerkUserId,
+        stage: "challenge_start",
+      });
+    }
     const event = created ? "application_submitted" : "application_draft_saved";
     await captureProductEvent({
       distinctId: participant.clerkUserId,

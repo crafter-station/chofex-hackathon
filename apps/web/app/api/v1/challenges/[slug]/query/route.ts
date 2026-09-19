@@ -1,5 +1,6 @@
 import { requireParticipantUserId } from "@/lib/auth";
 import { queryChallenge } from "@/lib/challenges/service";
+import { enqueueFunnelReminderBestEffort } from "@/lib/funnel-reminders/enqueue";
 import { captureProductEvent } from "@/lib/posthog-server";
 import { jsonSuccess, readJson, withApiHandler } from "@/lib/registration/http";
 
@@ -17,6 +18,10 @@ export const POST = (
       slug,
       await readJson(request),
     );
+    await enqueueFunnelReminderBestEffort({
+      clerkUserId,
+      stage: "challenge_finish",
+    });
     await captureProductEvent({
       distinctId: clerkUserId,
       event: "challenge_query_completed",

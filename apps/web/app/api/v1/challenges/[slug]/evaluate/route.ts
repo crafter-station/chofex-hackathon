@@ -1,5 +1,6 @@
 import { requireParticipantUserId } from "@/lib/auth";
 import { evaluateChallenge } from "@/lib/challenges/service";
+import { enqueueFunnelReminderBestEffort } from "@/lib/funnel-reminders/enqueue";
 import { captureProductEvent } from "@/lib/posthog-server";
 import { jsonSuccess, readJson, withApiHandler } from "@/lib/registration/http";
 
@@ -12,11 +13,12 @@ export const POST = (
   withApiHandler(request, async (requestId) => {
     const { slug } = await context.params;
     const clerkUserId = await requireParticipantUserId(request);
-    const result = await evaluateChallenge(
+    const input = await readJson(request);
+    await enqueueFunnelReminderBestEffort({
       clerkUserId,
-      slug,
-      await readJson(request),
-    );
+      stage: "challenge_finish",
+    });
+    const result = await evaluateChallenge(clerkUserId, slug, input);
     await captureProductEvent({
       distinctId: clerkUserId,
       event: "challenge_evaluation_submitted",

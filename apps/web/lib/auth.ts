@@ -10,6 +10,7 @@ export interface AuthenticatedParticipant {
 export interface AuthenticatedParticipantProfile
   extends AuthenticatedParticipant {
   readonly email: string;
+  readonly firstName: string;
   readonly clerkPictureUrl?: string;
 }
 
@@ -119,6 +120,7 @@ export const requireAuthenticatedParticipantProfile = async (
   return {
     ...authentication,
     email: emailAddress.emailAddress.trim().toLowerCase(),
+    firstName: user.firstName ?? "",
     clerkPictureUrl: user.hasImage ? user.imageUrl : undefined,
   };
 };
