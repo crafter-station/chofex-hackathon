@@ -210,17 +210,28 @@ jobs:
             exit 0
           fi
 
-          existing_run_id="$(gh run list \
-            --repo "$GITHUB_REPOSITORY" \
-            --workflow publish-cli.yml \
-            --commit "$latest_sha" \
-            --limit 20 \
-            --json databaseId,status,conclusion \
-            --jq 'map(select(.status != "completed" or .conclusion == "success"))[0].databaseId // empty')"
-          if [[ -n "$existing_run_id" ]]; then
-            echo "Release run ${existing_run_id} already covers the current tip."
-            exit 0
-          fi
+          mapfile -t existing_run_ids < <(
+            gh run list \
+              --repo "$GITHUB_REPOSITORY" \
+              --workflow publish-cli.yml \
+              --commit "$latest_sha" \
+              --limit 20 \
+              --json databaseId,status,conclusion \
+              --jq '.[] | select(.status != "completed" or .conclusion == "success") | .databaseId'
+          )
+          for existing_run_id in "${existing_run_ids[@]}"; do
+            gh run watch "$existing_run_id" \
+              --repo "$GITHUB_REPOSITORY" \
+              --exit-status || true
+            publish_conclusion="$(gh run view "$existing_run_id" \
+              --repo "$GITHUB_REPOSITORY" \
+              --json jobs \
+              --jq '.jobs[] | select(.name == "Publish chofex-cli") | .conclusion // empty')"
+            if [[ "$publish_conclusion" == "success" ]]; then
+              echo "Release run ${existing_run_id} published the current tip."
+              exit 0
+            fi
+          done
 
           gh workflow run publish-cli.yml \
             --repo "$GITHUB_REPOSITORY" \
