@@ -1,6 +1,6 @@
 import { brandClerkAppearance } from "@chofex/ui/lib/clerk-appearance";
 import { ClerkProvider } from "@clerk/nextjs";
-import { shadcn } from "@clerk/ui/themes";
+import { shadcn } from "@clerk/themes";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { ChunkLoadRecoverySuccess } from "@/components/chunk-load-recovery";
@@ -16,7 +16,7 @@ import { PostHogAnalytics } from "@/components/posthog-analytics";
 import { QueryProvider } from "@/components/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import "@chofex/ui/globals.css";
-import "@clerk/ui/themes/shadcn.css";
+import "@clerk/themes/shadcn.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://hacktheandes.com"),
