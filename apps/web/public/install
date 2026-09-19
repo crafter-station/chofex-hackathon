@@ -83,8 +83,21 @@ install_binary() {
   local staged="$INSTALL_DIR/.chofex-install-$$"
   cp "$source" "$staged"
   chmod 755 "$staged"
-  mv -f "$staged" "$INSTALL_DIR/$APP"
+  mv -f "$staged" "$INSTALL_DIR/$binary_name"
 }
+
+raw_os="$(uname -s)"
+case "$raw_os" in
+  Darwin*) os="darwin" ;;
+  Linux*) os="linux" ;;
+  MINGW* | MSYS* | CYGWIN*) os="windows" ;;
+  *) fail "unsupported operating system: $raw_os" ;;
+esac
+
+binary_name="$APP"
+if [[ "$os" == "windows" ]]; then
+  binary_name="$APP.exe"
+fi
 
 if [[ -n "$BINARY_PATH" ]]; then
   [[ -f "$BINARY_PATH" ]] || fail "binary not found at $BINARY_PATH"
@@ -92,13 +105,6 @@ if [[ -n "$BINARY_PATH" ]]; then
 else
   command -v curl >/dev/null 2>&1 || fail "curl is required"
   command -v tar >/dev/null 2>&1 || fail "tar is required"
-
-  raw_os="$(uname -s)"
-  case "$raw_os" in
-    Darwin*) os="darwin" ;;
-    Linux*) os="linux" ;;
-    *) fail "unsupported operating system: $raw_os" ;;
-  esac
 
   raw_arch="$(uname -m)"
   case "$raw_arch" in
@@ -150,8 +156,9 @@ else
   [[ "$actual_checksum" == "$expected_checksum" ]] || fail "checksum verification failed"
 
   tar -xzf "$temporary_directory/$archive" -C "$temporary_directory"
-  [[ -f "$temporary_directory/chofex" ]] || fail "release archive does not contain chofex"
-  install_binary "$temporary_directory/chofex"
+  [[ -f "$temporary_directory/$binary_name" ]] || \
+    fail "release archive does not contain $binary_name"
+  install_binary "$temporary_directory/$binary_name"
 fi
 
 add_to_path() {
@@ -168,7 +175,12 @@ add_to_path() {
   printf "%bAdded %s to PATH in %s%b\n" "$MUTED" "$APP" "$config_file" "$NC"
 }
 
-if [[ "$NO_MODIFY_PATH" != "true" && ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
+path_is_available=true
+if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
+  path_is_available=false
+fi
+
+if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
   current_shell="$(basename "${SHELL:-sh}")"
   config_file=""
   case "$current_shell" in
@@ -199,5 +211,12 @@ if [[ "$NO_MODIFY_PATH" != "true" && ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
   fi
 fi
 
-printf "\nInstalled %b%s%b to %s\n" "$ORANGE" "$APP" "$NC" "$INSTALL_DIR/$APP"
-printf "Run %bchofex login%b to get started.\n\n" "$ORANGE" "$NC"
+printf "\nInstalled %b%s%b to %s\n" \
+  "$ORANGE" "$APP" "$NC" "$INSTALL_DIR/$binary_name"
+if [[ "$path_is_available" == "true" ]]; then
+  printf "Run %bchofex login%b to get started.\n\n" "$ORANGE" "$NC"
+else
+  printf "To get started in this terminal, run:\n\n"
+  printf "  export PATH=%s:\$PATH\n" "$INSTALL_DIR"
+  printf "  chofex login\n\n"
+fi

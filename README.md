@@ -10,18 +10,20 @@ technical qualification challenges, the `/api/v1` API, and the `chofex` CLI.
 
 ## Participant quick start
 
-Install the CLI on macOS or Linux without Node.js or npm:
+Install the CLI on macOS, Linux, or Windows under Git Bash without Node.js or
+npm:
 
 ```sh
 curl -fsSL https://hacktheandes.com/install | bash
+export PATH="$HOME/.chofex/bin:$PATH"
 chofex login
 chofex whoami
 chofex register
 ```
 
-The installer detects Apple silicon, Intel macOS, glibc Linux, and musl Linux,
-verifies the release checksum, and installs `chofex` in `~/.chofex/bin`. To pin
-a release, pass `--version` after `bash -s --`:
+The installer detects Apple silicon, Intel macOS, glibc Linux, musl Linux, and
+Windows on Arm or x64. It verifies the release checksum and installs `chofex` in
+`~/.chofex/bin`. To pin a release, pass `--version` after `bash -s --`:
 
 ```sh
 curl -fsSL https://hacktheandes.com/install | bash -s -- --version 0.1.146

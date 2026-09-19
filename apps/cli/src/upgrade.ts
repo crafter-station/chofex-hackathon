@@ -15,16 +15,18 @@ const npmUpgradeArguments = (cacheDirectory: string) => [
   `--cache=${cacheDirectory}`,
 ];
 
-type NpmResult = {
+type ProcessResult = {
   readonly exitCode: number;
   readonly stderr: string;
 };
 
 export type NpmRunner = (
   arguments_: ReadonlyArray<string>,
-) => Promise<NpmResult>;
+) => Promise<ProcessResult>;
 
-export type InstallerRunner = (installDirectory: string) => Promise<NpmResult>;
+export type InstallerRunner = (
+  installDirectory: string,
+) => Promise<ProcessResult>;
 
 type UpgradeOptions = {
   readonly standalone?: boolean;
@@ -32,23 +34,47 @@ type UpgradeOptions = {
   readonly installerRunner?: InstallerRunner;
 };
 
-const runNpm: NpmRunner = (arguments_) =>
+const runProcess = (
+  executable: string,
+  arguments_: ReadonlyArray<string>,
+  input?: string,
+): Promise<ProcessResult> =>
   new Promise((resolve, reject) => {
-    const executable = process.platform === "win32" ? "npm.cmd" : "npm";
+    const stdin = input === undefined ? "ignore" : "pipe";
     const child = spawn(executable, arguments_, {
-      stdio: ["ignore", "ignore", "pipe"],
+      stdio: [stdin, "ignore", "pipe"],
     });
     let stderr = "";
 
-    child.stderr.setEncoding("utf8");
-    child.stderr.on("data", (chunk: string) => {
+    const stderrStream = child.stderr;
+    if (stderrStream === null) {
+      child.kill();
+      reject(new Error(`Could not capture stderr from ${executable}`));
+      return;
+    }
+    stderrStream.setEncoding("utf8");
+    stderrStream.on("data", (chunk: string) => {
       stderr += chunk;
     });
     child.on("error", reject);
     child.on("close", (exitCode) => {
       resolve({ exitCode: exitCode ?? 1, stderr: stderr.trim() });
     });
+    if (input !== undefined) {
+      const stdinStream = child.stdin;
+      if (stdinStream === null) {
+        child.kill();
+        reject(new Error(`Could not send input to ${executable}`));
+        return;
+      }
+      stdinStream.end(input);
+    }
   });
+
+const runNpm: NpmRunner = (arguments_) => {
+  const executable = process.platform === "win32" ? "npm.cmd" : "npm";
+  return runProcess(executable, arguments_);
+};
 
 const installerUrl = "https://hacktheandes.com/install";
 
@@ -58,30 +84,17 @@ const runInstaller: InstallerRunner = async (installDirectory) => {
     throw new Error(`installer download returned HTTP ${response.status}`);
   }
   const script = await response.text();
-  return new Promise((resolve, reject) => {
-    const child = spawn(
-      "bash",
-      ["-s", "--", "--install-dir", installDirectory, "--no-modify-path"],
-      { stdio: ["pipe", "ignore", "pipe"] },
-    );
-    let stderr = "";
-
-    child.stderr.setEncoding("utf8");
-    child.stderr.on("data", (chunk: string) => {
-      stderr += chunk;
-    });
-    child.on("error", reject);
-    child.on("close", (exitCode) => {
-      resolve({ exitCode: exitCode ?? 1, stderr: stderr.trim() });
-    });
-    child.stdin.end(script);
-  });
+  return runProcess(
+    "bash",
+    ["-s", "--", "--install-dir", installDirectory, "--no-modify-path"],
+    script,
+  );
 };
 
 const isStandaloneExecutable = (): boolean =>
   typeof Bun !== "undefined" && Bun.isStandaloneExecutable;
 
-const assertSuccessful = (result: NpmResult, program: string): void => {
+const assertSuccessful = (result: ProcessResult, program: string): void => {
   if (result.exitCode === 0) return;
 
   let detail = "";

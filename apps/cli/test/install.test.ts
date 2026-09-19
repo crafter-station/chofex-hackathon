@@ -26,7 +26,7 @@ describe("curl installer", () => {
     await writeFile(source, "#!/bin/sh\necho chofex-test\n");
     await chmod(source, 0o755);
 
-    await execFileAsync("bash", [
+    const result = await execFileAsync("bash", [
       installerPath.pathname,
       "--binary",
       source,
@@ -40,5 +40,6 @@ describe("curl installer", () => {
       "#!/bin/sh\necho chofex-test\n",
     );
     expect((await execFileAsync(installed)).stdout.trim()).toBe("chofex-test");
+    expect(result.stdout).toContain(`export PATH=${installDirectory}:$PATH`);
   });
 });

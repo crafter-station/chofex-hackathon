@@ -75,9 +75,15 @@ jobs:
             linux-arm64-musl
             linux-x64
             linux-x64-musl
+            windows-arm64
+            windows-x64
           )
           for target in "${targets[@]}"; do
-            executable="standalone/chofex"
+            binary="chofex"
+            if [[ "$target" == windows-* ]]; then
+              binary="chofex.exe"
+            fi
+            executable="standalone/${binary}"
             archive="chofex-${target}.tar.gz"
             bun build apps/cli/src/index.ts \
               --compile \
@@ -85,7 +91,7 @@ jobs:
               --target="bun-${target}" \
               --define="CHOFEX_VERSION='${RELEASE_VERSION}'" \
               --outfile="$executable"
-            tar -czf "artifacts/${archive}" -C standalone chofex
+            tar -czf "artifacts/${archive}" -C standalone "$binary"
             rm "$executable"
           done
           tar -xzf artifacts/chofex-linux-x64.tar.gz -C standalone

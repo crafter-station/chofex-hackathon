@@ -44,7 +44,8 @@ export const metadataCopy = {
 } as const;
 
 export const cliCommands = [
-  "npm install --global chofex-cli@latest",
+  "curl -fsSL https://hacktheandes.com/install | bash",
+  'export PATH="$HOME/.chofex/bin:$PATH"',
   "chofex login",
   "chofex register",
   "chofex status",
