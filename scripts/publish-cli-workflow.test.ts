@@ -54,7 +54,10 @@ test("requeues the current main tip when a stale release held the queue", () => 
   expect(publishJob).toContain("stale:");
   expect(publishJob).toContain('echo "stale=true" >> "$GITHUB_OUTPUT"');
   expect(publishJob).toContain("needs.publish.outputs.stale == 'true'");
+  expect(publishJob).toContain("releases/latest");
+  expect(publishJob).toContain('select(.status != "completed")');
   expect(publishJob).toContain("gh workflow run publish-cli.yml");
+  expect(publishJob).toContain('--repo "$GITHUB_REPOSITORY"');
 });
 
 test("does not reuse an automatic run that skipped publishing", () => {
