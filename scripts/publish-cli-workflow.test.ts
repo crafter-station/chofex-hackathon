@@ -71,6 +71,7 @@ test("does not reuse an automatic run that skipped publishing", () => {
   expect(releaseSkill).toContain("Publish chofex-cli");
   expect(releaseSkill).toContain('"skipped"');
   expect(releaseSkill).toContain("workflow_dispatch");
+  expect(releaseSkill).toContain('if ! automatic_run_id="$(gh run list');
 });
 
 test("does not share release concurrency with production deployment", () => {
