@@ -215,17 +215,15 @@ const domainPointsTo = async (domain: string, ip: string): Promise<boolean> => {
   }
 };
 
-const validateDevelopmentClerk = (
-  environment: Record<string, string>,
-): void => {
+const validateProductionClerk = (environment: Record<string, string>): void => {
   const publishableKey = environment.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
   const secretKey = environment.CLERK_SECRET_KEY;
   if (
-    !publishableKey?.startsWith("pk_test_") ||
-    !secretKey?.startsWith("sk_test_")
+    !publishableKey?.startsWith("pk_live_") ||
+    !secretKey?.startsWith("sk_live_")
   ) {
     throw new Error(
-      "This deployment is currently pinned to the Clerk development instance; both Clerk keys must be test keys.",
+      "Production requires matching Clerk production keys; both Clerk keys must be live keys.",
     );
   }
 };
@@ -237,7 +235,7 @@ const run = async (command: Command): Promise<void> => {
       `Unsupported deployment manifest version ${manifest.version}.`,
     );
   const environment = await loadEnvironment();
-  validateDevelopmentClerk(environment);
+  validateProductionClerk(environment);
   const auth = await loadAuth(environment);
   if (normalizeUrl(auth.domain) !== normalizeUrl(manifest.serverUrl)) {
     throw new Error(
