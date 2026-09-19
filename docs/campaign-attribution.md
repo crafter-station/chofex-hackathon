@@ -39,6 +39,7 @@ WITH campaign_landings AS (
         properties.$utm_campaign AS landing_campaign
     FROM events
     WHERE event = '$pageview'
+      AND properties.chofex_campaign_landing = true
       AND properties.$utm_campaign IS NOT NULL
       AND (
           properties.$current_url LIKE '%/challenges'
@@ -105,6 +106,7 @@ WITH campaign_landings AS (
         properties.$utm_campaign AS landing_campaign
     FROM events
     WHERE event = '$pageview'
+      AND properties.chofex_campaign_landing = true
       AND properties.$utm_campaign IS NOT NULL
       AND properties.$current_url NOT LIKE '%/challenges'
       AND properties.$current_url NOT LIKE '%/challenges/%'
@@ -155,7 +157,9 @@ aggregates keep conversions from double-counting a person. Events with explicit
 `latest_utm_campaign` attribution match a preceding landing for that campaign.
 Cookieless CLI events instead use `row_number()` to select the nearest preceding
 qualifying campaign landing, so one conversion cannot count for every campaign
-the person visited.
+the person visited. `chofex_campaign_landing` is set only when the raw pageview
+URL contains recognized UTM parameters; registered campaign properties on later
+navigation pageviews do not extend or reclassify the landing.
 
 The report and campaign operating artifacts remain the source for campaign
 names and link templates; do not duplicate recipient or message content here.

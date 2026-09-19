@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef } from "react";
 
 import {
   type CampaignProperties,
+  campaignPropertiesFromUrl,
   campaignPropertyNames,
   isPostHogConfigured,
   isTrackableUrl,
@@ -27,6 +28,8 @@ import {
   propertiesForPostHogReplay,
   syncPostHogIdentity,
 } from "@/lib/posthog-identity";
+
+const campaignLandingProperty = "chofex_campaign_landing";
 
 function writeBrowserCookie(cookie: string): void {
   // biome-ignore lint/suspicious/noDocumentCookie: the server must receive pre-auth landing attribution
@@ -164,15 +167,28 @@ export function PostHogAnalytics({
         if (queuedCampaign) {
           return eventWithCampaign(publicEvent, queuedCampaign);
         }
+        let eventForCampaign: CaptureResult = publicEvent;
         if (publicEvent.event === "$pageview") {
           attributionSuppressed.current = false;
-          if (pageviewUrl) persistCampaignLanding(pageviewUrl);
+          if (pageviewUrl) {
+            persistCampaignLanding(pageviewUrl);
+            const landingCampaign = campaignPropertiesFromUrl(pageviewUrl);
+            if (Object.keys(landingCampaign).length > 0) {
+              eventForCampaign = {
+                ...publicEvent,
+                properties: {
+                  ...publicEvent.properties,
+                  [campaignLandingProperty]: true,
+                },
+              };
+            }
+          }
         }
         let campaign: CampaignProperties = {};
         if (!attributionSuppressed.current) {
           campaign = syncRegisteredCampaign();
         }
-        const updatedEvent = eventWithCampaign(publicEvent, campaign);
+        const updatedEvent = eventWithCampaign(eventForCampaign, campaign);
         if (!identityReady.current) {
           queuedEvents.current.push(updatedEvent);
           return null;
