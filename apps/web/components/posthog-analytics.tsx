@@ -77,6 +77,7 @@ export function PostHogAnalytics({
   const identityIsLoaded = identity?.isLoaded ?? false;
   const identityUserId = identity?.userId ?? null;
   const initialized = useRef(false);
+  const initialPageviewObserved = useRef(false);
   const attributionSuppressed = useRef(false);
   const identityReady = useRef(!identitySyncEnabled);
   const queuedEvents = useRef<CaptureResult[]>([]);
@@ -124,14 +125,17 @@ export function PostHogAnalytics({
       save_campaign_params: false,
       save_referrer: false,
       before_send: (event) => {
+        let pageviewUrl: string | undefined;
+        if (event?.event === "$pageview") {
+          initialPageviewObserved.current = true;
+          const currentUrl = event.properties?.$current_url;
+          if (typeof currentUrl === "string") pageviewUrl = currentUrl;
+        }
         const publicEvent = postHogEventForPublicAnalytics(event);
         if (!publicEvent) return null;
         if (publicEvent.event === "$pageview") {
           attributionSuppressed.current = false;
-          const pageviewUrl = publicEvent.properties?.$current_url;
-          if (typeof pageviewUrl === "string") {
-            persistCampaignLanding(pageviewUrl);
-          }
+          if (pageviewUrl) persistCampaignLanding(pageviewUrl);
         }
         let campaign: CampaignProperties = {};
         if (!attributionSuppressed.current) {
@@ -176,12 +180,17 @@ export function PostHogAnalytics({
     ) {
       return;
     }
-    syncPostHogIdentity(
+    const didResetIdentity = syncPostHogIdentity(
       { isLoaded: identityIsLoaded, userId: identityUserId },
       posthog,
       identityStorageFromBrowser(window),
       beforeIdentityReset,
     );
+    if (didResetIdentity && initialPageviewObserved.current) {
+      // Replace the discarded landing; otherwise PostHog's pending initial
+      // pageview will capture it after this identity decision.
+      posthog.capture("$pageview");
+    }
     completeAnalyticsReadiness();
   }, [
     beforeIdentityReset,
