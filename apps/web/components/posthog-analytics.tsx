@@ -9,6 +9,7 @@ import {
   campaignPropertyNames,
   isPostHogConfigured,
   isTrackableUrl,
+  normalizeCampaignProperties,
   postHogEventForPublicAnalytics,
   posthogHost,
   posthogKey,
@@ -50,18 +51,43 @@ function syncRegisteredCampaign(): CampaignProperties {
   return campaign;
 }
 
-function replayEvent(event: CaptureResult): void {
+function eventWithCampaign(
+  event: CaptureResult,
+  campaign: CampaignProperties,
+): CaptureResult {
+  const updatedEvent = {
+    ...event,
+    properties: replaceCampaignProperties(event.properties, campaign),
+  };
+  if (event.$set) {
+    updatedEvent.$set = replaceCampaignProperties(event.$set, {});
+  }
+  if (event.$set_once) {
+    updatedEvent.$set_once = replaceCampaignProperties(event.$set_once, {});
+  }
+  return updatedEvent;
+}
+
+function replayEvent(
+  event: CaptureResult,
+  replayCampaign: { current: CampaignProperties | undefined },
+): void {
   const options: CaptureOptions = {
     timestamp: event.timestamp,
     uuid: event.uuid,
   };
   if (event.$set) options.$set = event.$set;
   if (event.$set_once) options.$set_once = event.$set_once;
-  posthog.capture(
-    event.event,
-    propertiesForPostHogReplay(event.event, event.properties),
-    options,
-  );
+  replayCampaign.current = normalizeCampaignProperties(event.properties);
+  try {
+    posthog.capture(
+      event.event,
+      propertiesForPostHogReplay(event.event, event.properties),
+      options,
+    );
+  } finally {
+    replayCampaign.current = undefined;
+  }
 }
 
 /**
@@ -81,6 +107,7 @@ export function PostHogAnalytics({
   const attributionSuppressed = useRef(false);
   const identityReady = useRef(!identitySyncEnabled);
   const queuedEvents = useRef<CaptureResult[]>([]);
+  const replayCampaign = useRef<CampaignProperties | undefined>(undefined);
 
   const beforeIdentityReset = useCallback(() => {
     writeBrowserCookie(
@@ -96,11 +123,11 @@ export function PostHogAnalytics({
     const identityEvents = queued.filter(
       (event) => event.event === "$identify" || event.event === "$set",
     );
-    for (const event of identityEvents) replayEvent(event);
+    for (const event of identityEvents) replayEvent(event, replayCampaign);
 
     for (const event of queued) {
       if (event.event === "$identify" || event.event === "$set") continue;
-      replayEvent(event);
+      replayEvent(event, replayCampaign);
     }
   }, []);
 
@@ -133,6 +160,10 @@ export function PostHogAnalytics({
         }
         const publicEvent = postHogEventForPublicAnalytics(event);
         if (!publicEvent) return null;
+        const queuedCampaign = replayCampaign.current;
+        if (queuedCampaign) {
+          return eventWithCampaign(publicEvent, queuedCampaign);
+        }
         if (publicEvent.event === "$pageview") {
           attributionSuppressed.current = false;
           if (pageviewUrl) persistCampaignLanding(pageviewUrl);
@@ -141,30 +172,12 @@ export function PostHogAnalytics({
         if (!attributionSuppressed.current) {
           campaign = syncRegisteredCampaign();
         }
-        const eventWithCampaign = {
-          ...publicEvent,
-          properties: replaceCampaignProperties(
-            publicEvent.properties,
-            campaign,
-          ),
-        };
-        if (publicEvent.$set) {
-          eventWithCampaign.$set = replaceCampaignProperties(
-            publicEvent.$set,
-            {},
-          );
-        }
-        if (publicEvent.$set_once) {
-          eventWithCampaign.$set_once = replaceCampaignProperties(
-            publicEvent.$set_once,
-            {},
-          );
-        }
+        const updatedEvent = eventWithCampaign(publicEvent, campaign);
         if (!identityReady.current) {
-          queuedEvents.current.push(eventWithCampaign);
+          queuedEvents.current.push(updatedEvent);
           return null;
         }
-        return eventWithCampaign;
+        return updatedEvent;
       },
     });
     initialized.current = true;
