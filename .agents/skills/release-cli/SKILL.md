@@ -36,12 +36,17 @@ released and that commit is the remote default branch tip.
    test "$approved_sha" = "$remote_sha"
    ```
 
-2. Reuse the automatic push run for the approved commit when it exists. If no
-   run exists, dispatch the exact approved commit and capture its URL:
+2. Give the automatic push run 30 seconds to appear. Reuse it when found; only
+   dispatch the exact approved commit after all bounded attempts are empty:
 
    ```sh
-   run_id="$(gh run list --workflow publish-cli.yml --commit "$approved_sha" \
-     --limit 1 --json databaseId --jq '.[0].databaseId // empty')"
+   run_id=""
+   for attempt in 1 2 3 4 5 6; do
+     run_id="$(gh run list --workflow publish-cli.yml --commit "$approved_sha" \
+       --limit 1 --json databaseId --jq '.[0].databaseId // empty')"
+     if [[ -n "$run_id" ]]; then break; fi
+     if [[ "$attempt" -lt 6 ]]; then sleep 5; fi
+   done
    if [[ -z "$run_id" ]]; then
      run_url="$(gh workflow run publish-cli.yml --ref "$default_branch" \
        -f commit_sha="$approved_sha")"
@@ -50,18 +55,21 @@ released and that commit is the remote default branch tip.
    test -n "$run_id"
    ```
 
-3. Read that run by its captured ID and verify it uses the approved commit.
-   GitHub may need a few seconds to expose a new run, so use bounded retries:
+3. Read that run by its captured ID and verify it uses the approved commit:
 
    ```sh
    gh run view "$run_id" \
      --json databaseId,headSha,status,conclusion,url
    ```
 
-4. Watch the run through completion with `gh run watch <run-id> --exit-status`.
-   Verify `headSha` equals the approved SHA.
-   On failure, inspect it with `gh run view <run-id> --log-failed`, fix the
-   cause, and obtain fresh approval before dispatching another release.
+4. If the captured run already completed unsuccessfully, inspect it with
+   `gh run view <run-id> --log-failed`. Fix the cause and obtain fresh approval.
+   If the approved SHA remains the remote default-branch tip, rerun it with
+   `gh run rerun <run-id>`; if the fix changed code, restart at the Gate with
+   the new SHA.
+5. Watch the run through completion with `gh run watch <run-id> --exit-status`.
+   Verify `headSha` equals the approved SHA. Apply the same recovery rule to a
+   new failure; do not keep re-watching a terminal failed run.
 
 ## Verify
 
