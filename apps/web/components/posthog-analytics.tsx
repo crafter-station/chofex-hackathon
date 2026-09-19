@@ -58,8 +58,12 @@ function registerCampaign(campaign: CampaignProperties): void {
   posthog.register(campaign);
 }
 
-function syncRegisteredCampaign(): CampaignProperties {
-  const campaign = latestCampaignProperties(document.cookie);
+function syncRegisteredCampaign(
+  fallbackCampaign: CampaignProperties,
+): CampaignProperties {
+  const storedCampaign = latestCampaignProperties(document.cookie);
+  let campaign = fallbackCampaign;
+  if (Object.keys(storedCampaign).length > 0) campaign = storedCampaign;
   registerCampaign(campaign);
   return campaign;
 }
@@ -130,6 +134,7 @@ export function PostHogAnalytics({
   const queuedLandingSnapshots = useRef(
     new Map<string, CampaignLandingSnapshot>(),
   );
+  const inMemoryCampaign = useRef<CampaignProperties>({});
   const replayCampaign = useRef<CampaignProperties | undefined>(undefined);
 
   const beforeIdentityReset = useCallback(() => {
@@ -162,6 +167,7 @@ export function PostHogAnalytics({
       writeBrowserCookie(cookie);
       rebuiltCookie = cookie;
     }
+    inMemoryCampaign.current = landingSnapshots.at(-1)?.campaign ?? {};
     attributionSuppressed.current = campaignLandings.length === 0;
   }, []);
 
@@ -240,10 +246,12 @@ export function PostHogAnalytics({
         }
         let campaign: CampaignProperties = {};
         if (!attributionSuppressed.current) {
-          campaign = syncRegisteredCampaign();
+          campaign = syncRegisteredCampaign(inMemoryCampaign.current);
+          inMemoryCampaign.current = campaign;
         }
         if (landingSnapshot) {
           campaign = landingSnapshot.campaign;
+          inMemoryCampaign.current = campaign;
           registerCampaign(campaign);
         }
         const updatedEvent = eventWithCampaign(eventForCampaign, campaign);
