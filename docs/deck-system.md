@@ -30,13 +30,13 @@ URL. Una sola fuente de verdad, dos formatos de entrega.
 | Archivo | Rol |
 | --- | --- |
 | `apps/web/lib/decks/loader.ts` | Lee el filesystem: enumera decks, parsea slides y frontmatter. |
-| `apps/web/app/deck/[slug]/page.tsx` | Ruta estática: compila el MDX y arma el `<head>`. |
-| `apps/web/app/deck/[slug]/deck-pager.tsx` | El reproductor: teclado, swipe, wheel, índice. Client Component. |
+| `apps/web/app/deck/[...slug]/page.tsx` | Ruta estática: compila el MDX y arma el `<head>`. |
+| `apps/web/app/deck/[...slug]/deck-pager.tsx` | El reproductor: teclado, swipe, wheel, índice. Client Component. |
 | `apps/web/app/deck/layout.tsx` | Layout del deck: fuentes de la landing, stylesheet, fallback sin JS. |
 | `apps/web/app/deck/deck.css` | Chrome y vocabulario visual. |
 | `apps/web/components/decks/slide-components.tsx` | Los componentes de slide. |
 | `apps/web/components/decks/mdx-components.ts` | El mapa que se inyecta al MDX (vocabulario cerrado). |
-| `apps/web/content/decks/<slug>/` | El contenido de cada deck. |
+| `apps/web/content/decks/<slug>/` | El contenido de cada deck. El slug es la ruta, así que puede llevar barra (`main/en`). |
 | `scripts/export-deck-pdf.mjs` | Deck web → PDF. |
 
 ---
@@ -50,7 +50,10 @@ apps/web/content/decks/main/
 ├── deck.json          ← obligatorio: sin él, la carpeta no es un deck
 ├── 01-cover.mdx
 ├── 02-what.mdx
-└── …
+├── …
+└── en/                ← la traducción, si la hay
+    ├── deck.json
+    └── NN-*.mdx
 ```
 
 ### `deck.json`
@@ -64,8 +67,30 @@ apps/web/content/decks/main/
 ```
 
 Campos reconocidos: `title`, `description`, `image` (og), `icon`, `appleIcon`,
-`style`. El tipo lleva `& Record<string, unknown>`, así que un campo extra no
-rompe nada.
+`style`, `lang`. El tipo lleva `& Record<string, unknown>`, así que un campo
+extra no rompe nada.
+
+### Traducciones
+
+Una traducción **no es un deck aparte**: vive dentro del deck que traduce, en
+una carpeta con su código de idioma, con su propio `deck.json` y sus propios
+slides. La URL calca el filesystem.
+
+| Carpeta | URL |
+| --- | --- |
+| `content/decks/main/` | `/deck/main` |
+| `content/decks/main/en/` | `/deck/main/en` |
+
+`lang` (`es` por defecto, o `en`) no traduce nada —los slides están escritos en
+el idioma en que están escritos—. Elige el chrome que los rodea: el índice, las
+etiquetas del pager, el `lang` que lleva la página para un lector de pantalla.
+Está en `chrome-copy.ts`.
+
+El nombre de la carpeta y el `lang` de su `deck.json` tienen que coincidir, y el
+loader lo verifica: copiar `en/` a `pt/` y olvidar el campo serviría un deck
+inglés bajo una URL portuguesa, y nada más abajo podría notarlo.
+
+Solo un nivel: un deck tiene traducciones, una traducción no.
 
 ### Los slides
 
@@ -92,7 +117,7 @@ media librería.
 
 ```
 apps/web/content/decks/<slug>/
-   │  listDecks()  ── enumera carpetas con deck.json
+   │  listDecks()  ── enumera carpetas con deck.json, más sus traducciones
    │  loadDeck()   ── deck.json + glob NN-*.mdx + gray-matter
    ▼
 generateStaticParams()          [build time]

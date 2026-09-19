@@ -140,7 +140,7 @@ lo acompaña pide uno.
 > créditos, no les sirve un reporte de uso, y "tu herramienta en manos de 100
 > builders" no les dice nada.
 >
-> Ésos van por **`content/decks/aliados`**, que vende otra cosa —estar en la
+> Ésos van por **`content/decks/partners`**, que vende otra cosa —estar en la
 > sala— con la escalera en efectivo de `budget-sponsors.md` §5.
 
 ---

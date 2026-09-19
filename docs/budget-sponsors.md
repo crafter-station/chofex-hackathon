@@ -219,7 +219,7 @@ Este archivo es la única fuente de los montos y slots de tier. Cuando cambien:
 1. Se edita **aquí** primero.
 2. Se actualiza la sección de sponsors de la landing (hoy `sponsorsCopy`; una
    grilla multi-slot todavía está por construirse).
-3. Se actualiza `apps/web/content/decks/main/06-tiers.mdx`.
+3. Se actualiza `apps/web/content/decks/main/09-tiers.mdx`.
 
 > El sistema del que se portó este documento tiene el mismo tier sheet escrito
 > con tres números distintos en tres archivos (Silver ×3, ×5 y ×8). No es un

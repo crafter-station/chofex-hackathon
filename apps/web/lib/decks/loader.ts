@@ -199,23 +199,54 @@ async function readDirEntries(dir: string) {
 }
 
 /** A folder only counts as a deck when it has a readable deck.json. */
+async function isDeckDir(dir: string): Promise<boolean> {
+  try {
+    await readFile(join(dir, "deck.json"), "utf-8");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Every deck's slug, which is its path under `content/decks` — so a slug can
+ * carry a slash.
+ *
+ * A translation is not a deck of its own sitting next to the one it
+ * translates: it lives inside it, under its language code. `main/en` is the
+ * English `main`, and the URL says exactly what the filesystem does. The flat
+ * layout this replaced could not say that — `en` and `partners-en` were
+ * siblings of `main`, so nothing tied a deck to its translation but a naming
+ * habit, and `en` read as a deck named "en".
+ *
+ * Only one level deep, and only under a name that is a language we know: a
+ * deck holds translations, and a translation holds nothing.
+ */
 export async function listDecks(): Promise<string[]> {
   const entries = await readDirEntries(DECKS_DIR);
   const slugs: string[] = [];
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
-    try {
-      await readFile(join(DECKS_DIR, entry.name, "deck.json"), "utf-8");
-      slugs.push(entry.name);
-    } catch {
-      // no deck.json — not a deck
+    const deckDir = join(DECKS_DIR, entry.name);
+    if (!(await isDeckDir(deckDir))) continue;
+    slugs.push(entry.name);
+
+    for (const nested of await readDirEntries(deckDir)) {
+      if (!nested.isDirectory()) continue;
+      if (!(DECK_LANGS as readonly string[]).includes(nested.name)) continue;
+      if (!(await isDeckDir(join(deckDir, nested.name)))) continue;
+      slugs.push(`${entry.name}/${nested.name}`);
     }
   }
 
   return slugs.sort();
 }
 
+/**
+ * Load one deck by its slug, which is its path under `content/decks` and may
+ * name a translation: `main`, `main/en`.
+ */
 export async function loadDeck(slug: string): Promise<LoadedDeck | null> {
   const deckDir = join(DECKS_DIR, slug);
 
@@ -234,6 +265,21 @@ export async function loadDeck(slug: string): Promise<LoadedDeck | null> {
     throw new Error(`deck.json inválido en content/decks/${slug}`, {
       cause: error,
     });
+  }
+
+  const lang = parseDeckLang(meta.lang, slug);
+
+  // A translation is addressed by the folder it sits in, and its deck.json
+  // declares a language too. They can drift in exactly one direction, and it
+  // is silent: copy `en/` to `pt/`, forget to touch the field, and the
+  // Portuguese URL serves an English deck with English chrome. Nothing
+  // downstream can catch that — the chrome would be consistent with the
+  // metadata, and both would be wrong. So the two have to agree here.
+  const nestedLang = slug.split("/")[1];
+  if (nestedLang && nestedLang !== lang) {
+    throw new Error(
+      `content/decks/${slug} está bajo "${nestedLang}" pero su deck.json declara lang "${lang}" — tienen que coincidir`,
+    );
   }
 
   const entries = await readdir(deckDir, { withFileTypes: true });
@@ -262,5 +308,5 @@ export async function loadDeck(slug: string): Promise<LoadedDeck | null> {
   // reorders the deck, and dropping the numeric prefix disables a slide.
   slides.sort((a, b) => a.number - b.number);
 
-  return { meta, slug, lang: parseDeckLang(meta.lang, slug), slides };
+  return { meta, slug, lang, slides };
 }
