@@ -66,10 +66,25 @@ token with `CHOFEX_TOKEN`.
 ### Authentication troubleshooting
 
 If `chofex login` succeeds but `whoami` or an authenticated challenge command
-returns `AUTHENTICATION_REQUIRED`, update the CLI and renew the stored session:
+returns `AUTHENTICATION_REQUIRED`, first remove any `CHOFEX_TOKEN` override from
+the shell. Use `unset CHOFEX_TOKEN` in Bash or Zsh, or
+`Remove-Item Env:CHOFEX_TOKEN` in PowerShell.
+
+Update by repeating the installation method you originally used. For npm:
 
 ```sh
-chofex update
+npm install --global chofex-cli@latest
+```
+
+For the standalone installer:
+
+```sh
+curl -fsSL https://hacktheandes.com/install | bash
+```
+
+Then renew the stored session and verify it:
+
+```sh
 chofex --version
 chofex logout
 chofex login
@@ -78,8 +93,10 @@ chofex --output json whoami
 
 Versions before `0.1.140` used a retired API origin whose cross-origin redirect
 removed the bearer token. Current releases call `https://hacktheandes.com`
-directly. If authentication still fails, share the response's request ID when
-asking for support, but never share the access or refresh token.
+directly. If the API still responds with `Authentication failed`, share the CLI
+version, error code, and request ID when asking for support. For a different
+local authentication error, share its code and message instead. Never share the
+access or refresh token.
 
 When applying again after a rejection, interactive registration pre-fills the
 previous application's answers. Keep a value by pressing Enter, or press Ctrl+U
