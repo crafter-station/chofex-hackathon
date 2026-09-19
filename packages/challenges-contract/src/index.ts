@@ -47,7 +47,7 @@ export const challengeCatalog: ReadonlyArray<ChallengeDefinition> = [
     format: "accuracy",
     formatLabel: "Accuracy score",
     opensAt: "2026-09-17T14:00:00.000Z",
-    rankingVisibleAt: "2026-09-19T02:00:00.000Z",
+    rankingVisibleAt: "2026-09-23T20:00:00.000Z",
     queryLimit: 25,
     evaluationLimit: 3,
     hiddenSampleSize: 1000,

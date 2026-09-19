@@ -119,7 +119,7 @@ describe("challenge output", () => {
           format: "accuracy",
           formatLabel: "Accuracy score",
           opensAt: "2026-09-17T14:00:00.000Z",
-          rankingVisibleAt: "2026-09-19T02:00:00.000Z",
+          rankingVisibleAt: "2026-09-23T20:00:00.000Z",
           queryLimit: 25,
           evaluationLimit: 3,
           playable: true,
@@ -129,11 +129,11 @@ describe("challenge output", () => {
         entries: [],
         competitorCount: 0,
       },
-      new Date("2026-09-19T01:00:00.000Z"),
+      new Date("2026-09-23T19:00:00.000Z"),
     );
 
     expect(text).toContain(
-      "Ranking available September 18, 2026 at 21:00 (UTC-5).",
+      "Ranking available September 23, 2026 at 15:00 (UTC-5).",
     );
     expect(text).not.toContain("0 official evaluations");
   });
