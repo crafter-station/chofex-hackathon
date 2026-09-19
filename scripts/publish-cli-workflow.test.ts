@@ -48,6 +48,15 @@ test("validates manual targets before they enter release concurrency", () => {
   );
 });
 
+test("requeues the current main tip when a stale release held the queue", () => {
+  const publishJob = workflow.slice(workflow.indexOf("  publish:"));
+
+  expect(publishJob).toContain("stale:");
+  expect(publishJob).toContain('echo "stale=true" >> "$GITHUB_OUTPUT"');
+  expect(publishJob).toContain("needs.publish.outputs.stale == 'true'");
+  expect(publishJob).toContain("gh workflow run publish-cli.yml");
+});
+
 test("does not reuse an automatic run that skipped publishing", () => {
   expect(releaseSkill).toContain("Publish chofex-cli");
   expect(releaseSkill).toContain('"skipped"');
