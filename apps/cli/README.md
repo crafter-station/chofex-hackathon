@@ -66,9 +66,18 @@ token with `CHOFEX_TOKEN`.
 ### Authentication troubleshooting
 
 If `chofex login` succeeds but `whoami` or an authenticated challenge command
-returns `AUTHENTICATION_REQUIRED`, first remove any `CHOFEX_TOKEN` override from
-the shell. Use `unset CHOFEX_TOKEN` in Bash or Zsh, or
-`Remove-Item Env:CHOFEX_TOKEN` in PowerShell.
+returns `AUTHENTICATION_REQUIRED`, first remove any token or API URL overrides
+from the shell. In Bash or Zsh:
+
+```sh
+unset CHOFEX_TOKEN CHOFEX_API_URL
+```
+
+In PowerShell:
+
+```powershell
+Remove-Item Env:CHOFEX_TOKEN, Env:CHOFEX_API_URL -ErrorAction SilentlyContinue
+```
 
 Update by repeating the installation method you originally used. For npm:
 
