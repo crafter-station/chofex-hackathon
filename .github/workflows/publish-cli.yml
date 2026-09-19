@@ -204,6 +204,25 @@ jobs:
       - name: Dispatch the current default-branch tip
         run: |
           latest_sha="$(gh api "repos/${GITHUB_REPOSITORY}/branches/${DEFAULT_BRANCH}" --jq '.commit.sha')"
+          latest_release_target="$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq '.target_commitish' 2>/dev/null || true)"
+          if [[ "$latest_release_target" == "$latest_sha" ]]; then
+            echo "The current tip is already the latest release."
+            exit 0
+          fi
+
+          existing_run_id="$(gh run list \
+            --repo "$GITHUB_REPOSITORY" \
+            --workflow publish-cli.yml \
+            --commit "$latest_sha" \
+            --limit 20 \
+            --json databaseId,status,conclusion \
+            --jq 'map(select(.status != "completed" or .conclusion == "success"))[0].databaseId // empty')"
+          if [[ -n "$existing_run_id" ]]; then
+            echo "Release run ${existing_run_id} already covers the current tip."
+            exit 0
+          fi
+
           gh workflow run publish-cli.yml \
+            --repo "$GITHUB_REPOSITORY" \
             --ref "$DEFAULT_BRANCH" \
             -f commit_sha="$latest_sha"
