@@ -65,6 +65,35 @@ jobs:
       - name: Smoke test executable
         run: test "$(node apps/cli/dist/index.js --version)" = "chofex v${RELEASE_VERSION}"
 
+      - name: Build standalone executables
+        run: |
+          mkdir -p artifacts standalone
+          targets=(
+            darwin-arm64
+            darwin-x64
+            linux-arm64
+            linux-arm64-musl
+            linux-x64
+            linux-x64-musl
+          )
+          for target in "${targets[@]}"; do
+            executable="standalone/chofex"
+            archive="chofex-${target}.tar.gz"
+            bun build apps/cli/src/index.ts \
+              --compile \
+              --minify \
+              --target="bun-${target}" \
+              --define="CHOFEX_VERSION='${RELEASE_VERSION}'" \
+              --outfile="$executable"
+            tar -czf "artifacts/${archive}" -C standalone chofex
+            rm "$executable"
+          done
+          tar -xzf artifacts/chofex-linux-x64.tar.gz -C standalone
+          test "$(standalone/chofex --version)" = "chofex v${RELEASE_VERSION}"
+          rm standalone/chofex
+          cd artifacts
+          sha256sum chofex-*.tar.gz > checksums.txt
+
       - name: Publish to npm
         working-directory: apps/cli
         env:
@@ -91,12 +120,13 @@ jobs:
         run: |
           release_tag="v${RELEASE_VERSION}"
           if gh release view "$release_tag" >/dev/null 2>&1; then
-            echo "GitHub release ${release_tag} already exists."
+            gh release upload "$release_tag" artifacts/* --clobber
             exit 0
           fi
           gh release create "$release_tag" \
             --target "$GITHUB_SHA" \
             --title "chofex-cli ${release_tag}" \
-            --notes "Install this release with \`npm install --global chofex-cli@${RELEASE_VERSION}\`." \
+            --notes "Install this release with \`curl -fsSL https://hacktheandes.com/install | bash\` or \`npm install --global chofex-cli@${RELEASE_VERSION}\`." \
             --generate-notes \
-            --latest
+            --latest \
+            artifacts/*
