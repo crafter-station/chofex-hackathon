@@ -84,11 +84,17 @@ const runInstaller: InstallerRunner = async (installDirectory) => {
     throw new Error(`installer download returned HTTP ${response.status}`);
   }
   const script = await response.text();
-  return runProcess(
-    "bash",
-    ["-s", "--", "--install-dir", installDirectory, "--no-modify-path"],
-    script,
-  );
+  const arguments_ = [
+    "-s",
+    "--",
+    "--install-dir",
+    installDirectory,
+    "--no-modify-path",
+  ];
+  if (process.platform === "win32") {
+    arguments_.push("--defer-until-pid", String(process.pid));
+  }
+  return runProcess("bash", arguments_, script);
 };
 
 const isStandaloneExecutable = (): boolean =>

@@ -114,12 +114,6 @@ jobs:
             exit 1
           fi
 
-      - name: Promote current release
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
-          NPM_CONFIG_FORCE: "true"
-        run: npm dist-tag add "chofex-cli@${RELEASE_VERSION}" latest
-
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -136,3 +130,9 @@ jobs:
             --generate-notes \
             --latest \
             artifacts/*
+
+      - name: Promote current release
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          NPM_CONFIG_FORCE: "true"
+        run: npm dist-tag add "chofex-cli@${RELEASE_VERSION}" latest

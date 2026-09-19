@@ -4,9 +4,10 @@ set -euo pipefail
 APP="chofex"
 REPOSITORY="crafter-station/hack-the-andes"
 INSTALL_DIR="${CHOFEX_INSTALL_DIR:-$HOME/.chofex/bin}"
-REQUESTED_VERSION="${VERSION:-}"
+REQUESTED_VERSION="${CHOFEX_VERSION:-}"
 BINARY_PATH=""
 NO_MODIFY_PATH=false
+DEFER_UNTIL_PID=""
 
 MUTED='\033[0;2m'
 RED='\033[0;31m'
@@ -62,6 +63,11 @@ while [[ $# -gt 0 ]]; do
       NO_MODIFY_PATH=true
       shift
       ;;
+    --defer-until-pid)
+      [[ "${2:-}" =~ ^[0-9]+$ ]] || fail "--defer-until-pid requires a process ID"
+      DEFER_UNTIL_PID="$2"
+      shift 2
+      ;;
     *)
       fail "unknown option '$1'"
       ;;
@@ -81,9 +87,18 @@ trap cleanup EXIT
 install_binary() {
   local source="$1"
   local staged="$INSTALL_DIR/.chofex-install-$$"
+  local destination="$INSTALL_DIR/$binary_name"
   cp "$source" "$staged"
   chmod 755 "$staged"
-  mv -f "$staged" "$INSTALL_DIR/$binary_name"
+  if [[ -n "$DEFER_UNTIL_PID" ]]; then
+    nohup sh -c '
+      while kill -0 "$1" 2>/dev/null; do sleep 1; done
+      mv -f "$2" "$3"
+    ' chofex-updater "$DEFER_UNTIL_PID" "$staged" "$destination" \
+      >/dev/null 2>&1 &
+    return
+  fi
+  mv -f "$staged" "$destination"
 }
 
 raw_os="$(uname -s)"
@@ -180,21 +195,26 @@ if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
   path_is_available=false
 fi
 
+current_shell="$(basename "${SHELL:-sh}")"
+printf -v escaped_install_dir "%q" "$INSTALL_DIR"
+path_command="export PATH=$escaped_install_dir:\$PATH"
+if [[ "$current_shell" == "fish" ]]; then
+  fish_escaped_install_dir="${INSTALL_DIR//\\/\\\\}"
+  fish_escaped_install_dir="${fish_escaped_install_dir//\'/\\\'}"
+  path_command="fish_add_path '$fish_escaped_install_dir'"
+fi
+
 if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
-  current_shell="$(basename "${SHELL:-sh}")"
   config_file=""
   case "$current_shell" in
     fish)
       candidates=("$HOME/.config/fish/config.fish")
-      path_command="fish_add_path $INSTALL_DIR"
       ;;
     zsh)
       candidates=("${ZDOTDIR:-$HOME}/.zshrc" "${ZDOTDIR:-$HOME}/.zshenv")
-      path_command="export PATH=$INSTALL_DIR:\$PATH"
       ;;
     *)
       candidates=("$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile")
-      path_command="export PATH=$INSTALL_DIR:\$PATH"
       ;;
   esac
   for candidate in "${candidates[@]}"; do
@@ -217,6 +237,6 @@ if [[ "$path_is_available" == "true" ]]; then
   printf "Run %bchofex login%b to get started.\n\n" "$ORANGE" "$NC"
 else
   printf "To get started in this terminal, run:\n\n"
-  printf "  export PATH=%s:\$PATH\n" "$INSTALL_DIR"
+  printf "  %s\n" "$path_command"
   printf "  chofex login\n\n"
 fi
