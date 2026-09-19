@@ -153,11 +153,19 @@ else
   fi
 
   archive="chofex-${target}.tar.gz"
-  release_base="https://github.com/$REPOSITORY/releases/latest/download"
   if [[ -n "$REQUESTED_VERSION" && "$REQUESTED_VERSION" != "latest" ]]; then
     version="${REQUESTED_VERSION#v}"
-    release_base="https://github.com/$REPOSITORY/releases/download/v${version}"
+    release_tag="v${version}"
+  else
+    latest_url="$(
+      curl -fsSL -o /dev/null -w "%{url_effective}" \
+        "https://github.com/$REPOSITORY/releases/latest"
+    )"
+    latest_url="${latest_url%/}"
+    release_tag="${latest_url##*/}"
+    [[ "$release_tag" == v* ]] || fail "could not resolve the latest release"
   fi
+  release_base="https://github.com/$REPOSITORY/releases/download/$release_tag"
 
   temporary_directory="$(mktemp -d "${TMPDIR:-/tmp}/chofex-install.XXXXXX")"
   printf "\n%bInstalling %s for %s%b\n" "$MUTED" "$APP" "$target" "$NC"
