@@ -31,8 +31,76 @@ interface ReconcileServiceEnvironmentResult {
 
 const normalizeUrl = (value: string): string => value.replace(/\/+$/, "");
 
-const escapedRegularExpression = (value: string): string =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+interface EnvironmentAssignment {
+  readonly name: string;
+  readonly start: number;
+  end: number;
+}
+
+type Quote = '"' | "'";
+
+const unclosedQuote = (value: string, continued?: Quote): Quote | undefined => {
+  let quote = continued;
+  let start = 0;
+  if (!quote) {
+    const firstValueCharacter = value.search(/\S/);
+    if (firstValueCharacter < 0) return;
+    const candidate = value[firstValueCharacter];
+    if (candidate !== '"' && candidate !== "'") return;
+    quote = candidate;
+    start = firstValueCharacter + 1;
+  }
+
+  for (let index = start; index < value.length; index += 1) {
+    if (value[index] !== quote) continue;
+    if (quote === '"') {
+      let backslashes = 0;
+      for (
+        let previous = index - 1;
+        previous >= 0 && value[previous] === "\\";
+        previous -= 1
+      ) {
+        backslashes += 1;
+      }
+      if (backslashes % 2 === 1) continue;
+    }
+    return;
+  }
+  return quote;
+};
+
+const environmentAssignments = (source: string): EnvironmentAssignment[] => {
+  const assignments: EnvironmentAssignment[] = [];
+  let continued:
+    | { assignment: EnvironmentAssignment; quote: Quote }
+    | undefined;
+  let offset = 0;
+  while (offset < source.length) {
+    const newline = source.indexOf("\n", offset);
+    const lineEnd = newline < 0 ? source.length : newline;
+    const contentEnd = source[lineEnd - 1] === "\r" ? lineEnd - 1 : lineEnd;
+    const line = source.slice(offset, contentEnd);
+
+    if (continued) {
+      continued.assignment.end = contentEnd;
+      const quote = unclosedQuote(line, continued.quote);
+      if (quote) continued.quote = quote;
+      else continued = undefined;
+    } else {
+      const match = /^([A-Za-z_][A-Za-z0-9_]*)\s*=/.exec(line);
+      const name = match?.[1];
+      if (name && match) {
+        const assignment = { name, start: offset, end: contentEnd };
+        assignments.push(assignment);
+        const quote = unclosedQuote(line.slice(match[0].length));
+        if (quote) continued = { assignment, quote };
+      }
+    }
+
+    offset = newline < 0 ? source.length : newline + 1;
+  }
+  return assignments;
+};
 
 const reconciledEnvironment = (
   source: string,
@@ -42,13 +110,18 @@ const reconciledEnvironment = (
   const changedNames: string[] = [];
   for (const [name, value] of Object.entries(desired)) {
     const assignment = `${name}=${JSON.stringify(value)}`;
-    const pattern = new RegExp(
-      `^${escapedRegularExpression(name)}=[^\\r\\n]*(?:\\r?$)`,
-      "gm",
+    const matches = environmentAssignments(environment).filter(
+      (candidate) => candidate.name === name,
     );
-    const matches = [...environment.matchAll(pattern)];
-    const currentAssignment = matches[0]?.[0].replace(/\r$/, "");
-    if (matches.length === 1 && currentAssignment === assignment) continue;
+    const currentAssignment = matches[0];
+    if (
+      matches.length === 1 &&
+      currentAssignment &&
+      environment.slice(currentAssignment.start, currentAssignment.end) ===
+        assignment
+    ) {
+      continue;
+    }
 
     changedNames.push(name);
     if (matches.length === 0) {
@@ -60,13 +133,12 @@ const reconciledEnvironment = (
       continue;
     }
 
-    let replaced = false;
-    environment = environment.replace(pattern, (current) => {
-      if (replaced) return "";
-      replaced = true;
-      const carriageReturn = current.endsWith("\r") ? "\r" : "";
-      return `${assignment}${carriageReturn}`;
-    });
+    for (let index = matches.length - 1; index >= 0; index -= 1) {
+      const match = matches[index];
+      if (!match) continue;
+      const replacement = index === 0 ? assignment : "";
+      environment = `${environment.slice(0, match.start)}${replacement}${environment.slice(match.end)}`;
+    }
   }
   return { environment, changedNames };
 };
