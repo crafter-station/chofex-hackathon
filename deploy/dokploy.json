@@ -10,7 +10,7 @@
       "appName": "hack-the-andes-web",
       "githubRepository": "crafter-station/hack-the-andes",
       "imageRepository": "ghcr.io/crafter-station/hack-the-andes",
-      "privateImage": false,
+      "privateImage": true,
       "domain": "andes.cueva.io",
       "port": 3000,
       "healthPath": "/api/health",
