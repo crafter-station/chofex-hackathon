@@ -25,7 +25,7 @@ async function installForBash({
   installDirectory: string;
   source: string;
 }) {
-  await execFileAsync(
+  return execFileAsync(
     "bash",
     [
       installerPath.pathname,
@@ -234,5 +234,36 @@ exec /bin/mv "$@"
     expect(await Bun.file(join(directory, ".bash_profile")).exists()).toBe(
       false,
     );
+  });
+
+  test("keeps a completed install successful when HOME is read-only", async () => {
+    const directory = await mkdtemp(
+      join(tmpdir(), "chofex-readonly-home-test-"),
+    );
+    temporaryDirectories.push(directory);
+    const home = join(directory, "home");
+    const source = join(directory, "source-chofex");
+    const installDirectory = join(directory, "installed");
+    await mkdir(home);
+    await writeFile(source, "chofex");
+    await chmod(home, 0o555);
+
+    try {
+      const result = await installForBash({
+        home,
+        installDirectory,
+        source,
+      });
+
+      expect(await readFile(join(installDirectory, "chofex"), "utf8")).toBe(
+        "chofex",
+      );
+      expect(result.stdout).toContain(
+        "Could not update every shell startup file",
+      );
+      expect(result.stdout).toContain(`export PATH=${installDirectory}:$PATH`);
+    } finally {
+      await chmod(home, 0o755);
+    }
   });
 });

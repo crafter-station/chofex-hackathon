@@ -50,7 +50,7 @@ export const cliInstallMethods = [
     description: "Recomendado · no requiere Node.js",
     hint: "Configura PATH y recarga tu terminal automáticamente.",
     command:
-      'curl -fsSL https://hacktheandes.com/install | bash && exec "$SHELL" -l',
+      "bash -o pipefail -c 'curl -fsSL https://hacktheandes.com/install | bash' && exec \"$SHELL\" -l",
   },
   {
     id: "npm",

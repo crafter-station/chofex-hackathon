@@ -223,6 +223,17 @@ if [[ "$current_shell" == "fish" ]]; then
   path_command="fish_add_path '$fish_escaped_install_dir'"
 fi
 
+path_setup_incomplete=false
+create_config_file() {
+  local config_file="$1"
+  if mkdir -p "$(dirname "$config_file")" 2>/dev/null && \
+    touch "$config_file" 2>/dev/null; then
+    config_files+=("$config_file")
+    return
+  fi
+  path_setup_incomplete=true
+}
+
 if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
   fallback_config_file=""
   bash_login_candidates=()
@@ -256,8 +267,7 @@ if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
   done
   if [[ "$current_shell" == "bash" ]]; then
     if [[ ! -f "$HOME/.bashrc" ]]; then
-      touch "$HOME/.bashrc"
-      config_files+=("$HOME/.bashrc")
+      create_config_file "$HOME/.bashrc"
     fi
     login_config_found=false
     for config_file in "${bash_login_candidates[@]}"; do
@@ -266,19 +276,20 @@ if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
       fi
     done
     if [[ "$login_config_found" == "false" ]]; then
-      touch "$HOME/.bash_profile"
-      config_files+=("$HOME/.bash_profile")
+      create_config_file "$HOME/.bash_profile"
     fi
   elif [[ "${#config_files[@]}" -eq 0 ]]; then
-    config_files=("$fallback_config_file")
+    create_config_file "$fallback_config_file"
+  fi
+  if [[ "${#config_files[@]}" -gt 0 ]]; then
     for config_file in "${config_files[@]}"; do
-      mkdir -p "$(dirname "$config_file")"
-      touch "$config_file"
+      add_to_path "$config_file" "$path_command"
     done
   fi
-  for config_file in "${config_files[@]}"; do
-    add_to_path "$config_file" "$path_command"
-  done
+  if [[ "$path_setup_incomplete" == "true" ]]; then
+    printf "%bCould not update every shell startup file. Add chofex to PATH manually:%b\n  %s\n" \
+      "$ORANGE" "$NC" "$path_command"
+  fi
 fi
 
 printf "\nInstalled %b%s%b to %s\n" \
