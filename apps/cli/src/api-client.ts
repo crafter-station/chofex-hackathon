@@ -18,10 +18,13 @@ import {
   ApiSuccessSchema,
   type BadgeResult,
   BadgeResultSchema,
+  type CampaignAttributionHandoff,
   type CreatedRegistration,
   CreatedRegistrationSchema,
   type CurrentUser,
   CurrentUserSchema,
+  campaignAttributionHandoffHeader,
+  campaignAttributionHandoffValue,
   type PictureUpload,
   PictureUploadGrantSchema,
   PictureUploadSchema,
@@ -30,24 +33,28 @@ import {
 } from "@chofex/registration-contract";
 import { Effect, Result, Schema } from "effect";
 
-import { accessToken } from "./auth.js";
+import { authentication, type Credentials } from "./auth.js";
 import { type CliError, cliError } from "./errors.js";
 
 export interface ApiClientOptions {
   readonly apiUrl: string;
+  readonly campaignAttribution?: CampaignAttributionHandoff;
   readonly token?: string;
 }
 
 const endpoint = (apiUrl: string, path: string): string =>
   `${apiUrl.replace(/\/$/, "")}${path}`;
 
-const resolveAccessToken = (
+const resolveAuthentication = (
   suppliedToken: string | undefined,
+  campaignAttribution: CampaignAttributionHandoff | undefined,
   forceRefresh = false,
-): Effect.Effect<string, CliError> => {
-  if (suppliedToken) return Effect.succeed(suppliedToken);
+): Effect.Effect<Credentials, CliError> => {
+  if (suppliedToken) {
+    return Effect.succeed({ accessToken: suppliedToken, campaignAttribution });
+  }
   return Effect.tryPromise({
-    try: () => accessToken(forceRefresh),
+    try: () => authentication(forceRefresh),
     catch: (error) => cliError("AUTHENTICATION_REQUIRED", String(error), false),
   });
 };
@@ -56,13 +63,21 @@ const sendRequest = (
   options: ApiClientOptions,
   path: string,
   init: RequestInit,
-  token?: string,
+  credentials?: Credentials,
 ): Effect.Effect<Response, CliError> =>
   Effect.tryPromise({
     try: () => {
       const headers = new Headers(init.headers);
       headers.set("accept", "application/json");
-      if (token) headers.set("authorization", `Bearer ${token}`);
+      if (credentials) {
+        headers.set("authorization", `Bearer ${credentials.accessToken}`);
+        if (credentials.campaignAttribution) {
+          const handoff = campaignAttributionHandoffValue(
+            credentials.campaignAttribution,
+          );
+          if (handoff) headers.set(campaignAttributionHandoffHeader, handoff);
+        }
+      }
       headers.set("x-request-id", crypto.randomUUID());
       if (init.body !== undefined) {
         headers.set("content-type", "application/json");
@@ -132,11 +147,14 @@ const request = Effect.fn("apiRequest")(function* <A, R>(
   decodeResponse: (input: unknown) => Effect.Effect<ApiSuccess<A>, unknown, R>,
 ): Effect.fn.Return<ApiSuccess<A>, CliError, R> {
   const suppliedToken = options.token ?? process.env.CHOFEX_TOKEN;
-  let token = yield* resolveAccessToken(suppliedToken);
-  let response = yield* sendRequest(options, path, init, token);
+  let credentials = yield* resolveAuthentication(
+    suppliedToken,
+    options.campaignAttribution,
+  );
+  let response = yield* sendRequest(options, path, init, credentials);
   if (response.status === 401 && !suppliedToken) {
-    token = yield* resolveAccessToken(undefined, true);
-    response = yield* sendRequest(options, path, init, token);
+    credentials = yield* resolveAuthentication(undefined, undefined, true);
+    response = yield* sendRequest(options, path, init, credentials);
   }
   return yield* decodeHttpBody(response, decodeResponse);
 });

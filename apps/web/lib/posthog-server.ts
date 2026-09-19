@@ -1,7 +1,11 @@
+import { campaignAttributionHandoffHeader } from "@chofex/registration-contract";
 import { PostHog } from "posthog-node";
 
 import { isPostHogConfigured, posthogHost, posthogKey } from "./analytics";
-import { campaignAttributionProperties } from "./campaign-attribution";
+import {
+  campaignAttributionProperties,
+  campaignAttributionPropertiesFromHandoff,
+} from "./campaign-attribution";
 
 type EventProperties = Record<
   string,
@@ -80,11 +84,20 @@ export function productEventWithCampaignAttribution(
   event: ProductEvent,
   now = Date.now(),
 ): ProductEvent {
+  const handoffProperties = campaignAttributionPropertiesFromHandoff(
+    request.headers.get(campaignAttributionHandoffHeader),
+    now,
+  );
+  const cookieProperties = campaignAttributionProperties(
+    request.headers.get("cookie"),
+    now,
+  );
   return {
     ...event,
     properties: {
       ...event.properties,
-      ...campaignAttributionProperties(request.headers.get("cookie"), now),
+      ...handoffProperties,
+      ...cookieProperties,
     },
   };
 }

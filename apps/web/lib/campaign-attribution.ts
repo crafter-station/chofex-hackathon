@@ -1,4 +1,9 @@
 import {
+  type CampaignAttributionHandoff,
+  campaignAttributionHandoffFromValue,
+} from "@chofex/registration-contract";
+
+import {
   type CampaignProperties,
   campaignPropertiesFromUrl,
   campaignPropertyNames,
@@ -16,11 +21,13 @@ const maximumCookieLength = 3800;
 type CampaignTouch = {
   readonly at: number;
   readonly campaign: CampaignProperties;
+  readonly landingId?: string;
 };
 
 export type CampaignAttributionFallback = {
   readonly capturedAt: number;
   readonly campaign: CampaignProperties;
+  readonly landingId?: string;
 };
 
 type CampaignAttribution = {
@@ -73,6 +80,21 @@ function readCookie(
   return undefined;
 }
 
+function isValidAttributionTimestamp(timestamp: unknown, now: number): boolean {
+  return (
+    typeof timestamp === "number" &&
+    Number.isSafeInteger(timestamp) &&
+    timestamp >= 0 &&
+    timestamp <= now + maximumClockSkewMilliseconds &&
+    now - timestamp <= attributionRetentionMilliseconds
+  );
+}
+
+function normalizedLandingId(value: unknown): string | undefined {
+  if (typeof value !== "string") return;
+  return campaignAttributionHandoffFromValue(`${value}.0`)?.landingId;
+}
+
 function normalizedTouch(
   value: unknown,
   now: number,
@@ -80,11 +102,8 @@ function normalizedTouch(
   if (!value || typeof value !== "object" || Array.isArray(value)) return;
   const candidate = value as Record<string, unknown>;
   if (
-    typeof candidate.at !== "number" ||
-    !Number.isSafeInteger(candidate.at) ||
-    candidate.at < 0 ||
-    candidate.at > now + maximumClockSkewMilliseconds ||
-    now - candidate.at > attributionRetentionMilliseconds
+    !isValidAttributionTimestamp(candidate.at, now) ||
+    typeof candidate.at !== "number"
   ) {
     return;
   }
@@ -93,7 +112,8 @@ function normalizedTouch(
     normalizeCampaignProperties(candidate.campaign),
   );
   if (Object.keys(campaign).length === 0) return;
-  return { at: candidate.at, campaign };
+  const landingId = normalizedLandingId(candidate.landingId);
+  return { at: candidate.at, campaign, landingId };
 }
 
 function parseAttribution(
@@ -123,10 +143,11 @@ function parseAttribution(
 function campaignTouchFromUrl(
   url: string,
   now: number,
+  landingId?: string,
 ): CampaignTouch | undefined {
   const campaign = campaignPropertiesForAttributionLanding(url);
   if (Object.keys(campaign).length === 0) return;
-  return { at: now, campaign };
+  return { at: now, campaign, landingId: normalizedLandingId(landingId) };
 }
 
 export function campaignPropertiesForAttributionLanding(
@@ -188,8 +209,9 @@ export function campaignAttributionCookieForLanding(
   cookieHeader: string | null | undefined,
   now: number,
   secure: boolean,
+  landingId?: string,
 ): string | undefined {
-  const latest = campaignTouchFromUrl(url, now);
+  const latest = campaignTouchFromUrl(url, now, landingId);
   if (!latest) return;
   const existing = parseAttribution(cookieHeader, now);
   const first = existing?.first ?? latest;
@@ -202,6 +224,9 @@ function appendTouchProperties(
   touch: CampaignTouch,
 ): void {
   properties[`${prefix}_campaign_at`] = new Date(touch.at).toISOString();
+  if (touch.landingId) {
+    properties[`${prefix}_campaign_landing_id`] = touch.landingId;
+  }
   for (const [property, value] of Object.entries(touch.campaign)) {
     if (!value) continue;
     properties[`${prefix}_${property.slice(1)}`] = value;
@@ -234,6 +259,7 @@ export function campaignAttributionFallbackForLanding(
 ): CampaignAttributionFallback | undefined {
   const latest = parseAttribution(cookieHeader, fallback.capturedAt)?.latest;
   if (latest?.at !== fallback.capturedAt) return fallback;
+  if (latest.landingId !== fallback.landingId) return fallback;
   for (const property of campaignPropertyNames) {
     if (latest.campaign[property] !== fallback.campaign[property]) {
       return fallback;
@@ -249,10 +275,37 @@ export function campaignPropertiesForAttributionFallback(
   if (!fallback) return {};
   return (
     normalizedTouch(
-      { at: fallback.capturedAt, campaign: fallback.campaign },
+      {
+        at: fallback.capturedAt,
+        campaign: fallback.campaign,
+        landingId: fallback.landingId,
+      },
       now,
     )?.campaign ?? {}
   );
+}
+
+export function campaignAttributionHandoff(
+  cookieHeader: string | null | undefined,
+  now = Date.now(),
+): CampaignAttributionHandoff | undefined {
+  const latest = parseAttribution(cookieHeader, now)?.latest;
+  if (!latest?.landingId) return;
+  return { capturedAt: latest.at, landingId: latest.landingId };
+}
+
+export function campaignAttributionPropertiesFromHandoff(
+  value: string | null | undefined,
+  now = Date.now(),
+): CampaignAttributionProperties {
+  const handoff = campaignAttributionHandoffFromValue(value);
+  if (!handoff || !isValidAttributionTimestamp(handoff.capturedAt, now)) {
+    return {};
+  }
+  return {
+    latest_campaign_at: new Date(handoff.capturedAt).toISOString(),
+    latest_campaign_landing_id: handoff.landingId,
+  };
 }
 
 export function expiredCampaignAttributionCookie(secure: boolean): string {

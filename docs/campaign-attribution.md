@@ -6,8 +6,9 @@ landing URLs with recognized UTM parameters. It is browser-readable because
 the first landing can happen before authentication, and it uses `SameSite=Lax`,
 `Path=/`, `Secure` on HTTPS, and a 90-day maximum age.
 
-The stored first and latest touches each contain only normalized UTM values and
-a capture time. Each touch expires independently after 90 days; when the older
+The stored first and latest touches each contain only normalized UTM values, a
+capture time, and the opaque PostHog landing-event UUID. Each touch expires
+independently after 90 days; when the older
 first touch expires, the still-valid latest touch becomes the first touch for
 the new retention window. Cookie input is untrusted: the server validates its
 version, timestamps, recognized fields, value lengths, and retention window before
@@ -22,18 +23,28 @@ follows the installed `posthog-js` 1.433.10 identity interface, which replaces
 the anonymous distinct ID and connects the prior anonymous history. Email is
 never used as a distinct ID.
 
+The CLI begins Clerk authorization through the first-party
+`/api/v1/oauth/authorize` bridge. That redirect copies only the latest landing
+UUID and capture time into OAuth state. After Clerk returns it, the CLI sends
+the bounded reference in `x-chofex-campaign-attribution`; the API revalidates
+its shape and 90-day lifetime before adding it to product events. This links a
+CLI conversion directly to its anonymous landing without exposing UTM values,
+participant data, or a reusable browser identity through OAuth.
+
 ## Reproducible campaign funnels
 
-Use `person_id`, rather than raw `distinct_id`, so PostHog's anonymous-to-Clerk
-identity merge joins the landing and authenticated server events. Replace the
-campaign literal when running each query.
+New conversions join directly to the landing event UUID carried through the
+cookie or CLI OAuth handoff. The `person_id` fallback, rather than raw
+`distinct_id`, keeps older browser events compatible with PostHog's
+anonymous-to-Clerk identity merge. Replace the campaign literal when running
+each query.
 
 Challenge-link outcomes:
 
 ```sql
 WITH campaign_landings AS (
     SELECT
-        uuid AS landing_id,
+        toString(uuid) AS landing_id,
         person_id,
         timestamp AS landed_at,
         properties.$utm_campaign AS landing_campaign
@@ -58,12 +69,18 @@ conversion_candidates AS (
         ) AS landing_rank
     FROM events AS conversions
     LEFT JOIN campaign_landings AS landings
-       ON conversions.person_id = landings.person_id
-       AND conversions.timestamp >= landings.landed_at - INTERVAL 5 MINUTE
+       ON conversions.timestamp >= landings.landed_at - INTERVAL 5 MINUTE
        AND conversions.timestamp < landings.landed_at + INTERVAL 30 DAY
        AND (
-           isNull(conversions.properties.latest_utm_campaign)
-           OR conversions.properties.latest_utm_campaign = landings.landing_campaign
+           conversions.properties.latest_campaign_landing_id = landings.landing_id
+           OR (
+               isNull(conversions.properties.latest_campaign_landing_id)
+               AND conversions.person_id = landings.person_id
+               AND (
+                   isNull(conversions.properties.latest_utm_campaign)
+                   OR conversions.properties.latest_utm_campaign = landings.landing_campaign
+               )
+           )
        )
     WHERE conversions.event IN (
         'challenge_query_completed',
@@ -100,7 +117,7 @@ different intent:
 ```sql
 WITH campaign_landings AS (
     SELECT
-        uuid AS landing_id,
+        toString(uuid) AS landing_id,
         person_id,
         timestamp AS landed_at,
         properties.$utm_campaign AS landing_campaign
@@ -123,12 +140,18 @@ conversion_candidates AS (
         ) AS landing_rank
     FROM events AS conversions
     LEFT JOIN campaign_landings AS landings
-       ON conversions.person_id = landings.person_id
-       AND conversions.timestamp >= landings.landed_at - INTERVAL 5 MINUTE
+       ON conversions.timestamp >= landings.landed_at - INTERVAL 5 MINUTE
        AND conversions.timestamp < landings.landed_at + INTERVAL 30 DAY
        AND (
-           isNull(conversions.properties.latest_utm_campaign)
-           OR conversions.properties.latest_utm_campaign = landings.landing_campaign
+           conversions.properties.latest_campaign_landing_id = landings.landing_id
+           OR (
+               isNull(conversions.properties.latest_campaign_landing_id)
+               AND conversions.person_id = landings.person_id
+               AND (
+                   isNull(conversions.properties.latest_utm_campaign)
+                   OR conversions.properties.latest_utm_campaign = landings.landing_campaign
+               )
+           )
        )
     WHERE conversions.event IN (
         'application_draft_saved',
@@ -153,12 +176,13 @@ FROM attributed_conversions
 ```
 
 Each qualifying landing opens its own 30-day conversion window. The `uniq`
-aggregates keep conversions from double-counting a person. Events with explicit
-`latest_utm_campaign` attribution match a preceding landing for that campaign.
-Cookieless CLI events instead use `row_number()` to select the nearest preceding
-qualifying campaign landing, so one conversion cannot count for every campaign
-the person visited. `chofex_campaign_landing` is set only when the raw pageview
-URL contains recognized UTM parameters; registered campaign properties on later
+aggregates keep conversions from double-counting a person. Conversions carrying
+`latest_campaign_landing_id` match their exact browser landing, including CLI
+conversions whose Clerk identity never appeared on the main site. Older events
+without that reference fall back to the merged PostHog person and campaign;
+`row_number()` selects only the nearest qualifying landing for that legacy
+fallback. `chofex_campaign_landing` is set only when the raw pageview URL
+contains recognized UTM parameters; registered campaign properties on later
 navigation pageviews do not extend or reclassify the landing. The lower join
 bound allows the same five minutes of browser/server clock skew as attribution
 cookie validation.

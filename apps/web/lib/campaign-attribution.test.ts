@@ -3,13 +3,16 @@ import { expect, test } from "bun:test";
 import {
   campaignAttributionCookieForLanding,
   campaignAttributionFallbackForLanding,
+  campaignAttributionHandoff,
   campaignAttributionProperties,
+  campaignAttributionPropertiesFromHandoff,
   campaignPropertiesForAttributionFallback,
   campaignPropertiesForAttributionLanding,
   latestCampaignProperties,
 } from "./campaign-attribution";
 
 const firstTouchAt = Date.UTC(2026, 8, 1, 12);
+const landingId = "018f47a2-89ab-7def-8123-456789abcdef";
 
 test("preserves first-touch attribution while replacing the latest touch", () => {
   const firstCookie = campaignAttributionCookieForLanding(
@@ -251,6 +254,55 @@ test("drops the in-memory fallback after a matching cookie readback", () => {
   expect(
     campaignAttributionFallbackForLanding(cookie, fallback),
   ).toBeUndefined();
+});
+
+test("keeps a newer failed-write fallback ahead of a stale readable cookie", () => {
+  const cookie = campaignAttributionCookieForLanding(
+    "https://hacktheandes.com/?utm_campaign=old",
+    "",
+    firstTouchAt,
+    true,
+  );
+  const fallback = {
+    capturedAt: firstTouchAt + 1,
+    campaign: { $utm_campaign: "new" },
+    landingId,
+  };
+
+  expect(campaignAttributionFallbackForLanding(cookie, fallback)).toEqual(
+    fallback,
+  );
+  expect(
+    campaignPropertiesForAttributionFallback(fallback, firstTouchAt + 1),
+  ).toEqual({ $utm_campaign: "new" });
+});
+
+test("hands an exact landing reference from the browser into CLI events", () => {
+  const cookie = campaignAttributionCookieForLanding(
+    "https://hacktheandes.com/?utm_campaign=cli",
+    "",
+    firstTouchAt,
+    true,
+    landingId,
+  );
+  const handoff = { capturedAt: firstTouchAt, landingId };
+
+  expect(campaignAttributionHandoff(cookie, firstTouchAt)).toEqual(handoff);
+  expect(
+    campaignAttributionPropertiesFromHandoff(
+      `${landingId}.${firstTouchAt}`,
+      firstTouchAt,
+    ),
+  ).toEqual({
+    latest_campaign_at: new Date(firstTouchAt).toISOString(),
+    latest_campaign_landing_id: landingId,
+  });
+  expect(
+    campaignAttributionPropertiesFromHandoff(
+      `${landingId}.${firstTouchAt}`,
+      firstTouchAt + 91 * 24 * 60 * 60 * 1000,
+    ),
+  ).toEqual({});
 });
 
 test("allows reasonable browser and server clock skew", () => {

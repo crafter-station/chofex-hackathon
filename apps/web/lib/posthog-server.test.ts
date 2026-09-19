@@ -54,6 +54,33 @@ test("adds attribution without changing application or challenge semantics", asy
   });
 });
 
+test("adds an exact landing reference handed off by the CLI", () => {
+  const landingId = "018f47a2-89ab-7def-8123-456789abcdef";
+  const request = new Request("https://hacktheandes.com/api/v1/registration", {
+    headers: {
+      "x-chofex-campaign-attribution": `${landingId}.${capturedAt}`,
+    },
+  });
+
+  expect(
+    productEventWithCampaignAttribution(
+      request,
+      {
+        distinctId: "user_123",
+        event: "application_submitted",
+      },
+      capturedAt,
+    ),
+  ).toMatchObject({
+    distinctId: "user_123",
+    event: "application_submitted",
+    properties: {
+      latest_campaign_at: new Date(capturedAt).toISOString(),
+      latest_campaign_landing_id: landingId,
+    },
+  });
+});
+
 test("server capture remains a safe no-op without PostHog configuration", async () => {
   await expect(
     captureProductEvent({

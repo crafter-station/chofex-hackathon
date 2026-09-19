@@ -37,6 +37,7 @@ const campaignLandingProperty = "chofex_campaign_landing";
 type CampaignLandingSnapshot = {
   readonly capturedAt: number;
   readonly campaign: CampaignProperties;
+  readonly landingId: string;
   readonly url: string;
 };
 
@@ -58,13 +59,18 @@ function writeBrowserCookie(cookie: string): void {
   }
 }
 
-function persistCampaignLanding(url: string, capturedAt = Date.now()): void {
+function persistCampaignLanding(
+  url: string,
+  capturedAt = Date.now(),
+  landingId?: string,
+): void {
   if (!isTrackableUrl(url)) return;
   const attributionCookie = campaignAttributionCookieForLanding(
     url,
     browserCookie(),
     capturedAt,
     window.location.protocol === "https:",
+    landingId,
   );
   if (attributionCookie) writeBrowserCookie(attributionCookie);
 }
@@ -80,17 +86,15 @@ function syncRegisteredCampaign(
   readonly campaign: CampaignProperties;
   readonly fallback: CampaignAttributionFallback | undefined;
 } {
-  const storedCampaign = latestCampaignProperties(browserCookie());
-  if (Object.keys(storedCampaign).length > 0) {
-    registerCampaign(storedCampaign);
-    return { campaign: storedCampaign, fallback: undefined };
+  const fallbackCampaign = campaignPropertiesForAttributionFallback(fallback);
+  if (Object.keys(fallbackCampaign).length > 0) {
+    registerCampaign(fallbackCampaign);
+    return { campaign: fallbackCampaign, fallback };
   }
 
-  const campaign = campaignPropertiesForAttributionFallback(fallback);
-  let retainedFallback = fallback;
-  if (Object.keys(campaign).length === 0) retainedFallback = undefined;
+  const campaign = latestCampaignProperties(browserCookie());
   registerCampaign(campaign);
-  return { campaign, fallback: retainedFallback };
+  return { campaign, fallback: undefined };
 }
 
 function isCampaignLandingEvent(event: CaptureResult): boolean {
@@ -189,6 +193,7 @@ export function PostHogAnalytics({
         rebuiltCookie,
         snapshot.capturedAt,
         secure,
+        snapshot.landingId,
       );
       if (!cookie) continue;
       writeBrowserCookie(cookie);
@@ -260,13 +265,14 @@ export function PostHogAnalytics({
           attributionSuppressed.current = false;
           if (pageviewUrl) {
             const capturedAt = Date.now();
-            persistCampaignLanding(pageviewUrl, capturedAt);
+            persistCampaignLanding(pageviewUrl, capturedAt, publicEvent.uuid);
             const landingCampaign =
               campaignPropertiesForAttributionLanding(pageviewUrl);
             if (Object.keys(landingCampaign).length > 0) {
               landingSnapshot = {
                 capturedAt,
                 campaign: landingCampaign,
+                landingId: publicEvent.uuid,
                 url: pageviewUrl,
               };
               eventForCampaign = {
