@@ -98,10 +98,9 @@ export const discordCopy = {
 } as const;
 
 export const eventCopy = {
-  title: "Crear soluciones reales para problemas reales",
-  lede: "Los verdaderos retos no siempre son los más trending. Requieren tiempo, esfuerzo y creatividad para resolver lo que los demás aceptan como status quo.",
-  support:
-    "Un entorno presencial diseñado para sostener trabajo exigente, conversaciones útiles y una entrega de alto nivel.",
+  title: "Un grupo exclusivo de hackers construyendo lo que el Perú necesita",
+  lede: "Únete a 100 personas que construyen y shippean para resolver problemas reales del país, no solo lo que está trending.",
+  support: `Más de ${formatSoles(prizePoolHeadlinePen)} en premios, comida, bebidas, energizantes, merch y 30 horas de una experiencia diseñada para hacer tu mejor trabajo.`,
 } as const;
 
 export const eventItems = [
@@ -115,7 +114,7 @@ export const eventItems = [
   },
   {
     title: "Work hard, Play Hard",
-    body: "100 personas, 30 horas, un mismo espacio. Comida incluida, música y zonas de silencio.",
+    body: "100 personas, 30 horas, un mismo espacio. Comida, bebidas, energizantes, merch, música y zonas de silencio.",
   },
   {
     title: "HardCore Mode",
@@ -278,9 +277,9 @@ export const applyCopy = {
   lede: "Registrarte no reserva un cupo. Envía tu postulación hasta el 9 de octubre de 2026 y cuéntanos qué construiste y shippeaste. Luego compite en los challenges: los mejores resultados ganan pase directo.",
   deadlineLabel: "Cierre de postulaciones",
   deadline: "9 oct 2026",
-  travelTitle: "¿Fuera de Lima?",
+  travelTitle: "¿Vives en otra ciudad del Perú?",
   travelSupport:
-    "Postula igual. Si demuestras que tienes lo necesario para estar en la hackathon y el costo del viaje es lo que te frena, cubriremos tus vuelos a Lima. El dinero no debería ser una barrera; encontraremos la forma.",
+    "Postula igual. Tenemos un presupuesto limitado para cubrir vuelos nacionales a Lima de participantes con talento excepcional que viven en otras ciudades del Perú. Evaluamos el apoyo caso por caso; no cubrimos vuelos internacionales.",
   criteriaTitle: "Qué revisamos",
   criteria: [
     "Evidencia en tu GitHub, LinkedIn o productos publicados de que construyes y shippeas.",
@@ -411,7 +410,7 @@ export const faqItems = [
   {
     question: "¿Puedo postular si vivo fuera de Lima?",
     answer:
-      "Sí. Queremos que postules estés donde estés. Si demuestras que tienes lo necesario para estar en la hackathon y el costo del viaje es lo que te frena, cubriremos tus vuelos a Lima. El dinero no debería ser una barrera; encontraremos la forma.",
+      "Sí. Tenemos un presupuesto limitado para cubrir vuelos nacionales a Lima de participantes con talento excepcional que viven en otras ciudades del Perú. Este apoyo se evalúa caso por caso y no cubre vuelos internacionales.",
   },
   {
     question: "¿Cuándo se revelan los tracks?",
