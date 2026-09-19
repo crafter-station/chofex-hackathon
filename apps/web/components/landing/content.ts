@@ -429,12 +429,20 @@ export const faqItems = [
 ] as const;
 
 export const footerCopy = {
+  eyebrow: "Hackathon presencial",
   meta: "Lima, 17–18 oct 2026",
-  legalLabel: "Legal",
+  tagline: "100 personas, 30 horas, una entrega funcionando.",
+  ctaTitle: "¿Listo para construir?",
+  ctaDescription: "Postulaciones abiertas hasta el 9 de octubre.",
+  cta: "Postular ahora",
+  sectionsLabel: "Explorar",
+  informationLabel: "Información",
+  community: "Discord",
   credits: "Créditos",
   terms: "Términos",
   privacy: "Privacidad",
-  ranking: "Challenges",
+  copyright: "© 2026 Hack the Andes",
+  organizer: "Organiza Crafter Station",
 } as const;
 
 export const chromeCopy = {
