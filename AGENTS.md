@@ -4,7 +4,7 @@
 - `apps/web` is the Next.js participant site, admin UI, `/api/v1` API, and Trigger.dev task host. `apps/docs` is a separate Next.js app on port 3001. `apps/cli/src/index.ts` is the published `chofex` executable.
 - `packages/registration-contract` and `packages/challenges-contract` are the shared schemas between the CLI and web API. Change wire formats there rather than duplicating types in an app. `packages/db/src/schema` owns the Drizzle schema; `packages/ui` owns shared UI primitives.
 - Read `CONTEXT.md` before changing participant/application lifecycle semantics. It defines distinctions such as participant vs. application and active vs. historical applications.
-- For either Next.js app, consult the installed Next 16 guides under that app's `node_modules/next/dist/docs/`; training-memory APIs may be stale. Preserve the generated instructions in `apps/web/AGENTS.md`.
+- Before changing either Next.js app, read the relevant installed Next 16 guide under that app's `node_modules/next/dist/docs/`; training-memory APIs may be stale. Also follow the committed `apps/web/AGENTS.md` for web work; `agentRules: false` means Next will not regenerate it.
 
 # Commands
 
@@ -25,8 +25,9 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/db bun run build
 
 - Use `bun --filter <package> <script>` for package-scoped work.
 - After editing `packages/db/src/schema`, run `bun --filter @chofex/db db:generate`; generated migrations live in `packages/db/drizzle`. `db:generate`, `db:migrate`, and `db:studio` require `DATABASE_URL`.
-- The pre-commit hook runs `bunx --bun @biomejs/biome check --write` across the repository, including import organization. Run it on changed paths first when you need to avoid unrelated hook-time edits.
-- GitHub Actions publishes the CLI and the production web image; it is not general CI. Run tests, lint, and type checks locally. The CLI publisher derives `0.1.<run_number>` from the approved default-branch tip; it does not require a manual package-version bump.
+- The pre-commit hook runs `bunx --bun @biomejs/biome check --write` across the repository, including import organization. Run `bunx --bun @biomejs/biome check --write <changed paths>` first so the hook does not rewrite unrelated files.
+- GitHub Actions is release/deployment automation, not general CI: main pushes publish and may deploy the production web image. Run tests, lint, and type checks locally. The CLI publisher derives `0.1.<run_number>` from the approved default-branch tip; do not bump `apps/cli/package.json` manually for a release.
+- Before using the production `deploy:*` scripts, read `deploy/README.md`. They load only `.env.production.local` plus process overrides; database migrations stay explicit, and apply requires `--confirm-production`.
 
 # Behavioral constraints
 
