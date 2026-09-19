@@ -59,7 +59,7 @@ conversion_candidates AS (
     FROM events AS conversions
     LEFT JOIN campaign_landings AS landings
        ON conversions.person_id = landings.person_id
-       AND conversions.timestamp >= landings.landed_at
+       AND conversions.timestamp >= landings.landed_at - INTERVAL 5 MINUTE
        AND conversions.timestamp < landings.landed_at + INTERVAL 30 DAY
        AND (
            isNull(conversions.properties.latest_utm_campaign)
@@ -124,7 +124,7 @@ conversion_candidates AS (
     FROM events AS conversions
     LEFT JOIN campaign_landings AS landings
        ON conversions.person_id = landings.person_id
-       AND conversions.timestamp >= landings.landed_at
+       AND conversions.timestamp >= landings.landed_at - INTERVAL 5 MINUTE
        AND conversions.timestamp < landings.landed_at + INTERVAL 30 DAY
        AND (
            isNull(conversions.properties.latest_utm_campaign)
@@ -159,7 +159,9 @@ Cookieless CLI events instead use `row_number()` to select the nearest preceding
 qualifying campaign landing, so one conversion cannot count for every campaign
 the person visited. `chofex_campaign_landing` is set only when the raw pageview
 URL contains recognized UTM parameters; registered campaign properties on later
-navigation pageviews do not extend or reclassify the landing.
+navigation pageviews do not extend or reclassify the landing. The lower join
+bound allows the same five minutes of browser/server clock skew as attribution
+cookie validation.
 
 The report and campaign operating artifacts remain the source for campaign
 names and link templates; do not duplicate recipient or message content here.

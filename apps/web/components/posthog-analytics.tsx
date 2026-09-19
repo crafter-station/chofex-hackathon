@@ -31,27 +31,44 @@ import {
 
 const campaignLandingProperty = "chofex_campaign_landing";
 
+type CampaignLandingSnapshot = {
+  readonly capturedAt: number;
+  readonly campaign: CampaignProperties;
+  readonly url: string;
+};
+
 function writeBrowserCookie(cookie: string): void {
   // biome-ignore lint/suspicious/noDocumentCookie: the server must receive pre-auth landing attribution
   document.cookie = cookie;
 }
 
-function persistCampaignLanding(url: string): void {
+function persistCampaignLanding(url: string, capturedAt = Date.now()): void {
   if (!isTrackableUrl(url)) return;
   const attributionCookie = campaignAttributionCookieForLanding(
     url,
     document.cookie,
-    Date.now(),
+    capturedAt,
     window.location.protocol === "https:",
   );
   if (attributionCookie) writeBrowserCookie(attributionCookie);
 }
 
-function syncRegisteredCampaign(): CampaignProperties {
-  const campaign = latestCampaignProperties(document.cookie);
+function registerCampaign(campaign: CampaignProperties): void {
   for (const property of campaignPropertyNames) posthog.unregister(property);
   posthog.register(campaign);
+}
+
+function syncRegisteredCampaign(): CampaignProperties {
+  const campaign = latestCampaignProperties(document.cookie);
+  registerCampaign(campaign);
   return campaign;
+}
+
+function isCampaignLandingEvent(event: CaptureResult): boolean {
+  return (
+    event.event === "$pageview" &&
+    event.properties[campaignLandingProperty] === true
+  );
 }
 
 function eventWithCampaign(
@@ -110,19 +127,48 @@ export function PostHogAnalytics({
   const attributionSuppressed = useRef(false);
   const identityReady = useRef(!identitySyncEnabled);
   const queuedEvents = useRef<CaptureResult[]>([]);
+  const queuedLandingSnapshots = useRef(
+    new Map<string, CampaignLandingSnapshot>(),
+  );
   const replayCampaign = useRef<CampaignProperties | undefined>(undefined);
 
   const beforeIdentityReset = useCallback(() => {
-    writeBrowserCookie(
-      expiredCampaignAttributionCookie(window.location.protocol === "https:"),
+    const campaignLandings = queuedEvents.current.filter(
+      isCampaignLandingEvent,
     );
-    attributionSuppressed.current = true;
-    queuedEvents.current.length = 0;
+    const landingSnapshots = campaignLandings.flatMap((event) => {
+      const snapshot = queuedLandingSnapshots.current.get(event.uuid);
+      return snapshot ? [snapshot] : [];
+    });
+    queuedEvents.current = campaignLandings;
+    queuedLandingSnapshots.current = new Map(
+      campaignLandings.flatMap((event) => {
+        const snapshot = queuedLandingSnapshots.current.get(event.uuid);
+        return snapshot ? [[event.uuid, snapshot]] : [];
+      }),
+    );
+
+    const secure = window.location.protocol === "https:";
+    writeBrowserCookie(expiredCampaignAttributionCookie(secure));
+    let rebuiltCookie = "";
+    for (const snapshot of landingSnapshots) {
+      const cookie = campaignAttributionCookieForLanding(
+        snapshot.url,
+        rebuiltCookie,
+        snapshot.capturedAt,
+        secure,
+      );
+      if (!cookie) continue;
+      writeBrowserCookie(cookie);
+      rebuiltCookie = cookie;
+    }
+    attributionSuppressed.current = campaignLandings.length === 0;
   }, []);
 
   const completeAnalyticsReadiness = useCallback(() => {
     identityReady.current = true;
     const queued = queuedEvents.current.splice(0);
+    queuedLandingSnapshots.current.clear();
     const identityEvents = queued.filter(
       (event) => event.event === "$identify" || event.event === "$set",
     );
@@ -168,12 +214,19 @@ export function PostHogAnalytics({
           return eventWithCampaign(publicEvent, queuedCampaign);
         }
         let eventForCampaign: CaptureResult = publicEvent;
+        let landingSnapshot: CampaignLandingSnapshot | undefined;
         if (publicEvent.event === "$pageview") {
           attributionSuppressed.current = false;
           if (pageviewUrl) {
-            persistCampaignLanding(pageviewUrl);
+            const capturedAt = Date.now();
+            persistCampaignLanding(pageviewUrl, capturedAt);
             const landingCampaign = campaignPropertiesFromUrl(pageviewUrl);
             if (Object.keys(landingCampaign).length > 0) {
+              landingSnapshot = {
+                capturedAt,
+                campaign: landingCampaign,
+                url: pageviewUrl,
+              };
               eventForCampaign = {
                 ...publicEvent,
                 properties: {
@@ -188,9 +241,19 @@ export function PostHogAnalytics({
         if (!attributionSuppressed.current) {
           campaign = syncRegisteredCampaign();
         }
+        if (landingSnapshot) {
+          campaign = landingSnapshot.campaign;
+          registerCampaign(campaign);
+        }
         const updatedEvent = eventWithCampaign(eventForCampaign, campaign);
         if (!identityReady.current) {
           queuedEvents.current.push(updatedEvent);
+          if (landingSnapshot) {
+            queuedLandingSnapshots.current.set(
+              updatedEvent.uuid,
+              landingSnapshot,
+            );
+          }
           return null;
         }
         return updatedEvent;
@@ -215,7 +278,12 @@ export function PostHogAnalytics({
       identityStorageFromBrowser(window),
       beforeIdentityReset,
     );
-    if (didResetIdentity && initialPageviewObserved.current) {
+    const preservedLanding = Array.from(
+      queuedLandingSnapshots.current.values(),
+    ).at(-1);
+    if (didResetIdentity && preservedLanding) {
+      registerCampaign(preservedLanding.campaign);
+    } else if (didResetIdentity && initialPageviewObserved.current) {
       // Replace the discarded landing; otherwise PostHog's pending initial
       // pageview will capture it after this identity decision.
       posthog.capture("$pageview");
