@@ -11,17 +11,22 @@ import { DeckPager } from "./deck-pager";
 
 export const dynamicParams = false;
 
+// A catch-all rather than one segment because a deck's slug can name a
+// translation: `main/en` is two segments and one deck. `dynamicParams = false`
+// above keeps the extra segment from widening what the route answers to —
+// anything this function did not list is a 404, same as before.
 export async function generateStaticParams() {
   const slugs = await listDecks();
-  return slugs.map((slug) => ({ slug }));
+  return slugs.map((slug) => ({ slug: slug.split("/") }));
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string[] }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug: segments } = await params;
+  const slug = segments.join("/");
   const deck = await loadDeck(slug);
   if (!deck) return {};
 
@@ -69,9 +74,10 @@ export async function generateMetadata({
 export default async function DeckPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string[] }>;
 }) {
-  const { slug } = await params;
+  const { slug: segments } = await params;
+  const slug = segments.join("/");
   const deck = await loadDeck(slug);
   if (!deck) notFound();
 

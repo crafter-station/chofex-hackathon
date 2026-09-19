@@ -233,31 +233,40 @@ export function DeckPager({
       </header>
 
       <main aria-atomic="true" aria-live="polite" className="deck-stage">
-        {slides.map((slide, index) => (
-          <section
-            aria-hidden={index !== activeIndex}
-            className="deck-slide"
-            data-active={index === activeIndex}
-            data-layout={slide.layout}
-            key={slide.id}
-          >
-            {/*
-             * The backdrop is its own element rather than a background on the
-             * section: it carries the plate, the scrim and the grain as three
-             * stacked layers, and `aria-hidden` keeps all of it out of the
-             * accessibility tree — it is atmosphere, never content.
-             */}
-            <div
-              aria-hidden="true"
-              className="deck-backdrop"
-              data-backdrop={slide.backdrop}
-              data-veil={slide.veil}
-            />
-            <div className="deck-slide-inner">
-              <div className="deck-slide-content">{slide.content}</div>
-            </div>
-          </section>
-        ))}
+        {/*
+         * The mat. Every slide sits inside it, plate included, so the design
+         * stays a bounded object on a black page instead of a wall that grows
+         * with the monitor. Past 16:9 it stops widening — a plate is 2048px of
+         * drawing, and covering an ultrawide with it scales past its own
+         * resolution.
+         */}
+        <div className="deck-stage-frame">
+          {slides.map((slide, index) => (
+            <section
+              aria-hidden={index !== activeIndex}
+              className="deck-slide"
+              data-active={index === activeIndex}
+              data-layout={slide.layout}
+              key={slide.id}
+            >
+              {/*
+               * The backdrop is its own element rather than a background on
+               * the section: it carries the plate, the scrim and the grain as
+               * three stacked layers, and `aria-hidden` keeps all of it out of
+               * the accessibility tree — it is atmosphere, never content.
+               */}
+              <div
+                aria-hidden="true"
+                className="deck-backdrop"
+                data-backdrop={slide.backdrop}
+                data-veil={slide.veil}
+              />
+              <div className="deck-slide-inner">
+                <div className="deck-slide-content">{slide.content}</div>
+              </div>
+            </section>
+          ))}
+        </div>
       </main>
 
       <div className="deck-controls">
