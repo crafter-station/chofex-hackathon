@@ -277,17 +277,20 @@ const loginCommand = Command.make(
   {},
   Effect.fn("loginCommand")(function* () {
     const options = yield* root;
-    const operation = Effect.tryPromise({
-      try: async () => {
-        await oauthLogin();
-        return {
-          version: 1 as const,
-          ok: true as const,
-          requestId: crypto.randomUUID(),
-          data: { authenticated: true as const },
-        };
-      },
-      catch: (error) => cliError("LOGIN_FAILED", String(error)),
+    const operation = Effect.gen(function* () {
+      const token = yield* Effect.tryPromise({
+        try: () => oauthLogin(),
+        catch: (error) => cliError("LOGIN_FAILED", String(error)),
+      });
+      yield* getCurrentUser({ apiUrl: options.apiUrl, token }).pipe(
+        Effect.catch(() => Effect.succeed(undefined)),
+      );
+      return {
+        version: 1 as const,
+        ok: true as const,
+        requestId: crypto.randomUUID(),
+        data: { authenticated: true as const },
+      };
     });
     yield* execute(options.output, operation, () => "Signed in successfully.");
   }),

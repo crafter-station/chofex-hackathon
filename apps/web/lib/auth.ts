@@ -1,5 +1,9 @@
 import { clerkClient } from "@clerk/nextjs/server";
 
+import {
+  configuredAdminIdsFrom,
+  userGrantsApplicationReviewAccess,
+} from "./admin/roles";
 import { HttpError } from "./registration/http";
 
 export interface AuthenticatedParticipant {
@@ -10,6 +14,8 @@ export interface AuthenticatedParticipant {
 export interface AuthenticatedParticipantProfile
   extends AuthenticatedParticipant {
   readonly email: string;
+  readonly firstName: string;
+  readonly canReviewApplications: boolean;
   readonly clerkPictureUrl?: string;
 }
 
@@ -119,6 +125,15 @@ export const requireAuthenticatedParticipantProfile = async (
   return {
     ...authentication,
     email: emailAddress.emailAddress.trim().toLowerCase(),
+    firstName: user.firstName ?? "",
+    canReviewApplications: userGrantsApplicationReviewAccess({
+      clerkUserId: authentication.clerkUserId,
+      configuredAdminIds: configuredAdminIdsFrom(
+        process.env.ADMIN_CLERK_USER_IDS,
+      ),
+      publicMetadata: user.publicMetadata,
+      privateMetadata: user.privateMetadata,
+    }),
     clerkPictureUrl: user.hasImage ? user.imageUrl : undefined,
   };
 };
