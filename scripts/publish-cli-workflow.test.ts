@@ -24,6 +24,10 @@ test("publishes the CLI only for main pushes that can affect the package", () =>
   expect(workflow).toContain(mainPushTrigger);
   expect(workflow).toContain("name: Detect CLI release changes");
   expect(workflow).toContain("releases/latest");
+  expect(workflow).toContain(
+    "npm --prefix apps/cli --workspaces=false view chofex-cli version",
+  );
+  expect(workflow).toContain('[[ "$latest_tag" != "v${npm_version}" ]]');
   expect(workflow).toContain("turbo ls --affected --output=json");
   expect(workflow).toContain('.name == "chofex-cli"');
   expect(workflow).toContain("needs: detect-release");
@@ -56,6 +60,7 @@ test("requeues the current main tip when a stale release held the queue", () => 
   expect(publishJob).toContain("needs.publish.outputs.stale == 'true'");
   expect(publishJob).toContain("releases/latest");
   expect(publishJob).toContain("gh run watch");
+  expect(publishJob).toContain('if ! existing_runs="$(gh run list');
   expect(publishJob).toContain('.name == "Publish chofex-cli"');
   expect(publishJob).toContain('"$publish_conclusion" == "success"');
   expect(publishJob).toContain("gh workflow run publish-cli.yml");
