@@ -30,7 +30,7 @@ export function LandingSponsors() {
           {partners.map((partner) => (
             <li className="bg-[var(--hud-paper)]" key={partner.id}>
               <a
-                className="flex h-full flex-col justify-between gap-8 p-6 transition-opacity hover:opacity-80 sm:p-8"
+                className="grid h-full grid-rows-[auto_4rem] gap-8 p-6 transition-opacity hover:opacity-80 sm:p-8"
                 href={partner.href}
                 rel="noreferrer"
                 target="_blank"
@@ -38,14 +38,9 @@ export function LandingSponsors() {
                 <BrandKicker className="text-[var(--hud-ink)]/60">
                   {partner.role}
                 </BrandKicker>
-                {/*
-                 * `self-start` matters: this is a flex column, and a stretched
-                 * item would have the mark filling the card's width with its
-                 * height pinned — which squashes a square lockup into a smear.
-                 */}
                 <Image
                   alt={partner.name}
-                  className={`w-auto self-start ${
+                  className={`w-auto self-center justify-self-start ${
                     partner.shape === "stacked" ? "h-16" : "h-9 sm:h-10"
                   }`}
                   height={partner.logoHeight}
