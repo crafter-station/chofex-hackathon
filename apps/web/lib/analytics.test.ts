@@ -163,3 +163,30 @@ test("removes private initial URLs from identity events on public pages", () => 
     },
   });
 });
+
+test("removes excluded referrer and history URLs from public events", () => {
+  const pageview: {
+    $set_once?: Record<string, unknown>;
+    event?: string;
+    properties?: Record<string, unknown>;
+  } = {
+    $set_once: {
+      $initial_current_url: "https://hacktheandes.com/auth/complete",
+    },
+    event: "$pageview",
+    properties: {
+      $current_url: "https://hacktheandes.com/challenges",
+      $prev_pageview_pathname: "/admin/participants",
+      $referrer: "https://hacktheandes.com/auth/complete?token=private",
+      challenge_count: 1,
+    },
+  };
+  expect(postHogEventForPublicAnalytics(pageview)).toEqual({
+    $set_once: {},
+    event: "$pageview",
+    properties: {
+      $current_url: "https://hacktheandes.com/challenges",
+      challenge_count: 1,
+    },
+  });
+});

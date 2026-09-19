@@ -128,6 +128,30 @@ function withoutLocationProperties(
   return sanitizedProperties;
 }
 
+function withoutExcludedLocationProperties(
+  properties: Record<string, unknown> | undefined,
+): Record<string, unknown> {
+  const sanitizedProperties = { ...properties };
+  for (const [property, value] of Object.entries(sanitizedProperties)) {
+    if (!isLocationProperty(property)) continue;
+    if (property.toLowerCase().includes("referr")) {
+      delete sanitizedProperties[property];
+      continue;
+    }
+    if (typeof value !== "string") {
+      delete sanitizedProperties[property];
+      continue;
+    }
+    try {
+      const url = new URL(value, "https://hacktheandes.com");
+      if (!isTrackablePath(url.pathname)) delete sanitizedProperties[property];
+    } catch {
+      delete sanitizedProperties[property];
+    }
+  }
+  return sanitizedProperties;
+}
+
 /** Excluded screens may link identity, but their location data must never leave the app. */
 export function postHogEventForPublicAnalytics<T extends AnalyticsEvent>(
   event: T | null,
@@ -147,6 +171,20 @@ export function postHogEventForPublicAnalytics<T extends AnalyticsEvent>(
     }
     return sanitizedEvent as T;
   }
-  if (isTrackableUrl(event.properties?.$current_url)) return event;
+  if (isTrackableUrl(event.properties?.$current_url)) {
+    const sanitizedEvent: AnalyticsEvent = {
+      ...event,
+      properties: withoutExcludedLocationProperties(event.properties),
+    };
+    if (event.$set) {
+      sanitizedEvent.$set = withoutExcludedLocationProperties(event.$set);
+    }
+    if (event.$set_once) {
+      sanitizedEvent.$set_once = withoutExcludedLocationProperties(
+        event.$set_once,
+      );
+    }
+    return sanitizedEvent as T;
+  }
   return null;
 }
