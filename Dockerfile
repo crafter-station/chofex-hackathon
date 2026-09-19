@@ -1,9 +1,16 @@
 # syntax=docker/dockerfile:1.7
 
+FROM oven/bun:1.3.14 AS pruner
+WORKDIR /app
+
+RUN bun install --global turbo@2.10.12
+COPY . .
+RUN turbo prune @chofex/web --docker
+
 FROM oven/bun:1.3.14 AS dependencies
 WORKDIR /app
 
-COPY . .
+COPY --from=pruner /app/out/json/ ./
 RUN bun install --frozen-lockfile
 
 FROM node:24-bookworm-slim AS builder
@@ -27,7 +34,8 @@ ENV NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=${NEXT_PUBLIC_CLERK_SIGN_UP_
 ENV NEXT_PUBLIC_POSTHOG_KEY=${NEXT_PUBLIC_POSTHOG_KEY}
 ENV NEXT_PUBLIC_POSTHOG_HOST=${NEXT_PUBLIC_POSTHOG_HOST}
 
-COPY --from=dependencies /app /app
+COPY --from=dependencies /app/node_modules ./node_modules
+COPY --from=pruner /app/out/full/ ./
 
 RUN test -n "$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
 WORKDIR /app/apps/web
