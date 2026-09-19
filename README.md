@@ -156,7 +156,9 @@ groups are:
 
 - **Core:** `DATABASE_URL`, Clerk publishable and secret keys,
   `CLERK_CLI_OAUTH_CLIENT_ID`, `CLERK_OAUTH_ISSUER`, and
-  `CLERK_AUTHORIZED_PARTIES`.
+  `CLERK_AUTHORIZED_PARTIES`. Funnel reminders additionally require a Clerk
+  `session.created` webhook pointing to `/api/webhooks/clerk` and its
+  `CLERK_WEBHOOK_SIGNING_SECRET`.
 - **Attendance:** `PARTICIPANT_DATA_ENCRYPTION_KEY` encrypts national ID or
   passport numbers with AES-256-GCM. A public Vercel Blob store and
   `BLOB_READ_WRITE_TOKEN` enable custom profile pictures.
@@ -169,7 +171,7 @@ groups are:
   in Clerk private metadata; `ADMIN_CLERK_USER_IDS` is an optional break-glass
   list. PostHog is disabled when `NEXT_PUBLIC_POSTHOG_KEY` is unset.
 
-Badge generation runs in Trigger.dev after attendance confirmation and is not
+Badge generation and two-hour funnel reminders run in Trigger.dev and are not
 started by `bun dev`. Set `TRIGGER_SECRET_KEY` in the web environment, then set
 `DATABASE_URL`, `BLOB_READ_WRITE_TOKEN`, `AI_GATEWAY_API_KEY`, and
 `RESEND_API_KEY` in the matching Trigger.dev environment. Run tasks locally or
