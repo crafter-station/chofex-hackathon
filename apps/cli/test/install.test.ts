@@ -19,10 +19,12 @@ const temporaryDirectories: string[] = [];
 async function installForBash({
   home,
   installDirectory,
+  path,
   source,
 }: {
   home: string;
   installDirectory: string;
+  path?: string;
   source: string;
 }) {
   return execFileAsync(
@@ -38,6 +40,7 @@ async function installForBash({
       env: {
         ...process.env,
         HOME: home,
+        PATH: path ?? process.env.PATH,
         SHELL: "/bin/bash",
       },
     },
@@ -236,34 +239,34 @@ exec /bin/mv "$@"
     );
   });
 
-  test("keeps a completed install successful when HOME is read-only", async () => {
+  test("keeps a completed install successful when startup files cannot be created", async () => {
     const directory = await mkdtemp(
-      join(tmpdir(), "chofex-readonly-home-test-"),
+      join(tmpdir(), "chofex-shell-config-failure-test-"),
     );
     temporaryDirectories.push(directory);
     const home = join(directory, "home");
+    const fakeBin = join(directory, "fake-bin");
     const source = join(directory, "source-chofex");
     const installDirectory = join(directory, "installed");
     await mkdir(home);
+    await mkdir(fakeBin);
     await writeFile(source, "chofex");
-    await chmod(home, 0o555);
+    await writeFile(join(fakeBin, "touch"), "#!/bin/sh\nexit 1\n");
+    await chmod(join(fakeBin, "touch"), 0o755);
 
-    try {
-      const result = await installForBash({
-        home,
-        installDirectory,
-        source,
-      });
+    const result = await installForBash({
+      home,
+      installDirectory,
+      path: `${fakeBin}:${process.env.PATH}`,
+      source,
+    });
 
-      expect(await readFile(join(installDirectory, "chofex"), "utf8")).toBe(
-        "chofex",
-      );
-      expect(result.stdout).toContain(
-        "Could not update every shell startup file",
-      );
-      expect(result.stdout).toContain(`export PATH=${installDirectory}:$PATH`);
-    } finally {
-      await chmod(home, 0o755);
-    }
+    expect(await readFile(join(installDirectory, "chofex"), "utf8")).toBe(
+      "chofex",
+    );
+    expect(result.stdout).toContain(
+      "Could not update every shell startup file",
+    );
+    expect(result.stdout).toContain(`export PATH=${installDirectory}:$PATH`);
   });
 });
