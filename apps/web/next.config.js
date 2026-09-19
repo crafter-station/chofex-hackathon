@@ -9,8 +9,15 @@ const nextConfig = {
   output: "standalone",
   outputFileTracingRoot: path.join(projectDirectory, "../.."),
   transpilePackages: ["three", "@chofex/challenges-contract"],
-  // Decks are compiled at build time from content/decks; the tracer cannot see
-  // the directory through fs reads, so pin it explicitly.
+  // Decks are compiled at build time from content/decks, which the route
+  // reaches through fs reads — the one thing the tracer is not obliged to
+  // follow. This pins the directory so it cannot be left out.
+  //
+  // Measured on Next 16.3.4 with `output: "standalone"`: today it is redundant.
+  // Dropping this key entirely still left all 48 deck files in the standalone
+  // output, so nothing currently depends on it. It stays as insurance, and the
+  // key has to keep naming a real route — a key that matches nothing is not
+  // insurance, it is a comment that reads like one.
   outputFileTracingIncludes: {
     "/deck/[...slug]": ["./content/decks/**/*"],
   },
