@@ -16,6 +16,37 @@ const execFileAsync = promisify(execFile);
 const installerPath = new URL("../../web/public/install", import.meta.url);
 const temporaryDirectories: string[] = [];
 
+async function installForBash({
+  home,
+  installDirectory,
+  path,
+  source,
+}: {
+  home: string;
+  installDirectory: string;
+  path?: string;
+  source: string;
+}) {
+  return execFileAsync(
+    "bash",
+    [
+      installerPath.pathname,
+      "--binary",
+      source,
+      "--install-dir",
+      installDirectory,
+    ],
+    {
+      env: {
+        ...process.env,
+        HOME: home,
+        PATH: path ?? process.env.PATH,
+        SHELL: "/bin/bash",
+      },
+    },
+  );
+}
+
 afterEach(async () => {
   await Promise.all(
     temporaryDirectories
@@ -131,28 +162,111 @@ exec /bin/mv "$@"
     await writeFile(bashrc, "# interactive\n");
     await writeFile(bashProfile, "# login\n");
 
-    await execFileAsync(
-      "bash",
-      [
-        installerPath.pathname,
-        "--binary",
-        source,
-        "--install-dir",
-        installDirectory,
-      ],
-      {
-        env: {
-          ...process.env,
-          HOME: directory,
-          SHELL: "/bin/bash",
-        },
-      },
-    );
+    await installForBash({
+      home: directory,
+      installDirectory,
+      source,
+    });
 
     for (const configFile of [bashrc, bashProfile]) {
       expect(await readFile(configFile, "utf8")).toContain(
         `export PATH=${installDirectory.replace(" ", "\\ ")}:$PATH`,
       );
     }
+  });
+
+  test("creates Bash startup files when none exist", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "chofex-new-shell-test-"));
+    temporaryDirectories.push(directory);
+    const source = join(directory, "source-chofex");
+    const installDirectory = join(directory, "installed");
+    await writeFile(source, "chofex");
+
+    await installForBash({
+      home: directory,
+      installDirectory,
+      source,
+    });
+
+    for (const name of [".bashrc", ".bash_profile"]) {
+      expect(await readFile(join(directory, name), "utf8")).toContain(
+        `export PATH=${installDirectory}:$PATH`,
+      );
+    }
+  });
+
+  test("configures both Bash startup modes when only one exists", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "chofex-one-shell-test-"));
+    temporaryDirectories.push(directory);
+    const source = join(directory, "source-chofex");
+    const installDirectory = join(directory, "installed");
+    await writeFile(source, "chofex");
+    await writeFile(join(directory, ".bashrc"), "# existing\n");
+
+    await installForBash({
+      home: directory,
+      installDirectory,
+      source,
+    });
+
+    for (const name of [".bashrc", ".bash_profile"]) {
+      expect(await readFile(join(directory, name), "utf8")).toContain(
+        `export PATH=${installDirectory}:$PATH`,
+      );
+    }
+  });
+
+  test("does not shadow an existing Bash login configuration", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "chofex-login-shell-test-"));
+    temporaryDirectories.push(directory);
+    const source = join(directory, "source-chofex");
+    const installDirectory = join(directory, "installed");
+    const bashLogin = join(directory, ".bash_login");
+    await writeFile(source, "chofex");
+    await writeFile(bashLogin, "# existing login config\n");
+
+    await installForBash({
+      home: directory,
+      installDirectory,
+      source,
+    });
+
+    expect(await readFile(bashLogin, "utf8")).toContain(
+      `export PATH=${installDirectory}:$PATH`,
+    );
+    expect(await Bun.file(join(directory, ".bash_profile")).exists()).toBe(
+      false,
+    );
+  });
+
+  test("keeps a completed install successful when startup files cannot be created", async () => {
+    const directory = await mkdtemp(
+      join(tmpdir(), "chofex-shell-config-failure-test-"),
+    );
+    temporaryDirectories.push(directory);
+    const home = join(directory, "home");
+    const fakeBin = join(directory, "fake-bin");
+    const source = join(directory, "source-chofex");
+    const installDirectory = join(directory, "installed");
+    await mkdir(home);
+    await mkdir(fakeBin);
+    await writeFile(source, "chofex");
+    await writeFile(join(fakeBin, "touch"), "#!/bin/sh\nexit 1\n");
+    await chmod(join(fakeBin, "touch"), 0o755);
+
+    const result = await installForBash({
+      home,
+      installDirectory,
+      path: `${fakeBin}:${process.env.PATH}`,
+      source,
+    });
+
+    expect(await readFile(join(installDirectory, "chofex"), "utf8")).toBe(
+      "chofex",
+    );
+    expect(result.stdout).toContain(
+      "Could not update every shell startup file",
+    );
+    expect(result.stdout).toContain(`export PATH=${installDirectory}:$PATH`);
   });
 });

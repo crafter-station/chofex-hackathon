@@ -223,16 +223,40 @@ if [[ "$current_shell" == "fish" ]]; then
   path_command="fish_add_path '$fish_escaped_install_dir'"
 fi
 
+path_setup_incomplete=false
+create_config_file() {
+  local config_file="$1"
+  if mkdir -p "$(dirname "$config_file")" 2>/dev/null && \
+    touch "$config_file" 2>/dev/null; then
+    config_files+=("$config_file")
+    return
+  fi
+  path_setup_incomplete=true
+}
+
 if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
+  fallback_config_file=""
+  bash_login_candidates=()
   case "$current_shell" in
     fish)
       candidates=("$HOME/.config/fish/config.fish")
+      fallback_config_file="$HOME/.config/fish/config.fish"
       ;;
     zsh)
       candidates=("${ZDOTDIR:-$HOME}/.zshrc" "${ZDOTDIR:-$HOME}/.zshenv")
+      fallback_config_file="${ZDOTDIR:-$HOME}/.zshrc"
+      ;;
+    bash)
+      bash_login_candidates=(
+        "$HOME/.bash_profile"
+        "$HOME/.bash_login"
+        "$HOME/.profile"
+      )
+      candidates=("$HOME/.bashrc" "${bash_login_candidates[@]}")
       ;;
     *)
-      candidates=("$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile")
+      candidates=("$HOME/.profile")
+      fallback_config_file="$HOME/.profile"
       ;;
   esac
   config_files=()
@@ -241,12 +265,29 @@ if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
       config_files+=("$candidate")
     fi
   done
+  if [[ "$current_shell" == "bash" ]]; then
+    if [[ ! -f "$HOME/.bashrc" ]]; then
+      create_config_file "$HOME/.bashrc"
+    fi
+    login_config_found=false
+    for config_file in "${bash_login_candidates[@]}"; do
+      if [[ -f "$config_file" ]]; then
+        login_config_found=true
+      fi
+    done
+    if [[ "$login_config_found" == "false" ]]; then
+      create_config_file "$HOME/.bash_profile"
+    fi
+  elif [[ "${#config_files[@]}" -eq 0 ]]; then
+    create_config_file "$fallback_config_file"
+  fi
   if [[ "${#config_files[@]}" -gt 0 ]]; then
     for config_file in "${config_files[@]}"; do
       add_to_path "$config_file" "$path_command"
     done
-  else
-    printf "%bAdd chofex to PATH in your shell configuration:%b\n  %s\n" \
+  fi
+  if [[ "$path_setup_incomplete" == "true" ]]; then
+    printf "%bCould not update every shell startup file. Add chofex to PATH manually:%b\n  %s\n" \
       "$ORANGE" "$NC" "$path_command"
   fi
 fi
