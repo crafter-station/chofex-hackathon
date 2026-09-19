@@ -85,7 +85,9 @@ const environmentAssignments = (source: string): EnvironmentAssignment[] => {
       if (quote) continued.quote = quote;
       else continued = undefined;
     } else {
-      const match = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=/.exec(line);
+      const match = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_.-]*)\s*=/.exec(
+        line,
+      );
       const name = match?.[1];
       if (name && match) {
         const assignment = { name, start: offset, end: contentEnd };
