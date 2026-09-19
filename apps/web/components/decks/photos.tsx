@@ -6,6 +6,30 @@ import { createContext, type ReactNode, useContext } from "react";
 // slides out through an explicit provider.
 const DeckMediaLoadContext = createContext(true);
 
+function DeckPhoto({
+  src,
+  alt,
+  interactiveOnly = false,
+}: {
+  src: string;
+  alt: string;
+  interactiveOnly?: boolean;
+}) {
+  // These stay plain images because each source already ships as a compressed
+  // AVIF at its maximum rendered size.
+  return (
+    // biome-ignore lint/performance/noImgElement: pre-sized static AVIF
+    <img
+      alt={alt}
+      className="deck-photo"
+      data-interactive-only={interactiveOnly || undefined}
+      decoding="async"
+      fetchPriority="low"
+      src={src}
+    />
+  );
+}
+
 export function DeckMediaLoadProvider({
   children,
   shouldLoad,
@@ -40,19 +64,19 @@ export function Photos({
       <div className="deck-photo-row">
         {shouldLoad
           ? items.map((item) => (
-              // These stay plain images because each source already ships as a
-              // compressed AVIF at its maximum rendered size.
-              // biome-ignore lint/performance/noImgElement: pre-sized static AVIF
-              <img
+              <DeckPhoto
                 alt={item.alt}
-                className="deck-photo"
-                decoding="async"
-                fetchPriority="low"
+                interactiveOnly
                 key={item.src}
                 src={item.src}
               />
             ))
           : null}
+        <noscript>
+          {items.map((item) => (
+            <DeckPhoto alt={item.alt} key={item.src} src={item.src} />
+          ))}
+        </noscript>
       </div>
       {caption ? (
         <figcaption className="deck-photo-caption">{caption}</figcaption>
