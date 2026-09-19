@@ -53,17 +53,15 @@ const unclosedQuote = (value: string, continued?: Quote): Quote | undefined => {
 
   for (let index = start; index < value.length; index += 1) {
     if (value[index] !== quote) continue;
-    if (quote === '"') {
-      let backslashes = 0;
-      for (
-        let previous = index - 1;
-        previous >= 0 && value[previous] === "\\";
-        previous -= 1
-      ) {
-        backslashes += 1;
-      }
-      if (backslashes % 2 === 1) continue;
+    let backslashes = 0;
+    for (
+      let previous = index - 1;
+      previous >= 0 && value[previous] === "\\";
+      previous -= 1
+    ) {
+      backslashes += 1;
     }
+    if (backslashes % 2 === 1) continue;
     return;
   }
   return quote;
