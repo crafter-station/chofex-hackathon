@@ -78,7 +78,8 @@ compare its tag with npm's `latest` version:
 
 ```sh
 npm_version="$(npm --prefix apps/cli --workspaces=false view chofex-cli version)"
-release_tag="$(gh release list --limit 1 --json tagName,isLatest --jq 'map(select(.isLatest))[0].tagName')"
+repository="$(gh repo view --json nameWithOwner --jq '.nameWithOwner')"
+release_tag="$(gh api "repos/${repository}/releases/latest" --jq '.tag_name')"
 release_target="$(gh release view "$release_tag" --json targetCommitish --jq '.targetCommitish')"
 gh release view "$release_tag" \
   --json tagName,isDraft,publishedAt,url,targetCommitish

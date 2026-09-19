@@ -40,10 +40,19 @@ jobs:
             exit 0
           fi
 
-          latest_tag="$(gh release list --limit 1 --json tagName,isLatest --jq 'map(select(.isLatest))[0].tagName // empty')"
-          if [[ -z "$latest_tag" ]]; then
-            echo "should_publish=true" >> "$GITHUB_OUTPUT"
-            exit 0
+          release_error="$(mktemp)"
+          if latest_tag="$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq '.tag_name' 2>"$release_error")"; then
+            rm -f "$release_error"
+          else
+            status="$?"
+            if grep -q "HTTP 404" "$release_error"; then
+              rm -f "$release_error"
+              echo "should_publish=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            cat "$release_error" >&2
+            rm -f "$release_error"
+            exit "$status"
           fi
 
           release_commit="$(gh release view "$latest_tag" --json targetCommitish --jq '.targetCommitish')"
