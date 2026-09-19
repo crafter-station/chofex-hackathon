@@ -9,6 +9,7 @@ const attributionCookieName = "chofex_campaign_attribution";
 const attributionRetentionSeconds = 90 * 24 * 60 * 60;
 const attributionRetentionMilliseconds = attributionRetentionSeconds * 1000;
 const maximumEncodedCampaignValueLength = 200;
+const maximumCookieLength = 3800;
 
 type CampaignTouch = {
   readonly at: number;
@@ -23,7 +24,10 @@ type CampaignAttribution = {
 
 export type CampaignAttributionProperties = Record<string, string>;
 
-function cookieSafeCampaign(campaign: CampaignProperties): CampaignProperties {
+function cookieSafeCampaign(
+  campaign: CampaignProperties,
+  maximumEncodedValueLength = maximumEncodedCampaignValueLength,
+): CampaignProperties {
   const cookieSafeProperties: Record<string, string> = {};
   for (const [property, value] of Object.entries(campaign)) {
     if (!value) continue;
@@ -32,11 +36,12 @@ function cookieSafeCampaign(campaign: CampaignProperties): CampaignProperties {
     for (const character of value) {
       let characterLength: number;
       try {
-        characterLength = encodeURIComponent(character).length;
+        const jsonCharacter = JSON.stringify(character).slice(1, -1);
+        characterLength = encodeURIComponent(jsonCharacter).length;
       } catch {
         continue;
       }
-      if (encodedLength + characterLength > maximumEncodedCampaignValueLength) {
+      if (encodedLength + characterLength > maximumEncodedValueLength) {
         break;
       }
       encodedLength += characterLength;
@@ -137,6 +142,33 @@ function serializedCookie(
   return attributes.join("; ");
 }
 
+function serializedAttributionCookie(
+  attribution: CampaignAttribution,
+  secure: boolean,
+): string | undefined {
+  for (
+    let valueLength = maximumEncodedCampaignValueLength;
+    valueLength > 0;
+    valueLength -= 10
+  ) {
+    const boundedAttribution: CampaignAttribution = {
+      version: 1,
+      first: {
+        ...attribution.first,
+        campaign: cookieSafeCampaign(attribution.first.campaign, valueLength),
+      },
+      latest: {
+        ...attribution.latest,
+        campaign: cookieSafeCampaign(attribution.latest.campaign, valueLength),
+      },
+    };
+    const value = encodeURIComponent(JSON.stringify(boundedAttribution));
+    const cookie = serializedCookie(value, attributionRetentionSeconds, secure);
+    if (cookie.length <= maximumCookieLength) return cookie;
+  }
+  return;
+}
+
 /** Returns a cookie assignment only when the URL is a public campaign landing. */
 export function campaignAttributionCookieForLanding(
   url: string,
@@ -148,10 +180,7 @@ export function campaignAttributionCookieForLanding(
   if (!latest) return;
   const existing = parseAttribution(cookieHeader, now);
   const first = existing?.first ?? latest;
-  const value = encodeURIComponent(
-    JSON.stringify({ version: 1, first, latest } satisfies CampaignAttribution),
-  );
-  return serializedCookie(value, attributionRetentionSeconds, secure);
+  return serializedAttributionCookie({ version: 1, first, latest }, secure);
 }
 
 function appendTouchProperties(

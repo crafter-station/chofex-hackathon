@@ -71,12 +71,17 @@ export function PostHogAnalytics({
       api_host: posthogHost,
       capture_pageview: false,
       defaults: "2025-05-24",
-      before_send: postHogEventForPublicAnalytics,
+      before_send: (event) => {
+        const publicEvent = postHogEventForPublicAnalytics(event);
+        if (publicEvent?.event === "$pageview") captureCampaignLanding();
+        return publicEvent;
+      },
     });
     initialized.current = true;
-    captureCampaignLanding();
     if (!identitySyncEnabled) {
+      captureCampaignLanding();
       posthog.capture("$pageview");
+      posthog.set_config({ capture_pageview: "history_change" });
       initialPageviewCaptured.current = true;
     }
   }, [canInitialize, identitySyncEnabled]);
@@ -99,10 +104,11 @@ export function PostHogAnalytics({
       writeBrowserCookie(
         expiredCampaignAttributionCookie(window.location.protocol === "https:"),
       );
-      if (identityUserId) captureCampaignLanding();
     }
+    captureCampaignLanding();
     if (!initialPageviewCaptured.current) {
       posthog.capture("$pageview");
+      posthog.set_config({ capture_pageview: "history_change" });
       initialPageviewCaptured.current = true;
     }
   }, [identitySyncEnabled, identityIsLoaded, identityUserId]);

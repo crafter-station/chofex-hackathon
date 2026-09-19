@@ -142,37 +142,42 @@ test("retains a fresh latest touch after the older first touch expires", () => {
   });
 });
 
-test("keeps the encoded cookie within browser limits for Unicode values", () => {
-  const unicodeValue = "🏔️".repeat(200);
-  const url = new URL("https://hacktheandes.com/");
-  for (const parameter of [
-    "utm_source",
-    "utm_medium",
-    "utm_campaign",
-    "utm_content",
-    "utm_term",
+test("keeps encoded Unicode and escaped values within browser cookie limits", () => {
+  for (const largeValue of [
+    "🏔️".repeat(200),
+    "\\".repeat(200),
+    "\u0000".repeat(200),
   ]) {
-    url.searchParams.set(parameter, unicodeValue);
+    const url = new URL("https://hacktheandes.com/");
+    for (const parameter of [
+      "utm_source",
+      "utm_medium",
+      "utm_campaign",
+      "utm_content",
+      "utm_term",
+    ]) {
+      url.searchParams.set(parameter, largeValue);
+    }
+
+    const firstCookie = campaignAttributionCookieForLanding(
+      url.toString(),
+      "",
+      firstTouchAt,
+      true,
+    );
+    const latestCookie = campaignAttributionCookieForLanding(
+      url.toString(),
+      firstCookie,
+      firstTouchAt + 1,
+      true,
+    );
+
+    expect(latestCookie?.length).toBeLessThan(4096);
+    expect(
+      campaignAttributionProperties(latestCookie, firstTouchAt + 1),
+    ).toMatchObject({
+      first_utm_campaign: expect.any(String),
+      latest_utm_campaign: expect.any(String),
+    });
   }
-
-  const firstCookie = campaignAttributionCookieForLanding(
-    url.toString(),
-    "",
-    firstTouchAt,
-    true,
-  );
-  const latestCookie = campaignAttributionCookieForLanding(
-    url.toString(),
-    firstCookie,
-    firstTouchAt + 1,
-    true,
-  );
-
-  expect(latestCookie?.length).toBeLessThan(4096);
-  expect(
-    campaignAttributionProperties(latestCookie, firstTouchAt + 1),
-  ).toMatchObject({
-    first_utm_campaign: expect.any(String),
-    latest_utm_campaign: expect.any(String),
-  });
 });
