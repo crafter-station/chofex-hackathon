@@ -27,7 +27,7 @@ test("publishes the CLI only for main pushes that can affect the package", () =>
   expect(workflow).toContain(
     "npm --prefix apps/cli --workspaces=false view chofex-cli version",
   );
-  expect(workflow).toContain('[[ "$latest_tag" != "v${npm_version}" ]]');
+  expect(workflow).toContain('[[ "$latest_tag" != "v$' + '{npm_version}" ]]');
   expect(workflow).toContain("turbo ls --affected --output=json");
   expect(workflow).toContain('.name == "chofex-cli"');
   expect(workflow).toContain("needs: detect-release");

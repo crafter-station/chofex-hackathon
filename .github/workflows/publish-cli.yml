@@ -72,6 +72,13 @@ jobs:
             exit "$status"
           fi
 
+          npm_version="$(npm --prefix apps/cli --workspaces=false view chofex-cli version)"
+          if [[ "$latest_tag" != "v${npm_version}" ]]; then
+            echo "GitHub ${latest_tag} and npm ${npm_version} are not fully promoted."
+            echo "should_publish=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           release_commit="$(gh release view "$latest_tag" --json targetCommitish --jq '.targetCommitish')"
           affected="$(
             TURBO_SCM_BASE="$release_commit" \
@@ -260,15 +267,21 @@ jobs:
             exit 0
           fi
 
-          mapfile -t existing_run_ids < <(
-            gh run list \
+          existing_runs=""
+          if ! existing_runs="$(gh run list \
               --repo "$GITHUB_REPOSITORY" \
               --workflow publish-cli.yml \
               --commit "$latest_sha" \
               --limit 20 \
               --json databaseId,status,conclusion \
-              --jq '.[] | select(.status != "completed" or .conclusion == "success") | .databaseId'
-          )
+              --jq '.[] | select(.status != "completed" or .conclusion == "success") | .databaseId')"; then
+            echo "Could not inspect existing release runs; refusing to dispatch a duplicate." >&2
+            exit 1
+          fi
+          existing_run_ids=()
+          if [[ -n "$existing_runs" ]]; then
+            mapfile -t existing_run_ids <<<"$existing_runs"
+          fi
           for existing_run_id in "${existing_run_ids[@]}"; do
             gh run watch "$existing_run_id" \
               --repo "$GITHUB_REPOSITORY" \
