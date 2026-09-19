@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-
+import { DeckMediaLoadProvider } from "@/components/decks/photos";
 import { chromeCopy } from "@/lib/decks/chrome-copy";
 import type {
   DeckBackdrop,
@@ -259,10 +259,25 @@ export function DeckPager({
                 aria-hidden="true"
                 className="deck-backdrop"
                 data-backdrop={slide.backdrop}
+                // A CSS background on every mounted slide makes the browser
+                // fetch the entire deck up front. Keep the current plate and
+                // the next one eligible: sequential navigation stays instant,
+                // while later plates wait until the reader approaches them.
+                data-load-backdrop={
+                  index === activeIndex || index === activeIndex + 1
+                }
                 data-veil={slide.veil}
               />
               <div className="deck-slide-inner">
-                <div className="deck-slide-content">{slide.content}</div>
+                <div className="deck-slide-content">
+                  <DeckMediaLoadProvider
+                    shouldLoad={
+                      index === activeIndex || index === activeIndex + 1
+                    }
+                  >
+                    {slide.content}
+                  </DeckMediaLoadProvider>
+                </div>
               </div>
             </section>
           ))}

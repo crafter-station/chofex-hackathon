@@ -165,7 +165,10 @@ compileMDX({ components: mdxComponents })   next-mdx-remote/rsc
 | Wheel / trackpad | Anterior / siguiente |
 
 Todos los slides están en el DOM y se muestran con `data-active`; no hay
-montaje/desmontaje por slide.
+montaje/desmontaje por slide. Las láminas de fondo son la excepción en red: el
+CSS solo habilita la actual y la siguiente, así la navegación secuencial queda
+precargada sin descargar el deck entero al abrirlo. `Photos` usa el mismo
+límite; no emite el `src` de una foto hasta que su slide entra en ese par.
 
 **`canScrollWithinSlide()`** comprueba, antes de pasar de slide, si el cursor está
 sobre un `.deck-slide-inner` que todavía tiene scroll en esa dirección. Sin eso,
@@ -276,7 +279,8 @@ tiene dos layouts divergentes.
   son 44 slides.
 - **`deck.json` no tiene validación de schema.** Se hace `JSON.parse` y se envuelve
   el error nombrando el deck, pero un campo mal escrito no avisa cuál es.
-- **Assets locales:** las láminas y las fotografías viven en `public/deck/`.
-  Las fotos entran con `Photos`, nunca como backdrop.
+- **Assets locales:** las láminas y las fotografías viven en `public/deck/` en
+  AVIF. Las fotos entran con `Photos`, nunca como backdrop, y cargan de forma
+  diferida.
 - **Rutas estáticas:** un deck o idioma nuevo requiere build y redeploy; no
   aparece durante la vida de un proceso ya arrancado.
