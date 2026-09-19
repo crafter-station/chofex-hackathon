@@ -92,6 +92,13 @@
       "when": 1789750896524,
       "tag": "0012_tearful_bastion",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1789795413010,
+      "tag": "0013_even_deathstrike",
+      "breakpoints": true
     }
   ]
 }
