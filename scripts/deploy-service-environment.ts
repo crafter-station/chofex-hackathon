@@ -34,70 +34,24 @@ const normalizeUrl = (value: string): string => value.replace(/\/+$/, "");
 interface EnvironmentAssignment {
   readonly name: string;
   readonly start: number;
-  end: number;
+  readonly end: number;
 }
 
-type Quote = '"' | "'" | "`";
-
-const unclosedQuote = (value: string, continued?: Quote): Quote | undefined => {
-  let quote = continued;
-  let start = 0;
-  if (!quote) {
-    const firstValueCharacter = value.search(/\S/);
-    if (firstValueCharacter < 0) return;
-    const candidate = value[firstValueCharacter];
-    if (candidate !== '"' && candidate !== "'" && candidate !== "`") return;
-    quote = candidate;
-    start = firstValueCharacter + 1;
-  }
-
-  for (let index = start; index < value.length; index += 1) {
-    if (value[index] !== quote) continue;
-    let backslashes = 0;
-    for (
-      let previous = index - 1;
-      previous >= 0 && value[previous] === "\\";
-      previous -= 1
-    ) {
-      backslashes += 1;
-    }
-    if (backslashes % 2 === 1) continue;
-    return;
-  }
-  return quote;
-};
+// Keep this grammar aligned with the `dotenv` parser Dokploy uses when it
+// converts the stored source into container variables.
+const dotenvRecord =
+  /^\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?$/gm;
 
 const environmentAssignments = (source: string): EnvironmentAssignment[] => {
   const assignments: EnvironmentAssignment[] = [];
-  let continued:
-    | { assignment: EnvironmentAssignment; quote: Quote }
-    | undefined;
-  let offset = 0;
-  while (offset < source.length) {
-    const newline = source.indexOf("\n", offset);
-    const lineEnd = newline < 0 ? source.length : newline;
-    const contentEnd = source[lineEnd - 1] === "\r" ? lineEnd - 1 : lineEnd;
-    const line = source.slice(offset, contentEnd);
-
-    if (continued) {
-      continued.assignment.end = contentEnd;
-      const quote = unclosedQuote(line, continued.quote);
-      if (quote) continued.quote = quote;
-      else continued = undefined;
-    } else {
-      const match = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_.-]*)\s*=/.exec(
-        line,
-      );
-      const name = match?.[1];
-      if (name && match) {
-        const assignment = { name, start: offset, end: contentEnd };
-        assignments.push(assignment);
-        const quote = unclosedQuote(line.slice(match[0].length));
-        if (quote) continued = { assignment, quote };
-      }
-    }
-
-    offset = newline < 0 ? source.length : newline + 1;
+  for (const match of source.matchAll(dotenvRecord)) {
+    const name = match[1];
+    if (!name || match.index === undefined) continue;
+    assignments.push({
+      name,
+      start: match.index,
+      end: match.index + match[0].length,
+    });
   }
   return assignments;
 };
