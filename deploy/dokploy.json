@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "serverUrl": "https://vps.cueva.io",
+  "environment": "production",
+  "applications": [
+    {
+      "project": "Hack the Andes Web",
+      "projectDescription": "Public Hack the Andes participant and organizer application",
+      "name": "Website",
+      "appName": "hack-the-andes-web",
+      "githubRepository": "crafter-station/hack-the-andes",
+      "imageRepository": "ghcr.io/crafter-station/hack-the-andes",
+      "privateImage": false,
+      "domain": "andes.cueva.io",
+      "port": 3000,
+      "healthPath": "/api/health",
+      "environmentVariables": [
+        "DATABASE_URL",
+        "CLERK_SECRET_KEY",
+        "CLERK_CLI_OAUTH_CLIENT_ID",
+        "CLERK_OAUTH_ISSUER",
+        "CLERK_AUTHORIZED_PARTIES",
+        "PARTICIPANT_DATA_ENCRYPTION_KEY",
+        "BLOB_READ_WRITE_TOKEN",
+        "RESEND_API_KEY",
+        "TRIGGER_SECRET_KEY",
+        "CHALLENGE_SEED_SECRET",
+        "CHALLENGE_ENGINE_URL",
+        "CHALLENGE_ENGINE_API_SECRET",
+        "CHALLENGES_FORCE_OPEN",
+        "AI_GATEWAY_API_KEY"
+      ],
+      "optionalEnvironmentVariables": [
+        "ADMIN_CLERK_USER_IDS",
+        "NEXT_PUBLIC_POSTHOG_KEY",
+        "NEXT_PUBLIC_POSTHOG_HOST"
+      ]
+    },
+    {
+      "project": "Hack the Andes Challenges",
+      "projectDescription": "Private challenge oracle and hidden evaluation service",
+      "name": "Challenge Engine",
+      "appName": "hack-the-andes-challenges",
+      "githubRepository": "crafter-station/chofex-challenges-private",
+      "imageRepository": "ghcr.io/crafter-station/chofex-challenges-private",
+      "privateImage": true,
+      "domain": "andes-engine.cueva.io",
+      "port": 3000,
+      "healthPath": "/api/health",
+      "environmentVariables": [
+        "CHALLENGE_ENGINE_API_SECRET",
+        "CHALLENGE_ENGINE_SEED_SECRET"
+      ],
+      "optionalEnvironmentVariables": []
+    }
+  ]
+}

@@ -4,6 +4,9 @@
   "license": "MIT",
   "scripts": {
     "build": "turbo run build",
+    "deploy:apply": "bun scripts/deploy.ts apply",
+    "deploy:plan": "bun scripts/deploy.ts plan",
+    "deploy:status": "bun scripts/deploy.ts status",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "biome format --write .",

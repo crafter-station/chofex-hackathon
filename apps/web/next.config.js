@@ -1,6 +1,13 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const projectDirectory = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   agentRules: false,
+  output: "standalone",
+  outputFileTracingRoot: path.join(projectDirectory, "../.."),
   transpilePackages: ["three", "@chofex/challenges-contract"],
   // Decks are compiled at build time from content/decks; the tracer cannot see
   // the directory through fs reads, so pin it explicitly.

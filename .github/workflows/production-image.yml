@@ -1,0 +1,98 @@
+name: Production image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/web/**"
+      - "packages/challenges-contract/**"
+      - "packages/db/**"
+      - "packages/registration-contract/**"
+      - "packages/typescript-config/**"
+      - "packages/ui/**"
+      - ".dockerignore"
+      - "bun.lock"
+      - "Dockerfile"
+      - "package.json"
+      - "tsconfig.json"
+      - "turbo.json"
+      - ".github/workflows/production-image.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: production-image-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+  attestations: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,format=long,prefix=sha-
+
+      - id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+            NEXT_PUBLIC_POSTHOG_KEY=${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}
+            NEXT_PUBLIC_POSTHOG_HOST=${{ vars.NEXT_PUBLIC_POSTHOG_HOST }}
+
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ghcr.io/${{ github.repository }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+      - name: Deploy the published image
+        if: github.ref == 'refs/heads/main'
+        env:
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          DOKPLOY_APPLICATION_ID: ${{ secrets.DOKPLOY_APPLICATION_ID }}
+          DOKPLOY_IMAGE: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+        run: |
+          if [[ -z "$DOKPLOY_API_KEY" || -z "$DOKPLOY_APPLICATION_ID" ]]; then
+            echo "Dokploy deployment secrets are not configured yet; image publication is complete."
+            exit 0
+          fi
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Content-Type: application/json" \
+            --header "x-api-key: $DOKPLOY_API_KEY" \
+            --data "{\"applicationId\":\"$DOKPLOY_APPLICATION_ID\",\"dockerImage\":\"$DOKPLOY_IMAGE\"}" \
+            https://vps.cueva.io/api/application.update
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Content-Type: application/json" \
+            --header "x-api-key: $DOKPLOY_API_KEY" \
+            --data "{\"applicationId\":\"$DOKPLOY_APPLICATION_ID\",\"title\":\"GitHub Actions $GITHUB_SHA\"}" \
+            https://vps.cueva.io/api/application.redeploy
