@@ -1,0 +1,203 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+APP="chofex"
+REPOSITORY="crafter-station/hack-the-andes"
+INSTALL_DIR="${CHOFEX_INSTALL_DIR:-$HOME/.chofex/bin}"
+REQUESTED_VERSION="${VERSION:-}"
+BINARY_PATH=""
+NO_MODIFY_PATH=false
+
+MUTED='\033[0;2m'
+RED='\033[0;31m'
+ORANGE='\033[38;5;214m'
+NC='\033[0m'
+
+usage() {
+  cat <<'EOF'
+Chofex CLI installer
+
+Usage: install [options]
+
+Options:
+  -h, --help                 Display this help message
+  -v, --version <version>    Install a specific version (for example, 0.1.146)
+  -b, --binary <path>        Install from a local binary instead of downloading
+      --install-dir <path>   Install into a custom directory
+      --no-modify-path       Do not modify shell configuration files
+
+Examples:
+  curl -fsSL https://hacktheandes.com/install | bash
+  curl -fsSL https://hacktheandes.com/install | bash -s -- --version 0.1.146
+EOF
+}
+
+fail() {
+  printf "%bError: %s%b\n" "$RED" "$1" "$NC" >&2
+  exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    -v | --version)
+      [[ -n "${2:-}" ]] || fail "--version requires a version argument"
+      REQUESTED_VERSION="$2"
+      shift 2
+      ;;
+    -b | --binary)
+      [[ -n "${2:-}" ]] || fail "--binary requires a path argument"
+      BINARY_PATH="$2"
+      shift 2
+      ;;
+    --install-dir)
+      [[ -n "${2:-}" ]] || fail "--install-dir requires a path argument"
+      INSTALL_DIR="$2"
+      shift 2
+      ;;
+    --no-modify-path)
+      NO_MODIFY_PATH=true
+      shift
+      ;;
+    *)
+      fail "unknown option '$1'"
+      ;;
+  esac
+done
+
+mkdir -p "$INSTALL_DIR"
+
+temporary_directory=""
+cleanup() {
+  if [[ -n "$temporary_directory" ]]; then
+    rm -rf "$temporary_directory"
+  fi
+}
+trap cleanup EXIT
+
+install_binary() {
+  local source="$1"
+  local staged="$INSTALL_DIR/.chofex-install-$$"
+  cp "$source" "$staged"
+  chmod 755 "$staged"
+  mv -f "$staged" "$INSTALL_DIR/$APP"
+}
+
+if [[ -n "$BINARY_PATH" ]]; then
+  [[ -f "$BINARY_PATH" ]] || fail "binary not found at $BINARY_PATH"
+  install_binary "$BINARY_PATH"
+else
+  command -v curl >/dev/null 2>&1 || fail "curl is required"
+  command -v tar >/dev/null 2>&1 || fail "tar is required"
+
+  raw_os="$(uname -s)"
+  case "$raw_os" in
+    Darwin*) os="darwin" ;;
+    Linux*) os="linux" ;;
+    *) fail "unsupported operating system: $raw_os" ;;
+  esac
+
+  raw_arch="$(uname -m)"
+  case "$raw_arch" in
+    arm64 | aarch64) arch="arm64" ;;
+    x86_64 | amd64) arch="x64" ;;
+    *) fail "unsupported architecture: $raw_arch" ;;
+  esac
+
+  target="$os-$arch"
+  if [[ "$os" == "linux" ]]; then
+    is_musl=false
+    if [[ -f /etc/alpine-release ]]; then
+      is_musl=true
+    elif command -v ldd >/dev/null 2>&1 && ldd --version 2>&1 | grep -qi musl; then
+      is_musl=true
+    fi
+    if [[ "$is_musl" == "true" ]]; then
+      target="$target-musl"
+    fi
+  fi
+
+  archive="chofex-${target}.tar.gz"
+  release_base="https://github.com/$REPOSITORY/releases/latest/download"
+  if [[ -n "$REQUESTED_VERSION" && "$REQUESTED_VERSION" != "latest" ]]; then
+    version="${REQUESTED_VERSION#v}"
+    release_base="https://github.com/$REPOSITORY/releases/download/v${version}"
+  fi
+
+  temporary_directory="$(mktemp -d "${TMPDIR:-/tmp}/chofex-install.XXXXXX")"
+  printf "\n%bInstalling %s for %s%b\n" "$MUTED" "$APP" "$target" "$NC"
+  curl -fL --progress-bar -o "$temporary_directory/$archive" \
+    "$release_base/$archive"
+  curl -fsSL -o "$temporary_directory/checksums.txt" \
+    "$release_base/checksums.txt"
+
+  expected_checksum="$(
+    awk -v archive="$archive" '$2 == archive { print $1 }' \
+      "$temporary_directory/checksums.txt"
+  )"
+  [[ -n "$expected_checksum" ]] || fail "release checksum for $archive is missing"
+
+  if command -v sha256sum >/dev/null 2>&1; then
+    actual_checksum="$(sha256sum "$temporary_directory/$archive" | awk '{ print $1 }')"
+  elif command -v shasum >/dev/null 2>&1; then
+    actual_checksum="$(shasum -a 256 "$temporary_directory/$archive" | awk '{ print $1 }')"
+  else
+    fail "sha256sum or shasum is required to verify the download"
+  fi
+  [[ "$actual_checksum" == "$expected_checksum" ]] || fail "checksum verification failed"
+
+  tar -xzf "$temporary_directory/$archive" -C "$temporary_directory"
+  [[ -f "$temporary_directory/chofex" ]] || fail "release archive does not contain chofex"
+  install_binary "$temporary_directory/chofex"
+fi
+
+add_to_path() {
+  local config_file="$1"
+  local command="$2"
+  if grep -Fqx "$command" "$config_file"; then
+    return
+  fi
+  if [[ ! -w "$config_file" ]]; then
+    printf "%bAdd this line to %s:%b\n  %s\n" "$ORANGE" "$config_file" "$NC" "$command"
+    return
+  fi
+  printf "\n# chofex\n%s\n" "$command" >>"$config_file"
+  printf "%bAdded %s to PATH in %s%b\n" "$MUTED" "$APP" "$config_file" "$NC"
+}
+
+if [[ "$NO_MODIFY_PATH" != "true" && ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
+  current_shell="$(basename "${SHELL:-sh}")"
+  config_file=""
+  case "$current_shell" in
+    fish)
+      candidates=("$HOME/.config/fish/config.fish")
+      path_command="fish_add_path $INSTALL_DIR"
+      ;;
+    zsh)
+      candidates=("${ZDOTDIR:-$HOME}/.zshrc" "${ZDOTDIR:-$HOME}/.zshenv")
+      path_command="export PATH=$INSTALL_DIR:\$PATH"
+      ;;
+    *)
+      candidates=("$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile")
+      path_command="export PATH=$INSTALL_DIR:\$PATH"
+      ;;
+  esac
+  for candidate in "${candidates[@]}"; do
+    if [[ -f "$candidate" ]]; then
+      config_file="$candidate"
+      break
+    fi
+  done
+  if [[ -n "$config_file" ]]; then
+    add_to_path "$config_file" "$path_command"
+  else
+    printf "%bAdd chofex to PATH in your shell configuration:%b\n  %s\n" \
+      "$ORANGE" "$NC" "$path_command"
+  fi
+fi
+
+printf "\nInstalled %b%s%b to %s\n" "$ORANGE" "$APP" "$NC" "$INSTALL_DIR/$APP"
+printf "Run %bchofex login%b to get started.\n\n" "$ORANGE" "$NC"
