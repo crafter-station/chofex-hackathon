@@ -64,31 +64,59 @@ describe("curl installer", () => {
     const source = join(directory, "source-chofex");
     const installDirectory = join(directory, "installed");
     const installed = join(installDirectory, "chofex");
+    const fakeBin = join(directory, "fake-bin");
+    const moveAttempts = join(directory, "move-attempts");
     await writeFile(source, "new binary");
     await mkdir(installDirectory);
+    await mkdir(fakeBin);
     await writeFile(installed, "old binary");
+    await writeFile(
+      join(fakeBin, "mv"),
+      `#!/bin/sh
+attempts=0
+if [ -f "$CHOFEX_TEST_MOVE_ATTEMPTS" ]; then
+  attempts="$(cat "$CHOFEX_TEST_MOVE_ATTEMPTS")"
+fi
+attempts=$((attempts + 1))
+printf "%s" "$attempts" > "$CHOFEX_TEST_MOVE_ATTEMPTS"
+if [ "$attempts" -lt 3 ]; then exit 1; fi
+exec /bin/mv "$@"
+`,
+    );
+    await chmod(join(fakeBin, "mv"), 0o755);
 
     const parent = spawn("sleep", ["0.2"]);
     if (parent.pid === undefined) throw new Error("Test parent did not start");
     const parentClosed = new Promise<void>((resolve) =>
       parent.on("close", () => resolve()),
     );
-    await execFileAsync("bash", [
-      installerPath.pathname,
-      "--binary",
-      source,
-      "--install-dir",
-      installDirectory,
-      "--no-modify-path",
-      "--defer-until-pid",
-      String(parent.pid),
-    ]);
+    await execFileAsync(
+      "bash",
+      [
+        installerPath.pathname,
+        "--binary",
+        source,
+        "--install-dir",
+        installDirectory,
+        "--no-modify-path",
+        "--defer-until-pid",
+        String(parent.pid),
+      ],
+      {
+        env: {
+          ...process.env,
+          PATH: `${fakeBin}:${process.env.PATH}`,
+          CHOFEX_TEST_MOVE_ATTEMPTS: moveAttempts,
+        },
+      },
+    );
 
     await parentClosed;
-    for (let attempt = 0; attempt < 20; attempt += 1) {
+    for (let attempt = 0; attempt < 40; attempt += 1) {
       if ((await readFile(installed, "utf8")) === "new binary") return;
       await Bun.sleep(100);
     }
     expect(await readFile(installed, "utf8")).toBe("new binary");
+    expect(await readFile(moveAttempts, "utf8")).toBe("3");
   });
 });

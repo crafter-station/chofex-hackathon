@@ -93,7 +93,15 @@ install_binary() {
   if [[ -n "$DEFER_UNTIL_PID" ]]; then
     nohup sh -c '
       while kill -0 "$1" 2>/dev/null; do sleep 1; done
-      mv -f "$2" "$3"
+      attempts=0
+      until mv -f "$2" "$3"; do
+        attempts=$((attempts + 1))
+        if [ "$attempts" -ge 1800 ]; then
+          rm -f "$2"
+          exit 1
+        fi
+        sleep 1
+      done
     ' chofex-updater "$DEFER_UNTIL_PID" "$staged" "$destination" \
       >/dev/null 2>&1 &
     return

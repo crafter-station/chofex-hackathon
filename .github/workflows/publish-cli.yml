@@ -11,6 +11,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: publish-cli
+  cancel-in-progress: false
+
 jobs:
   publish:
     name: Publish chofex-cli
@@ -120,7 +124,15 @@ jobs:
         run: |
           release_tag="v${RELEASE_VERSION}"
           if gh release view "$release_tag" >/dev/null 2>&1; then
-            gh release upload "$release_tag" artifacts/* --clobber
+            existing_assets="$(gh release view "$release_tag" --json assets --jq '.assets[].name')"
+            for artifact in artifacts/*; do
+              asset="$(basename "$artifact")"
+              if grep -Fxq "$asset" <<<"$existing_assets"; then
+                echo "Keeping existing ${asset}."
+                continue
+              fi
+              gh release upload "$release_tag" "$artifact"
+            done
             exit 0
           fi
           gh release create "$release_tag" \
