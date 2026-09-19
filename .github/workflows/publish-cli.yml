@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+    paths:
+      - apps/cli/**
+      - packages/challenges-contract/**
+      - packages/registration-contract/**
+      - bun.lock
+      - .github/workflows/publish-cli.yml
   workflow_dispatch:
     inputs:
       commit_sha:
