@@ -11,6 +11,7 @@ import {
   facts,
   faqItems,
   footerCopy,
+  footerNavigation,
   formatSoles,
   heroCopy,
   metadataCopy,
@@ -38,7 +39,9 @@ test("publishes the 17–18 octubre 2026 weekend in participant-facing copy", ()
   expect(heroCopy.metaDate).toBe("17–18 oct 2026");
   expect(heroCopy.metaLocation).toBe("Lima, Perú");
   expect(footerCopy.meta).toContain("17–18 oct 2026");
-  expect(footerCopy.credits).toBe("Créditos");
+  expect(
+    footerNavigation.flatMap((group) => group.links.map((link) => link.label)),
+  ).toContain("Créditos");
 
   const blob = JSON.stringify({
     facts,
@@ -416,7 +419,14 @@ test("exposes skip links and section jumps for keyboard users", async () => {
     new URL("./footer.tsx", import.meta.url),
   ).text();
   expect(hero).toContain('href="#why"');
-  expect(footer).toContain("sectionNav");
+  expect(footer).toContain("footerNavigation");
+  const footerSectionHrefs = footerNavigation
+    .flatMap((group) => group.links.map((link) => link.href))
+    .filter((href) => href.startsWith("#"))
+    .sort();
+  expect(footerSectionHrefs).toEqual(
+    sectionNav.map((item) => item.href).sort(),
+  );
   expect(sectionNav.map((item) => item.href)).toEqual([
     "#why",
     "#prizes",

@@ -429,21 +429,49 @@ export const faqItems = [
 ] as const;
 
 export const footerCopy = {
-  eyebrow: "Hackathon presencial",
   meta: "Lima, 17–18 oct 2026",
   tagline: "100 personas, 30 horas, una entrega funcionando.",
-  ctaTitle: "¿Listo para construir?",
-  ctaDescription: "Postulaciones abiertas hasta el 9 de octubre.",
-  cta: "Postular ahora",
-  sectionsLabel: "Explorar",
-  informationLabel: "Información",
-  community: "Discord",
-  credits: "Créditos",
-  terms: "Términos",
-  privacy: "Privacidad",
+  navigationLabel: "Pie de página",
+  applicationStatus: "Postulaciones abiertas",
+  applicationDeadline: "Hasta el 9 oct",
   copyright: "© 2026 Hack the Andes",
   organizer: "Organiza Crafter Station",
 } as const;
+
+export const footerNavigation = [
+  {
+    label: "Evento",
+    links: [
+      { href: "#why", label: "El evento" },
+      { href: "#prizes", label: "Premios" },
+      { href: "#people", label: "Panel" },
+    ],
+  },
+  {
+    label: "Programa",
+    links: [
+      { href: "#tracks", label: "Tracks" },
+      { href: "#qualifier-challenges", label: "Challenges" },
+      { href: "#faq", label: "Preguntas frecuentes" },
+    ],
+  },
+  {
+    label: "Participa",
+    links: [
+      { href: "#apply", label: "Postular" },
+      { href: "/discord", label: "Discord" },
+    ],
+  },
+  {
+    label: "Información",
+    links: [
+      { href: "#sponsors", label: "Organizadores" },
+      { href: "/credits", label: "Créditos" },
+      { href: "/terms", label: "Términos" },
+      { href: "/privacy", label: "Privacidad" },
+    ],
+  },
+] as const;
 
 export const chromeCopy = {
   menu: "Menú",
