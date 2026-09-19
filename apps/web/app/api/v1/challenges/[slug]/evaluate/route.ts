@@ -1,6 +1,9 @@
 import { requireParticipantUserId } from "@/lib/auth";
 import { evaluateChallenge } from "@/lib/challenges/service";
-import { enqueueFunnelReminderBestEffort } from "@/lib/funnel-reminders/enqueue";
+import {
+  challengeReminderApplicationIdFor,
+  enqueueChallengeFinishReminderBestEffort,
+} from "@/lib/funnel-reminders/enqueue";
 import { captureProductEvent } from "@/lib/posthog-server";
 import {
   HttpError,
@@ -18,6 +21,8 @@ export const POST = (
   withApiHandler(request, async (requestId) => {
     const { slug } = await context.params;
     const clerkUserId = await requireParticipantUserId(request);
+    const applicationId =
+      await challengeReminderApplicationIdFor(clerkUserId);
     const input = await readJson(request);
     let result: Awaited<ReturnType<typeof evaluateChallenge>>;
     try {
@@ -27,10 +32,10 @@ export const POST = (
         error instanceof HttpError &&
         error.code === "SOLUTION_EXECUTION_FAILED"
       ) {
-        await enqueueFunnelReminderBestEffort({
+        await enqueueChallengeFinishReminderBestEffort(
           clerkUserId,
-          stage: "challenge_finish",
-        });
+          applicationId,
+        );
       }
       throw error;
     }

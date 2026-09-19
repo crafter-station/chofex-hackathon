@@ -1,9 +1,36 @@
+import { db } from "@chofex/db";
+import { and, desc, eq, inArray } from "@chofex/db/orm";
+import { applications, participants } from "@chofex/db/schema";
 import { tasks } from "@trigger.dev/sdk";
 
 import type { sendFunnelReminder } from "../../trigger/send-funnel-reminder";
 import type { FunnelReminderPayload } from "./types";
 
 export const funnelReminderDelay = "2h";
+
+const challengeCandidateStatuses = [
+  "submitted",
+  "under_review",
+  "waitlisted",
+] as const;
+
+export const challengeReminderApplicationIdFor = async (
+  clerkUserId: string,
+): Promise<string | undefined> => {
+  const [application] = await db
+    .select({ id: applications.id })
+    .from(participants)
+    .innerJoin(applications, eq(applications.participantId, participants.id))
+    .where(
+      and(
+        eq(participants.clerkUserId, clerkUserId),
+        inArray(applications.status, challengeCandidateStatuses),
+      ),
+    )
+    .orderBy(desc(applications.createdAt))
+    .limit(1);
+  return application?.id;
+};
 
 export const enqueueFunnelReminder = async (
   payload: FunnelReminderPayload,
@@ -52,4 +79,15 @@ export const enqueuePostSubmissionRemindersBestEffort = async (
       idempotencyKeySuffix,
     );
   }
+};
+
+export const enqueueChallengeFinishReminderBestEffort = async (
+  clerkUserId: string,
+  applicationId: string | undefined,
+): Promise<void> => {
+  if (!applicationId) return;
+  await enqueueFunnelReminderBestEffort(
+    { clerkUserId, stage: "challenge_finish", applicationId },
+    `application/${applicationId}`,
+  );
 };
