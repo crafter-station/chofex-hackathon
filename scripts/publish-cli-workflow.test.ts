@@ -55,9 +55,9 @@ test("requeues the current main tip when a stale release held the queue", () => 
   expect(publishJob).toContain('echo "stale=true" >> "$GITHUB_OUTPUT"');
   expect(publishJob).toContain("needs.publish.outputs.stale == 'true'");
   expect(publishJob).toContain("releases/latest");
-  expect(publishJob).toContain(
-    'select(.status != "completed" or .conclusion == "success")',
-  );
+  expect(publishJob).toContain("gh run watch");
+  expect(publishJob).toContain('.name == "Publish chofex-cli"');
+  expect(publishJob).toContain('"$publish_conclusion" == "success"');
   expect(publishJob).toContain("gh workflow run publish-cli.yml");
   expect(publishJob).toContain('--repo "$GITHUB_REPOSITORY"');
 });
