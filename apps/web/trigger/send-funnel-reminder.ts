@@ -1,14 +1,15 @@
 import { playableChallenges } from "@chofex/challenges-contract";
-import { and, desc, eq, inArray } from "@chofex/db/orm";
+import { and, desc, eq, gt, inArray } from "@chofex/db/orm";
 import {
   applications,
   challengeAttempts,
   challengeEvaluations,
+  challengeReservations,
   funnelEmailDeliveries,
   participants,
 } from "@chofex/db/schema";
 import { db } from "@chofex/db/worker";
-import { logger, task } from "@trigger.dev/sdk";
+import { logger, task, wait } from "@trigger.dev/sdk";
 
 import { currentChallengeVersion } from "../lib/challenges/engine";
 import {
@@ -23,6 +24,7 @@ import type {
 
 interface ReminderContext {
   readonly deliveryScope: string;
+  readonly pendingEvaluationUntil?: Date;
   readonly progress: FunnelProgress;
   readonly recipient?: FunnelReminderRecipient;
 }
@@ -81,6 +83,7 @@ const loadReminderContext = async (
   let challengeStarted = false;
   let challengeCompleted = false;
   let challengeFinishAvailable = false;
+  let pendingEvaluationUntil: Date | undefined;
   if (record && playableChallengeSlugs.length > 0) {
     const attempts = await db
       .select({
@@ -107,12 +110,28 @@ const loadReminderContext = async (
 
     const attemptIds = attempts.map((attempt) => attempt.id);
     if (attemptIds.length > 0) {
-      const [evaluation] = await db
-        .select({ id: challengeEvaluations.id })
-        .from(challengeEvaluations)
-        .where(inArray(challengeEvaluations.attemptId, attemptIds))
-        .limit(1);
+      const now = new Date();
+      const [[evaluation], [pendingEvaluation]] = await Promise.all([
+        db
+          .select({ id: challengeEvaluations.id })
+          .from(challengeEvaluations)
+          .where(inArray(challengeEvaluations.attemptId, attemptIds))
+          .limit(1),
+        db
+          .select({ expiresAt: challengeReservations.expiresAt })
+          .from(challengeReservations)
+          .where(
+            and(
+              inArray(challengeReservations.attemptId, attemptIds),
+              eq(challengeReservations.kind, "evaluation"),
+              gt(challengeReservations.expiresAt, now),
+            ),
+          )
+          .orderBy(desc(challengeReservations.expiresAt))
+          .limit(1),
+      ]);
       challengeCompleted = Boolean(evaluation);
+      pendingEvaluationUntil = pendingEvaluation?.expiresAt;
     }
   }
 
@@ -126,6 +145,7 @@ const loadReminderContext = async (
 
   return {
     deliveryScope: application?.id ?? "participant",
+    pendingEvaluationUntil,
     progress: {
       applicationStatus: application?.status,
       applicationSubmitted: Boolean(application?.submittedAt),
@@ -135,6 +155,30 @@ const loadReminderContext = async (
     },
     recipient,
   };
+};
+
+const loadSettledReminderContext = async (
+  payload: FunnelReminderPayload,
+): Promise<ReminderContext> => {
+  let reminder = await loadReminderContext(payload);
+  while (
+    payload.stage === "challenge_finish" &&
+    reminder.pendingEvaluationUntil
+  ) {
+    const afterReservationExpires = new Date(
+      Math.max(
+        reminder.pendingEvaluationUntil.getTime() + 1_000,
+        Date.now() + 1_000,
+      ),
+    );
+    logger.info("Waiting for pending challenge evaluation", {
+      clerkUserId: payload.clerkUserId,
+      recheckAt: afterReservationExpires.toISOString(),
+    });
+    await wait.until({ date: afterReservationExpires });
+    reminder = await loadReminderContext(payload);
+  }
+  return reminder;
 };
 
 const claimDelivery = async (
@@ -239,7 +283,7 @@ export const sendFunnelReminder = task<
     }
   },
   run: async (payload: FunnelReminderPayload, { ctx }) => {
-    const reminder = await loadReminderContext(payload);
+    const reminder = await loadSettledReminderContext(payload);
     if (!needsFunnelReminder(payload.stage, reminder.progress)) {
       logger.info("Skipping stale funnel reminder", {
         clerkUserId: payload.clerkUserId,
