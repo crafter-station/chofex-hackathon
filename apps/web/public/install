@@ -225,6 +225,7 @@ fi
 
 if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
   fallback_config_file=""
+  bash_login_candidates=()
   case "$current_shell" in
     fish)
       candidates=("$HOME/.config/fish/config.fish")
@@ -235,12 +236,12 @@ if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
       fallback_config_file="${ZDOTDIR:-$HOME}/.zshrc"
       ;;
     bash)
-      candidates=(
-        "$HOME/.bashrc"
+      bash_login_candidates=(
         "$HOME/.bash_profile"
         "$HOME/.bash_login"
         "$HOME/.profile"
       )
+      candidates=("$HOME/.bashrc" "${bash_login_candidates[@]}")
       ;;
     *)
       candidates=("$HOME/.profile")
@@ -259,7 +260,7 @@ if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
       config_files+=("$HOME/.bashrc")
     fi
     login_config_found=false
-    for config_file in "$HOME/.bash_profile" "$HOME/.bash_login" "$HOME/.profile"; do
+    for config_file in "${bash_login_candidates[@]}"; do
       if [[ -f "$config_file" ]]; then
         login_config_found=true
       fi
