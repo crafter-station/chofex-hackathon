@@ -364,7 +364,7 @@ const makeUpgradeCommand = (name: "update" | "upgrade") =>
         catch: (error) =>
           cliError(
             "UPGRADE_FAILED",
-            `npm could not update ${cliPackageName}`,
+            `Could not update ${cliPackageName}`,
             false,
             String(error),
           ),

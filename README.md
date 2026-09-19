@@ -10,7 +10,26 @@ technical qualification challenges, the `/api/v1` API, and the `chofex` CLI.
 
 ## Participant quick start
 
-The published CLI supports Node.js 20 and newer:
+Install the CLI on macOS, Linux, or Windows under Git Bash without Node.js or
+npm:
+
+```sh
+curl -fsSL https://hacktheandes.com/install | bash
+export PATH="$HOME/.chofex/bin:$PATH"
+chofex login
+chofex whoami
+chofex register
+```
+
+The installer detects Apple silicon, Intel macOS, glibc Linux, musl Linux, and
+Windows on Arm or x64. It verifies the release checksum and installs `chofex` in
+`~/.chofex/bin`. To pin a release, pass `--version` after `bash -s --`:
+
+```sh
+curl -fsSL https://hacktheandes.com/install | bash -s -- --version 0.1.146
+```
+
+Alternatively, the npm package supports Node.js 20 and newer:
 
 ```sh
 npm install --global chofex-cli@latest
@@ -22,7 +41,8 @@ chofex register
 The CLI authenticates through Clerk OAuth with PKCE. Access and refresh tokens
 are stored in Keychain on macOS, Secret Service on Linux, or Password Vault on
 Windows. Run `chofex logout` to revoke and remove stored credentials, or
-`chofex update` to install the latest CLI release.
+`chofex update` to install the latest release through the same installation
+method you originally used.
 
 ### Application flow
 

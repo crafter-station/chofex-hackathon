@@ -43,8 +43,24 @@ export const metadataCopy = {
   description: `100 cupos para AI, product y software engineers. Envía tu postulación y compite por un pase directo en los challenges. ${trackCount} tracks, 30 horas y una entrega funcionando.`,
 } as const;
 
-export const cliCommands = [
-  "npm install --global chofex-cli@latest",
+export const cliInstallMethods = [
+  {
+    id: "curl",
+    label: "curl",
+    description: "Recomendado · no requiere Node.js",
+    hint: "Configura PATH y recarga tu terminal automáticamente.",
+    command:
+      "bash -o pipefail -c 'curl -fsSL https://hacktheandes.com/install | bash' && exec \"$SHELL\" -l",
+  },
+  {
+    id: "npm",
+    label: "npm",
+    description: "Requiere Node.js 20 o superior",
+    command: "npm install --global chofex-cli@latest",
+  },
+] as const;
+
+export const cliNextCommands = [
   "chofex login",
   "chofex register",
   "chofex status",

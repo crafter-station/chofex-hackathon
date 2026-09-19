@@ -4,7 +4,9 @@ import path from "node:path";
 
 import {
   environmentVariableNames,
+  parseEnvironment,
   selectedEnvironment,
+  serializeEnvironment,
 } from "./deploy-environment";
 
 type Command = "apply" | "plan" | "status";
@@ -74,29 +76,6 @@ const readJson = async <T>(filePath: string): Promise<T> =>
   (await Bun.file(filePath).json()) as T;
 
 const normalizeUrl = (value: string): string => value.replace(/\/+$/, "");
-
-const parseEnvironment = (source: string): Record<string, string> => {
-  const result: Record<string, string> = {};
-  for (const rawLine of source.split(/\r?\n/)) {
-    const line = rawLine.trim();
-    if (!line || line.startsWith("#")) continue;
-    const delimiter = line.indexOf("=");
-    if (delimiter < 1) continue;
-    const name = line.slice(0, delimiter).trim();
-    let value = line.slice(delimiter + 1).trim();
-    if (value.startsWith('"') && value.endsWith('"')) {
-      try {
-        value = JSON.parse(value);
-      } catch {
-        throw new Error(`Invalid quoted value for ${name}`);
-      }
-    } else if (value.startsWith("'") && value.endsWith("'")) {
-      value = value.slice(1, -1);
-    }
-    result[name] = value;
-  }
-  return result;
-};
 
 const loadEnvironment = async (): Promise<Record<string, string>> => {
   const result: Record<string, string> = {};
@@ -181,12 +160,6 @@ const exactlyOne = <T>(values: T[], description: string): T | undefined => {
     );
   return values[0];
 };
-
-const serializeEnvironment = (values: Record<string, string>): string =>
-  Object.entries(values)
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([name, value]) => `${name}=${JSON.stringify(value)}`)
-    .join("\n");
 
 const commandOutput = (value: unknown): void => {
   process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
