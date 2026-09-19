@@ -19,6 +19,7 @@ const mainPushTrigger = `  push:
 test("publishes the CLI only for main pushes that can affect the package", () => {
   expect(workflow).toContain(mainPushTrigger);
   expect(workflow).toContain("name: Detect CLI release changes");
+  expect(workflow).toContain("releases/latest");
   expect(workflow).toContain("needs: detect-release");
   expect(workflow).toContain(
     "if: needs.detect-release.outputs.should_publish == 'true'",
