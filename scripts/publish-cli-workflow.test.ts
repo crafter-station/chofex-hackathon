@@ -9,6 +9,10 @@ const productionWorkflow = readFileSync(
   new URL("../.github/workflows/production-image.yml", import.meta.url),
   "utf8",
 );
+const releaseSkill = readFileSync(
+  new URL("../.agents/skills/release-cli/SKILL.md", import.meta.url),
+  "utf8",
+);
 const automaticReleaseCommit =
   "RELEASE_COMMIT: $" + "{{ inputs.commit_sha || github.sha }}";
 const mainPushTrigger = `  push:
@@ -27,9 +31,27 @@ test("publishes the CLI only for main pushes that can affect the package", () =>
     "if: needs.detect-release.outputs.should_publish == 'true'",
   );
   expect(workflow).toContain(automaticReleaseCommit);
-  expect(workflow).toMatch(
+  const publishJob = workflow.indexOf("  publish:");
+  const releaseConcurrency = workflow.indexOf("    concurrency:");
+  expect(releaseConcurrency).toBeGreaterThan(publishJob);
+  expect(workflow.slice(releaseConcurrency)).toMatch(
     /concurrency:\s+group: publish-cli\s+cancel-in-progress: false/,
   );
+});
+
+test("validates manual targets before they enter release concurrency", () => {
+  const detectionJob = workflow.slice(0, workflow.indexOf("  publish:"));
+
+  expect(detectionJob).toContain('if [[ "$GITHUB_SHA" != "$RELEASE_COMMIT" ]]');
+  expect(detectionJob).toContain(
+    'if [[ "$default_branch_sha" != "$RELEASE_COMMIT" ]]',
+  );
+});
+
+test("does not reuse an automatic run that skipped publishing", () => {
+  expect(releaseSkill).toContain("Publish chofex-cli");
+  expect(releaseSkill).toContain('"skipped"');
+  expect(releaseSkill).toContain("workflow_dispatch");
 });
 
 test("does not share release concurrency with production deployment", () => {
