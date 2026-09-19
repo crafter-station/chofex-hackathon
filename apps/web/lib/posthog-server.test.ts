@@ -59,6 +59,7 @@ test("server capture remains a safe no-op without PostHog configuration", async 
     captureProductEvent({
       distinctId: "user_test",
       event: "application_draft_saved",
+      request: new Request("https://hacktheandes.com/api/v1/registration"),
     }),
   ).resolves.toBeUndefined();
 });

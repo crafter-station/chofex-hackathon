@@ -16,12 +16,10 @@ import {
   campaignAttributionCookieForLanding,
   expiredCampaignAttributionCookie,
 } from "@/lib/campaign-attribution";
-import { syncPostHogIdentity } from "@/lib/posthog-identity";
-
-type AuthenticatedIdentity = {
-  readonly isLoaded: boolean;
-  readonly userId: string | null;
-};
+import {
+  type IdentityState,
+  syncPostHogIdentity,
+} from "@/lib/posthog-identity";
 
 function writeBrowserCookie(cookie: string): void {
   // biome-ignore lint/suspicious/noDocumentCookie: the server must receive pre-auth landing attribution
@@ -47,9 +45,9 @@ function captureCampaignLanding(): void {
 export function PostHogAnalytics({
   identity,
 }: {
-  readonly identity?: AuthenticatedIdentity;
+  readonly identity?: IdentityState;
 }) {
-  const hasIdentity = identity !== undefined;
+  const identitySyncEnabled = identity !== undefined;
   const identityIsLoaded = identity?.isLoaded ?? false;
   const identityUserId = identity?.userId ?? null;
 
@@ -74,7 +72,7 @@ export function PostHogAnalytics({
   }, []);
 
   useEffect(() => {
-    if (!hasIdentity || !isPostHogConfigured(posthogKey)) return;
+    if (!identitySyncEnabled || !isPostHogConfigured(posthogKey)) return;
     const didReset = syncPostHogIdentity(
       { isLoaded: identityIsLoaded, userId: identityUserId },
       posthog,
@@ -86,7 +84,7 @@ export function PostHogAnalytics({
       );
       if (identityUserId) captureCampaignLanding();
     }
-  }, [hasIdentity, identityIsLoaded, identityUserId]);
+  }, [identitySyncEnabled, identityIsLoaded, identityUserId]);
 
   return null;
 }

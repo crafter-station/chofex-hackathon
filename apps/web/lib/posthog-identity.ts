@@ -1,6 +1,6 @@
 const identifiedUserStorageKey = "chofex_posthog_identified_user";
 
-type IdentityState = {
+export type IdentityState = {
   readonly isLoaded: boolean;
   readonly userId: string | null;
 };

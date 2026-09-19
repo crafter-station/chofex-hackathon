@@ -12,7 +12,10 @@ export interface ProductEvent {
   readonly distinctId: string;
   readonly event: string;
   readonly properties?: EventProperties;
-  readonly request?: Request;
+}
+
+interface RequestProductEvent extends ProductEvent {
+  readonly request: Request;
 }
 
 let client: PostHog | undefined;
@@ -48,18 +51,15 @@ export async function captureProductEvent({
   event,
   properties,
   request,
-}: ProductEvent): Promise<void> {
+}: RequestProductEvent): Promise<void> {
   const posthog = posthogClient();
   if (!posthog) return;
 
-  let attributedProperties = properties;
-  if (request) {
-    attributedProperties = productEventWithCampaignAttribution(request, {
-      distinctId,
-      event,
-      properties,
-    }).properties;
-  }
+  const attributedProperties = productEventWithCampaignAttribution(request, {
+    distinctId,
+    event,
+    properties,
+  }).properties;
 
   try {
     posthog.capture({
