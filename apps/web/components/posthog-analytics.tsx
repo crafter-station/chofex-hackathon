@@ -20,6 +20,7 @@ import {
   latestCampaignProperties,
 } from "@/lib/campaign-attribution";
 import {
+  canCaptureBeforeIdentityResolution,
   type IdentityState,
   identityStorageFromBrowser,
   propertiesForPostHogReplay,
@@ -31,10 +32,10 @@ function writeBrowserCookie(cookie: string): void {
   document.cookie = cookie;
 }
 
-function persistCampaignLanding(): void {
-  if (!isTrackableUrl(window.location.href)) return;
+function persistCampaignLanding(url: string): void {
+  if (!isTrackableUrl(url)) return;
   const attributionCookie = campaignAttributionCookieForLanding(
-    window.location.href,
+    url,
     document.cookie,
     Date.now(),
     window.location.protocol === "https:",
@@ -76,7 +77,6 @@ export function PostHogAnalytics({
   const identityIsLoaded = identity?.isLoaded ?? false;
   const identityUserId = identity?.userId ?? null;
   const initialized = useRef(false);
-  const initialPageviewCaptured = useRef(false);
   const attributionSuppressed = useRef(false);
   const identityReady = useRef(!identitySyncEnabled);
   const queuedEvents = useRef<CaptureResult[]>([]);
@@ -85,7 +85,7 @@ export function PostHogAnalytics({
     writeBrowserCookie(
       expiredCampaignAttributionCookie(window.location.protocol === "https:"),
     );
-    if (initialPageviewCaptured.current) {
+    if (identityReady.current) {
       attributionSuppressed.current = true;
     }
   }, []);
@@ -97,12 +97,6 @@ export function PostHogAnalytics({
       (event) => event.event === "$identify" || event.event === "$set",
     );
     for (const event of identityEvents) replayEvent(event);
-
-    if (!initialPageviewCaptured.current) {
-      posthog.capture("$pageview");
-      posthog.set_config({ capture_pageview: "history_change" });
-      initialPageviewCaptured.current = true;
-    }
 
     for (const event of queued) {
       if (event.event === "$identify" || event.event === "$set") continue;
@@ -123,9 +117,10 @@ export function PostHogAnalytics({
       return;
     }
 
+    persistCampaignLanding(window.location.href);
     posthog.init(posthogKey, {
       api_host: posthogHost,
-      capture_pageview: false,
+      capture_pageview: "history_change",
       defaults: "2025-05-24",
       save_campaign_params: false,
       save_referrer: false,
@@ -134,7 +129,10 @@ export function PostHogAnalytics({
         if (!publicEvent) return null;
         if (publicEvent.event === "$pageview") {
           attributionSuppressed.current = false;
-          persistCampaignLanding();
+          const pageviewUrl = publicEvent.properties?.$current_url;
+          if (typeof pageviewUrl === "string") {
+            persistCampaignLanding(pageviewUrl);
+          }
         }
         let campaign: CampaignProperties = {};
         if (!attributionSuppressed.current) {
@@ -167,7 +165,6 @@ export function PostHogAnalytics({
       },
     });
     initialized.current = true;
-    persistCampaignLanding();
     if (!identitySyncEnabled) completeAnalyticsReadiness();
   }, [completeAnalyticsReadiness, identitySyncEnabled]);
 
@@ -206,6 +203,8 @@ export function PostHogAnalytics({
     }
     const fallback = window.setTimeout(() => {
       if (identityReady.current) return;
+      const storage = identityStorageFromBrowser(window);
+      if (!canCaptureBeforeIdentityResolution(posthog, storage)) return;
       completeAnalyticsReadiness();
     }, 5000);
     return () => window.clearTimeout(fallback);

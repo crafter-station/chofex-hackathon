@@ -15,6 +15,24 @@ type IdentityAnalytics = {
 
 type IdentityStorage = Pick<Storage, "getItem" | "removeItem" | "setItem">;
 
+export function canCaptureBeforeIdentityResolution(
+  analytics: Pick<IdentityAnalytics, "get_property">,
+  storage: IdentityStorage | undefined,
+): boolean {
+  try {
+    if (typeof analytics.get_property("$user_id") === "string") return false;
+  } catch {
+    return false;
+  }
+
+  if (!storage) return true;
+  try {
+    return !storage.getItem(identifiedUserStorageKey);
+  } catch {
+    return false;
+  }
+}
+
 export function identityStorageFromBrowser(
   browser: Pick<Window, "localStorage">,
 ): IdentityStorage | undefined {

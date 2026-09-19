@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 
 import {
+  canCaptureBeforeIdentityResolution,
   identityStorageFromBrowser,
   propertiesForPostHogReplay,
   syncPostHogIdentity,
@@ -134,6 +135,37 @@ test("handles browsers that deny access to the localStorage getter", () => {
   }) as Window;
 
   expect(identityStorageFromBrowser(browser)).toBeUndefined();
+});
+
+test("releases unresolved identity events only from a known anonymous state", () => {
+  const anonymous = identityHarness();
+  expect(
+    canCaptureBeforeIdentityResolution(anonymous.analytics, anonymous.storage),
+  ).toBeTrue();
+
+  const identified = identityHarness();
+  syncPostHogIdentity(
+    { isLoaded: true, userId: "user_a" },
+    identified.analytics,
+    identified.storage,
+  );
+  expect(
+    canCaptureBeforeIdentityResolution(
+      identified.analytics,
+      identified.storage,
+    ),
+  ).toBeFalse();
+
+  expect(
+    canCaptureBeforeIdentityResolution(
+      {
+        get_property: () => {
+          throw new Error("identity unavailable");
+        },
+      },
+      undefined,
+    ),
+  ).toBeFalse();
 });
 
 test("removes prior identity and session correlation when replaying events", () => {
