@@ -48,7 +48,6 @@ test("offers curl and npm installation before the shared CLI flow", () => {
       id: "npm",
       label: "npm",
       description: "Requiere Node.js 20 o superior",
-      hint: "",
       command: "npm install --global chofex-cli@latest",
     },
   ]);

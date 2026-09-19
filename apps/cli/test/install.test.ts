@@ -16,6 +16,34 @@ const execFileAsync = promisify(execFile);
 const installerPath = new URL("../../web/public/install", import.meta.url);
 const temporaryDirectories: string[] = [];
 
+async function installForBash({
+  home,
+  installDirectory,
+  source,
+}: {
+  home: string;
+  installDirectory: string;
+  source: string;
+}) {
+  await execFileAsync(
+    "bash",
+    [
+      installerPath.pathname,
+      "--binary",
+      source,
+      "--install-dir",
+      installDirectory,
+    ],
+    {
+      env: {
+        ...process.env,
+        HOME: home,
+        SHELL: "/bin/bash",
+      },
+    },
+  );
+}
+
 afterEach(async () => {
   await Promise.all(
     temporaryDirectories
@@ -131,23 +159,11 @@ exec /bin/mv "$@"
     await writeFile(bashrc, "# interactive\n");
     await writeFile(bashProfile, "# login\n");
 
-    await execFileAsync(
-      "bash",
-      [
-        installerPath.pathname,
-        "--binary",
-        source,
-        "--install-dir",
-        installDirectory,
-      ],
-      {
-        env: {
-          ...process.env,
-          HOME: directory,
-          SHELL: "/bin/bash",
-        },
-      },
-    );
+    await installForBash({
+      home: directory,
+      installDirectory,
+      source,
+    });
 
     for (const configFile of [bashrc, bashProfile]) {
       expect(await readFile(configFile, "utf8")).toContain(
@@ -163,23 +179,11 @@ exec /bin/mv "$@"
     const installDirectory = join(directory, "installed");
     await writeFile(source, "chofex");
 
-    await execFileAsync(
-      "bash",
-      [
-        installerPath.pathname,
-        "--binary",
-        source,
-        "--install-dir",
-        installDirectory,
-      ],
-      {
-        env: {
-          ...process.env,
-          HOME: directory,
-          SHELL: "/bin/bash",
-        },
-      },
-    );
+    await installForBash({
+      home: directory,
+      installDirectory,
+      source,
+    });
 
     for (const name of [".bashrc", ".bash_profile"]) {
       expect(await readFile(join(directory, name), "utf8")).toContain(
@@ -196,28 +200,39 @@ exec /bin/mv "$@"
     await writeFile(source, "chofex");
     await writeFile(join(directory, ".bashrc"), "# existing\n");
 
-    await execFileAsync(
-      "bash",
-      [
-        installerPath.pathname,
-        "--binary",
-        source,
-        "--install-dir",
-        installDirectory,
-      ],
-      {
-        env: {
-          ...process.env,
-          HOME: directory,
-          SHELL: "/bin/bash",
-        },
-      },
-    );
+    await installForBash({
+      home: directory,
+      installDirectory,
+      source,
+    });
 
     for (const name of [".bashrc", ".bash_profile"]) {
       expect(await readFile(join(directory, name), "utf8")).toContain(
         `export PATH=${installDirectory}:$PATH`,
       );
     }
+  });
+
+  test("does not shadow an existing Bash login configuration", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "chofex-login-shell-test-"));
+    temporaryDirectories.push(directory);
+    const source = join(directory, "source-chofex");
+    const installDirectory = join(directory, "installed");
+    const bashLogin = join(directory, ".bash_login");
+    await writeFile(source, "chofex");
+    await writeFile(bashLogin, "# existing login config\n");
+
+    await installForBash({
+      home: directory,
+      installDirectory,
+      source,
+    });
+
+    expect(await readFile(bashLogin, "utf8")).toContain(
+      `export PATH=${installDirectory}:$PATH`,
+    );
+    expect(await Bun.file(join(directory, ".bash_profile")).exists()).toBe(
+      false,
+    );
   });
 });

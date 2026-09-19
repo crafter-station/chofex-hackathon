@@ -56,7 +56,6 @@ export const cliInstallMethods = [
     id: "npm",
     label: "npm",
     description: "Requiere Node.js 20 o superior",
-    hint: "",
     command: "npm install --global chofex-cli@latest",
   },
 ] as const;

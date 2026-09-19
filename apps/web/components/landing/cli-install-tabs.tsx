@@ -8,9 +8,37 @@ type InstallMethod = {
   readonly id: string;
   readonly label: string;
   readonly description: string;
-  readonly hint: string;
+  readonly hint?: string;
   readonly command: string;
 };
+
+function CliCommandRow({
+  command,
+  index,
+  last = false,
+}: {
+  readonly command: string;
+  readonly index: number;
+  readonly last?: boolean;
+}) {
+  return (
+    <li
+      className={cn(
+        "grid grid-cols-[2rem_minmax(0,1fr)] p-4",
+        !last && "border-white/10 border-b",
+      )}
+    >
+      <span className="text-[var(--code-muted)]">
+        {String(index).padStart(2, "0")}
+      </span>
+      <ShellCommand
+        className="min-w-0 break-words whitespace-normal sm:overflow-x-auto sm:whitespace-nowrap"
+        command={command}
+        prompt
+      />
+    </li>
+  );
+}
 
 export function CliInstallTabs({
   methods,
@@ -99,33 +127,21 @@ export function CliInstallTabs({
                   </span>
                 )}
               </div>
-              <div className="grid grid-cols-[2rem_minmax(0,1fr)] border-white/10 border-b p-4">
-                <span className="text-[var(--code-muted)]">01</span>
-                <ShellCommand
-                  className="min-w-0 break-words whitespace-normal sm:overflow-x-auto sm:whitespace-nowrap"
-                  command={method.command}
-                  prompt
-                />
-              </div>
+              <ol>
+                <CliCommandRow command={method.command} index={1} />
+              </ol>
             </div>
           );
         })}
 
-        <ol>
+        <ol start={2}>
           {nextCommands.map((command, index) => (
-            <li
-              className="grid grid-cols-[2rem_minmax(0,1fr)] border-white/10 border-b p-4 last:border-b-0"
+            <CliCommandRow
+              command={command}
+              index={index + 2}
               key={command}
-            >
-              <span className="text-[var(--code-muted)]">
-                {String(index + 2).padStart(2, "0")}
-              </span>
-              <ShellCommand
-                className="min-w-0 break-words whitespace-normal sm:overflow-x-auto sm:whitespace-nowrap"
-                command={command}
-                prompt
-              />
-            </li>
+              last={index === nextCommands.length - 1}
+            />
           ))}
         </ol>
       </div>

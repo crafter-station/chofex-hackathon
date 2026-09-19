@@ -224,18 +224,27 @@ if [[ "$current_shell" == "fish" ]]; then
 fi
 
 if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
+  fallback_config_file=""
   case "$current_shell" in
     fish)
       candidates=("$HOME/.config/fish/config.fish")
+      fallback_config_file="$HOME/.config/fish/config.fish"
       ;;
     zsh)
       candidates=("${ZDOTDIR:-$HOME}/.zshrc" "${ZDOTDIR:-$HOME}/.zshenv")
+      fallback_config_file="${ZDOTDIR:-$HOME}/.zshrc"
       ;;
     bash)
-      candidates=("$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile")
+      candidates=(
+        "$HOME/.bashrc"
+        "$HOME/.bash_profile"
+        "$HOME/.bash_login"
+        "$HOME/.profile"
+      )
       ;;
     *)
       candidates=("$HOME/.profile")
+      fallback_config_file="$HOME/.profile"
       ;;
   esac
   config_files=()
@@ -245,18 +254,22 @@ if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
     fi
   done
   if [[ "$current_shell" == "bash" ]]; then
-    for config_file in "$HOME/.bashrc" "$HOME/.bash_profile"; do
-      if [[ ! -f "$config_file" ]]; then
-        touch "$config_file"
-        config_files+=("$config_file")
+    if [[ ! -f "$HOME/.bashrc" ]]; then
+      touch "$HOME/.bashrc"
+      config_files+=("$HOME/.bashrc")
+    fi
+    login_config_found=false
+    for config_file in "$HOME/.bash_profile" "$HOME/.bash_login" "$HOME/.profile"; do
+      if [[ -f "$config_file" ]]; then
+        login_config_found=true
       fi
     done
+    if [[ "$login_config_found" == "false" ]]; then
+      touch "$HOME/.bash_profile"
+      config_files+=("$HOME/.bash_profile")
+    fi
   elif [[ "${#config_files[@]}" -eq 0 ]]; then
-    case "$current_shell" in
-      fish) config_files=("$HOME/.config/fish/config.fish") ;;
-      zsh) config_files=("${ZDOTDIR:-$HOME}/.zshrc") ;;
-      *) config_files=("$HOME/.profile") ;;
-    esac
+    config_files=("$fallback_config_file")
     for config_file in "${config_files[@]}"; do
       mkdir -p "$(dirname "$config_file")"
       touch "$config_file"
