@@ -31,64 +31,131 @@ campaign literal when running each query.
 Challenge-link outcomes:
 
 ```sql
-WITH landings AS (
-    SELECT person_id, timestamp AS landed_at
+WITH campaign_landings AS (
+    SELECT
+        uuid AS landing_id,
+        person_id,
+        timestamp AS landed_at,
+        properties.$utm_campaign AS landing_campaign
     FROM events
     WHERE event = '$pageview'
-      AND properties.$utm_campaign = 'CAMPAIGN'
-      AND properties.$current_url LIKE '%/challenges/%'
+      AND properties.$utm_campaign IS NOT NULL
+      AND (
+          properties.$current_url LIKE '%/challenges'
+          OR properties.$current_url LIKE '%/challenges/%'
+      )
+),
+conversion_candidates AS (
+    SELECT
+        conversions.uuid AS conversion_id,
+        conversions.person_id,
+        conversions.event,
+        landings.landing_campaign,
+        row_number() OVER (
+            PARTITION BY conversions.uuid
+            ORDER BY landings.landed_at DESC, landings.landing_id DESC
+        ) AS landing_rank
+    FROM events AS conversions
+    LEFT JOIN campaign_landings AS landings
+       ON conversions.person_id = landings.person_id
+       AND conversions.timestamp >= landings.landed_at
+       AND conversions.timestamp < landings.landed_at + INTERVAL 30 DAY
+       AND (
+           isNull(conversions.properties.latest_utm_campaign)
+           OR conversions.properties.latest_utm_campaign = landings.landing_campaign
+       )
+    WHERE conversions.event IN (
+        'challenge_query_completed',
+        'challenge_local_test_completed',
+        'challenge_evaluation_submitted'
+    )
+),
+attributed_conversions AS (
+    SELECT person_id, event
+    FROM conversion_candidates
+    WHERE landing_rank = 1
+      AND landing_campaign = 'CAMPAIGN'
 )
 SELECT
-    uniq(landings.person_id) AS landed,
-    uniqIf(events.person_id, events.event IN (
+    (
+        SELECT uniq(person_id)
+        FROM campaign_landings
+        WHERE landing_campaign = 'CAMPAIGN'
+    ) AS landed,
+    uniqIf(person_id, event IN (
         'challenge_query_completed',
         'challenge_local_test_completed',
         'challenge_evaluation_submitted'
     )) AS started,
-    uniqIf(events.person_id, events.event = 'challenge_query_completed') AS queried,
-    uniqIf(events.person_id, events.event = 'challenge_local_test_completed') AS tested,
-    uniqIf(events.person_id, events.event = 'challenge_evaluation_submitted') AS evaluated
-FROM landings
-LEFT JOIN events
-   ON events.person_id = landings.person_id
-   AND events.timestamp >= landings.landed_at
-   AND events.timestamp < landings.landed_at + INTERVAL 30 DAY
-   AND (
-       events.properties.latest_utm_campaign = 'CAMPAIGN'
-       OR isNull(events.properties.latest_utm_campaign)
-   )
+    uniqIf(person_id, event = 'challenge_query_completed') AS queried,
+    uniqIf(person_id, event = 'challenge_local_test_completed') AS tested,
+    uniqIf(person_id, event = 'challenge_evaluation_submitted') AS evaluated
+FROM attributed_conversions
 ```
 
 Application outcomes remain a separate funnel because those links have a
 different intent:
 
 ```sql
-WITH landings AS (
-    SELECT person_id, timestamp AS landed_at
+WITH campaign_landings AS (
+    SELECT
+        uuid AS landing_id,
+        person_id,
+        timestamp AS landed_at,
+        properties.$utm_campaign AS landing_campaign
     FROM events
     WHERE event = '$pageview'
-      AND properties.$utm_campaign = 'CAMPAIGN'
+      AND properties.$utm_campaign IS NOT NULL
+      AND properties.$current_url NOT LIKE '%/challenges'
       AND properties.$current_url NOT LIKE '%/challenges/%'
+),
+conversion_candidates AS (
+    SELECT
+        conversions.uuid AS conversion_id,
+        conversions.person_id,
+        conversions.event,
+        landings.landing_campaign,
+        row_number() OVER (
+            PARTITION BY conversions.uuid
+            ORDER BY landings.landed_at DESC, landings.landing_id DESC
+        ) AS landing_rank
+    FROM events AS conversions
+    LEFT JOIN campaign_landings AS landings
+       ON conversions.person_id = landings.person_id
+       AND conversions.timestamp >= landings.landed_at
+       AND conversions.timestamp < landings.landed_at + INTERVAL 30 DAY
+       AND (
+           isNull(conversions.properties.latest_utm_campaign)
+           OR conversions.properties.latest_utm_campaign = landings.landing_campaign
+       )
+    WHERE conversions.event IN (
+        'application_draft_saved',
+        'application_submitted'
+    )
+),
+attributed_conversions AS (
+    SELECT person_id, event
+    FROM conversion_candidates
+    WHERE landing_rank = 1
+      AND landing_campaign = 'CAMPAIGN'
 )
 SELECT
-    uniq(landings.person_id) AS landed,
-    uniqIf(events.person_id, events.event = 'application_draft_saved') AS saved_draft,
-    uniqIf(events.person_id, events.event = 'application_submitted') AS submitted
-FROM landings
-LEFT JOIN events
-   ON events.person_id = landings.person_id
-   AND events.timestamp >= landings.landed_at
-   AND events.timestamp < landings.landed_at + INTERVAL 30 DAY
-   AND (
-       events.properties.latest_utm_campaign = 'CAMPAIGN'
-       OR isNull(events.properties.latest_utm_campaign)
-   )
+    (
+        SELECT uniq(person_id)
+        FROM campaign_landings
+        WHERE landing_campaign = 'CAMPAIGN'
+    ) AS landed,
+    uniqIf(person_id, event = 'application_draft_saved') AS saved_draft,
+    uniqIf(person_id, event = 'application_submitted') AS submitted
+FROM attributed_conversions
 ```
 
 Each qualifying landing opens its own 30-day conversion window. The `uniq`
-aggregates keep overlapping windows from double-counting a person while still
-allowing a later repeat landing to qualify conversions after an earlier window
-has closed.
+aggregates keep conversions from double-counting a person. Events with explicit
+`latest_utm_campaign` attribution match a preceding landing for that campaign.
+Cookieless CLI events instead use `row_number()` to select the nearest preceding
+qualifying campaign landing, so one conversion cannot count for every campaign
+the person visited.
 
 The report and campaign operating artifacts remain the source for campaign
 names and link templates; do not duplicate recipient or message content here.
