@@ -11,6 +11,10 @@ on:
         required: true
         type: string
 
+concurrency:
+  group: publish-cli
+  cancel-in-progress: false
+
 permissions:
   contents: write
 

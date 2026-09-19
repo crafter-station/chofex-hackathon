@@ -13,4 +13,7 @@ test("publishes the CLI for every main branch push", () => {
     /on:\s+push:\s+branches:\s+- main\s+workflow_dispatch:/,
   );
   expect(workflow).toContain(automaticReleaseCommit);
+  expect(workflow).toMatch(
+    /concurrency:\s+group: publish-cli\s+cancel-in-progress: false/,
+  );
 });
