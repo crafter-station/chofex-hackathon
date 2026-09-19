@@ -11,19 +11,27 @@ const productionWorkflow = readFileSync(
 );
 const automaticReleaseCommit =
   "RELEASE_COMMIT: $" + "{{ inputs.commit_sha || github.sha }}";
-const cliPushTrigger = `  push:
+const mainPushTrigger = `  push:
     branches:
       - main
-    paths:
-      - apps/cli/**
-      - packages/challenges-contract/**
-      - packages/registration-contract/**
-      - bun.lock
-      - .github/workflows/publish-cli.yml
   workflow_dispatch:`;
 
 test("publishes the CLI only for main pushes that can affect the package", () => {
-  expect(workflow).toContain(cliPushTrigger);
+  expect(workflow).toContain(mainPushTrigger);
+  expect(workflow).toContain("name: Detect CLI release changes");
+  expect(workflow).toContain("needs: detect-release");
+  expect(workflow).toContain(
+    "if: needs.detect-release.outputs.should_publish == 'true'",
+  );
+  for (const releaseInput of [
+    "apps/cli",
+    "packages/challenges-contract",
+    "packages/registration-contract",
+    "bun.lock",
+    ".github/workflows/publish-cli.yml",
+  ]) {
+    expect(workflow).toContain(releaseInput);
+  }
   expect(workflow).toContain(automaticReleaseCommit);
   expect(workflow).toMatch(
     /concurrency:\s+group: publish-cli\s+cancel-in-progress: false/,
