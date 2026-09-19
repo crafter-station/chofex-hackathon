@@ -3,20 +3,6 @@ name: Production image
 on:
   push:
     branches: [main]
-    paths:
-      - "apps/web/**"
-      - "packages/challenges-contract/**"
-      - "packages/db/**"
-      - "packages/registration-contract/**"
-      - "packages/typescript-config/**"
-      - "packages/ui/**"
-      - ".dockerignore"
-      - "bun.lock"
-      - "Dockerfile"
-      - "package.json"
-      - "tsconfig.json"
-      - "turbo.json"
-      - ".github/workflows/production-image.yml"
   workflow_dispatch:
 
 concurrency:
