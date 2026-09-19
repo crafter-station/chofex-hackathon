@@ -126,7 +126,7 @@ export function LandingFooter({
         </nav>
       </div>
 
-      <div className="flex flex-col gap-2 border-[var(--hud-type)]/15 border-t pt-6 font-mono text-[0.68rem] text-[var(--hud-type)]/45 uppercase tracking-[0.1em] sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-2 border-[var(--hud-type)]/15 border-t pt-6 font-mono text-[0.68rem] text-[var(--hud-type)]/60 uppercase tracking-[0.1em] sm:flex-row sm:items-center sm:justify-between">
         <p>{footerCopy.copyright}</p>
         <a
           className="underline-offset-4 transition-colors hover:text-[var(--hud-type)] hover:underline"
