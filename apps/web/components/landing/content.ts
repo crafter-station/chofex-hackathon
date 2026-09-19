@@ -40,7 +40,7 @@ export const qualifierChallengeCount = 5;
 
 export const metadataCopy = {
   title: `${brandName} — Lima, 17–18 oct 2026`,
-  description: `100 cupos para AI, product y software engineers que demuestran que construyen y shippean. ${trackCount} tracks, 30 horas y una entrega funcionando.`,
+  description: `100 cupos para AI, product y software engineers. Envía tu postulación y compite por un pase directo en los challenges. ${trackCount} tracks, 30 horas y una entrega funcionando.`,
 } as const;
 
 export const cliCommands = [
@@ -83,6 +83,9 @@ export const heroCopy = {
   metaDate: "17–18 oct 2026",
   metaLocation: "Lima, Perú",
   cta: "Postular",
+  challengeCta: "Resolver challenge",
+  admission:
+    "Registrarte no reserva un cupo. Envía tu postulación para poder ser aceptado; los mejores resultados en los challenges ganan pase directo.",
   organizer: "Organiza: Crafter Station",
   skipToWhy: "Conocer el evento",
 } as const;
@@ -143,19 +146,19 @@ export const trackSeats = [
 ] as const;
 
 export const qualifierChallengesCopy = {
-  title: "Challenges de clasificación",
-  subtitle: "Demuestra que estás cracked",
-  lede: `Los ${qualifierChallengeCount} challenges son pruebas técnicas individuales que ocurren antes del evento. Publicaremos uno cada semana: aquí compites para demostrar lo que puedes hacer, y los mejores resultados de cada challenge obtienen pase directo al evento.`,
+  title: "Gana tu pase en los challenges",
+  subtitle: "Postula y compite",
+  lede: `Registrarte no reserva un cupo: todos deben enviar su postulación para poder ser aceptados. Con la postulación enviada, queda entre los mejores en uno de los ${qualifierChallengeCount} challenges y gana un pase directo. Son pruebas técnicas individuales antes del evento y publicaremos una nueva cada semana.`,
   tracksLabel: "Tracks / durante el evento",
   tracksBody: `Son ${trackCount} temas para construir en equipo durante 30 horas. Los eliges presencialmente en Lima.`,
   challengesLabel: "Challenges / antes del evento",
-  challengesBody: `Son ${qualifierChallengeCount} pruebas técnicas, una nueva cada semana. Resuelve una, sube al ranking y compite por un pase directo.`,
+  challengesBody: `Resuelve una de las ${qualifierChallengeCount} pruebas, sube al ranking y compite por un pase directo al evento.`,
   liveKicker: "Challenge 1 / live",
   liveTitle: "The Shipping Machine",
   liveBody:
     "Investiga una máquina de precios sin documentación, descubre sus reglas y construye un reemplazo compatible.",
   liveMeta: "25 queries · 3 evaluaciones oficiales · AI permitida",
-  liveCta: "Ver reto e instrucciones →",
+  liveCta: "Competir por un pase →",
 } as const;
 
 export const peopleCopy = {
@@ -272,8 +275,8 @@ export const panelBrands = [
 
 export const applyCopy = {
   title: "Postula desde tu terminal",
-  lede: "Las inscripciones están abiertas hasta el 9 de octubre de 2026. Cuéntanos qué construiste y shippeaste, qué construirías aquí y dónde podemos ver tu trabajo. Si prefieres demostrarlo construyendo, los mejores resultados de cada challenge reciben pase directo.",
-  deadlineLabel: "Cierre de inscripciones",
+  lede: "Registrarte no reserva un cupo. Envía tu postulación hasta el 9 de octubre de 2026 y cuéntanos qué construiste y shippeaste. Luego compite en los challenges: los mejores resultados ganan pase directo.",
+  deadlineLabel: "Cierre de postulaciones",
   deadline: "9 oct 2026",
   travelTitle: "¿Fuera de Lima?",
   travelSupport:
@@ -283,7 +286,7 @@ export const applyCopy = {
     "Evidencia en tu GitHub, LinkedIn o productos publicados de que construyes y shippeas.",
     "La claridad con la que explicas decisiones y tradeoffs.",
     "La ambición y viabilidad de lo que quieres construir.",
-    "Tu entrega en un challenge si tus perfiles todavía no muestran lo que puedes hacer.",
+    "Tu resultado en un challenge; los mejores de cada uno obtienen pase directo.",
   ],
   cliTitle: "Ruta directa",
   agentKicker: "agent",
@@ -381,6 +384,11 @@ export const faqCopy = {
 
 export const faqItems = [
   {
+    question: "¿Registrarme ya cuenta como postular?",
+    answer:
+      "No. Registrarte o iniciar sesión solo crea tu cuenta. Para poder ser aceptado, primero envía tu postulación con chofex register. Luego participa en un challenge: los mejores resultados obtienen pase directo.",
+  },
+  {
     question: "¿Necesito experiencia previa o un tipo de proyecto específico?",
     answer:
       "No. Puedes estar estudiando o tener años de experiencia, y no exigimos un sector o tipo de proyecto específico. Buscamos reunir a los mejores engineers de Perú: personas que puedan demostrar que saben construir y shippear.",
@@ -388,12 +396,12 @@ export const faqItems = [
   {
     question: "¿Hasta cuándo puedo postular?",
     answer:
-      "Las inscripciones cierran el 9 de octubre de 2026, pero recomendamos postular cuanto antes y estar atento a los challenges. Publicaremos uno cada semana y los mejores resultados de cada challenge obtienen pase directo al evento.",
+      "Las postulaciones cierran el 9 de octubre de 2026, pero recomendamos enviar la tuya cuanto antes y estar atento a los challenges. Publicaremos uno cada semana y los mejores resultados de cada challenge obtienen pase directo al evento.",
   },
   {
     question: "¿Qué revisarán de mi perfil?",
     answer:
-      "Revisaremos tu GitHub y LinkedIn para encontrar evidencia concreta de que construyes y shippeas: productos en uso, repositorios activos, demos, contribuciones o experiencia con resultados. Si tus perfiles todavía no lo muestran, tu entrega en un challenge también puede demostrarlo.",
+      "Revisaremos tu GitHub y LinkedIn para encontrar evidencia concreta de que construyes y shippeas: productos en uso, repositorios activos, demos, contribuciones o experiencia con resultados. Tu entrega en un challenge suma evidencia, y los mejores resultados obtienen pase directo.",
   },
   {
     question: "¿Necesito un equipo?",
@@ -412,12 +420,12 @@ export const faqItems = [
   {
     question: "¿Cuál es la diferencia entre tracks y challenges?",
     answer:
-      "Los tracks son los temas de trabajo que eliges durante la hackathon. Los challenges son pruebas técnicas previas: los mejores resultados de cada uno obtienen pase directo al evento.",
+      "Los tracks son los temas de trabajo que eliges durante la hackathon. Los challenges son pruebas técnicas previas para quienes ya enviaron su postulación: los mejores resultados de cada uno obtienen pase directo al evento.",
   },
   {
     question: "¿Cómo se seleccionan los 100 cupos?",
     answer:
-      "Revisaremos lo que ya construiste, tu criterio al explicarlo y la propuesta que llevarías a la hackathon.",
+      "Todos empiezan enviando su postulación. Revisamos lo que ya construiste, tu criterio al explicarlo y la propuesta que llevarías; además, los mejores resultados de cada challenge obtienen pase directo.",
   },
 ] as const;
 

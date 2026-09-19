@@ -7,6 +7,7 @@ import {
   ApplicationInput,
   ApplicationPartId,
   acceptedDetailsSemanticRequirements,
+  applicationDraftReplacementFrom,
   applicationRequirementsFor,
   applicationSemanticRequirements,
   CurrentUserSchema,
@@ -62,6 +63,7 @@ describe("registration contract", () => {
   test("accepts optional application profile fields", () => {
     const decoded = Schema.decodeUnknownSync(ApplicationInput)({
       ...application,
+      phone: "+51 999 999 999",
       githubUrl: "github.com/cuevaio",
       bio: "I build tools for developers.",
       portfolioUrl: "ada.dev",
@@ -69,6 +71,7 @@ describe("registration contract", () => {
     });
     expect(decoded.fullName).toBe("Ada Lovelace");
     expect(decoded.role).toBe("Programmer");
+    expect(decoded.phone).toBe("+51 999 999 999");
     expect(decoded.githubUrl).toBe("https://github.com/cuevaio");
     expect(decoded.bio).toBe("I build tools for developers.");
     expect(decoded.portfolioUrl).toBe("https://ada.dev");
@@ -109,6 +112,7 @@ describe("registration contract", () => {
     expect(
       Schema.decodeUnknownSync(ApplicationDraftInput)({
         role: null,
+        phone: null,
         githubUrl: null,
         linkedInUrl: null,
         bio: null,
@@ -117,11 +121,25 @@ describe("registration contract", () => {
       }),
     ).toEqual({
       role: null,
+      phone: null,
       githubUrl: null,
       linkedInUrl: null,
       bio: null,
       portfolioUrl: null,
       shippedProject: null,
+    });
+  });
+
+  test("clears omitted optional fields when replacing a complete draft", () => {
+    const input = Schema.decodeUnknownSync(ApplicationInput)(application);
+
+    expect(applicationDraftReplacementFrom(input)).toMatchObject({
+      phone: null,
+      bio: null,
+      portfolioUrl: null,
+      shippedProject: null,
+      githubUrl: null,
+      linkedInUrl: null,
     });
   });
 
@@ -179,6 +197,7 @@ describe("registration contract", () => {
     const decoded = Schema.decodeUnknownSync(ApplicationInput)(application);
     expect(applicationSemanticRequirements(decoded)).toEqual([]);
     expect(decoded).not.toHaveProperty("bio");
+    expect(decoded).not.toHaveProperty("phone");
     expect(decoded).not.toHaveProperty("portfolioUrl");
     expect(decoded).not.toHaveProperty("shippedProject");
     expect(decoded).not.toHaveProperty("githubUrl");
@@ -334,7 +353,7 @@ describe("registration contract", () => {
     expect(withoutChallenge.missing).toEqual([]);
   });
 
-  test("keeps challenge performance out of the admissions decision", () => {
+  test("keeps challenge performance from changing the application workflow", () => {
     const challenge = {
       slug: "black-box" as const,
       title: "The Shipping Machine",
@@ -425,6 +444,28 @@ describe("registration contract", () => {
         reason: "Required for in-person participants",
       },
     ]);
+  });
+
+  test("does not treat an application phone as confirmed attendance data", () => {
+    const requirements = applicationRequirementsFor(
+      registrationView({
+        status: "accepted",
+        applicationPhone: "+51 999 999 999",
+        fullName: "Ada Lovelace",
+        dateOfBirth: "1990-01-01",
+        nationalIdProvided: true,
+        shirtSize: "m",
+        emergencyContactName: "Grace Hopper",
+        emergencyContactPhone: "+1 555 0100",
+        pictureSource: "clerk",
+        pictureUrl: "https://images.example/ada.jpg",
+      }),
+    );
+
+    expect(requirements.missing).toContainEqual({
+      field: "phone",
+      reason: "Required after acceptance",
+    });
   });
 
   test("does not require a shirt size for remote acceptance", () => {

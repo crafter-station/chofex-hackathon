@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test";
 
-import { applicationDataStatus, challengeReviewStatus } from "./review-metrics";
+import {
+  applicationDataStatus,
+  challengeReviewStatus,
+  completedChallengeMetrics,
+  formatChallengeCompletionDuration,
+} from "./review-metrics";
 
 const challenge = {
   slug: "black-box" as const,
@@ -30,6 +35,43 @@ describe("admin review metrics", () => {
     );
     expect(challengeReviewStatus({ ...challenge, status: "evaluated" })).toBe(
       "Completed",
+    );
+  });
+
+  test("returns metrics only for a completed playable challenge", () => {
+    expect(
+      completedChallengeMetrics([
+        {
+          ...challenge,
+          status: "evaluated",
+          bestAccuracy: 0.9876,
+          completionDurationMs: 95 * 60_000,
+        },
+      ]),
+    ).toEqual({ accuracy: 0.9876, durationMs: 95 * 60_000 });
+    expect(
+      completedChallengeMetrics([
+        { ...challenge, status: "in_progress", bestAccuracy: 0.5 },
+      ]),
+    ).toBeUndefined();
+    expect(
+      completedChallengeMetrics([
+        {
+          ...challenge,
+          playable: false,
+          status: "evaluated",
+          bestAccuracy: 0.5,
+        },
+      ]),
+    ).toBeUndefined();
+  });
+
+  test("formats challenge completion time", () => {
+    expect(formatChallengeCompletionDuration(30_000)).toBe("30s");
+    expect(formatChallengeCompletionDuration(207_406)).toBe("3m 27s");
+    expect(formatChallengeCompletionDuration(95 * 60_000)).toBe("1h 35m 0s");
+    expect(formatChallengeCompletionDuration(1_565 * 60_000)).toBe(
+      "1d 2h 5m 0s",
     );
   });
 });

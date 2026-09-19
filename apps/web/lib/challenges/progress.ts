@@ -9,3 +9,16 @@ export const challengeProgressStatus = (input: {
   if (input.queriesUsed > 0 || input.evaluationsUsed > 0) return "in_progress";
   return "not_started";
 };
+
+export const challengeCompletionDurationMs = (
+  attemptStartedAt: Date,
+  completedAt: Date,
+): number => Math.max(0, completedAt.getTime() - attemptStartedAt.getTime());
+
+export const earliestChallengeCompletionAt = (
+  current: Date | undefined,
+  candidate: Date,
+): Date => {
+  if (!current || candidate < current) return candidate;
+  return current;
+};

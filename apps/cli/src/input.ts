@@ -128,6 +128,7 @@ export const applicationDefaultsFromRegistration = (
 ): Partial<ApplicationInput> => ({
   fullName: joinFullName(registration.firstName, registration.lastName),
   role: registration.role,
+  phone: registration.applicationPhone,
   bio: registration.bio,
   portfolioUrl: registration.portfolioUrl,
   shippedProject: registration.shippedProject,
@@ -199,6 +200,11 @@ const applicationPrompts = (defaults: Partial<ApplicationInput>) =>
       defaults.fullName,
     ),
     role: requiredText("Role", applicationInputFields.role, defaults.role),
+    phone: optionalText(
+      "Phone number (optional)",
+      applicationInputFields.phone,
+      defaults.phone,
+    ),
     bio: optionalText(
       "Short bio (optional)",
       applicationInputFields.bio,
@@ -315,6 +321,7 @@ const interactiveAcceptedDetails = (
     readonly clerkPictureUrl?: string;
     readonly githubUrl?: string;
     readonly currentFullName?: string;
+    readonly currentPhone?: string;
   },
 ) =>
   Effect.gen(function* () {
@@ -341,7 +348,11 @@ const interactiveAcceptedDetails = (
     }
     const details = yield* Prompt.run(
       Prompt.all({
-        phone: requiredText("Phone number", acceptedDetailsInputFields.phone),
+        phone: requiredText(
+          "Phone number",
+          acceptedDetailsInputFields.phone,
+          pictures.currentPhone,
+        ),
         dateOfBirth: dateOfBirthPrompt(),
         nationalIdNumber: requiredText(
           "National ID or passport number",
@@ -463,6 +474,7 @@ export const acceptedDetailsInput = (
     readonly clerkPictureUrl?: string;
     readonly githubUrl?: string;
     readonly currentFullName?: string;
+    readonly currentPhone?: string;
   } = {},
 ): Effect.Effect<AcceptedDetailsInput, CliError, PromptModule.Environment> =>
   inputOrInteractive(

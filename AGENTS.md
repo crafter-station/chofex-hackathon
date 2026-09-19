@@ -26,7 +26,7 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/db bun run build
 - Use `bun --filter <package> <script>` for package-scoped work.
 - After editing `packages/db/src/schema`, run `bun --filter @chofex/db db:generate`; generated migrations live in `packages/db/drizzle`. `db:generate`, `db:migrate`, and `db:studio` require `DATABASE_URL`.
 - The pre-commit hook runs `bunx --bun @biomejs/biome check --write` across the repository, including import organization. Run it on changed paths first when you need to avoid unrelated hook-time edits.
-- The only GitHub Actions workflow is the manually dispatched CLI publisher, not general CI. Run tests, lint, and type checks locally. The publisher derives `0.1.<run_number>` from the approved default-branch tip; it does not require a manual package-version bump.
+- GitHub Actions publishes the CLI and the production web image; it is not general CI. Run tests, lint, and type checks locally. The CLI publisher derives `0.1.<run_number>` from the approved default-branch tip; it does not require a manual package-version bump.
 
 # Behavioral constraints
 

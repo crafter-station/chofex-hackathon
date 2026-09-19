@@ -9,9 +9,9 @@ This policy explains how Chofex handles personal information provided for Hack t
 During application and participation, Chofex may collect:
 
 - Account information, including your name and primary email address.
-- Application details such as your city, shipped projects, hackathon project plans, biography, links, and team preference.
+- Application details such as your phone number, city, shipped projects, hackathon project plans, biography, links, and team preference.
 - Your choices about the Code of Conduct, this Privacy Policy, and optional event-media consent.
-- If you are accepted, attendance details such as your phone number, date of birth, identification number, shirt size, dietary or accessibility needs, and emergency contact.
+- If you are accepted, attendance details such as your confirmed phone number, date of birth, identification number, shirt size, dietary or accessibility needs, and emergency contact.
 - Technical information needed to authenticate requests, protect the service, diagnose errors, and prevent abuse.
 
 ## How information is used

@@ -1,0 +1,1 @@
+ALTER TABLE "applications" ADD COLUMN "phone" varchar(32);

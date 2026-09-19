@@ -8,6 +8,7 @@ import {
   formatChallengeOpeningInPeru,
   isChallengeOpenAt,
   isChallengeRankingVisibleAt,
+  ParticipantChallengeProgressSchema,
   ShipmentSchema,
   scoreFromPredictions,
 } from "./index.js";
@@ -39,23 +40,46 @@ describe("challenge catalog", () => {
     ).toBe(true);
   });
 
-  test("reveals the Black Box ranking on 18 September 2026 at 21:00 UTC-5", () => {
+  test("reveals the Black Box ranking on 23 September 2026 at 15:00 UTC-5", () => {
     const challenge = challengeBySlug("black-box");
     if (!challenge) throw new Error("missing black-box");
 
-    expect(challenge.rankingVisibleAt).toBe("2026-09-19T02:00:00.000Z");
+    expect(challenge.rankingVisibleAt).toBe("2026-09-23T20:00:00.000Z");
     expect(
       isChallengeRankingVisibleAt(
         challenge,
-        new Date("2026-09-19T01:59:59.999Z"),
+        new Date("2026-09-23T19:59:59.999Z"),
       ),
     ).toBe(false);
     expect(
       isChallengeRankingVisibleAt(
         challenge,
-        new Date("2026-09-19T02:00:00.000Z"),
+        new Date("2026-09-23T20:00:00.000Z"),
       ),
     ).toBe(true);
+  });
+});
+
+describe("participant challenge progress", () => {
+  test("carries the elapsed time to the first completed evaluation", () => {
+    const progress = Schema.decodeUnknownSync(
+      ParticipantChallengeProgressSchema,
+    )({
+      slug: "black-box",
+      title: "The Shipping Machine",
+      theme: "Black Box",
+      status: "evaluated",
+      open: true,
+      playable: true,
+      queriesUsed: 10,
+      queriesLimit: 25,
+      evaluationsUsed: 1,
+      evaluationsLimit: 3,
+      bestAccuracy: 0.98,
+      completionDurationMs: 5_400_000,
+    });
+
+    expect(progress.completionDurationMs).toBe(5_400_000);
   });
 });
 

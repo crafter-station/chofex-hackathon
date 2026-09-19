@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { playableChallenges } from "@chofex/challenges-contract";
+import { sql } from "@chofex/db/orm";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
-
 import { currentChallengeVersion } from "./engine";
 import {
   type ChallengeMetricsDatabase,
   challengeActivityCounts,
+  completedChallengeParticipantCondition,
+  startedChallengeParticipantCondition,
 } from "./metrics";
 import { challengeProgressStatus } from "./progress";
 
@@ -109,6 +111,34 @@ describe("challenge activity metrics", () => {
 
     await expect(challengeActivityCounts(database)).resolves.toEqual(
       expectedCounts,
+    );
+
+    const completedParticipants = await database.execute<{
+      participant_id: string;
+    }>(sql`
+      select application.participant_id
+      from applications as application
+      where ${completedChallengeParticipantCondition(
+        sql`application.participant_id`,
+      )}
+      order by application.participant_id
+    `);
+    expect(completedParticipants.rows.map((row) => row.participant_id)).toEqual(
+      [firstCompletedId, secondCompletedId].sort(),
+    );
+
+    const startedParticipants = await database.execute<{
+      participant_id: string;
+    }>(sql`
+      select application.participant_id
+      from applications as application
+      where ${startedChallengeParticipantCondition(
+        sql`application.participant_id`,
+      )}
+      order by application.participant_id
+    `);
+    expect(startedParticipants.rows.map((row) => row.participant_id)).toEqual(
+      [firstCompletedId, secondCompletedId, inProgressId].sort(),
     );
   });
 });

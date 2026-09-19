@@ -544,6 +544,7 @@ describe("CLI JSON mode", () => {
     expect(template).toHaveProperty("linkedInUrl");
     expect(template).toHaveProperty("fullName");
     expect(template).toHaveProperty("role");
+    expect(template).toHaveProperty("phone");
     expect(template).toHaveProperty("bio");
     expect(template).toHaveProperty("portfolioUrl");
     expect(template).toHaveProperty("shippedProject");
@@ -755,6 +756,7 @@ describe("CLI JSON mode", () => {
         JSON.stringify({
           fullName: " Anthony Cueva ",
           role: "Builder",
+          phone: "+51 999 999 999",
           bio: "I build developer tools.",
           portfolioUrl: "cueva.io",
           shippedProject: "A collaborative coding environment.",
@@ -785,6 +787,7 @@ describe("CLI JSON mode", () => {
       expect(submittedBody).toEqual({
         fullName: "Anthony Cueva",
         role: "Builder",
+        phone: "+51 999 999 999",
         bio: "I build developer tools.",
         portfolioUrl: "https://cueva.io",
         shippedProject: "A collaborative coding environment.",

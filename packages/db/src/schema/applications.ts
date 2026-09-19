@@ -38,6 +38,7 @@ export const applications = pgTable(
     participationMode: participationMode("participation_mode"),
     organization: varchar("organization", { length: 200 }),
     role: varchar("role", { length: 120 }),
+    phone: varchar("phone", { length: 32 }),
     fieldOfStudy: varchar("field_of_study", { length: 160 }),
     graduationYear: integer("graduation_year"),
     shippedProject: text("shipped_project"),

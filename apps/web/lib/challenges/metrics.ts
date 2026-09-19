@@ -1,6 +1,6 @@
 import { playableChallenges } from "@chofex/challenges-contract";
 import type { db } from "@chofex/db";
-import { sql } from "@chofex/db/orm";
+import { type SQL, sql } from "@chofex/db/orm";
 
 import { currentChallengeVersion } from "./engine";
 
@@ -23,16 +23,56 @@ const metricsDatabase = async (
   return (await import("@chofex/db")).db;
 };
 
-export const challengeActivityCounts = async (
-  database?: ChallengeMetricsDatabase,
-): Promise<ChallengeActivityCounts> => {
+const playableChallengeSlugList = (): SQL | undefined => {
   const playableSlugs = playableChallenges.map((challenge) => challenge.slug);
-  if (playableSlugs.length === 0) return { completed: 0, inProgress: 0 };
-
-  const playableSlugList = sql.join(
+  if (playableSlugs.length === 0) return undefined;
+  return sql.join(
     playableSlugs.map((slug) => sql`${slug}`),
     sql.raw(", "),
   );
+};
+
+export const completedChallengeParticipantCondition = (
+  participantId: SQL,
+): SQL => {
+  const playableSlugList = playableChallengeSlugList();
+  if (!playableSlugList) return sql`false`;
+
+  return sql<boolean>`exists (
+    select 1
+    from "challenge_attempts" as "completed_challenge_attempt"
+    inner join "challenge_evaluations" as "completed_challenge_evaluation"
+      on "completed_challenge_evaluation"."attempt_id" = "completed_challenge_attempt"."id"
+    where "completed_challenge_attempt"."participant_id" = ${participantId}
+      and "completed_challenge_attempt"."challenge_version" = ${currentChallengeVersion}
+      and "completed_challenge_attempt"."challenge_slug" in (${playableSlugList})
+  )`;
+};
+
+export const startedChallengeParticipantCondition = (
+  participantId: SQL,
+): SQL => {
+  const playableSlugList = playableChallengeSlugList();
+  if (!playableSlugList) return sql`false`;
+
+  return sql<boolean>`exists (
+    select 1
+    from "challenge_attempts" as "started_challenge_attempt"
+    where "started_challenge_attempt"."participant_id" = ${participantId}
+      and "started_challenge_attempt"."challenge_version" = ${currentChallengeVersion}
+      and "started_challenge_attempt"."challenge_slug" in (${playableSlugList})
+      and (
+        "started_challenge_attempt"."queries_used" > 0
+        or "started_challenge_attempt"."evaluations_used" > 0
+      )
+  )`;
+};
+
+export const challengeActivityCounts = async (
+  database?: ChallengeMetricsDatabase,
+): Promise<ChallengeActivityCounts> => {
+  const playableSlugList = playableChallengeSlugList();
+  if (!playableSlugList) return { completed: 0, inProgress: 0 };
   const client = await metricsDatabase(database);
   const result = await client.execute<ChallengeActivityCountsRow>(sql`
     select

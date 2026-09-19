@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Challenges de clasificación | Hack the Andes",
   description:
-    "Cinco challenges técnicos para demostrar tu nivel y competir por un pase directo a Hack the Andes.",
+    "Envía tu postulación y compite en cinco challenges técnicos por un pase directo a Hack the Andes.",
 };
 
 export default function ChallengesPage() {

@@ -12,9 +12,20 @@ export const candidateStatuses = [
 
 export type CandidateStatus = (typeof candidateStatuses)[number];
 
-export const candidateFilters = [...candidateStatuses, "reattempt"] as const;
+export const candidateFunnelStatuses = [
+  "registration_started",
+  "registration_completed",
+  "challenge_started",
+  "challenge_completed",
+  "approved",
+  "declined",
+] as const;
 
-export type CandidateFilter = (typeof candidateFilters)[number];
+export const candidateFilters = candidateFunnelStatuses;
+
+export type CandidateFunnelStatus = (typeof candidateFunnelStatuses)[number];
+
+export type CandidateFilter = CandidateFunnelStatus;
 
 export const parseCandidateFilter = (
   value: string | undefined,
@@ -40,6 +51,7 @@ export interface Candidate {
   readonly participationMode?: "in_person" | "remote";
   readonly organization?: string;
   readonly role?: string;
+  readonly applicationPhone?: string;
   readonly fieldOfStudy?: string;
   readonly graduationYear?: number;
   readonly shippedProject?: string;
@@ -52,6 +64,7 @@ export interface Candidate {
   readonly teamPreference?: "have_team" | "looking_for_team" | "solo";
   readonly teamName?: string;
   readonly status: CandidateStatus;
+  readonly funnelStatus: CandidateFunnelStatus;
   readonly mediaConsent: boolean;
   readonly createdAt: string;
   readonly submittedAt?: string;
@@ -80,23 +93,13 @@ export interface Candidate {
   readonly challenges: ReadonlyArray<ParticipantChallengeProgress>;
 }
 
-export interface CandidateCounts {
-  readonly all: number;
-  readonly draft: number;
-  readonly submitted: number;
-  readonly under_review: number;
-  readonly waitlisted: number;
-  readonly accepted: number;
-  readonly rejected: number;
-  readonly withdrawn: number;
-  readonly reattempt: number;
-}
+export type CandidateCounts = Readonly<
+  { readonly all: number } & Record<CandidateFunnelStatus, number>
+>;
 
 export interface CandidatePage {
   readonly candidates: ReadonlyArray<Candidate>;
-  readonly clerkUserCount: number;
-  readonly completedChallengeCount: number;
-  readonly inProgressChallengeCount: number;
+  readonly authenticatedUserCount: number;
   readonly counts: CandidateCounts;
   readonly page: number;
   readonly pageSize: number;

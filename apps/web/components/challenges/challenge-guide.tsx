@@ -1,4 +1,5 @@
 import { BrandKicker, brandFrameClassName } from "@chofex/ui/components/brand";
+import { ShellCommand } from "@/components/shell-command";
 
 const workflow = [
   {
@@ -57,7 +58,8 @@ export function BlackBoxChallengeGuide() {
         <p className="mt-4 max-w-3xl text-sm leading-relaxed text-[var(--hud-muted)]">
           Este challenge ocurre antes de la hackathon. Las reglas están
           personalizadas para cada participante, puedes usar AI y los mejores
-          resultados obtienen pase directo al evento.
+          resultados obtienen pase directo al evento. Para recibirlo, también
+          debes enviar tu postulación.
         </p>
 
         <dl className="mt-8 grid gap-px bg-[var(--hud-ink)]/10 sm:grid-cols-3">
@@ -113,8 +115,8 @@ export function BlackBoxChallengeGuide() {
               </span>
               <div className="min-w-0">
                 <h3 className="font-semibold">{item.title}</h3>
-                <pre className="mt-3 overflow-x-auto border border-[var(--hud-ink)]/10 bg-[var(--hud-paper)] p-4 text-sm text-[var(--hud-type)]">
-                  <code>{item.command}</code>
+                <pre className="brand-code mt-3 overflow-x-auto border p-4 text-sm">
+                  <ShellCommand command={item.command} />
                 </pre>
                 <p className="mt-3 text-sm leading-relaxed text-[var(--hud-muted)]">
                   {item.body}

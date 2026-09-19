@@ -72,18 +72,23 @@ import {
   candidateListOptions,
   submitCandidateDecision,
 } from "@/lib/admin/candidate-queries";
+import { candidateFunnelMilestones } from "@/lib/admin/funnel-metrics";
 import {
   applicationDataStatus,
   challengeReviewStatus,
+  completedChallengeMetrics,
+  formatChallengeCompletionDuration,
 } from "@/lib/admin/review-metrics";
 import type {
   Candidate,
   CandidateCounts,
   CandidateFilter,
+  CandidateFunnelStatus,
   CandidatePage,
   CandidateStatus,
 } from "@/lib/admin/types";
 import {
+  candidateFunnelStatuses,
   parseCandidateFilter,
   reviewableCandidateStatuses,
 } from "@/lib/admin/types";
@@ -107,7 +112,7 @@ interface StatusStyle {
     | "statusWithdrawn";
 }
 
-const statusStyles: Record<CandidateStatus, StatusStyle> = {
+const applicationStatusStyles: Record<CandidateStatus, StatusStyle> = {
   draft: {
     label: "Draft",
     variant: "statusDraft",
@@ -138,6 +143,42 @@ const statusStyles: Record<CandidateStatus, StatusStyle> = {
   },
 };
 
+const funnelStatusStyles: Record<CandidateFunnelStatus, StatusStyle> = {
+  registration_started: {
+    label: "Registration started",
+    variant: "statusDraft",
+  },
+  registration_completed: {
+    label: "Registration completed",
+    variant: "statusSubmitted",
+  },
+  challenge_started: {
+    label: "Challenge started",
+    variant: "statusUnderReview",
+  },
+  challenge_completed: {
+    label: "Challenge completed",
+    variant: "statusAccepted",
+  },
+  approved: {
+    label: "Approved",
+    variant: "statusAccepted",
+  },
+  declined: {
+    label: "Declined",
+    variant: "statusRejected",
+  },
+};
+
+const funnelStatusIcons: Record<CandidateFunnelStatus, React.ReactNode> = {
+  registration_started: <UserRoundPlusIcon className="size-4" />,
+  registration_completed: <CircleUserRoundIcon className="size-4" />,
+  challenge_started: <ActivityIcon className="size-4" />,
+  challenge_completed: <TrophyIcon className="size-4" />,
+  approved: <CheckIcon className="size-4" />,
+  declined: <XIcon className="size-4" />,
+};
+
 const reviewableStatuses = new Set<CandidateStatus>(
   reviewableCandidateStatuses,
 );
@@ -148,14 +189,11 @@ const filterStatuses: ReadonlyArray<{
   readonly countKey: keyof CandidateCounts;
 }> = [
   { label: "All", countKey: "all" },
-  { value: "draft", label: "Drafts", countKey: "draft" },
-  { value: "submitted", label: "Submitted", countKey: "submitted" },
-  { value: "under_review", label: "In review", countKey: "under_review" },
-  { value: "waitlisted", label: "Waitlisted", countKey: "waitlisted" },
-  { value: "accepted", label: "Accepted", countKey: "accepted" },
-  { value: "rejected", label: "Declined", countKey: "rejected" },
-  { value: "withdrawn", label: "Withdrawn", countKey: "withdrawn" },
-  { value: "reattempt", label: "Reattempts", countKey: "reattempt" },
+  ...candidateFunnelStatuses.map((status) => ({
+    value: status,
+    label: funnelStatusStyles[status].label,
+    countKey: status,
+  })),
 ];
 
 const displayName = (candidate: Candidate): string =>
@@ -240,8 +278,26 @@ const safeUrl = (value: string | undefined): string | undefined => {
   return undefined;
 };
 
-const StatusBadge = ({ status }: { readonly status: CandidateStatus }) => {
-  const style = statusStyles[status];
+const ApplicationStatusBadge = ({
+  status,
+}: {
+  readonly status: CandidateStatus;
+}) => {
+  const style = applicationStatusStyles[status];
+  return (
+    <Badge variant={style.variant}>
+      <span className="size-1.5 rounded-full bg-current opacity-60" />
+      {style.label}
+    </Badge>
+  );
+};
+
+const FunnelStatusBadge = ({
+  status,
+}: {
+  readonly status: CandidateFunnelStatus;
+}) => {
+  const style = funnelStatusStyles[status];
   return (
     <Badge variant={style.variant}>
       <span className="size-1.5 rounded-full bg-current opacity-60" />
@@ -278,6 +334,24 @@ const challengeAvailability = (challenge: ChallengeProgress): string => {
 };
 
 const formatPercent = (value: number): string => `${(value * 100).toFixed(2)}%`;
+
+const completedChallengeSummary = (
+  candidate: Candidate,
+): string | undefined => {
+  const metrics = completedChallengeMetrics(candidate.challenges);
+  if (!metrics) return undefined;
+  const details: Array<string> = [];
+  if (metrics.accuracy !== undefined) {
+    details.push(`Score ${formatPercent(metrics.accuracy)}`);
+  }
+  if (metrics.durationMs !== undefined) {
+    details.push(
+      `Time ${formatChallengeCompletionDuration(metrics.durationMs)}`,
+    );
+  }
+  if (details.length === 0) return undefined;
+  return details.join(" · ");
+};
 
 const EmptyValue = () => (
   <span className="text-muted-foreground/60">Not provided</span>
@@ -394,7 +468,7 @@ const CandidateDrawer = ({
   readonly onPrevious: () => void;
   readonly onNext: () => void;
   readonly onCandidateUpdated: (
-    previousStatus: CandidateStatus,
+    previousStatus: CandidateFunnelStatus,
     candidate: Candidate,
   ) => void;
   readonly hasPrevious: boolean;
@@ -405,7 +479,8 @@ const CandidateDrawer = ({
   const decisionMutation = useMutation({
     mutationFn: submitCandidateDecision,
     onSuccess: (result) => {
-      const previousStatus = candidate?.status ?? result.candidate.status;
+      const previousStatus =
+        candidate?.funnelStatus ?? result.candidate.funnelStatus;
       onCandidateUpdated(previousStatus, result.candidate);
     },
   });
@@ -436,6 +511,8 @@ const CandidateDrawer = ({
   }, [hasNext, hasPrevious, onNext, onPrevious, open]);
 
   if (!candidate) return null;
+
+  const challengeSummary = completedChallengeSummary(candidate);
 
   const submitDecision = (decision: "accepted" | "rejected") => {
     decisionMutation.mutate({
@@ -568,10 +645,11 @@ const CandidateDrawer = ({
                       )}
                     </div>
                   </div>
-                  <StatusBadge status={candidate.status} />
+                  <FunnelStatusBadge status={candidate.funnelStatus} />
                 </div>
                 <p className="mt-2 text-xs font-medium text-muted-foreground">
                   Attempt {candidate.attemptNumber}
+                  {challengeSummary && ` · ${challengeSummary}`}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <CandidateLink
@@ -685,6 +763,9 @@ const CandidateDrawer = ({
             <div>
               <h3 className="text-sm font-semibold">Application</h3>
               <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-5">
+                <Detail label="Application state">
+                  <ApplicationStatusBadge status={candidate.status} />
+                </Detail>
                 <Detail label="Application data">{dataStatus}</Detail>
                 <Detail label="Submitted at">
                   {candidate.submittedAt &&
@@ -702,6 +783,7 @@ const CandidateDrawer = ({
                     .join(", ")}
                 </Detail>
                 <Detail label="Role">{candidate.role}</Detail>
+                <Detail label="Phone">{candidate.applicationPhone}</Detail>
                 <Detail label="Organization">{candidate.organization}</Detail>
                 <Detail label="Pronouns">{candidate.pronouns}</Detail>
                 <Detail label="Field of study">{candidate.fieldOfStudy}</Detail>
@@ -840,7 +922,7 @@ const CandidateDrawer = ({
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <StatusBadge status={decision.decision} />
+                          <ApplicationStatusBadge status={decision.decision} />
                           <span className="text-xs text-muted-foreground">
                             Attempt {decision.attemptNumber}
                           </span>
@@ -1029,19 +1111,20 @@ export function CandidateDashboard({
   };
 
   const handleCandidateUpdated = (
-    previousStatus: CandidateStatus,
+    previousStatus: CandidateFunnelStatus,
     updatedCandidate: Candidate,
   ) => {
-    queryClient.setQueriesData<CandidatePage>(
-      { queryKey: candidateKeys.all },
+    queryClient.setQueryData<CandidatePage>(
+      candidateKeys.list(filters),
       (cachedPage) => {
         if (!cachedPage) return cachedPage;
         let counts = cachedPage.counts;
-        if (previousStatus !== updatedCandidate.status) {
+        if (previousStatus !== updatedCandidate.funnelStatus) {
           counts = {
             ...counts,
             [previousStatus]: Math.max(0, counts[previousStatus] - 1),
-            [updatedCandidate.status]: counts[updatedCandidate.status] + 1,
+            [updatedCandidate.funnelStatus]:
+              counts[updatedCandidate.funnelStatus] + 1,
           };
         }
         const candidates = cachedPage.candidates.map((candidate) => {
@@ -1061,10 +1144,6 @@ export function CandidateDashboard({
     () => visiblePages(currentData.page, currentData.totalPages),
     [currentData.page, currentData.totalPages],
   );
-  const reviewCount =
-    currentData.counts.submitted +
-    currentData.counts.under_review +
-    currentData.counts.waitlisted;
   let firstResult = 0;
   if (currentData.total > 0) {
     firstResult = (currentData.page - 1) * currentData.pageSize + 1;
@@ -1119,42 +1198,7 @@ export function CandidateDashboard({
             </Badge>
           </section>
 
-          <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-            <StatCard
-              label="Clerk users"
-              value={currentData.clerkUserCount}
-              icon={<UsersIcon className="size-4 text-muted-foreground" />}
-            />
-            <StatCard
-              label="Registrations started"
-              value={currentData.counts.all}
-              icon={
-                <UserRoundPlusIcon className="size-4 text-muted-foreground" />
-              }
-            />
-            <StatCard
-              label="Needs review"
-              value={reviewCount}
-              icon={
-                <CircleUserRoundIcon className="size-4 text-muted-foreground" />
-              }
-            />
-            <StatCard
-              label="Accepted"
-              value={currentData.counts.accepted}
-              icon={<CheckIcon className="size-4 text-muted-foreground" />}
-            />
-            <StatCard
-              label="Challenges completed"
-              value={currentData.completedChallengeCount}
-              icon={<TrophyIcon className="size-4 text-muted-foreground" />}
-            />
-            <StatCard
-              label="Challenges in progress"
-              value={currentData.inProgressChallengeCount}
-              icon={<ActivityIcon className="size-4 text-muted-foreground" />}
-            />
-          </section>
+          <CandidateFunnel data={currentData} />
 
           <section className="mt-8">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -1212,11 +1256,10 @@ export function CandidateDashboard({
               className="mt-4 overflow-hidden border bg-card"
               aria-busy={candidateQuery.isFetching}
             >
-              <div className="hidden grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_8rem_7rem] gap-4 border-b bg-muted/35 px-5 py-3 text-[11px] font-medium tracking-wide text-muted-foreground uppercase sm:grid">
+              <div className="hidden grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_12rem_7rem] gap-4 border-b bg-muted/35 px-5 py-3 text-[11px] font-medium tracking-wide text-muted-foreground uppercase sm:grid">
                 <span>Candidate</span>
                 <span>Background</span>
                 <span>Status</span>
-                <span>Challenge</span>
                 <span className="text-right">Submitted</span>
               </div>
               {currentData.candidates.length === 0 && <EmptyCandidates />}
@@ -1313,7 +1356,7 @@ export function CandidateDashboard({
           if (
             selectedCandidate &&
             filters.status &&
-            selectedCandidate.status !== filters.status
+            selectedCandidate.funnelStatus !== filters.status
           ) {
             void queryClient.invalidateQueries({
               queryKey: candidateKeys.list(filters),
@@ -1334,27 +1377,194 @@ export function CandidateDashboard({
   );
 }
 
-const StatCard = ({
+const conversionLabel = (value: number, previousValue: number): string => {
+  if (previousValue === 0) return "No prior candidates";
+  return `${Math.round((value / previousValue) * 100)}% from prior stage`;
+};
+
+const funnelWidth = (value: number, topOfFunnel: number): string => {
+  if (topOfFunnel === 0) return "0%";
+  return `${Math.min(100, (value / topOfFunnel) * 100)}%`;
+};
+
+type FunnelTone = "muted" | "accent" | "primary";
+
+const funnelToneStyles: Record<
+  FunnelTone,
+  { readonly bar: string; readonly text: string }
+> = {
+  muted: { bar: "bg-chart-4", text: "text-chart-4" },
+  accent: { bar: "bg-chart-3", text: "text-chart-3" },
+  primary: { bar: "bg-chart-1", text: "text-chart-1" },
+};
+
+const FunnelStage = ({
+  index,
   label,
   value,
+  previousValue,
+  topOfFunnel,
   icon,
+  tone,
+  first = false,
 }: {
+  readonly index: number;
   readonly label: string;
   readonly value: number;
+  readonly previousValue: number;
+  readonly topOfFunnel: number;
   readonly icon: React.ReactNode;
-}) => (
-  <Card size="sm" className="gap-3">
-    <CardHeader className="flex flex-row items-center justify-between">
-      <BrandKicker className="text-muted-foreground">{label}</BrandKicker>
-      {icon}
-    </CardHeader>
-    <CardContent>
-      <p className="font-display text-3xl leading-none font-semibold tabular-nums">
+  readonly tone: FunnelTone;
+  readonly first?: boolean;
+}) => {
+  const toneStyle = funnelToneStyles[tone];
+  return (
+    <li className="relative min-h-36 bg-card p-4 sm:p-5">
+      <div className={`absolute inset-x-0 top-0 h-0.5 ${toneStyle.bar}`} />
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <BrandKicker className={toneStyle.text}>
+            {String(index).padStart(2, "0")}
+          </BrandKicker>
+          <p className="mt-2 min-h-8 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+            {label}
+          </p>
+        </div>
+        <span className={toneStyle.text}>{icon}</span>
+      </div>
+      <p className="mt-3 font-display text-4xl leading-none font-semibold tabular-nums">
         {value}
       </p>
-    </CardContent>
-  </Card>
-);
+      <div className="mt-4 h-1 bg-muted">
+        <div
+          className={`h-full ${toneStyle.bar}`}
+          style={{ width: funnelWidth(value, topOfFunnel) }}
+        />
+      </div>
+      <p className="mt-2 text-[11px] text-muted-foreground">
+        {first ? "Top of funnel" : conversionLabel(value, previousValue)}
+      </p>
+      <ChevronRightIcon
+        className={`absolute top-1/2 -right-3 z-10 hidden size-6 -translate-y-1/2 bg-card xl:block ${toneStyle.text}`}
+      />
+    </li>
+  );
+};
+
+const CandidateFunnel = ({ data }: { readonly data: CandidatePage }) => {
+  const milestones = candidateFunnelMilestones(data.counts);
+  const stages = [
+    {
+      label: "Authenticated users",
+      value: data.authenticatedUserCount,
+      icon: <UsersIcon className="size-4" />,
+      tone: "muted" as const,
+    },
+    {
+      label: "Registration started",
+      value: milestones.registrationStarted,
+      icon: funnelStatusIcons.registration_started,
+      tone: "muted" as const,
+    },
+    {
+      label: "Registration completed",
+      value: milestones.registrationCompleted,
+      icon: funnelStatusIcons.registration_completed,
+      tone: "accent" as const,
+    },
+    {
+      label: "Challenge started",
+      value: milestones.challengeStarted,
+      icon: funnelStatusIcons.challenge_started,
+      tone: "primary" as const,
+    },
+    {
+      label: "Challenge completed",
+      value: milestones.challengeCompleted,
+      icon: funnelStatusIcons.challenge_completed,
+      tone: "primary" as const,
+    },
+  ];
+  const decisions = data.counts.approved + data.counts.declined;
+
+  return (
+    <section className="mt-8" aria-labelledby="candidate-funnel-title">
+      <div className="mb-3 flex items-end justify-between gap-4">
+        <div>
+          <BrandKicker id="candidate-funnel-title" className="text-primary">
+            Candidate funnel
+          </BrandKicker>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Cumulative progress from sign-in through review
+          </p>
+        </div>
+        <p className="hidden text-xs text-muted-foreground sm:block">
+          {data.counts.all} candidates
+        </p>
+      </div>
+      <div className="overflow-hidden border bg-border">
+        <ol className="grid gap-px sm:grid-cols-2 xl:grid-cols-[1.12fr_1.06fr_1fr_.94fr_.88fr_1.1fr]">
+          {stages.map((stage, index) => {
+            let previousValue = data.authenticatedUserCount;
+            if (index > 0) previousValue = stages[index - 1]?.value ?? 0;
+            return (
+              <FunnelStage
+                key={stage.label}
+                index={index + 1}
+                label={stage.label}
+                value={stage.value}
+                previousValue={previousValue}
+                topOfFunnel={data.authenticatedUserCount}
+                icon={stage.icon}
+                tone={stage.tone}
+                first={index === 0}
+              />
+            );
+          })}
+          <li className="relative min-h-36 bg-card p-4 sm:p-5">
+            <div className="absolute inset-x-0 top-0 flex h-0.5">
+              <span className="w-1/2 bg-primary" />
+              <span className="w-1/2 bg-destructive" />
+            </div>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <BrandKicker>06</BrandKicker>
+                <p className="mt-2 min-h-8 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                  Decision outcomes
+                </p>
+              </div>
+              <span className="flex items-center gap-1.5">
+                <CheckIcon className="size-4 text-primary" />
+                <XIcon className="size-4 text-destructive" />
+              </span>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-4">
+              <div>
+                <p className="font-display text-4xl leading-none font-semibold text-primary tabular-nums">
+                  {data.counts.approved}
+                </p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Approved
+                </p>
+              </div>
+              <div className="border-l pl-4">
+                <p className="font-display text-4xl leading-none font-semibold text-destructive tabular-nums">
+                  {data.counts.declined}
+                </p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  Declined
+                </p>
+              </div>
+            </div>
+            <p className="mt-4 text-[11px] text-muted-foreground">
+              {conversionLabel(decisions, milestones.challengeCompleted)}
+            </p>
+          </li>
+        </ol>
+      </div>
+    </section>
+  );
+};
 
 const EmptyCandidates = () => (
   <div className="grid min-h-64 place-items-center px-6 text-center">
@@ -1379,9 +1589,7 @@ const CandidateRows = ({
 }) => (
   <div className="divide-y">
     {candidates.map((candidate) => {
-      const primaryChallenge = candidate.challenges.find(
-        (challenge) => challenge.playable,
-      );
+      const challengeSummary = completedChallengeSummary(candidate);
       let submitted = "Not submitted";
       if (candidate.submittedAt) submitted = formatDate(candidate.submittedAt);
       return (
@@ -1389,7 +1597,7 @@ const CandidateRows = ({
           label={`Review ${displayName(candidate)}`}
           key={candidate.id}
           onClick={() => onSelect(candidate.id)}
-          contentClassName="grid w-full grid-cols-1 justify-start gap-3 px-4 py-4 text-left sm:grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_9rem_8rem_7rem] sm:items-center sm:gap-4 sm:px-5"
+          contentClassName="grid w-full grid-cols-1 justify-start gap-3 px-4 py-4 text-left sm:grid-cols-[minmax(0,1.7fr)_minmax(9rem,1fr)_12rem_7rem] sm:items-center sm:gap-4 sm:px-5"
         >
           <span className="flex min-w-0 items-center gap-3">
             <CandidateAvatar
@@ -1401,6 +1609,7 @@ const CandidateRows = ({
                 {displayName(candidate)}
                 <span className="ml-2 text-[11px] font-normal text-muted-foreground">
                   Attempt {candidate.attemptNumber}
+                  {challengeSummary && ` · ${challengeSummary}`}
                 </span>
               </span>
               <span className="mt-0.5 block truncate text-xs text-muted-foreground">
@@ -1417,12 +1626,7 @@ const CandidateRows = ({
             </span>
           </span>
           <span className="ml-12 sm:ml-0">
-            <StatusBadge status={candidate.status} />
-          </span>
-          <span className="hidden sm:block">
-            {primaryChallenge && (
-              <ChallengeStatusBadge challenge={primaryChallenge} />
-            )}
+            <FunnelStatusBadge status={candidate.funnelStatus} />
           </span>
           <span className="hidden items-center justify-end gap-2 text-xs text-muted-foreground sm:flex">
             {submitted}

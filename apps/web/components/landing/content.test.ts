@@ -208,10 +208,19 @@ test("publishes a hundred-seat, three-track event", () => {
   expect(qualifierChallengeCount).toBe(5);
   expect(tracksCopy.lede).toMatch(/día del evento/i);
   expect(tracksCopy.lede).toMatch(/elegir/i);
-  expect(qualifierChallengesCopy.title).toBe("Challenges de clasificación");
+  expect(qualifierChallengesCopy.title).toBe("Gana tu pase en los challenges");
   expect(qualifierChallengesCopy.lede).toMatch(/antes del evento/i);
   expect(qualifierChallengesCopy.lede).toMatch(/cada semana/i);
   expect(qualifierChallengesCopy.lede).toMatch(/pase directo/i);
+  expect(qualifierChallengesCopy.lede).toMatch(
+    /registrarte no reserva un cupo/i,
+  );
+  expect(qualifierChallengesCopy.lede).toMatch(
+    /todos deben enviar su postulación/i,
+  );
+  expect(heroCopy.admission).toMatch(/registrarte no reserva un cupo/i);
+  expect(heroCopy.admission).toMatch(/envía tu postulación/i);
+  expect(heroCopy.admission).toMatch(/challenge/i);
   expect(facts.find((fact) => fact.label === "Cupos")?.value).toBe("100");
   expect(metadataCopy.description).toContain("100 cupos");
   expect(eventCopy.title).toBe("Crear soluciones reales para problemas reales");
@@ -233,6 +242,7 @@ test("publishes a hundred-seat, three-track event", () => {
 
 test("answers application deadline, eligibility, and review questions", () => {
   expect(applyCopy.deadline).toBe("9 oct 2026");
+  expect(applyCopy.lede).toMatch(/registrarte no reserva un cupo/i);
   expect(applyCopy.lede).toMatch(/construiste y shippeaste/i);
   expect(applyCopy.criteria.join(" ")).toMatch(/GitHub/i);
   expect(applyCopy.criteria.join(" ")).toMatch(/LinkedIn/i);
@@ -255,6 +265,20 @@ test("answers application deadline, eligibility, and review questions", () => {
   expect(profileFaq?.answer).toMatch(/GitHub/i);
   expect(profileFaq?.answer).toMatch(/LinkedIn/i);
   expect(profileFaq?.answer).toMatch(/challenge/i);
+
+  const selectionFaq = faqItems.find((item) =>
+    /c[oó]mo se seleccionan/i.test(item.question),
+  );
+  expect(selectionFaq?.answer).toMatch(/postulaci[oó]n/i);
+  expect(selectionFaq?.answer).toMatch(/pase directo/i);
+
+  const registrationFaq = faqItems.find((item) =>
+    /registrarme.*postular/i.test(item.question),
+  );
+  expect(registrationFaq?.answer).toMatch(/no/i);
+  expect(registrationFaq?.answer).toMatch(/chofex register/i);
+  expect(registrationFaq?.answer).toMatch(/challenge/i);
+  expect(registrationFaq?.answer).toMatch(/primero envía tu postulación/i);
 
   expect(metadataCopy.description).not.toMatch(/con experiencia/i);
   expect(
@@ -348,16 +372,20 @@ test("labels track cards as tracks", async () => {
 });
 
 test("announces the live qualifier in a sticky moving banner", async () => {
-  const source = await Bun.file(
-    new URL("./live-challenge-banner.tsx", import.meta.url),
-  ).text();
+  const [bannerSource, heroSource] = await Promise.all([
+    Bun.file(new URL("./live-challenge-banner.tsx", import.meta.url)).text(),
+    Bun.file(new URL("./hero.tsx", import.meta.url)).text(),
+  ]);
   const styles = await Bun.file(
     new URL("./landing.css", import.meta.url),
   ).text();
 
-  expect(source).toContain('href="/challenges/black-box"');
-  expect(source).toMatch(/Challenge 1.*live/i);
-  expect(source).toContain("landing-live-banner-track");
+  expect(bannerSource).toContain('href="/challenges/black-box"');
+  expect(bannerSource).toMatch(/Challenge 1.*live/i);
+  expect(bannerSource).toMatch(/pase directo/i);
+  expect(bannerSource).toContain("landing-live-banner-track");
+  expect(heroSource).toContain('href="/challenges/black-box"');
+  expect(heroSource).toContain("heroCopy.challengeCta");
   expect(styles).toContain("position: sticky");
   expect(styles).toContain("@keyframes landing-live-banner-scroll");
   expect(styles).toContain("prefers-reduced-motion: reduce");

@@ -19,15 +19,20 @@ import {
 import { clerkClient } from "@clerk/nextjs/server";
 
 import { HttpError } from "@/lib/registration/http";
-import { challengeActivityCounts } from "../challenges/metrics";
 import { challengeProgressForParticipants } from "../challenges/service";
 import { candidateAvatarUrl } from "./avatars";
 import { type ApplicationDecision, buildDecisionEmail } from "./decision-email";
+import {
+  candidateFunnelApplicationCondition,
+  candidateFunnelStatusExpression,
+  candidateFunnelStatusFor,
+} from "./funnel-status";
 import {
   type Candidate,
   type CandidateCounts,
   type CandidateFilter,
   type CandidatePage,
+  candidateFunnelStatuses,
   reviewableCandidateStatuses,
 } from "./types";
 
@@ -79,6 +84,7 @@ const toCandidate = (
   challenges: Candidate["challenges"],
 ): Candidate => {
   const { application, details } = record;
+  const submittedAt = instantString(application.submittedAt);
   let dateOfBirth: string | undefined;
   if (details?.dateOfBirth) dateOfBirth = dateString(details.dateOfBirth);
   const decisionHistory = record.decisionHistory.map((decisionRecord) => {
@@ -114,6 +120,7 @@ const toCandidate = (
     participationMode: optional(application.participationMode),
     organization: optional(application.organization),
     role: optional(application.role),
+    applicationPhone: optional(application.phone),
     fieldOfStudy: optional(application.fieldOfStudy),
     graduationYear: optional(application.graduationYear),
     shippedProject: optional(application.shippedProject),
@@ -126,9 +133,14 @@ const toCandidate = (
     teamPreference: optional(application.teamPreference),
     teamName: optional(application.teamName),
     status: application.status,
+    funnelStatus: candidateFunnelStatusFor(
+      application.status,
+      submittedAt,
+      challenges,
+    ),
     mediaConsent: details?.mediaConsent ?? application.mediaConsent,
     createdAt: application.createdAt.toISOString(),
-    submittedAt: instantString(application.submittedAt),
+    submittedAt,
     decidedAt: instantString(application.decidedAt),
     approvedBy,
     attemptNumber: record.attemptNumber,
@@ -282,17 +294,11 @@ type MutableCandidateCounts = {
   -readonly [Key in keyof CandidateCounts]: number;
 };
 
-const emptyCounts = (): MutableCandidateCounts => ({
-  all: 0,
-  draft: 0,
-  submitted: 0,
-  under_review: 0,
-  waitlisted: 0,
-  accepted: 0,
-  rejected: 0,
-  withdrawn: 0,
-  reattempt: 0,
-});
+const emptyCounts = (): MutableCandidateCounts => {
+  const entries: Array<[keyof CandidateCounts, number]> = [["all", 0]];
+  for (const status of candidateFunnelStatuses) entries.push([status, 0]);
+  return Object.fromEntries(entries) as MutableCandidateCounts;
+};
 
 export interface CandidateListInput {
   readonly page?: number;
@@ -303,7 +309,6 @@ export interface CandidateListInput {
 export const listCandidates = async (
   input: CandidateListInput,
 ): Promise<CandidatePage> => {
-  const clerk = await clerkClient();
   const requestedPage = Math.max(1, Math.floor(input.page ?? 1));
   const search = input.query?.trim();
   let searchCondition: SQL | undefined;
@@ -315,10 +320,10 @@ export const listCandidates = async (
       ilike(applications.organization, `%${search}%`),
     );
   }
+  const funnelStatus = candidateFunnelStatusExpression();
+  const visibleInFunnel = candidateFunnelApplicationCondition();
   let statusCondition: SQL | undefined;
-  if (input.status && input.status !== "reattempt") {
-    statusCondition = eq(applications.status, input.status);
-  }
+  if (input.status) statusCondition = sql`${funnelStatus} = ${input.status}`;
   const latestApplications = db
     .selectDistinctOn([applications.participantId], { id: applications.id })
     .from(applications)
@@ -328,48 +333,30 @@ export const listCandidates = async (
       desc(applications.id),
     )
     .as("latest_applications");
-  const isReattemptCondition = sql<boolean>`exists (
-    select 1
-    from "applications" as "prior_application"
-    where "prior_application"."participant_id" = ${applications.participantId}
-      and "prior_application"."status" = 'rejected'
-      and "prior_application"."id" <> ${applications.id}
-  )`;
-  let reattemptCondition: SQL | undefined;
-  if (input.status === "reattempt") {
-    reattemptCondition = isReattemptCondition;
-  }
-  const whereCondition = and(
-    searchCondition,
-    statusCondition,
-    reattemptCondition,
-  );
+  const funnelSummary = db
+    .select({ status: funnelStatus.as("status") })
+    .from(applications)
+    .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
+    .where(and(visibleInFunnel, searchCondition))
+    .as("funnel_summary");
+  const whereCondition = and(visibleInFunnel, searchCondition, statusCondition);
 
-  const [
-    totalResult,
-    statusResults,
-    reattemptResult,
-    clerkUserCount,
-    challengeCounts,
-  ] = await Promise.all([
-    db
-      .select({ value: count() })
-      .from(applications)
-      .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
-      .where(whereCondition),
-    db
-      .select({ status: applications.status, value: count() })
-      .from(applications)
-      .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
-      .groupBy(applications.status),
-    db
-      .select({ value: count() })
-      .from(applications)
-      .innerJoin(latestApplications, eq(latestApplications.id, applications.id))
-      .where(isReattemptCondition),
-    clerk.users.getCount(),
-    challengeActivityCounts(),
-  ]);
+  const [totalResult, statusResults, authenticatedUserCount] =
+    await Promise.all([
+      db
+        .select({ value: count() })
+        .from(applications)
+        .innerJoin(
+          latestApplications,
+          eq(latestApplications.id, applications.id),
+        )
+        .where(whereCondition),
+      db
+        .select({ status: funnelSummary.status, value: count() })
+        .from(funnelSummary)
+        .groupBy(funnelSummary.status),
+      clerkClient().then((clerk) => clerk.users.getCount()),
+    ]);
 
   const total = totalResult[0]?.value ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -402,15 +389,12 @@ export const listCandidates = async (
     counts[result.status] = result.value;
     counts.all += result.value;
   }
-  counts.reattempt = reattemptResult[0]?.value ?? 0;
 
   const candidates = await toCandidates(await addAttemptHistory(records));
 
   return {
     candidates,
-    clerkUserCount,
-    completedChallengeCount: challengeCounts.completed,
-    inProgressChallengeCount: challengeCounts.inProgress,
+    authenticatedUserCount,
     counts,
     page: currentPage,
     pageSize,
