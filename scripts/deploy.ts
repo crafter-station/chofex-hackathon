@@ -2,6 +2,8 @@ import { resolve4 } from "node:dns/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 
+import { selectedEnvironment } from "./deploy-environment";
+
 type Command = "apply" | "plan" | "status";
 
 interface ApplicationManifest {
@@ -174,27 +176,6 @@ const exactlyOne = <T>(values: T[], description: string): T | undefined => {
       `Found duplicate ${description} records; reconcile them manually.`,
     );
   return values[0];
-};
-
-const selectedEnvironment = (
-  values: Record<string, string>,
-  application: ApplicationManifest,
-): Record<string, string> => {
-  const selected: Record<string, string> = {};
-  const required = new Set(application.environmentVariables);
-  const names = [
-    ...application.environmentVariables,
-    ...application.optionalEnvironmentVariables,
-  ];
-  for (const name of names) {
-    const value = values[name];
-    if (value) selected[name] = value;
-    else if (required.has(name))
-      throw new Error(
-        `Missing required environment variable ${name} for ${application.name}.`,
-      );
-  }
-  return selected;
 };
 
 const serializeEnvironment = (values: Record<string, string>): string =>
