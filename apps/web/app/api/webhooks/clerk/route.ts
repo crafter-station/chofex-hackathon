@@ -2,6 +2,10 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { verifyWebhook } from "@clerk/nextjs/webhooks";
 import type { NextRequest } from "next/server";
 
+import {
+  configuredAdminIdsFrom,
+  userGrantsApplicationReviewAccess,
+} from "@/lib/admin/roles";
 import { enqueueFunnelReminder } from "@/lib/funnel-reminders/enqueue";
 
 export const runtime = "nodejs";
@@ -19,29 +23,22 @@ export const POST = async (request: NextRequest): Promise<Response> => {
     return Response.json({ received: true });
   }
 
-  const user = event.data.user;
-  if (!user) {
-    const clerk = await clerkClient();
-    const resource = await clerk.users.getUser(event.data.user_id);
-    const primaryEmail = resource.emailAddresses.find(
-      (email) => email.id === resource.primaryEmailAddressId,
-    );
-    if (!primaryEmail) {
-      return Response.json({ received: true, scheduled: false });
-    }
-    await enqueueFunnelReminder({
-      clerkUserId: resource.id,
-      stage: "registration",
-      recipient: {
-        email: primaryEmail.emailAddress.trim().toLowerCase(),
-        firstName: resource.firstName ?? "",
-      },
-    });
-    return Response.json({ received: true });
+  const clerk = await clerkClient();
+  const user = await clerk.users.getUser(event.data.user_id);
+  const isApplicationReviewer = userGrantsApplicationReviewAccess({
+    clerkUserId: user.id,
+    configuredAdminIds: configuredAdminIdsFrom(
+      process.env.ADMIN_CLERK_USER_IDS,
+    ),
+    publicMetadata: user.publicMetadata,
+    privateMetadata: user.privateMetadata,
+  });
+  if (isApplicationReviewer) {
+    return Response.json({ received: true, scheduled: false });
   }
 
-  const primaryEmail = user.email_addresses.find(
-    (email) => email.id === user?.primary_email_address_id,
+  const primaryEmail = user.emailAddresses.find(
+    (email) => email.id === user.primaryEmailAddressId,
   );
   if (!primaryEmail) {
     return Response.json({ received: true, scheduled: false });
@@ -50,8 +47,8 @@ export const POST = async (request: NextRequest): Promise<Response> => {
     clerkUserId: user.id,
     stage: "registration",
     recipient: {
-      email: primaryEmail.email_address.trim().toLowerCase(),
-      firstName: user.first_name ?? "",
+      email: primaryEmail.emailAddress.trim().toLowerCase(),
+      firstName: user.firstName ?? "",
     },
   });
   return Response.json({ received: true });

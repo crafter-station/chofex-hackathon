@@ -8,14 +8,16 @@ export const GET = (request: Request): Promise<Response> =>
   withApiHandler(request, async (requestId) => {
     const authentication =
       await requireAuthenticatedParticipantProfile(request);
-    await enqueueFunnelReminderBestEffort({
-      clerkUserId: authentication.clerkUserId,
-      stage: "registration",
-      recipient: {
-        email: authentication.email,
-        firstName: authentication.firstName,
-      },
-    });
+    if (!authentication.canReviewApplications) {
+      await enqueueFunnelReminderBestEffort({
+        clerkUserId: authentication.clerkUserId,
+        stage: "registration",
+        recipient: {
+          email: authentication.email,
+          firstName: authentication.firstName,
+        },
+      });
+    }
     return jsonSuccess(requestId, {
       authenticated: true as const,
       userId: authentication.clerkUserId,
