@@ -255,14 +255,14 @@
 }
 
 /* The plate a slide sits on, chosen in its frontmatter. */
-.deck-backdrop[data-backdrop="summit"] {
-  --deck-plate: url("/deck/summit.webp");
+.deck-backdrop[data-load-backdrop="true"][data-backdrop="summit"] {
+  --deck-plate: url("/deck/summit.avif");
 }
-.deck-backdrop[data-backdrop="range"] {
-  --deck-plate: url("/deck/range.webp");
+.deck-backdrop[data-load-backdrop="true"][data-backdrop="range"] {
+  --deck-plate: url("/deck/range.avif");
 }
-.deck-backdrop[data-backdrop="peak"] {
-  --deck-plate: url("/deck/peak.webp");
+.deck-backdrop[data-load-backdrop="true"][data-backdrop="peak"] {
+  --deck-plate: url("/deck/peak.avif");
 }
 /*
  * The contour map, and the only plate the repo draws rather than buys. It is
@@ -271,8 +271,8 @@
  * base's topographic plate, which carries another author's signature inside
  * the image.
  */
-.deck-backdrop[data-backdrop="contour"] {
-  --deck-plate: url("/deck/contour.webp");
+.deck-backdrop[data-load-backdrop="true"][data-backdrop="contour"] {
+  --deck-plate: url("/deck/contour.avif");
 }
 
 /*
@@ -283,8 +283,8 @@
  * and want a split layout, where the type keeps its own half and the photograph
  * keeps the other rather than sitting under it.
  */
-.deck-backdrop[data-backdrop="canyon"] {
-  --deck-plate: url("/deck/canyon.webp");
+.deck-backdrop[data-load-backdrop="true"][data-backdrop="canyon"] {
+  --deck-plate: url("/deck/canyon.avif");
   /* The canyon's subject is its lit seam, which sits above centre. */
   --deck-plate-position: center 35%;
   /*

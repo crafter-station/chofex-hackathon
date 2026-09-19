@@ -3,6 +3,8 @@ import type { CSSProperties, ReactNode } from "react";
 import { availableLabel } from "@/lib/decks/chrome-copy";
 import type { DeckLang } from "@/lib/decks/loader";
 
+export { Photos } from "./photos";
+
 /*
  * The closed vocabulary available inside a slide. Slides cannot `import`, so
  * anything not mapped in `mdx-components.ts` does not exist for them — that is
@@ -490,55 +492,6 @@ export function Logo({
   // adds nothing to a logo that is already sized for the slide.
   // biome-ignore lint/performance/noImgElement: see above
   return <img alt={alt} src={src} style={{ height, width: "auto" }} />;
-}
-
-/**
- * Photographs of the team's previous hackathons, as an object on the slide.
- *
- * They were backdrops first, and that was wrong twice over. A photograph has no
- * dark mass of its own, so the directional veil a split slide relies on had
- * nothing to bite: the type landed on faces. And a photograph under everything
- * replaces the terrain, which is the identity — the drawing is the deck's
- * world, and the photographs are evidence placed in it.
- *
- * Greyscale is enforced here rather than trusted to the file. The plates ship
- * already desaturated, but a colour photograph dropped in later would be the
- * one thing on a monochrome slide with chroma, and that is not a mistake worth
- * leaving to whoever exports the next one.
- *
- * On a split slide CSS lifts this out of flow into the half the type leaves;
- * anywhere else it is a strip in the column. Both shapes are in `deck.css`.
- */
-export function Photos({
-  items,
-  caption,
-}: {
-  items: Array<{ src: string; alt: string }>;
-  caption?: string;
-}) {
-  return (
-    <figure className="deck-photos" data-count={items.length}>
-      {/*
-       * The images get their own box so the caption is never one of them. As
-       * direct children of the figure they share its flex axis, and a caption
-       * beside a photograph rather than under it is what that looks like.
-       */}
-      <div className="deck-photo-row">
-        {items.map((item) => (
-          // biome-ignore lint/performance/noImgElement: static deck asset, sized by CSS
-          <img
-            alt={item.alt}
-            className="deck-photo"
-            key={item.src}
-            src={item.src}
-          />
-        ))}
-      </div>
-      {caption ? (
-        <figcaption className="deck-photo-caption">{caption}</figcaption>
-      ) : null}
-    </figure>
-  );
 }
 
 /**

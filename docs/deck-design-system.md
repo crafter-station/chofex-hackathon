@@ -327,7 +327,7 @@ Blanco, `1px` en la portada y `2px` en el resto, a escala de 1440.
 
 ### Fondos
 
-Cuatro PNG, todos monocromos sobre negro: tres cordilleras wireframe y un
+Cuatro AVIF, todos monocromos sobre negro: tres cordilleras wireframe y un
 cañón. Cubren T1, T3 y T4.
 
 **El de T2 no se podía usar.** El de la base es un contorno topográfico de
@@ -336,7 +336,7 @@ izquierda. No es una marca de agua de preview: está en el arte. Un deck de
 patrocinio no sale con la firma de otro autor encima.
 
 Se reemplazó por una quinta lámina que el repo **dibuja**, no compra:
-`contour.webp`, el relieve real del Valle Sagrado cortado en curvas de nivel.
+`contour.avif`, el relieve real del Valle Sagrado cortado en curvas de nivel.
 No imita al shader del landing — corre su misma medida (`band = elevación /
 espaciado`, línea donde `fract(band)` cruza, normalizada por el gradiente)
 sobre el mismo DEM, visto desde arriba en vez de desde una cámara en el valle.
@@ -391,13 +391,14 @@ más reutilizable del paquete: es la textura de toda la identidad.
 
 ### Marcas
 
-La base lleva CHOFEX, CRAFTER STATION y PERÚ TECH WEEK como raster. En el repo
-ya están mejores, y son las que se usan:
+La base lleva CHOFEX, CRAFTER STATION y PERÚ TECH WEEK como raster. El repo
+conserva los originales del landing en `public/sponsors/`; el deck usa copias
+WebP lossless reducidas al tamaño máximo al que las pinta:
 
 ```
-apps/web/public/sponsors/chofex-white.png
-apps/web/public/sponsors/crafter-station-white.png
-apps/web/public/sponsors/peru-tech-week-white.png
+apps/web/public/deck/logos/chofex-white.webp
+apps/web/public/deck/logos/crafter-station-white.webp
+apps/web/public/deck/logos/peru-tech-week-white.webp
 ```
 
 ### La capa de sombra
