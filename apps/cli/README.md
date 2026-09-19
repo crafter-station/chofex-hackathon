@@ -63,6 +63,24 @@ use `requirements` only when requirements-only human output is preferred.
 Run `chofex login` to authenticate. For automation, provide an OAuth access
 token with `CHOFEX_TOKEN`.
 
+### Authentication troubleshooting
+
+If `chofex login` succeeds but `whoami` or an authenticated challenge command
+returns `AUTHENTICATION_REQUIRED`, update the CLI and renew the stored session:
+
+```sh
+chofex update
+chofex --version
+chofex logout
+chofex login
+chofex --output json whoami
+```
+
+Versions before `0.1.140` used a retired API origin whose cross-origin redirect
+removed the bearer token. Current releases call `https://hacktheandes.com`
+directly. If authentication still fails, share the response's request ID when
+asking for support, but never share the access or refresh token.
+
 When applying again after a rejection, interactive registration pre-fills the
 previous application's answers. Keep a value by pressing Enter, or press Ctrl+U
 and type a replacement for an answer that needs to change.
