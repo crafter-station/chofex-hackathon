@@ -36,17 +36,41 @@ released and that commit is the remote default branch tip.
    test "$approved_sha" = "$remote_sha"
    ```
 
-2. Give the automatic push run 30 seconds to appear. Reuse it when found; only
-   dispatch the exact approved commit after all bounded attempts are empty:
+2. Give the automatic push run 30 seconds to appear:
 
    ```sh
-   run_id=""
+   automatic_run_id=""
    for attempt in 1 2 3 4 5 6; do
-     run_id="$(gh run list --workflow publish-cli.yml --commit "$approved_sha" \
-       --limit 1 --json databaseId --jq '.[0].databaseId // empty')"
-     if [[ -n "$run_id" ]]; then break; fi
+     automatic_run_id="$(gh run list --workflow publish-cli.yml --event push \
+       --commit "$approved_sha" --limit 1 --json databaseId \
+       --jq '.[0].databaseId // empty')"
+     if [[ -n "$automatic_run_id" ]]; then break; fi
      if [[ "$attempt" -lt 6 ]]; then sleep 5; fi
    done
+   ```
+
+3. When an automatic run exists, verify its SHA and watch it through
+   completion. If it fails, follow the recovery rule below. A successful run
+   can still have skipped `Publish chofex-cli`; do not treat that as a release:
+
+   ```sh
+   run_id="$automatic_run_id"
+   if [[ -n "$run_id" ]]; then
+     gh run view "$run_id" --json databaseId,headSha,status,conclusion,url
+     test "$(gh run view "$run_id" --json headSha --jq '.headSha')" = "$approved_sha"
+     gh run watch "$run_id" --exit-status
+     publish_conclusion="$(gh run view "$run_id" --json jobs \
+       --jq '.jobs[] | select(.name == "Publish chofex-cli") | .conclusion // empty')"
+     if [[ "$publish_conclusion" == "skipped" ]]; then run_id=""; fi
+     if [[ -n "$run_id" ]]; then test "$publish_conclusion" = "success"; fi
+   fi
+   ```
+
+4. If no automatic run exists, or its publish job was skipped, dispatch the
+   exact approved commit. `workflow_dispatch` forces the publish job after
+   validating the commit against the remote default-branch tip:
+
+   ```sh
    if [[ -z "$run_id" ]]; then
      run_url="$(gh workflow run publish-cli.yml --ref "$default_branch" \
        -f commit_sha="$approved_sha")"
@@ -55,19 +79,20 @@ released and that commit is the remote default branch tip.
    test -n "$run_id"
    ```
 
-3. Read that run by its captured ID and verify it uses the approved commit:
+5. Read the selected run by its captured ID and verify it uses the approved
+   commit:
 
    ```sh
    gh run view "$run_id" \
      --json databaseId,headSha,status,conclusion,url
    ```
 
-4. If the captured run already completed unsuccessfully, inspect it with
+6. If the captured run already completed unsuccessfully, inspect it with
    `gh run view <run-id> --log-failed`. Fix the cause and obtain fresh approval.
    If the approved SHA remains the remote default-branch tip, rerun it with
    `gh run rerun <run-id>`; if the fix changed code, restart at the Gate with
    the new SHA.
-5. Watch the run through completion with `gh run watch <run-id> --exit-status`.
+7. Watch the run through completion with `gh run watch <run-id> --exit-status`.
    Verify `headSha` equals the approved SHA. Apply the same recovery rule to a
    new failure; do not keep re-watching a terminal failed run.
 
