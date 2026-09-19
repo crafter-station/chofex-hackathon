@@ -26,21 +26,31 @@ released and that commit is the remote default branch tip.
 
 ## Run
 
-1. Resolve the default branch, verify its remote tip still equals the recorded
-   approved commit, and capture the URL of the newly dispatched run:
+1. Resolve the default branch and verify its remote tip still equals the
+   recorded approved commit:
 
    ```sh
    default_branch="$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name')"
    approved_sha="<full SHA approved above>"
    remote_sha="$(git ls-remote origin "refs/heads/${default_branch}" | cut -f1)"
    test "$approved_sha" = "$remote_sha"
-   run_url="$(gh workflow run publish-cli.yml --ref "$default_branch" \
-     -f commit_sha="$approved_sha")"
-   run_id="${run_url##*/}"
+   ```
+
+2. Reuse the automatic push run for the approved commit when it exists. If no
+   run exists, dispatch the exact approved commit and capture its URL:
+
+   ```sh
+   run_id="$(gh run list --workflow publish-cli.yml --commit "$approved_sha" \
+     --limit 1 --json databaseId --jq '.[0].databaseId // empty')"
+   if [[ -z "$run_id" ]]; then
+     run_url="$(gh workflow run publish-cli.yml --ref "$default_branch" \
+       -f commit_sha="$approved_sha")"
+     run_id="${run_url##*/}"
+   fi
    test -n "$run_id"
    ```
 
-2. Read that run by its captured ID and verify it uses the approved commit.
+3. Read that run by its captured ID and verify it uses the approved commit.
    GitHub may need a few seconds to expose a new run, so use bounded retries:
 
    ```sh
@@ -48,7 +58,7 @@ released and that commit is the remote default branch tip.
      --json databaseId,headSha,status,conclusion,url
    ```
 
-3. Watch the run through completion with `gh run watch <run-id> --exit-status`.
+4. Watch the run through completion with `gh run watch <run-id> --exit-status`.
    Verify `headSha` equals the approved SHA.
    On failure, inspect it with `gh run view <run-id> --log-failed`, fix the
    cause, and obtain fresh approval before dispatching another release.
