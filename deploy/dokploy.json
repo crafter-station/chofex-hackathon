@@ -27,11 +27,13 @@
         "TRIGGER_PROJECT_REF",
         "TRIGGER_SECRET_KEY",
         "CHALLENGE_SEED_SECRET",
-        "CHALLENGE_ENGINE_URL",
         "CHALLENGE_ENGINE_API_SECRET",
         "CHALLENGES_FORCE_OPEN",
         "AI_GATEWAY_API_KEY"
       ],
+      "serviceEnvironmentVariables": {
+        "CHALLENGE_ENGINE_URL": "Challenge Engine"
+      },
       "optionalEnvironmentVariables": [
         "ADMIN_CLERK_USER_IDS",
         "NEXT_PUBLIC_POSTHOG_KEY",

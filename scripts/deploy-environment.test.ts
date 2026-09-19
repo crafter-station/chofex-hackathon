@@ -12,16 +12,17 @@ interface TestApplication {
 
 describe("deployment environment selection", () => {
   test("derives service URLs from the target application's domain", () => {
-    const applications: TestApplication[] = [
-      {
-        name: "Website",
-        domain: "hacktheandes.com",
-        environmentVariables: ["DATABASE_URL"],
-        optionalEnvironmentVariables: [],
-        serviceEnvironmentVariables: {
-          CHALLENGE_ENGINE_URL: "Challenge Engine",
-        },
+    const website: TestApplication = {
+      name: "Website",
+      domain: "hacktheandes.com",
+      environmentVariables: ["DATABASE_URL"],
+      optionalEnvironmentVariables: [],
+      serviceEnvironmentVariables: {
+        CHALLENGE_ENGINE_URL: "Challenge Engine",
       },
+    };
+    const applications: TestApplication[] = [
+      website,
       {
         name: "Challenge Engine",
         domain: "engine.hacktheandes.com",
@@ -29,19 +30,14 @@ describe("deployment environment selection", () => {
         optionalEnvironmentVariables: [],
       },
     ];
-    const select = selectedEnvironment as unknown as (
-      values: Record<string, string>,
-      application: TestApplication,
-      allApplications: TestApplication[],
-    ) => Record<string, string>;
 
     expect(
-      select(
+      selectedEnvironment(
         {
           DATABASE_URL: "postgresql://database.example/chofex",
           CHALLENGE_ENGINE_URL: "https://andes-engine.cueva.io",
         },
-        applications[0]!,
+        website,
         applications,
       ),
     ).toEqual({
