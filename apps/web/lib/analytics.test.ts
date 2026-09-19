@@ -197,6 +197,7 @@ test("replaces stale campaign properties on browser events", () => {
   expect(
     replaceCampaignProperties(
       {
+        $initial_utm_campaign: "unvalidated-initial-campaign",
         $utm_campaign: "old-campaign",
         $utm_content: "old-link",
         challenge_count: 1,
@@ -207,7 +208,13 @@ test("replaces stale campaign properties on browser events", () => {
     $utm_campaign: "new-campaign",
     challenge_count: 1,
   });
-  expect(replaceCampaignProperties({ $utm_campaign: "expired" }, {})).toEqual(
-    {},
-  );
+  expect(
+    replaceCampaignProperties(
+      {
+        $initial_utm_campaign: "unvalidated-initial-campaign",
+        $utm_campaign: "expired",
+      },
+      {},
+    ),
+  ).toEqual({});
 });

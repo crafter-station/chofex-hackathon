@@ -61,8 +61,10 @@ export function replaceCampaignProperties(
   campaign: CampaignProperties,
 ): Record<string, unknown> {
   const currentProperties = { ...properties };
-  for (const property of campaignPropertyNames) {
-    delete currentProperties[property];
+  for (const property of Object.keys(currentProperties)) {
+    if (property.startsWith("$utm_") || property.startsWith("$initial_utm_")) {
+      delete currentProperties[property];
+    }
   }
   return { ...currentProperties, ...campaign };
 }

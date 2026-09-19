@@ -81,6 +81,8 @@ export function PostHogAnalytics({
       api_host: posthogHost,
       capture_pageview: false,
       defaults: "2025-05-24",
+      save_campaign_params: false,
+      save_referrer: false,
       before_send: (event) => {
         const publicEvent = postHogEventForPublicAnalytics(event);
         if (!publicEvent) return null;
@@ -92,13 +94,26 @@ export function PostHogAnalytics({
         if (!attributionSuppressed.current) {
           campaign = syncRegisteredCampaign();
         }
-        return {
+        const eventWithCampaign = {
           ...publicEvent,
           properties: replaceCampaignProperties(
             publicEvent.properties,
             campaign,
           ),
         };
+        if (publicEvent.$set) {
+          eventWithCampaign.$set = replaceCampaignProperties(
+            publicEvent.$set,
+            {},
+          );
+        }
+        if (publicEvent.$set_once) {
+          eventWithCampaign.$set_once = replaceCampaignProperties(
+            publicEvent.$set_once,
+            {},
+          );
+        }
+        return eventWithCampaign;
       },
     });
     initialized.current = true;
