@@ -6,7 +6,6 @@ import { useCallback, useEffect, useRef } from "react";
 
 import {
   type CampaignProperties,
-  campaignPropertiesFromUrl,
   campaignPropertyNames,
   isPostHogConfigured,
   isTrackableUrl,
@@ -18,6 +17,7 @@ import {
 } from "@/lib/analytics";
 import {
   campaignAttributionCookieForLanding,
+  campaignPropertiesForAttributionLanding,
   expiredCampaignAttributionCookie,
   latestCampaignProperties,
 } from "@/lib/campaign-attribution";
@@ -220,7 +220,8 @@ export function PostHogAnalytics({
           if (pageviewUrl) {
             const capturedAt = Date.now();
             persistCampaignLanding(pageviewUrl, capturedAt);
-            const landingCampaign = campaignPropertiesFromUrl(pageviewUrl);
+            const landingCampaign =
+              campaignPropertiesForAttributionLanding(pageviewUrl);
             if (Object.keys(landingCampaign).length > 0) {
               landingSnapshot = {
                 capturedAt,
@@ -272,6 +273,7 @@ export function PostHogAnalytics({
     ) {
       return;
     }
+    const wasIdentityReady = identityReady.current;
     const didResetIdentity = syncPostHogIdentity(
       { isLoaded: identityIsLoaded, userId: identityUserId },
       posthog,
@@ -283,7 +285,11 @@ export function PostHogAnalytics({
     ).at(-1);
     if (didResetIdentity && preservedLanding) {
       registerCampaign(preservedLanding.campaign);
-    } else if (didResetIdentity && initialPageviewObserved.current) {
+    } else if (
+      didResetIdentity &&
+      !wasIdentityReady &&
+      initialPageviewObserved.current
+    ) {
       // Replace the discarded landing; otherwise PostHog's pending initial
       // pageview will capture it after this identity decision.
       posthog.capture("$pageview");

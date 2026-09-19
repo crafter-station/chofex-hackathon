@@ -3,6 +3,7 @@ import { expect, test } from "bun:test";
 import {
   campaignAttributionCookieForLanding,
   campaignAttributionProperties,
+  campaignPropertiesForAttributionLanding,
   latestCampaignProperties,
 } from "./campaign-attribution";
 
@@ -181,6 +182,21 @@ test("keeps encoded Unicode and escaped values within browser cookie limits", ()
       latest_utm_campaign: expect.any(String),
     });
   }
+});
+
+test("uses the cookie-safe campaign representation for landing events", () => {
+  const url = new URL("https://hacktheandes.com/");
+  url.searchParams.set("utm_campaign", "🏔️".repeat(200));
+  const cookie = campaignAttributionCookieForLanding(
+    url.toString(),
+    "",
+    firstTouchAt,
+    true,
+  );
+
+  expect(campaignPropertiesForAttributionLanding(url.toString())).toEqual(
+    latestCampaignProperties(cookie, firstTouchAt),
+  );
 });
 
 test("returns only a validated latest campaign for browser registration", () => {

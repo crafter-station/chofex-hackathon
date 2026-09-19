@@ -118,13 +118,19 @@ function campaignTouchFromUrl(
   url: string,
   now: number,
 ): CampaignTouch | undefined {
-  if (!isTrackableUrl(url)) return;
+  const campaign = campaignPropertiesForAttributionLanding(url);
+  if (Object.keys(campaign).length === 0) return;
+  return { at: now, campaign };
+}
+
+export function campaignPropertiesForAttributionLanding(
+  url: string,
+): CampaignProperties {
+  if (!isTrackableUrl(url)) return {};
   try {
-    const campaign = cookieSafeCampaign(campaignPropertiesFromUrl(url));
-    if (Object.keys(campaign).length === 0) return;
-    return { at: now, campaign };
+    return cookieSafeCampaign(campaignPropertiesFromUrl(url));
   } catch {
-    return;
+    return {};
   }
 }
 
