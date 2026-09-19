@@ -65,10 +65,48 @@ jobs:
           DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
           DOKPLOY_APPLICATION_ID: ${{ secrets.DOKPLOY_APPLICATION_ID }}
           DOKPLOY_IMAGE: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [[ -z "$DOKPLOY_API_KEY" || -z "$DOKPLOY_APPLICATION_ID" ]]; then
             echo "Dokploy deployment secrets are not configured yet; image publication is complete."
             exit 0
+          fi
+          required_cli_assets=(
+            checksums.txt
+            chofex-darwin-arm64.tar.gz
+            chofex-darwin-x64.tar.gz
+            chofex-linux-arm64.tar.gz
+            chofex-linux-arm64-musl.tar.gz
+            chofex-linux-x64.tar.gz
+            chofex-linux-x64-musl.tar.gz
+            chofex-windows-arm64.tar.gz
+            chofex-windows-x64.tar.gz
+          )
+          cli_assets_ready=false
+          for attempt in {1..120}; do
+            release_assets="$(
+              gh release view \
+                --repo "$GITHUB_REPOSITORY" \
+                --json assets \
+                --jq '.assets[].name' \
+                2>/dev/null || true
+            )"
+            cli_assets_ready=true
+            for asset in "${required_cli_assets[@]}"; do
+              if ! grep -Fxq "$asset" <<<"$release_assets"; then
+                cli_assets_ready=false
+                break
+              fi
+            done
+            if [[ "$cli_assets_ready" == "true" ]]; then
+              break
+            fi
+            echo "Waiting for standalone CLI release assets (${attempt}/120)."
+            sleep 10
+          done
+          if [[ "$cli_assets_ready" != "true" ]]; then
+            echo "Standalone CLI release assets are unavailable; refusing to expose the installer."
+            exit 1
           fi
           curl --fail-with-body --silent --show-error \
             --request POST \
