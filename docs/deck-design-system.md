@@ -46,7 +46,7 @@ un tercio del lienzo a la lámina. Lo que quedó:
 | Layout | Slides | Por qué |
 | --- | --- | --- |
 | `cover` | `01-cover`, `10-close` | Las dos que no llevan grilla |
-| `split-left` | `05-prizes`, `06-stack` | Podio de 2 y grilla de 3, entran al 64% |
+| `split-left` | `06-prizes`, `07-adoption` | Podio de 3 y grilla de 3, entran al 64% |
 | `split-right` | `08-why` | `ContrastGrid` son 2 columnas |
 | `wide` | las otras cinco | `StatRow` y `FlowMap` de 4, `MiniMatrix`, los 3 tiers |
 
@@ -367,7 +367,7 @@ del deck y las fotos son evidencia puesta adentro de él.
 Entran por el componente `Photos`, como objeto al lado del tipo. En una slide
 partida el CSS lo saca del flujo hacia la mitad que el tipo deja libre, que es la
 misma hacia la que ya se corrió la parte brillante de la lámina; por debajo de
-800px vuelve a la columna como tira horizontal. El ancho es la mitad libre
+901px vuelve a la columna como tira horizontal. El ancho es la mitad libre
 expresada contra la columna que la define: la columna es el 64% de la slide, así
 que lo que queda de ella es `100/64 - 1 = 56.25%` de su propio ancho.
 

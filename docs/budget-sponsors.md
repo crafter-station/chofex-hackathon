@@ -85,18 +85,17 @@ que no cierra.
 
 ### Devtools — sin efectivo, sin cifra
 
-Un devtool ya tiene un monto fijo que da por persona, y no lo cambia. La
-pregunta que se le hace no es cuánto, es **hasta dónde llegan sus créditos**.
+Un devtool elige cuánto crédito da por persona. El tier no fija ese monto:
+define si el aporte se queda en Basic o suma podio o merch.
 
 | Tier | Lo que da | Lo que recibe |
 | --- | --- | --- |
-| **Kit** | Créditos para los 100 | Logo en la landing · assets de anuncio · reporte de claims |
-| **Kit + podio** | Y créditos para el podio | Todo lo anterior · promoción en LinkedIn · mención en la premiación · reporte de uso |
-| **Kit + podio + sala** | Y una persona que dé el workshop | Todo lo anterior · 45 min con los 100 · informe de fricción |
+| **Basic** | Créditos para los 100, en el monto que el sponsor elija | Logo en la landing · assets de anuncio · reporte de claims |
+| **Pro** | Basic + créditos para 1º, 2º y 3º | Todo Basic · mención en la premiación · reporte de uso |
+| **Premium** | Basic + merch para participantes | Todo Basic · distribución en el evento · reporte de entrega |
 
-**El tercero no cuesta más plata, cuesta más gente**: un vuelo, dos días y un
-DevRel. Es el tier que un devtool con equipo en la región puede firmar sin
-presupuesto, y que uno sin gente acá no puede aunque quiera pagar.
+Basic es la base. Pro y Premium son extensiones alternativas: Premium no incluye
+Pro por defecto. Ningún tier pide efectivo al devtool.
 
 **Una herramienta por categoría** —inferencia, datos, auth, infra,
 observabilidad— para que los créditos de un partner no se diluyan entre cuatro
@@ -214,12 +213,14 @@ Si se venden 3 Toolkit de 6 y falta el in-kind de comida:
 
 ## 8. Regla de fuente única
 
-Este archivo es la única fuente de los montos y slots de tier. Cuando cambien:
+Este archivo es la única fuente de las dos ofertas. Cuando cambien:
 
 1. Se edita **aquí** primero.
 2. Se actualiza la sección de sponsors de la landing (hoy `sponsorsCopy`; una
    grilla multi-slot todavía está por construirse).
-3. Se actualiza `apps/web/content/decks/main/09-tiers.mdx`.
+3. Para devtools, se actualiza `apps/web/content/decks/main/09-tiers.mdx`.
+4. Para aportes en efectivo o especie, se actualiza
+   `apps/web/content/decks/partners/08-tiers.mdx`.
 
 > El sistema del que se portó este documento tiene el mismo tier sheet escrito
 > con tres números distintos en tres archivos (Silver ×3, ×5 y ×8). No es un
