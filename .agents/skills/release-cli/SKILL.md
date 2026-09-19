@@ -41,9 +41,12 @@ released and that commit is the remote default branch tip.
    ```sh
    automatic_run_id=""
    for attempt in 1 2 3 4 5 6; do
-     automatic_run_id="$(gh run list --workflow publish-cli.yml --event push \
+     if ! automatic_run_id="$(gh run list --workflow publish-cli.yml --event push \
        --commit "$approved_sha" --limit 1 --json databaseId \
-       --jq '.[0].databaseId // empty')"
+       --jq '.[0].databaseId // empty')"; then
+       echo "Could not inspect automatic release runs; refusing to dispatch a duplicate." >&2
+       exit 1
+     fi
      if [[ -n "$automatic_run_id" ]]; then break; fi
      if [[ "$attempt" -lt 6 ]]; then sleep 5; fi
    done
