@@ -37,7 +37,7 @@ interface EnvironmentAssignment {
   end: number;
 }
 
-type Quote = '"' | "'";
+type Quote = '"' | "'" | "`";
 
 const unclosedQuote = (value: string, continued?: Quote): Quote | undefined => {
   let quote = continued;
@@ -46,7 +46,7 @@ const unclosedQuote = (value: string, continued?: Quote): Quote | undefined => {
     const firstValueCharacter = value.search(/\S/);
     if (firstValueCharacter < 0) return;
     const candidate = value[firstValueCharacter];
-    if (candidate !== '"' && candidate !== "'") return;
+    if (candidate !== '"' && candidate !== "'" && candidate !== "`") return;
     quote = candidate;
     start = firstValueCharacter + 1;
   }
@@ -85,7 +85,7 @@ const environmentAssignments = (source: string): EnvironmentAssignment[] => {
       if (quote) continued.quote = quote;
       else continued = undefined;
     } else {
-      const match = /^([A-Za-z_][A-Za-z0-9_]*)\s*=/.exec(line);
+      const match = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=/.exec(line);
       const name = match?.[1];
       if (name && match) {
         const assignment = { name, start: offset, end: contentEnd };
