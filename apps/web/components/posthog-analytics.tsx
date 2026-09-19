@@ -15,6 +15,7 @@ import {
 import {
   campaignAttributionCookieForLanding,
   expiredCampaignAttributionCookie,
+  shouldCaptureCampaignLandingAfterIdentitySync,
 } from "@/lib/campaign-attribution";
 import {
   type IdentityState,
@@ -105,7 +106,11 @@ export function PostHogAnalytics({
         expiredCampaignAttributionCookie(window.location.protocol === "https:"),
       );
     }
-    captureCampaignLanding();
+    const shouldCaptureLanding = shouldCaptureCampaignLandingAfterIdentitySync({
+      didReset,
+      hasCapturedInitialPageview: initialPageviewCaptured.current,
+    });
+    if (shouldCaptureLanding) captureCampaignLanding();
     if (!initialPageviewCaptured.current) {
       posthog.capture("$pageview");
       posthog.set_config({ capture_pageview: "history_change" });

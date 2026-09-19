@@ -3,6 +3,7 @@ import { expect, test } from "bun:test";
 import {
   campaignAttributionCookieForLanding,
   campaignAttributionProperties,
+  shouldCaptureCampaignLandingAfterIdentitySync,
 } from "./campaign-attribution";
 
 const firstTouchAt = Date.UTC(2026, 8, 1, 12);
@@ -180,4 +181,25 @@ test("keeps encoded Unicode and escaped values within browser cookie limits", ()
       latest_utm_campaign: expect.any(String),
     });
   }
+});
+
+test("does not recreate attribution from the old URL after sign-out", () => {
+  expect(
+    shouldCaptureCampaignLandingAfterIdentitySync({
+      didReset: true,
+      hasCapturedInitialPageview: true,
+    }),
+  ).toBe(false);
+  expect(
+    shouldCaptureCampaignLandingAfterIdentitySync({
+      didReset: true,
+      hasCapturedInitialPageview: false,
+    }),
+  ).toBe(true);
+  expect(
+    shouldCaptureCampaignLandingAfterIdentitySync({
+      didReset: false,
+      hasCapturedInitialPageview: true,
+    }),
+  ).toBe(true);
 });

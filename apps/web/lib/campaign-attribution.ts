@@ -24,6 +24,16 @@ type CampaignAttribution = {
 
 export type CampaignAttributionProperties = Record<string, string>;
 
+export function shouldCaptureCampaignLandingAfterIdentitySync({
+  didReset,
+  hasCapturedInitialPageview,
+}: {
+  readonly didReset: boolean;
+  readonly hasCapturedInitialPageview: boolean;
+}): boolean {
+  return !didReset || !hasCapturedInitialPageview;
+}
+
 function cookieSafeCampaign(
   campaign: CampaignProperties,
   maximumEncodedValueLength = maximumEncodedCampaignValueLength,
