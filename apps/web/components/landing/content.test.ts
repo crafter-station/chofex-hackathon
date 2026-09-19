@@ -223,9 +223,16 @@ test("publishes a hundred-seat, three-track event", () => {
   expect(heroCopy.admission).toMatch(/challenge/i);
   expect(facts.find((fact) => fact.label === "Cupos")?.value).toBe("100");
   expect(metadataCopy.description).toContain("100 cupos");
-  expect(eventCopy.title).toBe("Crear soluciones reales para problemas reales");
-  expect(eventCopy.lede.toLowerCase()).toContain("status quo");
-  expect(eventCopy.support.toLowerCase()).toContain("presencial");
+  expect(eventCopy.title).toMatch(/grupo exclusivo de hackers/i);
+  expect(eventCopy.title).toMatch(/Perú necesita/i);
+  expect(eventCopy.lede).toMatch(/100/);
+  expect(eventCopy.lede).toMatch(/problemas reales/i);
+  expect(eventCopy.support).toMatch(/8,000/);
+  expect(eventCopy.support).toMatch(/comida/i);
+  expect(eventCopy.support).toMatch(/bebidas/i);
+  expect(eventCopy.support).toMatch(/energizantes/i);
+  expect(eventCopy.support).toMatch(/merch/i);
+  expect(eventCopy.support).toMatch(/experiencia/i);
   expect(eventItems.map((item) => item.title)).toEqual([
     "Ship mata cartón",
     "Equipos de 1–4",
@@ -300,17 +307,27 @@ test("invites participants to connect through Discord", async () => {
   expect(faq).toContain('href="/discord"');
 });
 
-test("encourages strong applicants outside Lima and promises flight support", () => {
-  expect(applyCopy.travelTitle).toMatch(/fuera de Lima/i);
+test("limits flight support to exceptional talent in other Peruvian cities", () => {
+  expect(applyCopy.travelTitle).toMatch(/otra ciudad del Perú/i);
   expect(applyCopy.travelSupport).toMatch(/postula igual/i);
-  expect(applyCopy.travelSupport).toMatch(/cubriremos tus vuelos a Lima/i);
-  expect(applyCopy.travelSupport).toMatch(/dinero no debería ser una barrera/i);
+  expect(applyCopy.travelSupport).toMatch(/presupuesto limitado/i);
+  expect(applyCopy.travelSupport).toMatch(/vuelos nacionales a Lima/i);
+  expect(applyCopy.travelSupport).toMatch(/talento excepcional/i);
+  expect(applyCopy.travelSupport).toMatch(/otras ciudades del Perú/i);
+  expect(applyCopy.travelSupport).toMatch(/caso por caso/i);
+  expect(applyCopy.travelSupport).toMatch(
+    /no cubrimos vuelos internacionales/i,
+  );
 
   const travelFaq = faqItems.find((item) =>
     /fuera de Lima/i.test(item.question),
   );
-  expect(travelFaq?.answer).toMatch(/estés donde estés/i);
-  expect(travelFaq?.answer).toMatch(/cubriremos tus vuelos a Lima/i);
+  expect(travelFaq?.answer).toMatch(/presupuesto limitado/i);
+  expect(travelFaq?.answer).toMatch(/vuelos nacionales a Lima/i);
+  expect(travelFaq?.answer).toMatch(/talento excepcional/i);
+  expect(travelFaq?.answer).toMatch(/otras ciudades del Perú/i);
+  expect(travelFaq?.answer).toMatch(/caso por caso/i);
+  expect(travelFaq?.answer).toMatch(/no cubre vuelos internacionales/i);
 });
 
 test("ships one social preview card for every public link", async () => {
