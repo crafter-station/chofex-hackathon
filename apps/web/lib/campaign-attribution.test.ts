@@ -2,7 +2,9 @@ import { expect, test } from "bun:test";
 
 import {
   campaignAttributionCookieForLanding,
+  campaignAttributionFallbackForLanding,
   campaignAttributionProperties,
+  campaignPropertiesForAttributionFallback,
   campaignPropertiesForAttributionLanding,
   latestCampaignProperties,
 } from "./campaign-attribution";
@@ -214,6 +216,41 @@ test("returns only a validated latest campaign for browser registration", () => 
   expect(
     latestCampaignProperties(cookie, firstTouchAt + 91 * 24 * 60 * 60 * 1000),
   ).toEqual({});
+});
+
+test("retains a failed cookie write in memory only for the attribution window", () => {
+  const fallback = {
+    capturedAt: firstTouchAt,
+    campaign: { $utm_campaign: "cookie-blocked", $utm_source: "email" },
+  };
+
+  expect(campaignAttributionFallbackForLanding("", fallback)).toEqual(fallback);
+  expect(
+    campaignPropertiesForAttributionFallback(fallback, firstTouchAt),
+  ).toEqual(fallback.campaign);
+  expect(
+    campaignPropertiesForAttributionFallback(
+      fallback,
+      firstTouchAt + 91 * 24 * 60 * 60 * 1000,
+    ),
+  ).toEqual({});
+});
+
+test("drops the in-memory fallback after a matching cookie readback", () => {
+  const fallback = {
+    capturedAt: firstTouchAt,
+    campaign: { $utm_campaign: "persisted", $utm_source: "email" },
+  };
+  const cookie = campaignAttributionCookieForLanding(
+    "https://hacktheandes.com/?utm_source=email&utm_campaign=persisted",
+    "",
+    firstTouchAt,
+    true,
+  );
+
+  expect(
+    campaignAttributionFallbackForLanding(cookie, fallback),
+  ).toBeUndefined();
 });
 
 test("allows reasonable browser and server clock skew", () => {

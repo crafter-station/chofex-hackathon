@@ -1,6 +1,7 @@
 import {
   type CampaignProperties,
   campaignPropertiesFromUrl,
+  campaignPropertyNames,
   isTrackableUrl,
   normalizeCampaignProperties,
 } from "./analytics";
@@ -14,6 +15,11 @@ const maximumCookieLength = 3800;
 
 type CampaignTouch = {
   readonly at: number;
+  readonly campaign: CampaignProperties;
+};
+
+export type CampaignAttributionFallback = {
+  readonly capturedAt: number;
   readonly campaign: CampaignProperties;
 };
 
@@ -220,6 +226,33 @@ export function latestCampaignProperties(
   now = Date.now(),
 ): CampaignProperties {
   return parseAttribution(cookieHeader, now)?.latest.campaign ?? {};
+}
+
+export function campaignAttributionFallbackForLanding(
+  cookieHeader: string | null | undefined,
+  fallback: CampaignAttributionFallback,
+): CampaignAttributionFallback | undefined {
+  const latest = parseAttribution(cookieHeader, fallback.capturedAt)?.latest;
+  if (latest?.at !== fallback.capturedAt) return fallback;
+  for (const property of campaignPropertyNames) {
+    if (latest.campaign[property] !== fallback.campaign[property]) {
+      return fallback;
+    }
+  }
+  return;
+}
+
+export function campaignPropertiesForAttributionFallback(
+  fallback: CampaignAttributionFallback | undefined,
+  now = Date.now(),
+): CampaignProperties {
+  if (!fallback) return {};
+  return (
+    normalizedTouch(
+      { at: fallback.capturedAt, campaign: fallback.campaign },
+      now,
+    )?.campaign ?? {}
+  );
 }
 
 export function expiredCampaignAttributionCookie(secure: boolean): string {

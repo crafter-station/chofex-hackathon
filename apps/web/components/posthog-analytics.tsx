@@ -16,7 +16,10 @@ import {
   replaceCampaignProperties,
 } from "@/lib/analytics";
 import {
+  type CampaignAttributionFallback,
   campaignAttributionCookieForLanding,
+  campaignAttributionFallbackForLanding,
+  campaignPropertiesForAttributionFallback,
   campaignPropertiesForAttributionLanding,
   expiredCampaignAttributionCookie,
   latestCampaignProperties,
@@ -37,16 +40,29 @@ type CampaignLandingSnapshot = {
   readonly url: string;
 };
 
+function browserCookie(): string {
+  try {
+    return document.cookie;
+  } catch {
+    return "";
+  }
+}
+
 function writeBrowserCookie(cookie: string): void {
-  // biome-ignore lint/suspicious/noDocumentCookie: the server must receive pre-auth landing attribution
-  document.cookie = cookie;
+  try {
+    // biome-ignore lint/suspicious/noDocumentCookie: the server must receive pre-auth landing attribution
+    document.cookie = cookie;
+  } catch {
+    // The in-memory fallback keeps browser analytics attributed when cookies
+    // are blocked, while server events correctly remain unattributed.
+  }
 }
 
 function persistCampaignLanding(url: string, capturedAt = Date.now()): void {
   if (!isTrackableUrl(url)) return;
   const attributionCookie = campaignAttributionCookieForLanding(
     url,
-    document.cookie,
+    browserCookie(),
     capturedAt,
     window.location.protocol === "https:",
   );
@@ -59,13 +75,22 @@ function registerCampaign(campaign: CampaignProperties): void {
 }
 
 function syncRegisteredCampaign(
-  fallbackCampaign: CampaignProperties,
-): CampaignProperties {
-  const storedCampaign = latestCampaignProperties(document.cookie);
-  let campaign = fallbackCampaign;
-  if (Object.keys(storedCampaign).length > 0) campaign = storedCampaign;
+  fallback: CampaignAttributionFallback | undefined,
+): {
+  readonly campaign: CampaignProperties;
+  readonly fallback: CampaignAttributionFallback | undefined;
+} {
+  const storedCampaign = latestCampaignProperties(browserCookie());
+  if (Object.keys(storedCampaign).length > 0) {
+    registerCampaign(storedCampaign);
+    return { campaign: storedCampaign, fallback: undefined };
+  }
+
+  const campaign = campaignPropertiesForAttributionFallback(fallback);
+  let retainedFallback = fallback;
+  if (Object.keys(campaign).length === 0) retainedFallback = undefined;
   registerCampaign(campaign);
-  return campaign;
+  return { campaign, fallback: retainedFallback };
 }
 
 function isCampaignLandingEvent(event: CaptureResult): boolean {
@@ -134,7 +159,9 @@ export function PostHogAnalytics({
   const queuedLandingSnapshots = useRef(
     new Map<string, CampaignLandingSnapshot>(),
   );
-  const inMemoryCampaign = useRef<CampaignProperties>({});
+  const inMemoryCampaign = useRef<CampaignAttributionFallback | undefined>(
+    undefined,
+  );
   const replayCampaign = useRef<CampaignProperties | undefined>(undefined);
 
   const beforeIdentityReset = useCallback(() => {
@@ -167,7 +194,15 @@ export function PostHogAnalytics({
       writeBrowserCookie(cookie);
       rebuiltCookie = cookie;
     }
-    inMemoryCampaign.current = landingSnapshots.at(-1)?.campaign ?? {};
+    const latestLanding = landingSnapshots.at(-1);
+    if (latestLanding) {
+      inMemoryCampaign.current = campaignAttributionFallbackForLanding(
+        browserCookie(),
+        latestLanding,
+      );
+    } else {
+      inMemoryCampaign.current = undefined;
+    }
     attributionSuppressed.current = campaignLandings.length === 0;
   }, []);
 
@@ -246,12 +281,18 @@ export function PostHogAnalytics({
         }
         let campaign: CampaignProperties = {};
         if (!attributionSuppressed.current) {
-          campaign = syncRegisteredCampaign(inMemoryCampaign.current);
-          inMemoryCampaign.current = campaign;
+          const registeredCampaign = syncRegisteredCampaign(
+            inMemoryCampaign.current,
+          );
+          campaign = registeredCampaign.campaign;
+          inMemoryCampaign.current = registeredCampaign.fallback;
         }
         if (landingSnapshot) {
           campaign = landingSnapshot.campaign;
-          inMemoryCampaign.current = campaign;
+          inMemoryCampaign.current = campaignAttributionFallbackForLanding(
+            browserCookie(),
+            landingSnapshot,
+          );
           registerCampaign(campaign);
         }
         const updatedEvent = eventWithCampaign(eventForCampaign, campaign);
