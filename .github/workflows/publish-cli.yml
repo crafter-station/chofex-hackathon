@@ -124,16 +124,22 @@ jobs:
         run: |
           release_tag="v${RELEASE_VERSION}"
           if gh release view "$release_tag" >/dev/null 2>&1; then
-            existing_assets="$(gh release view "$release_tag" --json assets --jq '.assets[].name')"
-            for artifact in artifacts/*; do
-              asset="$(basename "$artifact")"
-              if grep -Fxq "$asset" <<<"$existing_assets"; then
-                echo "Keeping existing ${asset}."
-                continue
-              fi
-              gh release upload "$release_tag" "$artifact"
-            done
-            exit 0
+            is_draft="$(gh release view "$release_tag" --json isDraft --jq '.isDraft')"
+            if [[ "$is_draft" == "true" ]]; then
+              echo "Replacing incomplete draft ${release_tag}."
+              gh release delete "$release_tag" --yes
+            else
+              existing_assets="$(gh release view "$release_tag" --json assets --jq '.assets[].name')"
+              for artifact in artifacts/*; do
+                asset="$(basename "$artifact")"
+                if ! grep -Fxq "$asset" <<<"$existing_assets"; then
+                  echo "Published release ${release_tag} is missing ${asset}; refusing to mutate it."
+                  exit 1
+                fi
+              done
+              echo "Published release ${release_tag} already has every asset."
+              exit 0
+            fi
           fi
           gh release create "$release_tag" \
             --target "$GITHUB_SHA" \
