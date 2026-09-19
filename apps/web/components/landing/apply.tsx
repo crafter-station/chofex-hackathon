@@ -8,6 +8,7 @@ import {
 import { TerminalIcon } from "lucide-react";
 import { CopyAgentPrompt } from "@/components/copy-agent-prompt";
 import { applyCopy, cliCommands } from "@/components/landing/content";
+import { ShellCommand } from "@/components/shell-command";
 
 export function LandingApply() {
   return (
@@ -74,7 +75,7 @@ export function LandingApply() {
             <h3 className="font-display text-3xl leading-none uppercase">
               {applyCopy.cliTitle}
             </h3>
-            <ol className="mt-6 overflow-hidden border border-[var(--hud-ink)]/10 bg-[var(--hud-ink)] font-mono text-sm text-[var(--hud-type)]">
+            <ol className="brand-code mt-6 overflow-hidden border font-mono text-sm">
               {cliCommands.map((command, index) => (
                 <li
                   /*
@@ -88,18 +89,17 @@ export function LandingApply() {
                   className="grid grid-cols-[2rem_minmax(0,1fr)] border-white/10 border-b p-4 last:border-b-0"
                   key={command}
                 >
-                  <span className="text-[var(--hud-type)]/45">
-                    0{index + 1}
-                  </span>
+                  <span className="text-[var(--code-muted)]">0{index + 1}</span>
                   {/*
                    * And it wraps on a phone rather than scrolling sideways: a
                    * command hidden behind a horizontal scrollbar is a command
                    * nobody reads, and these break cleanly at their spaces.
                    */}
-                  <code className="min-w-0 break-words whitespace-normal sm:overflow-x-auto sm:whitespace-nowrap">
-                    <span className="mr-3 text-[var(--hud-accent)]">$</span>
-                    {command}
-                  </code>
+                  <ShellCommand
+                    className="min-w-0 break-words whitespace-normal sm:overflow-x-auto sm:whitespace-nowrap"
+                    command={command}
+                    prompt
+                  />
                 </li>
               ))}
             </ol>

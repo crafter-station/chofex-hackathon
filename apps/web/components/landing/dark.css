@@ -189,30 +189,10 @@
 }
 
 /*
- * The CLI block was authored as ink on paper: a dark slab made out of the type
- * colour, with light type on it. Inverted, `--hud-ink` is the cream — so the
- * slab turned cream and took its cream type with it, and three commands went
- * invisible. It wants to be a well in the surface here, not a slab on it.
- */
-.landing-dark #apply ol {
-  background-color: rgb(246 243 238 / 7%);
-  border-color: rgb(246 243 238 / 14%);
-}
-
-/*
  * Same inversion, smaller blast radius: this grid draws its cell dividers with
  * the ink colour showing through one-pixel gaps, which on black is a bright
  * cream lattice rather than a hairline.
  */
 .landing-dark #why ul {
   background-color: rgb(246 243 238 / 12%);
-}
-
-/*
- * The CLI step numbers. At 45% of the cream they were readable over the slab
- * the light page gives them; over the well this page gives them instead they
- * measure 3.2:1.
- */
-.landing-dark #apply ol li > span:first-child {
-  color: rgb(246 243 238 / 62%);
 }
