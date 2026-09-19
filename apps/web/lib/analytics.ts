@@ -10,6 +10,10 @@ const campaignParameters = [
   "utm_term",
 ] as const;
 
+export const campaignPropertyNames = campaignParameters.map(
+  (parameter) => `$${parameter}` as const,
+);
+
 type CampaignParameter = (typeof campaignParameters)[number];
 export type CampaignProperties = Partial<
   Record<`$${CampaignParameter}`, string>
@@ -50,6 +54,17 @@ export function campaignPropertiesFromUrl(url: string): CampaignProperties {
     properties[`$${parameter}`] = value;
   }
   return normalizeCampaignProperties(properties);
+}
+
+export function replaceCampaignProperties(
+  properties: Record<string, unknown> | undefined,
+  campaign: CampaignProperties,
+): Record<string, unknown> {
+  const currentProperties = { ...properties };
+  for (const property of campaignPropertyNames) {
+    delete currentProperties[property];
+  }
+  return { ...currentProperties, ...campaign };
 }
 
 const staffPrefixes = [
@@ -144,7 +159,15 @@ function withoutExcludedLocationProperties(
     }
     try {
       const url = new URL(value, "https://hacktheandes.com");
-      if (!isTrackablePath(url.pathname)) delete sanitizedProperties[property];
+      if (!isTrackablePath(url.pathname)) {
+        delete sanitizedProperties[property];
+        continue;
+      }
+      if (property.toLowerCase().includes("url")) {
+        sanitizedProperties[property] = `${url.origin}${url.pathname}`;
+      } else {
+        sanitizedProperties[property] = url.pathname;
+      }
     } catch {
       delete sanitizedProperties[property];
     }

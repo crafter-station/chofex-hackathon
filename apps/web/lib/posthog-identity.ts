@@ -18,6 +18,7 @@ export function syncPostHogIdentity(
   state: IdentityState,
   analytics: IdentityAnalytics,
   storage: IdentityStorage,
+  beforeReset?: () => void,
 ): boolean {
   if (!state.isLoaded) return false;
 
@@ -36,6 +37,7 @@ export function syncPostHogIdentity(
 
   if (!state.userId) {
     if (!previousUserId) return false;
+    beforeReset?.();
     analytics.reset();
     try {
       storage.removeItem(identifiedUserStorageKey);
@@ -47,6 +49,7 @@ export function syncPostHogIdentity(
 
   let didReset = false;
   if (previousUserId && previousUserId !== state.userId) {
+    beforeReset?.();
     analytics.reset();
     didReset = true;
   }

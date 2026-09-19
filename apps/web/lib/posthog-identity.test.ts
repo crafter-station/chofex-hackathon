@@ -99,3 +99,25 @@ test("resets an identified user even when browser storage is unavailable", () =>
 
   expect(harness.calls).toEqual(["identify:user_a", "reset"]);
 });
+
+test("runs privacy cleanup before reset and the next identification", () => {
+  const harness = identityHarness();
+  syncPostHogIdentity(
+    { isLoaded: true, userId: "user_a" },
+    harness.analytics,
+    harness.storage,
+  );
+  syncPostHogIdentity(
+    { isLoaded: true, userId: "user_b" },
+    harness.analytics,
+    harness.storage,
+    () => harness.calls.push("before-reset"),
+  );
+
+  expect(harness.calls).toEqual([
+    "identify:user_a",
+    "before-reset",
+    "reset",
+    "identify:user_b",
+  ]);
+});

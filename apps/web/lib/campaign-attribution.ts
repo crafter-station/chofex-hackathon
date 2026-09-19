@@ -24,16 +24,6 @@ type CampaignAttribution = {
 
 export type CampaignAttributionProperties = Record<string, string>;
 
-export function shouldCaptureCampaignLandingAfterIdentitySync({
-  didReset,
-  hasCapturedInitialPageview,
-}: {
-  readonly didReset: boolean;
-  readonly hasCapturedInitialPageview: boolean;
-}): boolean {
-  return !didReset || !hasCapturedInitialPageview;
-}
-
 function cookieSafeCampaign(
   campaign: CampaignProperties,
   maximumEncodedValueLength = maximumEncodedCampaignValueLength,
@@ -216,6 +206,13 @@ export function campaignAttributionProperties(
   appendTouchProperties(properties, "first", attribution.first);
   appendTouchProperties(properties, "latest", attribution.latest);
   return properties;
+}
+
+export function latestCampaignProperties(
+  cookieHeader: string | null | undefined,
+  now = Date.now(),
+): CampaignProperties {
+  return parseAttribution(cookieHeader, now)?.latest.campaign ?? {};
 }
 
 export function expiredCampaignAttributionCookie(secure: boolean): string {

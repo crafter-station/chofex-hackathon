@@ -3,7 +3,7 @@ import { expect, test } from "bun:test";
 import {
   campaignAttributionCookieForLanding,
   campaignAttributionProperties,
-  shouldCaptureCampaignLandingAfterIdentitySync,
+  latestCampaignProperties,
 } from "./campaign-attribution";
 
 const firstTouchAt = Date.UTC(2026, 8, 1, 12);
@@ -183,23 +183,19 @@ test("keeps encoded Unicode and escaped values within browser cookie limits", ()
   }
 });
 
-test("does not recreate attribution from the old URL after sign-out", () => {
+test("returns only a validated latest campaign for browser registration", () => {
+  const cookie = campaignAttributionCookieForLanding(
+    "https://hacktheandes.com/?utm_source=email&utm_campaign=launch",
+    "",
+    firstTouchAt,
+    true,
+  );
+
+  expect(latestCampaignProperties(cookie, firstTouchAt)).toEqual({
+    $utm_campaign: "launch",
+    $utm_source: "email",
+  });
   expect(
-    shouldCaptureCampaignLandingAfterIdentitySync({
-      didReset: true,
-      hasCapturedInitialPageview: true,
-    }),
-  ).toBe(false);
-  expect(
-    shouldCaptureCampaignLandingAfterIdentitySync({
-      didReset: true,
-      hasCapturedInitialPageview: false,
-    }),
-  ).toBe(true);
-  expect(
-    shouldCaptureCampaignLandingAfterIdentitySync({
-      didReset: false,
-      hasCapturedInitialPageview: true,
-    }),
-  ).toBe(true);
+    latestCampaignProperties(cookie, firstTouchAt + 91 * 24 * 60 * 60 * 1000),
+  ).toEqual({});
 });

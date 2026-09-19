@@ -7,6 +7,7 @@ import {
   isTrackablePath,
   isTrackableUrl,
   postHogEventForPublicAnalytics,
+  replaceCampaignProperties,
 } from "./analytics";
 
 test("reads campaign dimensions for conversion events", () => {
@@ -175,7 +176,8 @@ test("removes excluded referrer and history URLs from public events", () => {
     },
     event: "$pageview",
     properties: {
-      $current_url: "https://hacktheandes.com/challenges",
+      $current_url:
+        "https://hacktheandes.com/challenges?email=private@example.com",
       $prev_pageview_pathname: "/admin/participants",
       $referrer: "https://hacktheandes.com/auth/complete?token=private",
       challenge_count: 1,
@@ -189,4 +191,23 @@ test("removes excluded referrer and history URLs from public events", () => {
       challenge_count: 1,
     },
   });
+});
+
+test("replaces stale campaign properties on browser events", () => {
+  expect(
+    replaceCampaignProperties(
+      {
+        $utm_campaign: "old-campaign",
+        $utm_content: "old-link",
+        challenge_count: 1,
+      },
+      { $utm_campaign: "new-campaign" },
+    ),
+  ).toEqual({
+    $utm_campaign: "new-campaign",
+    challenge_count: 1,
+  });
+  expect(replaceCampaignProperties({ $utm_campaign: "expired" }, {})).toEqual(
+    {},
+  );
 });
