@@ -11,7 +11,10 @@ import {
   landingMono,
   landingSans,
 } from "@/components/landing/fonts";
-import { PostHogAnalytics } from "@/components/posthog-analytics";
+import {
+  AuthenticatedPostHogAnalytics,
+  PostHogAnalytics,
+} from "@/components/posthog-analytics";
 import { QueryProvider } from "@/components/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import "@chofex/ui/globals.css";
@@ -49,6 +52,7 @@ export default function RootLayout({
 }>) {
   const queryProvider = <QueryProvider>{children}</QueryProvider>;
   let content = queryProvider;
+  let posthogAnalytics: React.ReactNode = <PostHogAnalytics />;
 
   if (clerkConfigured) {
     content = (
@@ -57,9 +61,11 @@ export default function RootLayout({
         signInFallbackRedirectUrl="/auth/complete"
         signUpFallbackRedirectUrl="/auth/complete"
       >
+        <AuthenticatedPostHogAnalytics />
         {queryProvider}
       </ClerkProvider>
     );
+    posthogAnalytics = null;
   }
 
   return (
@@ -82,7 +88,7 @@ export default function RootLayout({
           {content}
           <ChunkLoadRecoverySuccess />
         </ThemeProvider>
-        <PostHogAnalytics />
+        {posthogAnalytics}
       </body>
     </html>
   );
