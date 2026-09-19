@@ -1,22 +1,46 @@
 "use client";
 
+import { useAuth } from "@clerk/nextjs";
 import posthog from "posthog-js";
 import { useEffect } from "react";
 
 import {
   campaignPropertiesFromUrl,
-  isExtensionNoiseException,
   isPostHogConfigured,
   isTrackableUrl,
+  postHogEventForPublicAnalytics,
   posthogHost,
   posthogKey,
 } from "@/lib/analytics";
+import {
+  campaignAttributionCookieForLanding,
+  expiredCampaignAttributionCookie,
+} from "@/lib/campaign-attribution";
+import { syncPostHogIdentity } from "@/lib/posthog-identity";
+
+type AuthenticatedIdentity = {
+  readonly isLoaded: boolean;
+  readonly userId: string | null;
+};
+
+function writeBrowserCookie(cookie: string): void {
+  // biome-ignore lint/suspicious/noDocumentCookie: the server must receive pre-auth landing attribution
+  document.cookie = cookie;
+}
 
 /**
  * Pageviews capture the campaign landing URL. Registering the UTM dimensions
  * also carries that campaign into later conversion events in the same browser.
  */
-export function PostHogAnalytics() {
+export function PostHogAnalytics({
+  identity,
+}: {
+  readonly identity?: AuthenticatedIdentity;
+}) {
+  const hasIdentity = identity !== undefined;
+  const identityIsLoaded = identity?.isLoaded ?? false;
+  const identityUserId = identity?.userId ?? null;
+
   useEffect(() => {
     if (!isPostHogConfigured(posthogKey)) {
       if (process.env.NODE_ENV === "development") {
@@ -32,15 +56,48 @@ export function PostHogAnalytics() {
     posthog.init(posthogKey, {
       api_host: posthogHost,
       defaults: "2025-05-24",
-      before_send: (event) => {
-        if (!event) return event;
-        if (isExtensionNoiseException(event)) return null;
-        if (isTrackableUrl(event.properties?.$current_url)) return event;
-        return null;
-      },
+      before_send: postHogEventForPublicAnalytics,
     });
-    posthog.register(campaignPropertiesFromUrl(window.location.href));
+    if (isTrackableUrl(window.location.href)) {
+      posthog.register(campaignPropertiesFromUrl(window.location.href));
+      const attributionCookie = campaignAttributionCookieForLanding(
+        window.location.href,
+        document.cookie,
+        Date.now(),
+        window.location.protocol === "https:",
+      );
+      if (attributionCookie) writeBrowserCookie(attributionCookie);
+    }
   }, []);
 
+  useEffect(() => {
+    if (!hasIdentity || !isPostHogConfigured(posthogKey)) return;
+    const didReset = syncPostHogIdentity(
+      { isLoaded: identityIsLoaded, userId: identityUserId },
+      posthog,
+      window.localStorage,
+    );
+    if (didReset) {
+      writeBrowserCookie(
+        expiredCampaignAttributionCookie(window.location.protocol === "https:"),
+      );
+      if (identityUserId && isTrackableUrl(window.location.href)) {
+        posthog.register(campaignPropertiesFromUrl(window.location.href));
+        const attributionCookie = campaignAttributionCookieForLanding(
+          window.location.href,
+          document.cookie,
+          Date.now(),
+          window.location.protocol === "https:",
+        );
+        if (attributionCookie) writeBrowserCookie(attributionCookie);
+      }
+    }
+  }, [hasIdentity, identityIsLoaded, identityUserId]);
+
   return null;
+}
+
+export function AuthenticatedPostHogAnalytics() {
+  const { isLoaded, userId } = useAuth();
+  return <PostHogAnalytics identity={{ isLoaded, userId: userId ?? null }} />;
 }

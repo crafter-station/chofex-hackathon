@@ -1,6 +1,7 @@
 import { PostHog } from "posthog-node";
 
 import { isPostHogConfigured, posthogHost, posthogKey } from "./analytics";
+import { campaignAttributionProperties } from "./campaign-attribution";
 
 type EventProperties = Record<
   string,
@@ -11,6 +12,7 @@ export interface ProductEvent {
   readonly distinctId: string;
   readonly event: string;
   readonly properties?: EventProperties;
+  readonly request?: Request;
 }
 
 let client: PostHog | undefined;
@@ -45,19 +47,44 @@ export async function captureProductEvent({
   distinctId,
   event,
   properties,
+  request,
 }: ProductEvent): Promise<void> {
   const posthog = posthogClient();
   if (!posthog) return;
+
+  let attributedProperties = properties;
+  if (request) {
+    attributedProperties = productEventWithCampaignAttribution(request, {
+      distinctId,
+      event,
+      properties,
+    }).properties;
+  }
 
   try {
     posthog.capture({
       distinctId,
       event,
-      properties,
+      properties: attributedProperties,
       disableGeoip: true,
     });
     await posthog.flush();
   } catch (error) {
     console.error("Could not send PostHog product event", { event, error });
   }
+}
+
+/** Keeps request-cookie parsing and validation out of individual route handlers. */
+export function productEventWithCampaignAttribution(
+  request: Request,
+  event: ProductEvent,
+  now = Date.now(),
+): ProductEvent {
+  return {
+    ...event,
+    properties: {
+      ...event.properties,
+      ...campaignAttributionProperties(request.headers.get("cookie"), now),
+    },
+  };
 }

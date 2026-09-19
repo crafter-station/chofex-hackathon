@@ -26,6 +26,7 @@ export const POST = (
     await captureProductEvent({
       distinctId: clerkUserId,
       event: "challenge_query_completed",
+      request,
       properties: {
         challenge_slug: slug,
         queries_used: result.queriesUsed,

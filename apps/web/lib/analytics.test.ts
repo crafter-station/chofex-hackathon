@@ -6,6 +6,7 @@ import {
   isPostHogConfigured,
   isTrackablePath,
   isTrackableUrl,
+  postHogEventForPublicAnalytics,
 } from "./analytics";
 
 test("reads campaign dimensions for conversion events", () => {
@@ -100,4 +101,28 @@ test("keeps first-party exceptions and non-exception events", () => {
   expect(
     isExtensionNoiseException({ event: "$exception", properties: {} }),
   ).toBe(false);
+});
+
+test("allows identity linking without exposing an excluded URL", () => {
+  const identityEvent: {
+    event?: string;
+    properties?: Record<string, unknown>;
+  } = {
+    event: "$identify",
+    properties: {
+      $anon_distinct_id: "anonymous-123",
+      $current_url:
+        "https://hacktheandes.com/admin/participants?q=private@example.com",
+      $pathname: "/admin/participants",
+      $referrer: "https://hacktheandes.com/auth/complete?token=private",
+      distinct_id: "user_test_123",
+    },
+  };
+  expect(postHogEventForPublicAnalytics(identityEvent)).toEqual({
+    event: "$identify",
+    properties: {
+      $anon_distinct_id: "anonymous-123",
+      distinct_id: "user_test_123",
+    },
+  });
 });
