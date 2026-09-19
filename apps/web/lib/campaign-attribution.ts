@@ -69,8 +69,11 @@ function parseAttribution(
     if (!value || typeof value !== "object" || Array.isArray(value)) return;
     const candidate = value as Record<string, unknown>;
     if (candidate.version !== 1) return;
-    const first = normalizedTouch(candidate.first, now);
-    const latest = normalizedTouch(candidate.latest, now);
+    const storedFirst = normalizedTouch(candidate.first, now);
+    const storedLatest = normalizedTouch(candidate.latest, now);
+    if (!storedFirst && !storedLatest) return;
+    const first = storedFirst ?? storedLatest;
+    const latest = storedLatest ?? storedFirst;
     if (!first || !latest || latest.at < first.at) return;
     return { version: 1, first, latest };
   } catch {
@@ -93,13 +96,13 @@ function campaignTouchFromUrl(
 }
 
 function serializedCookie(
-  attribution: CampaignAttribution,
+  value: string,
+  maxAge: number,
   secure: boolean,
 ): string {
-  const value = encodeURIComponent(JSON.stringify(attribution));
   const attributes = [
     `${attributionCookieName}=${value}`,
-    `Max-Age=${attributionRetentionSeconds}`,
+    `Max-Age=${maxAge}`,
     "Path=/",
     "SameSite=Lax",
   ];
@@ -118,7 +121,10 @@ export function campaignAttributionCookieForLanding(
   if (!latest) return;
   const existing = parseAttribution(cookieHeader, now);
   const first = existing?.first ?? latest;
-  return serializedCookie({ version: 1, first, latest }, secure);
+  const value = encodeURIComponent(
+    JSON.stringify({ version: 1, first, latest } satisfies CampaignAttribution),
+  );
+  return serializedCookie(value, attributionRetentionSeconds, secure);
 }
 
 function appendTouchProperties(
@@ -147,12 +153,5 @@ export function campaignAttributionProperties(
 }
 
 export function expiredCampaignAttributionCookie(secure: boolean): string {
-  const attributes = [
-    `${attributionCookieName}=`,
-    "Max-Age=0",
-    "Path=/",
-    "SameSite=Lax",
-  ];
-  if (secure) attributes.push("Secure");
-  return attributes.join("; ");
+  return serializedCookie("", 0, secure);
 }

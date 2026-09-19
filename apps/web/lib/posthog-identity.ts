@@ -6,6 +6,7 @@ type IdentityState = {
 };
 
 type IdentityAnalytics = {
+  get_property(property: string): unknown;
   identify(userId: string): void;
   reset(): void;
 };
@@ -22,7 +23,13 @@ export function syncPostHogIdentity(
 
   let previousUserId: string | null = null;
   try {
-    previousUserId = storage.getItem(identifiedUserStorageKey);
+    const posthogUserId = analytics.get_property("$user_id");
+    if (typeof posthogUserId === "string") previousUserId = posthogUserId;
+  } catch {
+    // The persisted marker remains a fallback for unusual PostHog states.
+  }
+  try {
+    previousUserId ??= storage.getItem(identifiedUserStorageKey);
   } catch {
     // Identification still works when browser storage is unavailable.
   }

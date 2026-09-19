@@ -7,8 +7,10 @@ the first landing can happen before authentication, and it uses `SameSite=Lax`,
 `Path=/`, `Secure` on HTTPS, and a 90-day maximum age.
 
 The stored first and latest touches each contain only normalized UTM values and
-a capture time. Cookie input is untrusted: the server validates its version,
-timestamps, recognized fields, value lengths, and retention window before
+a capture time. Each touch expires independently after 90 days; when the older
+first touch expires, the still-valid latest touch becomes the first touch for
+the new retention window. Cookie input is untrusted: the server validates its
+version, timestamps, recognized fields, value lengths, and retention window before
 adding `first_utm_*`, `latest_utm_*`, `first_campaign_at`, and
 `latest_campaign_at` to product events. No participant email or profile data is
 stored. Sign-out and account switches reset PostHog identity and remove the
@@ -39,6 +41,11 @@ WITH landings AS (
 )
 SELECT
     uniq(landings.person_id) AS landed,
+    uniqIf(events.person_id, events.event IN (
+        'challenge_query_completed',
+        'challenge_local_test_completed',
+        'challenge_evaluation_submitted'
+    )) AS started,
     uniqIf(events.person_id, events.event = 'challenge_query_completed') AS queried,
     uniqIf(events.person_id, events.event = 'challenge_local_test_completed') AS tested,
     uniqIf(events.person_id, events.event = 'challenge_evaluation_submitted') AS evaluated
@@ -46,7 +53,7 @@ FROM landings
 LEFT JOIN events
     ON events.person_id = landings.person_id
    AND events.timestamp >= landings.landed_at
-   AND events.properties.first_utm_campaign = 'CAMPAIGN'
+   AND events.properties.latest_utm_campaign = 'CAMPAIGN'
 ```
 
 Application outcomes remain a separate funnel because those links have a
@@ -69,7 +76,7 @@ FROM landings
 LEFT JOIN events
     ON events.person_id = landings.person_id
    AND events.timestamp >= landings.landed_at
-   AND events.properties.first_utm_campaign = 'CAMPAIGN'
+   AND events.properties.latest_utm_campaign = 'CAMPAIGN'
 ```
 
 The report and campaign operating artifacts remain the source for campaign

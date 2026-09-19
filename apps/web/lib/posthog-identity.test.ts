@@ -5,10 +5,20 @@ import { syncPostHogIdentity } from "./posthog-identity";
 function identityHarness() {
   const calls: string[] = [];
   const values = new Map<string, string>();
+  let identifiedUserId: string | null = null;
   return {
     analytics: {
-      identify: (userId: string) => calls.push(`identify:${userId}`),
-      reset: () => calls.push("reset"),
+      get_property: (property: string) => {
+        if (property === "$user_id") return identifiedUserId;
+      },
+      identify: (userId: string) => {
+        identifiedUserId = userId;
+        calls.push(`identify:${userId}`);
+      },
+      reset: () => {
+        identifiedUserId = null;
+        calls.push("reset");
+      },
     },
     calls,
     storage: {
@@ -60,4 +70,32 @@ test("resets PostHog on sign-out and before switching accounts", () => {
     "identify:user_b",
     "reset",
   ]);
+});
+
+test("resets an identified user even when browser storage is unavailable", () => {
+  const harness = identityHarness();
+  const unavailableStorage = {
+    getItem: () => {
+      throw new Error("storage unavailable");
+    },
+    removeItem: () => {
+      throw new Error("storage unavailable");
+    },
+    setItem: () => {
+      throw new Error("storage unavailable");
+    },
+  };
+
+  syncPostHogIdentity(
+    { isLoaded: true, userId: "user_a" },
+    harness.analytics,
+    unavailableStorage,
+  );
+  syncPostHogIdentity(
+    { isLoaded: true, userId: null },
+    harness.analytics,
+    unavailableStorage,
+  );
+
+  expect(harness.calls).toEqual(["identify:user_a", "reset"]);
 });

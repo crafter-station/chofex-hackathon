@@ -28,6 +28,18 @@ function writeBrowserCookie(cookie: string): void {
   document.cookie = cookie;
 }
 
+function captureCampaignLanding(): void {
+  if (!isTrackableUrl(window.location.href)) return;
+  posthog.register(campaignPropertiesFromUrl(window.location.href));
+  const attributionCookie = campaignAttributionCookieForLanding(
+    window.location.href,
+    document.cookie,
+    Date.now(),
+    window.location.protocol === "https:",
+  );
+  if (attributionCookie) writeBrowserCookie(attributionCookie);
+}
+
 /**
  * Pageviews capture the campaign landing URL. Registering the UTM dimensions
  * also carries that campaign into later conversion events in the same browser.
@@ -58,16 +70,7 @@ export function PostHogAnalytics({
       defaults: "2025-05-24",
       before_send: postHogEventForPublicAnalytics,
     });
-    if (isTrackableUrl(window.location.href)) {
-      posthog.register(campaignPropertiesFromUrl(window.location.href));
-      const attributionCookie = campaignAttributionCookieForLanding(
-        window.location.href,
-        document.cookie,
-        Date.now(),
-        window.location.protocol === "https:",
-      );
-      if (attributionCookie) writeBrowserCookie(attributionCookie);
-    }
+    captureCampaignLanding();
   }, []);
 
   useEffect(() => {
@@ -81,16 +84,7 @@ export function PostHogAnalytics({
       writeBrowserCookie(
         expiredCampaignAttributionCookie(window.location.protocol === "https:"),
       );
-      if (identityUserId && isTrackableUrl(window.location.href)) {
-        posthog.register(campaignPropertiesFromUrl(window.location.href));
-        const attributionCookie = campaignAttributionCookieForLanding(
-          window.location.href,
-          document.cookie,
-          Date.now(),
-          window.location.protocol === "https:",
-        );
-        if (attributionCookie) writeBrowserCookie(attributionCookie);
-      }
+      if (identityUserId) captureCampaignLanding();
     }
   }, [hasIdentity, identityIsLoaded, identityUserId]);
 

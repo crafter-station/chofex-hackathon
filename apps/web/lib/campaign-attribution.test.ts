@@ -117,3 +117,27 @@ test("rejects malformed, expired, and non-public attribution", () => {
     ),
   ).toBeUndefined();
 });
+
+test("retains a fresh latest touch after the older first touch expires", () => {
+  const firstCookie = campaignAttributionCookieForLanding(
+    "https://hacktheandes.com/?utm_campaign=old-campaign",
+    "",
+    firstTouchAt,
+    true,
+  );
+  const latestTouchAt = firstTouchAt + 89 * 24 * 60 * 60 * 1000;
+  const latestCookie = campaignAttributionCookieForLanding(
+    "https://hacktheandes.com/challenges/black-box?utm_campaign=fresh-campaign",
+    firstCookie,
+    latestTouchAt,
+    true,
+  );
+  const readAt = firstTouchAt + 91 * 24 * 60 * 60 * 1000;
+
+  expect(campaignAttributionProperties(latestCookie, readAt)).toEqual({
+    first_campaign_at: new Date(latestTouchAt).toISOString(),
+    first_utm_campaign: "fresh-campaign",
+    latest_campaign_at: new Date(latestTouchAt).toISOString(),
+    latest_utm_campaign: "fresh-campaign",
+  });
+});
