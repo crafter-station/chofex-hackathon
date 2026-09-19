@@ -330,7 +330,7 @@ export const assertInteractiveLogin = (
   }
 };
 
-export const login = async (): Promise<void> => {
+export const login = async (): Promise<string> => {
   assertInteractiveLogin();
   const { verifier, challenge } = createPkce();
   const state = randomBytes(24).toString("base64url");
@@ -410,7 +410,9 @@ export const login = async (): Promise<void> => {
       redirect_uri: redirectUri,
       code_verifier: verifier,
     });
-    await saveCredentials(credentialsFromToken(body));
+    const credentials = credentialsFromToken(body);
+    await saveCredentials(credentials);
+    return credentials.accessToken;
   } finally {
     clearTimeout(timeout);
     server.close();

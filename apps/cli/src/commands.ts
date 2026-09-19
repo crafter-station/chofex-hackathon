@@ -278,11 +278,11 @@ const loginCommand = Command.make(
   Effect.fn("loginCommand")(function* () {
     const options = yield* root;
     const operation = Effect.gen(function* () {
-      yield* Effect.tryPromise({
+      const token = yield* Effect.tryPromise({
         try: () => oauthLogin(),
         catch: (error) => cliError("LOGIN_FAILED", String(error)),
       });
-      yield* getCurrentUser({ apiUrl: options.apiUrl }).pipe(
+      yield* getCurrentUser({ apiUrl: options.apiUrl, token }).pipe(
         Effect.catch(() => Effect.succeed(undefined)),
       );
       return {

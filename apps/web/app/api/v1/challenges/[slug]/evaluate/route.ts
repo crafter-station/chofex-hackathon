@@ -2,7 +2,12 @@ import { requireParticipantUserId } from "@/lib/auth";
 import { evaluateChallenge } from "@/lib/challenges/service";
 import { enqueueFunnelReminderBestEffort } from "@/lib/funnel-reminders/enqueue";
 import { captureProductEvent } from "@/lib/posthog-server";
-import { jsonSuccess, readJson, withApiHandler } from "@/lib/registration/http";
+import {
+  HttpError,
+  jsonSuccess,
+  readJson,
+  withApiHandler,
+} from "@/lib/registration/http";
 
 export const runtime = "nodejs";
 
@@ -14,11 +19,21 @@ export const POST = (
     const { slug } = await context.params;
     const clerkUserId = await requireParticipantUserId(request);
     const input = await readJson(request);
-    await enqueueFunnelReminderBestEffort({
-      clerkUserId,
-      stage: "challenge_finish",
-    });
-    const result = await evaluateChallenge(clerkUserId, slug, input);
+    let result: Awaited<ReturnType<typeof evaluateChallenge>>;
+    try {
+      result = await evaluateChallenge(clerkUserId, slug, input);
+    } catch (error) {
+      if (
+        error instanceof HttpError &&
+        error.code === "SOLUTION_EXECUTION_FAILED"
+      ) {
+        await enqueueFunnelReminderBestEffort({
+          clerkUserId,
+          stage: "challenge_finish",
+        });
+      }
+      throw error;
+    }
     await captureProductEvent({
       distinctId: clerkUserId,
       event: "challenge_evaluation_submitted",
