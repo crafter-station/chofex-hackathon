@@ -7,6 +7,7 @@ const progress = {
   applicationSubmitted: false,
   challengeStarted: false,
   challengeCompleted: false,
+  challengeFinishAvailable: true,
 };
 
 describe("funnel reminder eligibility", () => {
@@ -54,6 +55,7 @@ describe("funnel reminder eligibility", () => {
         applicationSubmitted: true,
         challengeStarted: true,
         challengeCompleted: true,
+        challengeFinishAvailable: false,
       }),
     ).toBe(false);
   });
@@ -68,5 +70,17 @@ describe("funnel reminder eligibility", () => {
         }),
       ).toBe(false);
     }
+  });
+
+  test("does not promise another evaluation after the budget is exhausted", () => {
+    expect(
+      needsFunnelReminder("challenge_finish", {
+        applicationStatus: "submitted",
+        applicationSubmitted: true,
+        challengeStarted: true,
+        challengeCompleted: false,
+        challengeFinishAvailable: false,
+      }),
+    ).toBe(false);
   });
 });

@@ -22,6 +22,7 @@ import type {
 } from "../lib/funnel-reminders/types";
 
 interface ReminderContext {
+  readonly deliveryScope: string;
   readonly progress: FunnelProgress;
   readonly recipient?: FunnelReminderRecipient;
 }
@@ -34,9 +35,29 @@ const playableChallengeSlugs = playableChallenges.map(
   (challenge) => challenge.slug,
 );
 
-const loadReminderContext = async (
+interface ApplicationContext {
+  readonly participantId: string;
+  readonly application?: typeof applications.$inferSelect;
+}
+
+const loadApplicationContext = async (
   payload: FunnelReminderPayload,
-): Promise<ReminderContext> => {
+): Promise<ApplicationContext | undefined> => {
+  if (payload.applicationId) {
+    const [record] = await db
+      .select({ participantId: participants.id, application: applications })
+      .from(participants)
+      .innerJoin(applications, eq(applications.participantId, participants.id))
+      .where(
+        and(
+          eq(participants.clerkUserId, payload.clerkUserId),
+          eq(applications.id, payload.applicationId),
+        ),
+      )
+      .limit(1);
+    return record;
+  }
+
   const [record] = await db
     .select({ participantId: participants.id, application: applications })
     .from(participants)
@@ -44,13 +65,26 @@ const loadReminderContext = async (
     .where(eq(participants.clerkUserId, payload.clerkUserId))
     .orderBy(desc(applications.createdAt))
     .limit(1);
+  if (!record) return undefined;
+  return {
+    participantId: record.participantId,
+    application: record.application ?? undefined,
+  };
+};
+
+const loadReminderContext = async (
+  payload: FunnelReminderPayload,
+): Promise<ReminderContext> => {
+  const record = await loadApplicationContext(payload);
   const application = record?.application ?? undefined;
 
   let challengeStarted = false;
   let challengeCompleted = false;
+  let challengeFinishAvailable = false;
   if (record && playableChallengeSlugs.length > 0) {
     const attempts = await db
       .select({
+        evaluationsLimit: challengeAttempts.evaluationsLimit,
         id: challengeAttempts.id,
         queriesUsed: challengeAttempts.queriesUsed,
         evaluationsUsed: challengeAttempts.evaluationsUsed,
@@ -63,8 +97,12 @@ const loadReminderContext = async (
           inArray(challengeAttempts.challengeSlug, playableChallengeSlugs),
         ),
       );
-    challengeStarted = attempts.some(
+    const startedAttempts = attempts.filter(
       (attempt) => attempt.queriesUsed > 0 || attempt.evaluationsUsed > 0,
+    );
+    challengeStarted = startedAttempts.length > 0;
+    challengeFinishAvailable = startedAttempts.some(
+      (attempt) => attempt.evaluationsUsed < attempt.evaluationsLimit,
     );
 
     const attemptIds = attempts.map((attempt) => attempt.id);
@@ -87,11 +125,13 @@ const loadReminderContext = async (
   }
 
   return {
+    deliveryScope: application?.id ?? "participant",
     progress: {
       applicationStatus: application?.status,
       applicationSubmitted: Boolean(application?.submittedAt),
       challengeStarted,
       challengeCompleted,
+      challengeFinishAvailable,
     },
     recipient,
   };
@@ -99,6 +139,7 @@ const loadReminderContext = async (
 
 const claimDelivery = async (
   payload: FunnelReminderPayload,
+  deliveryScope: string,
   triggerRunId: string,
 ): Promise<boolean> => {
   const now = new Date();
@@ -107,6 +148,7 @@ const claimDelivery = async (
     .values({
       clerkUserId: payload.clerkUserId,
       stage: payload.stage,
+      scopeId: deliveryScope,
       status: "sending",
       triggerRunId,
     })
@@ -124,6 +166,7 @@ const claimDelivery = async (
       and(
         eq(funnelEmailDeliveries.clerkUserId, payload.clerkUserId),
         eq(funnelEmailDeliveries.stage, payload.stage),
+        eq(funnelEmailDeliveries.scopeId, deliveryScope),
       ),
     )
     .limit(1);
@@ -144,6 +187,7 @@ const claimDelivery = async (
       and(
         eq(funnelEmailDeliveries.clerkUserId, payload.clerkUserId),
         eq(funnelEmailDeliveries.stage, payload.stage),
+        eq(funnelEmailDeliveries.scopeId, deliveryScope),
         eq(funnelEmailDeliveries.status, "failed"),
       ),
     )
@@ -153,6 +197,7 @@ const claimDelivery = async (
 
 const updateDelivery = async (
   payload: FunnelReminderPayload,
+  deliveryScope: string,
   triggerRunId: string,
   update:
     | { readonly status: "sent"; readonly sentAt: Date; readonly error: null }
@@ -165,6 +210,7 @@ const updateDelivery = async (
       and(
         eq(funnelEmailDeliveries.clerkUserId, payload.clerkUserId),
         eq(funnelEmailDeliveries.stage, payload.stage),
+        eq(funnelEmailDeliveries.scopeId, deliveryScope),
         eq(funnelEmailDeliveries.triggerRunId, triggerRunId),
       ),
     );
@@ -178,10 +224,19 @@ export const sendFunnelReminder = task<
   id: "send-funnel-reminder",
   queue: { concurrencyLimit: 5 },
   onFailure: async ({ payload, ctx, error }) => {
-    await updateDelivery(payload, ctx.run.id, {
-      status: "failed",
-      error: String(error).slice(0, 4_000),
-    });
+    try {
+      const reminder = await loadReminderContext(payload);
+      await updateDelivery(payload, reminder.deliveryScope, ctx.run.id, {
+        status: "failed",
+        error: String(error).slice(0, 4_000),
+      });
+    } catch (hookError) {
+      logger.error("Could not mark funnel reminder as failed", {
+        clerkUserId: payload.clerkUserId,
+        stage: payload.stage,
+        error: String(hookError),
+      });
+    }
   },
   run: async (payload: FunnelReminderPayload, { ctx }) => {
     const reminder = await loadReminderContext(payload);
@@ -196,10 +251,15 @@ export const sendFunnelReminder = task<
       throw new Error("Funnel reminder recipient has no email address");
     }
 
-    const claimed = await claimDelivery(payload, ctx.run.id);
+    const claimed = await claimDelivery(
+      payload,
+      reminder.deliveryScope,
+      ctx.run.id,
+    );
     if (!claimed) {
       logger.info("Skipping duplicate funnel reminder", {
         clerkUserId: payload.clerkUserId,
+        deliveryScope: reminder.deliveryScope,
         stage: payload.stage,
       });
       return { status: "duplicate" as const };
@@ -208,18 +268,19 @@ export const sendFunnelReminder = task<
     try {
       await sendFunnelReminderEmail({
         clerkUserId: payload.clerkUserId,
+        deliveryScope: reminder.deliveryScope,
         stage: payload.stage,
         ...reminder.recipient,
       });
     } catch (error) {
-      await updateDelivery(payload, ctx.run.id, {
+      await updateDelivery(payload, reminder.deliveryScope, ctx.run.id, {
         status: "failed",
         error: String(error).slice(0, 4_000),
       });
       throw error;
     }
 
-    await updateDelivery(payload, ctx.run.id, {
+    await updateDelivery(payload, reminder.deliveryScope, ctx.run.id, {
       status: "sent",
       sentAt: new Date(),
       error: null,

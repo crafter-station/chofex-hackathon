@@ -39,14 +39,17 @@ export const enqueueFunnelReminderBestEffort = async (
 export const enqueuePostSubmissionRemindersBestEffort = async (
   clerkUserId: string,
   applicationId: string,
+  challengeAlreadyStarted: boolean,
 ): Promise<void> => {
   const idempotencyKeySuffix = `application/${applicationId}`;
   await enqueueFunnelReminderBestEffort(
-    { clerkUserId, stage: "challenge_start" },
+    { clerkUserId, stage: "challenge_start", applicationId },
     idempotencyKeySuffix,
   );
-  await enqueueFunnelReminderBestEffort(
-    { clerkUserId, stage: "challenge_finish" },
-    idempotencyKeySuffix,
-  );
+  if (challengeAlreadyStarted) {
+    await enqueueFunnelReminderBestEffort(
+      { clerkUserId, stage: "challenge_finish", applicationId },
+      idempotencyKeySuffix,
+    );
+  }
 };

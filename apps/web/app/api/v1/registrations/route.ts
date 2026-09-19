@@ -18,9 +18,13 @@ export const POST = (request: Request): Promise<Response> =>
     );
     const created = result.registration.status === "submitted";
     if (created) {
+      const challengeAlreadyStarted = result.registration.challenges.some(
+        (challenge) => challenge.playable && challenge.status === "in_progress",
+      );
       await enqueuePostSubmissionRemindersBestEffort(
         participant.clerkUserId,
         result.registration.id,
+        challengeAlreadyStarted,
       );
     }
     const event = created ? "application_submitted" : "application_draft_saved";

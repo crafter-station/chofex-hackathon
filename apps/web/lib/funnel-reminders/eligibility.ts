@@ -5,6 +5,7 @@ export interface FunnelProgress {
   readonly applicationSubmitted: boolean;
   readonly challengeStarted: boolean;
   readonly challengeCompleted: boolean;
+  readonly challengeFinishAvailable: boolean;
 }
 
 const challengeCandidateStatuses = new Set([
@@ -28,5 +29,9 @@ export const needsFunnelReminder = (
   if (!isActiveCandidate) return false;
 
   if (stage === "challenge_start") return !progress.challengeStarted;
-  return progress.challengeStarted && !progress.challengeCompleted;
+  return (
+    progress.challengeStarted &&
+    !progress.challengeCompleted &&
+    progress.challengeFinishAvailable
+  );
 };

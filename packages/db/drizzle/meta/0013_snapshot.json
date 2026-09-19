@@ -1,5 +1,5 @@
 {
-  "id": "abe8683b-62d2-457f-b461-94422b3072c1",
+  "id": "a8d22a00-5f91-4695-bbf2-18c42e26421c",
   "prevId": "9208cfbd-81f4-4460-9b83-681ec2d9f944",
   "version": "7",
   "dialect": "postgresql",
@@ -1133,6 +1133,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "scope_id": {
+          "name": "scope_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
         "status": {
           "name": "status",
           "type": "varchar(16)",
@@ -1174,8 +1180,8 @@
         }
       },
       "indexes": {
-        "funnel_email_deliveries_user_stage_unique": {
-          "name": "funnel_email_deliveries_user_stage_unique",
+        "funnel_email_deliveries_user_stage_scope_unique": {
+          "name": "funnel_email_deliveries_user_stage_scope_unique",
           "columns": [
             {
               "expression": "clerk_user_id",
@@ -1185,6 +1191,12 @@
             },
             {
               "expression": "stage",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "scope_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"

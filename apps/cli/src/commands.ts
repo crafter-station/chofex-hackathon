@@ -282,7 +282,9 @@ const loginCommand = Command.make(
         try: () => oauthLogin(),
         catch: (error) => cliError("LOGIN_FAILED", String(error)),
       });
-      yield* getCurrentUser({ apiUrl: options.apiUrl });
+      yield* getCurrentUser({ apiUrl: options.apiUrl }).pipe(
+        Effect.catch(() => Effect.succeed(undefined)),
+      );
       return {
         version: 1 as const,
         ok: true as const,

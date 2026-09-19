@@ -15,6 +15,7 @@ interface FunnelReminderEmailInput extends FunnelReminderRecipient {
 
 interface SendFunnelReminderEmailInput extends FunnelReminderEmailInput {
   readonly clerkUserId: string;
+  readonly deliveryScope: string;
 }
 
 const colors = {
@@ -120,7 +121,7 @@ export const sendFunnelReminderEmail = async (
     headers: {
       authorization: `Bearer ${apiKey}`,
       "content-type": "application/json",
-      "idempotency-key": `funnel-reminder/${input.stage}/${input.clerkUserId}`,
+      "idempotency-key": `funnel-reminder/${input.stage}/${input.clerkUserId}/${input.deliveryScope}`,
     },
     body: JSON.stringify({
       from: badgeEmailFrom,
