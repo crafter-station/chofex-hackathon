@@ -16,17 +16,13 @@ export const POST = (
   withApiHandler(request, async (requestId) => {
     const { slug } = await context.params;
     const clerkUserId = await requireParticipantUserId(request);
-    const applicationId =
-      await challengeReminderApplicationIdFor(clerkUserId);
+    const applicationId = await challengeReminderApplicationIdFor(clerkUserId);
     const result = await queryChallenge(
       clerkUserId,
       slug,
       await readJson(request),
     );
-    await enqueueChallengeFinishReminderBestEffort(
-      clerkUserId,
-      applicationId,
-    );
+    await enqueueChallengeFinishReminderBestEffort(clerkUserId, applicationId);
     await captureProductEvent({
       distinctId: clerkUserId,
       event: "challenge_query_completed",

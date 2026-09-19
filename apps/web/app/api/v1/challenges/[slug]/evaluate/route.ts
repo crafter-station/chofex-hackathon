@@ -21,8 +21,7 @@ export const POST = (
   withApiHandler(request, async (requestId) => {
     const { slug } = await context.params;
     const clerkUserId = await requireParticipantUserId(request);
-    const applicationId =
-      await challengeReminderApplicationIdFor(clerkUserId);
+    const applicationId = await challengeReminderApplicationIdFor(clerkUserId);
     const input = await readJson(request);
     let result: Awaited<ReturnType<typeof evaluateChallenge>>;
     try {
