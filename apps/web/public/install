@@ -141,8 +141,11 @@ else
     is_musl=false
     if [[ -f /etc/alpine-release ]]; then
       is_musl=true
-    elif command -v ldd >/dev/null 2>&1 && ldd --version 2>&1 | grep -qi musl; then
-      is_musl=true
+    elif command -v ldd >/dev/null 2>&1; then
+      ldd_version="$(ldd --version 2>&1 || true)"
+      if grep -qi musl <<<"$ldd_version"; then
+        is_musl=true
+      fi
     fi
     if [[ "$is_musl" == "true" ]]; then
       target="$target-musl"
@@ -213,7 +216,6 @@ if [[ "$current_shell" == "fish" ]]; then
 fi
 
 if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
-  config_file=""
   case "$current_shell" in
     fish)
       candidates=("$HOME/.config/fish/config.fish")
@@ -225,14 +227,16 @@ if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
       candidates=("$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile")
       ;;
   esac
+  config_files=()
   for candidate in "${candidates[@]}"; do
     if [[ -f "$candidate" ]]; then
-      config_file="$candidate"
-      break
+      config_files+=("$candidate")
     fi
   done
-  if [[ -n "$config_file" ]]; then
-    add_to_path "$config_file" "$path_command"
+  if [[ "${#config_files[@]}" -gt 0 ]]; then
+    for config_file in "${config_files[@]}"; do
+      add_to_path "$config_file" "$path_command"
+    done
   else
     printf "%bAdd chofex to PATH in your shell configuration:%b\n  %s\n" \
       "$ORANGE" "$NC" "$path_command"

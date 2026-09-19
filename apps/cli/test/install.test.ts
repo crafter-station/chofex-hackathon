@@ -119,4 +119,40 @@ exec /bin/mv "$@"
     expect(await readFile(installed, "utf8")).toBe("new binary");
     expect(await readFile(moveAttempts, "utf8")).toBe("3");
   });
+
+  test("updates every existing Bash startup file", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "chofex-path-test-"));
+    temporaryDirectories.push(directory);
+    const source = join(directory, "source-chofex");
+    const installDirectory = join(directory, "installed cli");
+    const bashrc = join(directory, ".bashrc");
+    const bashProfile = join(directory, ".bash_profile");
+    await writeFile(source, "chofex");
+    await writeFile(bashrc, "# interactive\n");
+    await writeFile(bashProfile, "# login\n");
+
+    await execFileAsync(
+      "bash",
+      [
+        installerPath.pathname,
+        "--binary",
+        source,
+        "--install-dir",
+        installDirectory,
+      ],
+      {
+        env: {
+          ...process.env,
+          HOME: directory,
+          SHELL: "/bin/bash",
+        },
+      },
+    );
+
+    for (const configFile of [bashrc, bashProfile]) {
+      expect(await readFile(configFile, "utf8")).toContain(
+        `export PATH=${installDirectory.replace(" ", "\\ ")}:$PATH`,
+      );
+    }
+  });
 });
