@@ -36,7 +36,8 @@ const run = async (): Promise<void> => {
     `application named ${applicationName}`,
   );
   const result = await reconcileServiceEnvironment({
-    serverUrl: manifest.serverUrl,
+    serverUrl: requiredEnvironmentValue("DOKPLOY_URL"),
+    expectedServerUrl: manifest.serverUrl,
     apiKey: requiredEnvironmentValue("DOKPLOY_API_KEY"),
     applicationId: requiredEnvironmentValue("DOKPLOY_APPLICATION_ID"),
     application,

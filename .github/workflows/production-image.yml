@@ -69,6 +69,7 @@ jobs:
           DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
           DOKPLOY_APPLICATION_ID: ${{ secrets.DOKPLOY_APPLICATION_ID }}
           DOKPLOY_APPLICATION_NAME: Website
+          DOKPLOY_URL: https://vps.cueva.io
           DOKPLOY_IMAGE: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -119,10 +120,10 @@ jobs:
             --header "Content-Type: application/json" \
             --header "x-api-key: $DOKPLOY_API_KEY" \
             --data "{\"applicationId\":\"$DOKPLOY_APPLICATION_ID\",\"dockerImage\":\"$DOKPLOY_IMAGE\"}" \
-            https://vps.cueva.io/api/application.update
+            "$DOKPLOY_URL/api/application.update"
           curl --fail-with-body --silent --show-error \
             --request POST \
             --header "Content-Type: application/json" \
             --header "x-api-key: $DOKPLOY_API_KEY" \
             --data "{\"applicationId\":\"$DOKPLOY_APPLICATION_ID\",\"title\":\"GitHub Actions $GITHUB_SHA\"}" \
-            https://vps.cueva.io/api/application.redeploy
+            "$DOKPLOY_URL/api/application.redeploy"

@@ -36,6 +36,9 @@ describe("Dokploy service environment reconciliation", () => {
             'CHALLENGE_ENGINE_API_SECRET="private-secret"',
             'CHALLENGE_ENGINE_URL="https://andes-engine.cueva.io"',
             'DATABASE_URL="postgresql://database.example/chofex"',
+            'PRIVATE_KEY="-----BEGIN PRIVATE KEY-----',
+            "multiline-secret-content",
+            '-----END PRIVATE KEY-----"',
           ].join("\n"),
           buildArgs: "NODE_ENV=production",
           buildSecrets: null,
@@ -47,6 +50,7 @@ describe("Dokploy service environment reconciliation", () => {
 
     const result = await reconcileServiceEnvironment({
       serverUrl: "https://vps.example",
+      expectedServerUrl: "https://vps.example",
       apiKey: "dokploy-secret",
       applicationId: "website-id",
       application: website,
@@ -76,6 +80,9 @@ describe("Dokploy service environment reconciliation", () => {
         'CHALLENGE_ENGINE_API_SECRET="private-secret"',
         'CHALLENGE_ENGINE_URL="https://engine.hacktheandes.com"',
         'DATABASE_URL="postgresql://database.example/chofex"',
+        'PRIVATE_KEY="-----BEGIN PRIVATE KEY-----',
+        "multiline-secret-content",
+        '-----END PRIVATE KEY-----"',
       ].join("\n"),
       buildArgs: "NODE_ENV=production",
       buildSecrets: null,
@@ -97,6 +104,7 @@ describe("Dokploy service environment reconciliation", () => {
 
     const result = await reconcileServiceEnvironment({
       serverUrl: "https://vps.example",
+      expectedServerUrl: "https://vps.example/",
       apiKey: "dokploy-secret",
       applicationId: "website-id",
       application: website,
@@ -106,5 +114,28 @@ describe("Dokploy service environment reconciliation", () => {
 
     expect(result).toEqual({ changedNames: [] });
     expect(requests).toBe(1);
+  });
+
+  test("rejects a Dokploy endpoint mismatch before sending credentials", async () => {
+    let requests = 0;
+    const fetch = async () => {
+      requests += 1;
+      return Response.json({});
+    };
+
+    await expect(
+      reconcileServiceEnvironment({
+        serverUrl: "https://unexpected.example",
+        expectedServerUrl: "https://vps.example",
+        apiKey: "dokploy-secret",
+        applicationId: "website-id",
+        application: website,
+        applications,
+        fetch,
+      }),
+    ).rejects.toThrow(
+      "Refusing to use https://unexpected.example. This manifest targets https://vps.example.",
+    );
+    expect(requests).toBe(0);
   });
 });

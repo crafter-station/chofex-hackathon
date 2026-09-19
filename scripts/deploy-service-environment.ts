@@ -1,7 +1,5 @@
 import {
   type ApplicationEnvironment,
-  parseEnvironment,
-  serializeEnvironment,
   serviceEnvironment,
 } from "./deploy-environment";
 
@@ -19,6 +17,7 @@ interface DokployApplicationEnvironment {
 
 interface ReconcileServiceEnvironmentOptions {
   readonly serverUrl: string;
+  readonly expectedServerUrl: string;
   readonly apiKey: string;
   readonly applicationId: string;
   readonly application: ApplicationEnvironment;
@@ -29,6 +28,48 @@ interface ReconcileServiceEnvironmentOptions {
 interface ReconcileServiceEnvironmentResult {
   readonly changedNames: string[];
 }
+
+const normalizeUrl = (value: string): string => value.replace(/\/+$/, "");
+
+const escapedRegularExpression = (value: string): string =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const reconciledEnvironment = (
+  source: string,
+  desired: Record<string, string>,
+): { environment: string; changedNames: string[] } => {
+  let environment = source;
+  const changedNames: string[] = [];
+  for (const [name, value] of Object.entries(desired)) {
+    const assignment = `${name}=${JSON.stringify(value)}`;
+    const pattern = new RegExp(
+      `^${escapedRegularExpression(name)}=[^\\r\\n]*(?:\\r?$)`,
+      "gm",
+    );
+    const matches = [...environment.matchAll(pattern)];
+    const currentAssignment = matches[0]?.[0].replace(/\r$/, "");
+    if (matches.length === 1 && currentAssignment === assignment) continue;
+
+    changedNames.push(name);
+    if (matches.length === 0) {
+      let separator = "";
+      if (environment && !environment.endsWith("\n")) {
+        separator = environment.includes("\r\n") ? "\r\n" : "\n";
+      }
+      environment = `${environment}${separator}${assignment}`;
+      continue;
+    }
+
+    let replaced = false;
+    environment = environment.replace(pattern, (current) => {
+      if (replaced) return "";
+      replaced = true;
+      const carriageReturn = current.endsWith("\r") ? "\r" : "";
+      return `${assignment}${carriageReturn}`;
+    });
+  }
+  return { environment, changedNames };
+};
 
 const request = async (
   fetch: Fetch,
@@ -56,7 +97,13 @@ const request = async (
 export const reconcileServiceEnvironment = async (
   options: ReconcileServiceEnvironmentOptions,
 ): Promise<ReconcileServiceEnvironmentResult> => {
-  const baseUrl = options.serverUrl.replace(/\/+$/, "");
+  const baseUrl = normalizeUrl(options.serverUrl);
+  const expectedServerUrl = normalizeUrl(options.expectedServerUrl);
+  if (baseUrl !== expectedServerUrl) {
+    throw new Error(
+      `Refusing to use ${baseUrl}. This manifest targets ${expectedServerUrl}.`,
+    );
+  }
   const applicationUrl = new URL("/api/application.one", `${baseUrl}/`);
   applicationUrl.searchParams.set("applicationId", options.applicationId);
   const applicationState = (await request(
@@ -65,11 +112,11 @@ export const reconcileServiceEnvironment = async (
     options.apiKey,
     { method: "GET" },
   )) as DokployApplicationEnvironment;
-  const current = parseEnvironment(applicationState.env ?? "");
   const desired = serviceEnvironment(options.application, options.applications);
-  const changedNames = Object.entries(desired)
-    .filter(([name, value]) => current[name] !== value)
-    .map(([name]) => name);
+  const { environment, changedNames } = reconciledEnvironment(
+    applicationState.env ?? "",
+    desired,
+  );
   if (changedNames.length === 0) return { changedNames };
 
   const saveUrl = new URL("/api/application.saveEnvironment", `${baseUrl}/`);
@@ -78,7 +125,7 @@ export const reconcileServiceEnvironment = async (
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
       applicationId: options.applicationId,
-      env: serializeEnvironment({ ...current, ...desired }),
+      env: environment,
       buildArgs: applicationState.buildArgs ?? null,
       buildSecrets: applicationState.buildSecrets ?? null,
       createEnvFile: applicationState.createEnvFile ?? false,
