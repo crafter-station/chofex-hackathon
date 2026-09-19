@@ -1,8 +1,12 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
-import posthog from "posthog-js";
-import { useEffect, useRef } from "react";
+import posthog, {
+  type CaptureOptions,
+  type CaptureResult,
+  type Properties,
+} from "posthog-js";
+import { useCallback, useEffect, useRef } from "react";
 
 import {
   type CampaignProperties,
@@ -47,6 +51,32 @@ function syncRegisteredCampaign(): CampaignProperties {
   return campaign;
 }
 
+function replayProperties(event: CaptureResult): Properties {
+  if (event.event === "$identify" || event.event === "$set") {
+    return event.properties;
+  }
+  const properties = { ...event.properties };
+  for (const property of [
+    "distinct_id",
+    "$anon_distinct_id",
+    "$device_id",
+    "$user_id",
+  ]) {
+    delete properties[property];
+  }
+  return properties;
+}
+
+function replayEvent(event: CaptureResult): void {
+  const options: CaptureOptions = {
+    timestamp: event.timestamp,
+    uuid: event.uuid,
+  };
+  if (event.$set) options.$set = event.$set;
+  if (event.$set_once) options.$set_once = event.$set_once;
+  posthog.capture(event.event, replayProperties(event), options);
+}
+
 /**
  * Pageviews capture the campaign landing URL. Registering the UTM dimensions
  * also carries that campaign into later conversion events in the same browser.
@@ -59,13 +89,43 @@ export function PostHogAnalytics({
   const identitySyncEnabled = identity !== undefined;
   const identityIsLoaded = identity?.isLoaded ?? false;
   const identityUserId = identity?.userId ?? null;
-  const canInitialize = !identitySyncEnabled || identityIsLoaded;
   const initialized = useRef(false);
   const initialPageviewCaptured = useRef(false);
   const attributionSuppressed = useRef(false);
+  const identityReady = useRef(!identitySyncEnabled);
+  const queuedEvents = useRef<CaptureResult[]>([]);
+
+  const beforeIdentityReset = useCallback(() => {
+    writeBrowserCookie(
+      expiredCampaignAttributionCookie(window.location.protocol === "https:"),
+    );
+    if (initialPageviewCaptured.current) {
+      attributionSuppressed.current = true;
+    }
+  }, []);
+
+  const completeAnalyticsReadiness = useCallback(() => {
+    identityReady.current = true;
+    const queued = queuedEvents.current.splice(0);
+    const identityEvents = queued.filter(
+      (event) => event.event === "$identify" || event.event === "$set",
+    );
+    for (const event of identityEvents) replayEvent(event);
+
+    if (!initialPageviewCaptured.current) {
+      posthog.capture("$pageview");
+      posthog.set_config({ capture_pageview: "history_change" });
+      initialPageviewCaptured.current = true;
+    }
+
+    for (const event of queued) {
+      if (event.event === "$identify" || event.event === "$set") continue;
+      replayEvent(event);
+    }
+  }, []);
 
   useEffect(() => {
-    if (!canInitialize || initialized.current) return;
+    if (initialized.current) return;
     if (!isPostHogConfigured(posthogKey)) {
       if (process.env.NODE_ENV === "development") {
         console.error(
@@ -113,16 +173,17 @@ export function PostHogAnalytics({
             {},
           );
         }
+        if (!identityReady.current) {
+          queuedEvents.current.push(eventWithCampaign);
+          return null;
+        }
         return eventWithCampaign;
       },
     });
     initialized.current = true;
-    if (!identitySyncEnabled) {
-      posthog.capture("$pageview");
-      posthog.set_config({ capture_pageview: "history_change" });
-      initialPageviewCaptured.current = true;
-    }
-  }, [canInitialize, identitySyncEnabled]);
+    persistCampaignLanding();
+    if (!identitySyncEnabled) completeAnalyticsReadiness();
+  }, [completeAnalyticsReadiness, identitySyncEnabled]);
 
   useEffect(() => {
     if (
@@ -133,26 +194,47 @@ export function PostHogAnalytics({
     ) {
       return;
     }
-    const beforeReset = () => {
-      writeBrowserCookie(
-        expiredCampaignAttributionCookie(window.location.protocol === "https:"),
-      );
-      if (initialPageviewCaptured.current) {
-        attributionSuppressed.current = true;
-      }
-    };
     syncPostHogIdentity(
       { isLoaded: identityIsLoaded, userId: identityUserId },
       posthog,
       window.localStorage,
-      beforeReset,
+      beforeIdentityReset,
     );
-    if (!initialPageviewCaptured.current) {
-      posthog.capture("$pageview");
-      posthog.set_config({ capture_pageview: "history_change" });
-      initialPageviewCaptured.current = true;
+    completeAnalyticsReadiness();
+  }, [
+    beforeIdentityReset,
+    completeAnalyticsReadiness,
+    identitySyncEnabled,
+    identityIsLoaded,
+    identityUserId,
+  ]);
+
+  useEffect(() => {
+    if (
+      !identitySyncEnabled ||
+      identityIsLoaded ||
+      !initialized.current ||
+      !isPostHogConfigured(posthogKey)
+    ) {
+      return;
     }
-  }, [identitySyncEnabled, identityIsLoaded, identityUserId]);
+    const fallback = window.setTimeout(() => {
+      if (identityReady.current) return;
+      syncPostHogIdentity(
+        { isLoaded: true, userId: null },
+        posthog,
+        window.localStorage,
+        beforeIdentityReset,
+      );
+      completeAnalyticsReadiness();
+    }, 5000);
+    return () => window.clearTimeout(fallback);
+  }, [
+    beforeIdentityReset,
+    completeAnalyticsReadiness,
+    identitySyncEnabled,
+    identityIsLoaded,
+  ]);
 
   return null;
 }

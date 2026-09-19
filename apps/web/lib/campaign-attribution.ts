@@ -8,6 +8,7 @@ import {
 const attributionCookieName = "chofex_campaign_attribution";
 const attributionRetentionSeconds = 90 * 24 * 60 * 60;
 const attributionRetentionMilliseconds = attributionRetentionSeconds * 1000;
+const maximumClockSkewMilliseconds = 5 * 60 * 1000;
 const maximumEncodedCampaignValueLength = 200;
 const maximumCookieLength = 3800;
 
@@ -76,7 +77,7 @@ function normalizedTouch(
     typeof candidate.at !== "number" ||
     !Number.isSafeInteger(candidate.at) ||
     candidate.at < 0 ||
-    candidate.at > now ||
+    candidate.at > now + maximumClockSkewMilliseconds ||
     now - candidate.at > attributionRetentionMilliseconds
   ) {
     return;

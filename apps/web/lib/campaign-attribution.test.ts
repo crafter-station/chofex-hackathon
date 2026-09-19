@@ -199,3 +199,21 @@ test("returns only a validated latest campaign for browser registration", () => 
     latestCampaignProperties(cookie, firstTouchAt + 91 * 24 * 60 * 60 * 1000),
   ).toEqual({});
 });
+
+test("allows reasonable browser and server clock skew", () => {
+  const clientNow = firstTouchAt + 4 * 60 * 1000;
+  const cookie = campaignAttributionCookieForLanding(
+    "https://hacktheandes.com/?utm_campaign=clock-skew",
+    "",
+    clientNow,
+    true,
+  );
+
+  expect(campaignAttributionProperties(cookie, firstTouchAt)).toMatchObject({
+    first_utm_campaign: "clock-skew",
+    latest_utm_campaign: "clock-skew",
+  });
+  expect(
+    campaignAttributionProperties(cookie, firstTouchAt - 2 * 60 * 1000),
+  ).toEqual({});
+});
