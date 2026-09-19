@@ -1,7 +1,6 @@
 import { brandClerkAppearance } from "@chofex/ui/lib/clerk-appearance";
 import { ClerkProvider } from "@clerk/nextjs";
 import { shadcn } from "@clerk/themes";
-import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { ChunkLoadRecoverySuccess } from "@/components/chunk-load-recovery";
 import { DocumentLang } from "@/components/document-lang";
@@ -83,7 +82,6 @@ export default function RootLayout({
           {content}
           <ChunkLoadRecoverySuccess />
         </ThemeProvider>
-        <Analytics />
         <PostHogAnalytics />
       </body>
     </html>
