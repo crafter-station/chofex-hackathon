@@ -345,16 +345,16 @@ un tercero es cómo se quema una relación para la segunda edición.
 Identidad **Hack the Andes**, no Chofex. Chofex aparece como sponsor principal; no
 pinta la paleta. (Regla ya cerrada en el brief, no reabrir.)
 
-- Papel de fondo, tipografía en tinta. El deck es claro, no oscuro.
-- `--deck-action` para etiquetas y acciones; `--deck-status` para numerales y
-  reglas; `--deck-accent` solo como tinte — no sostiene texto.
+- Página negra, tipografía blanca y gris. La piel `terrain` es monocroma.
+- `terrain` declara sus propios roles acromáticos; no hereda el cobalto ni el
+  rojo del landing.
 - **Los roles se nombran por token, nunca por color.** Los nombres propios de la
   paleta cambian con cada rediseño; los roles no.
 - Retícula compartida de 1px, sin gaps y sin radius (`.deck-table` / `.deck-cell`).
 - Sombras duras (`0 2px 0`), nunca blur.
-- Barlow Condensed para títulos, IBM Plex Mono para chrome y etiquetas.
-- Sin gradientes, sin glassmorphism, sin emoji decorativo, sin ilustración
-  genérica de SaaS.
+- La cara de marca para títulos; IBM Plex Mono para chrome y etiquetas.
+- Los gradientes se reservan para velos funcionales sobre las láminas. Sin
+  glassmorphism, emoji decorativo ni ilustración genérica de SaaS.
 
 ---
 

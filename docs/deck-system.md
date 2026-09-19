@@ -272,11 +272,11 @@ tiene dos layouts divergentes.
 
 ## 10. Estado actual y límites conocidos
 
-- **Un solo deck hoy:** `main` (9 slides, ES). Falta la versión EN y los decks
-  por partner.
+- **Cuatro rutas estáticas:** `main` y `partners`, cada una en ES y EN. En total
+  son 44 slides.
 - **`deck.json` no tiene validación de schema.** Se hace `JSON.parse` y se envuelve
   el error nombrando el deck, pero un campo mal escrito no avisa cuál es.
-- **Sin assets todavía.** `public/deck/` no existe; `Logo` y `LogoWall` están
-  escritos pero no se usan en ningún slide.
-- **El contenido de `main` es un borrador** que depende de decisiones abiertas
-  (fechas, revelar tracks). Ver `sponsorship-deck-brief.md`.
+- **Assets locales:** las láminas y las fotografías viven en `public/deck/`.
+  Las fotos entran con `Photos`, nunca como backdrop.
+- **Rutas estáticas:** un deck o idioma nuevo requiere build y redeploy; no
+  aparece durante la vida de un proceso ya arrancado.

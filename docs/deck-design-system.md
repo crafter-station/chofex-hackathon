@@ -21,13 +21,13 @@ slides de un deck: son tres plantillas y una portada.
 
 | Plantilla | Qué es | Slides que cubre |
 | --- | --- | --- |
-| **T1** portada | Wordmark centrado abajo, fila de logos de sponsor | `01-cover`, `10-close` |
-| **T2** split | Media a la izquierda, columna de texto a la derecha | `02-what`, `08-why` |
-| **T3** split espejo | Texto a la izquierda, dos placeholders apilados a la derecha | `03-filter`, `06-stack` |
-| **T4** cards | Título arriba, cuatro tarjetas, wordmark al pie | `04-facts`, `05-prizes`, `07-tiers`, `09-metrics` |
+| **T1** portada | Wordmark centrado abajo, fila de logos de sponsor | Portadas y cierres |
+| **T2** split | Media a la izquierda, columna de texto a la derecha | Slides `split-right` |
+| **T3** split espejo | Texto a la izquierda, dos placeholders apilados a la derecha | Slides `split-left` |
+| **T4** cards | Título arriba, cuatro tarjetas, wordmark al pie | Slides `wide` |
 
-**Las plantillas son una piel, no un set de componentes nuevo.** Las diez slides
-ya existen en MDX y ya usan `Stat`, `SponsorTier`, `PrizePodium`, `DataGrid`. La
+**Las plantillas son una piel, no un set de componentes nuevo.** Las slides ya
+existen en MDX y usan `Stat`, `SponsorTier`, `PrizePodium`, `DataGrid`. La
 piel entra como un `style` en `deck.json` y el contenido no se toca. Inventar un
 `<CardRow variant="tier|stat|text">` sería duplicar lo que hay, y va contra la
 regla del propio sistema: ampliar el vocabulario de `mdx-components.ts` es
@@ -36,7 +36,7 @@ deliberado, y primero se compone con lo que existe.
 ### La correspondencia no es uno a uno
 
 El mapeo de arriba es de dónde sale cada plantilla, no qué slide la usa. El
-layout lo decide **la forma del contenido**, y ocho de las diez slides llevan una
+layout lo decide **la forma del contenido**, y muchas slides llevan una
 grilla donde la base lleva un párrafo. Partir el lienzo al medio las aplastaba.
 
 Por eso `split` no es media página sino una **columna al 64% corrida a un lado**:
@@ -45,10 +45,10 @@ un tercio del lienzo a la lámina. Lo que quedó:
 
 | Layout | Slides | Por qué |
 | --- | --- | --- |
-| `cover` | `01-cover`, `10-close` | Las dos que no llevan grilla |
-| `split-left` | `06-prizes`, `07-adoption` | Podio de 3 y grilla de 3, entran al 64% |
-| `split-right` | `08-why` | `ContrastGrid` son 2 columnas |
-| `wide` | las otras cinco | `StatRow` y `FlowMap` de 4, `MiniMatrix`, los 3 tiers |
+| `cover` | `01-cover`, cierres | Las que no llevan grilla |
+| `split-left` | premios, adopción, equipo | Podio de 3 y grillas estrechas entran al 64% |
+| `split-right` | por qué patrocinar | `ContrastGrid` son 2 columnas |
+| `wide` | datos, filtro, tiers, métricas | Las grillas necesitan el ancho completo |
 
 Y bajo un split la lámina se corre al lado contrario del texto (`82%` / `18%`),
 porque si no la masa más brillante del dibujo —el pico, que es la razón por la
@@ -405,10 +405,10 @@ apps/web/public/sponsors/peru-tech-week-white.png
 Sobre el velo va un degradé vertical que se profundiza hacia abajo: transparente
 arriba, `46%` de negro al pie. Es una **capa aparte**, no un cambio al velo, y
 eso importa por una propiedad: **solo suma**. Ninguna slide queda más clara de
-lo que estaba, que es lo que hace seguro aplicarlo a las diez de una.
+lo que estaba, que es lo que hizo seguro aplicarlo a las diez slides de la base.
 
-Aclara arriba porque ahí no hay nada que leer: medido sobre las diez slides, el
-texto va del 21% al 79% del alto y nunca sube de ahí.
+Aclara arriba porque ahí no hay nada que leer: medido sobre esas diez slides, el
+texto iba del 21% al 79% del alto y nunca subía de ahí.
 
 Medido antes y después, contraste del texto contra el fondo real que lo rodea
 (percentil 95, excluyendo el antialiasing de los glifos):
@@ -451,7 +451,7 @@ cobalto por levantado que esté.
 | --- | --- |
 | Las tarjetas claras con texto negro, si se quiere el efecto exacto de la base | Una variante de componente, no un token |
 
-El PDF está verificado: `bun deck:pdf` produce las diez slides a 16:9 retina.
+El exportador captura todas las slides de la ruta elegida a 16:9 retina.
 Playwright pasó a ser devDependency —el navegador se sigue bajando una vez por
 máquina— y las capturas van en JPEG 92 en vez de PNG, porque en PNG el deck
 pesaba 45 MB y no entraba en un mail. Ahora son 7.8.

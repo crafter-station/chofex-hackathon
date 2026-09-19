@@ -91,7 +91,7 @@ define si el aporte se queda en Basic o suma podio o merch.
 | Tier | Lo que da | Lo que recibe |
 | --- | --- | --- |
 | **Basic** | Créditos para los 100, en el monto que el sponsor elija | Logo en la landing · assets de anuncio · reporte de claims |
-| **Pro** | Basic + créditos para 1º, 2º y 3º | Todo Basic · mención en la premiación · reporte de uso |
+| **Pro** | Basic + créditos para 1º, 2º y 3º | Todo Basic · mención en la premiación · reporte de créditos asignados |
 | **Premium** | Basic + merch para participantes | Todo Basic · distribución en el evento · reporte de entrega |
 
 Basic es la base. Pro y Premium son extensiones alternativas: Premium no incluye
@@ -127,13 +127,13 @@ subirlo lo manda a un comité.
 
 ### Cuántos slots abre la landing
 
-**9 slots nombrados** (1 Stack + 2 Core + 6 Toolkit), más in-kind sin límite.
+**9 slots nombrados** (1 Title + 2 Core + 6 Apoyo), más in-kind sin límite.
 
 ⚠️ **La grilla de sponsors ya no existe.** El rediseño de la landing eliminó
 `sponsorSlots`; hoy hay una sola marca ("Sponsor principal · Chofex",
-`sponsorsCopy`). Prometer "logo en la grilla" en el tier Toolkit exige
+`sponsorsCopy`). Prometer "logo en la grilla" en el tier Apoyo exige
 **reconstruir esa sección**, no actualizar un array. Es trabajo pendiente y hay
-que hacerlo antes de cobrar un Toolkit.
+que hacerlo antes de cobrar un Apoyo.
 
 ---
 
@@ -160,15 +160,15 @@ un error: la brecha se cierra con in-kind.
 | **Margen** | **+$450** |
 
 Cierra con un margen pequeño. Eso significa que **el sheet tiene poca holgura**:
-si falla una pieza de in-kind o no se venden los 6 Toolkit, hay déficit.
+si falla una pieza de in-kind o no se venden los 6 Apoyo, hay déficit.
 
 ### Escenario realista (no el lleno)
 
-Si se venden 3 Toolkit de 6 y falta el in-kind de comida:
+Si se venden 3 Apoyo de 6 y falta el in-kind de comida:
 
 | | USD |
 | --- | ---: |
-| Cash (Stack + 2 Core + 3 Toolkit) | $6.000 |
+| Cash (Title + 2 Core + 3 Apoyo) | $6.000 |
 | In-kind logrado (sede + swag) | $2.200 |
 | Cubierto | $8.200 |
 | **Déficit** | **−$2.550** |
@@ -179,7 +179,7 @@ Si se venden 3 Toolkit de 6 y falta el in-kind de comida:
    legitimidad institucional). Priorizar universidades antes que cash.
 2. **Reducir el cupo.** Cada 10 hackers menos son $825 de operación. Es la
    palanca más rápida y la menos popular.
-3. **Subir Toolkit de 6 a 10 slots.** +$2.000. Costo: la grilla de la landing
+3. **Subir Apoyo de 6 a 10 slots.** +$2.000. Costo: la grilla de la landing
    empieza a verse como un directorio, no como un cartel.
 4. **Premio adicional pagado por un partner** en vez de por el evento. No baja
    el costo, lo traslada.

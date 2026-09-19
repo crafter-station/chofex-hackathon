@@ -53,12 +53,22 @@ function tableProps(
    */
   shape?: "rows",
 ) {
-  return {
+  const props: {
+    className: string;
+    "data-cols": number;
+    "data-shape"?: "rows";
+    style: CSSProperties;
+  } = {
     className: "deck-table",
     "data-cols": count,
-    ...(shape ? { "data-shape": shape } : {}),
     style: { "--deck-cols": template } as CSSProperties,
   };
+
+  if (shape) {
+    props["data-shape"] = shape;
+  }
+
+  return props;
 }
 
 /* ---------- structure and text ---------- */
