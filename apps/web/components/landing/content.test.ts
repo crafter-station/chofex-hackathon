@@ -5,6 +5,8 @@ import {
   applyCopy,
   brandName,
   chromeCopy,
+  cliInstallMethods,
+  cliNextCommands,
   discordCopy,
   eventCopy,
   eventItems,
@@ -31,6 +33,31 @@ import {
   trackSeats,
   tracksCopy,
 } from "./content";
+
+test("offers curl and npm installation before the shared CLI flow", () => {
+  expect(cliInstallMethods).toEqual([
+    {
+      id: "curl",
+      label: "curl",
+      description: "Recomendado · no requiere Node.js",
+      hint: "Configura PATH y recarga tu terminal automáticamente.",
+      command:
+        'curl -fsSL https://hacktheandes.com/install | bash && exec "$SHELL" -l',
+    },
+    {
+      id: "npm",
+      label: "npm",
+      description: "Requiere Node.js 20 o superior",
+      hint: "",
+      command: "npm install --global chofex-cli@latest",
+    },
+  ]);
+  expect(cliNextCommands).toEqual([
+    "chofex login",
+    "chofex register",
+    "chofex status",
+  ]);
+});
 
 test("publishes the 17–18 octubre 2026 weekend in participant-facing copy", () => {
   const cuando = facts.find((fact) => fact.label === "Fecha");

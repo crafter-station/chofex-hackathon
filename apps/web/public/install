@@ -231,8 +231,11 @@ if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
     zsh)
       candidates=("${ZDOTDIR:-$HOME}/.zshrc" "${ZDOTDIR:-$HOME}/.zshenv")
       ;;
-    *)
+    bash)
       candidates=("$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.profile")
+      ;;
+    *)
+      candidates=("$HOME/.profile")
       ;;
   esac
   config_files=()
@@ -241,14 +244,27 @@ if [[ "$NO_MODIFY_PATH" != "true" && "$path_is_available" != "true" ]]; then
       config_files+=("$candidate")
     fi
   done
-  if [[ "${#config_files[@]}" -gt 0 ]]; then
-    for config_file in "${config_files[@]}"; do
-      add_to_path "$config_file" "$path_command"
+  if [[ "$current_shell" == "bash" ]]; then
+    for config_file in "$HOME/.bashrc" "$HOME/.bash_profile"; do
+      if [[ ! -f "$config_file" ]]; then
+        touch "$config_file"
+        config_files+=("$config_file")
+      fi
     done
-  else
-    printf "%bAdd chofex to PATH in your shell configuration:%b\n  %s\n" \
-      "$ORANGE" "$NC" "$path_command"
+  elif [[ "${#config_files[@]}" -eq 0 ]]; then
+    case "$current_shell" in
+      fish) config_files=("$HOME/.config/fish/config.fish") ;;
+      zsh) config_files=("${ZDOTDIR:-$HOME}/.zshrc") ;;
+      *) config_files=("$HOME/.profile") ;;
+    esac
+    for config_file in "${config_files[@]}"; do
+      mkdir -p "$(dirname "$config_file")"
+      touch "$config_file"
+    done
   fi
+  for config_file in "${config_files[@]}"; do
+    add_to_path "$config_file" "$path_command"
+  done
 fi
 
 printf "\nInstalled %b%s%b to %s\n" \

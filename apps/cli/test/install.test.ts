@@ -155,4 +155,69 @@ exec /bin/mv "$@"
       );
     }
   });
+
+  test("creates Bash startup files when none exist", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "chofex-new-shell-test-"));
+    temporaryDirectories.push(directory);
+    const source = join(directory, "source-chofex");
+    const installDirectory = join(directory, "installed");
+    await writeFile(source, "chofex");
+
+    await execFileAsync(
+      "bash",
+      [
+        installerPath.pathname,
+        "--binary",
+        source,
+        "--install-dir",
+        installDirectory,
+      ],
+      {
+        env: {
+          ...process.env,
+          HOME: directory,
+          SHELL: "/bin/bash",
+        },
+      },
+    );
+
+    for (const name of [".bashrc", ".bash_profile"]) {
+      expect(await readFile(join(directory, name), "utf8")).toContain(
+        `export PATH=${installDirectory}:$PATH`,
+      );
+    }
+  });
+
+  test("configures both Bash startup modes when only one exists", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "chofex-one-shell-test-"));
+    temporaryDirectories.push(directory);
+    const source = join(directory, "source-chofex");
+    const installDirectory = join(directory, "installed");
+    await writeFile(source, "chofex");
+    await writeFile(join(directory, ".bashrc"), "# existing\n");
+
+    await execFileAsync(
+      "bash",
+      [
+        installerPath.pathname,
+        "--binary",
+        source,
+        "--install-dir",
+        installDirectory,
+      ],
+      {
+        env: {
+          ...process.env,
+          HOME: directory,
+          SHELL: "/bin/bash",
+        },
+      },
+    );
+
+    for (const name of [".bashrc", ".bash_profile"]) {
+      expect(await readFile(join(directory, name), "utf8")).toContain(
+        `export PATH=${installDirectory}:$PATH`,
+      );
+    }
+  });
 });
