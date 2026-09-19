@@ -91,6 +91,8 @@ export function isTrackableUrl(url: unknown): boolean {
 const extensionRejectionMarker = "Object Not Found Matching Id:";
 
 type AnalyticsEvent = {
+  $set?: Record<string, unknown>;
+  $set_once?: Record<string, unknown>;
   event?: string;
   properties?: Record<string, unknown>;
 };
@@ -116,6 +118,16 @@ function isLocationProperty(property: string): boolean {
   );
 }
 
+function withoutLocationProperties(
+  properties: Record<string, unknown> | undefined,
+): Record<string, unknown> {
+  const sanitizedProperties = { ...properties };
+  for (const property of Object.keys(sanitizedProperties)) {
+    if (isLocationProperty(property)) delete sanitizedProperties[property];
+  }
+  return sanitizedProperties;
+}
+
 /** Excluded screens may link identity, but their location data must never leave the app. */
 export function postHogEventForPublicAnalytics<T extends AnalyticsEvent>(
   event: T | null,
@@ -125,9 +137,15 @@ export function postHogEventForPublicAnalytics<T extends AnalyticsEvent>(
   if (isTrackableUrl(event.properties?.$current_url)) return event;
   if (event.event !== "$identify") return null;
 
-  const properties = { ...event.properties };
-  for (const property of Object.keys(properties)) {
-    if (isLocationProperty(property)) delete properties[property];
+  const sanitizedEvent: AnalyticsEvent = {
+    ...event,
+    properties: withoutLocationProperties(event.properties),
+  };
+  if (event.$set) {
+    sanitizedEvent.$set = withoutLocationProperties(event.$set);
   }
-  return { ...event, properties };
+  if (event.$set_once) {
+    sanitizedEvent.$set_once = withoutLocationProperties(event.$set_once);
+  }
+  return sanitizedEvent as T;
 }

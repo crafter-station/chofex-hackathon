@@ -105,9 +105,17 @@ test("keeps first-party exceptions and non-exception events", () => {
 
 test("allows identity linking without exposing an excluded URL", () => {
   const identityEvent: {
+    $set_once?: Record<string, unknown>;
     event?: string;
     properties?: Record<string, unknown>;
   } = {
+    $set_once: {
+      $initial_current_url:
+        "https://hacktheandes.com/auth/complete?token=private",
+      $initial_pathname: "/auth/complete",
+      $initial_referrer: "https://accounts.example.com/private",
+      acquisition_channel: "campaign",
+    },
     event: "$identify",
     properties: {
       $anon_distinct_id: "anonymous-123",
@@ -119,6 +127,9 @@ test("allows identity linking without exposing an excluded URL", () => {
     },
   };
   expect(postHogEventForPublicAnalytics(identityEvent)).toEqual({
+    $set_once: {
+      acquisition_channel: "campaign",
+    },
     event: "$identify",
     properties: {
       $anon_distinct_id: "anonymous-123",
