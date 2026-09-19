@@ -249,6 +249,39 @@
   position: relative;
 }
 
+.brand-code {
+  --code-surface: #111015;
+  --code-text: #f6f3ee;
+  --code-executable: #6f9bff;
+  --code-flag: #f59d91;
+  --code-package: #ddcfbd;
+  --code-muted: #bec3c9;
+  background-color: var(--code-surface);
+  border-color: rgb(246 243 238 / 16%);
+  color: var(--code-text);
+}
+
+.brand-code > li {
+  border-color: rgb(246 243 238 / 10%);
+}
+
+.brand-code [data-token="executable"] {
+  color: var(--code-executable);
+  font-weight: 600;
+}
+
+.brand-code [data-token="flag"] {
+  color: var(--code-flag);
+}
+
+.brand-code [data-token="package"] {
+  color: var(--code-package);
+}
+
+.brand-code [data-token="muted"] {
+  color: var(--code-muted);
+}
+
 .landing-dossier::before {
   position: absolute;
   inset: 0;
