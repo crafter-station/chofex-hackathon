@@ -1,6 +1,10 @@
 import { expect, test } from "bun:test";
 
-import { syncPostHogIdentity } from "./posthog-identity";
+import {
+  identityStorageFromBrowser,
+  propertiesForPostHogReplay,
+  syncPostHogIdentity,
+} from "./posthog-identity";
 
 function identityHarness() {
   const calls: string[] = [];
@@ -120,4 +124,37 @@ test("runs privacy cleanup before reset and the next identification", () => {
     "reset",
     "identify:user_b",
   ]);
+});
+
+test("handles browsers that deny access to the localStorage getter", () => {
+  const browser = Object.defineProperty({}, "localStorage", {
+    get: () => {
+      throw new Error("storage denied");
+    },
+  }) as Window;
+
+  expect(identityStorageFromBrowser(browser)).toBeUndefined();
+});
+
+test("removes prior identity and session correlation when replaying events", () => {
+  expect(
+    propertiesForPostHogReplay("application_prompt_copied", {
+      distinct_id: "old-distinct-id",
+      $anon_distinct_id: "old-anonymous-id",
+      $device_id: "old-device-id",
+      $user_id: "old-user-id",
+      $session_id: "old-session-id",
+      $window_id: "old-window-id",
+      prompt_kind: "application",
+    }),
+  ).toEqual({ prompt_kind: "application" });
+});
+
+test("preserves PostHog identity event properties when replaying them", () => {
+  const properties = {
+    distinct_id: "new-user-id",
+    $anon_distinct_id: "new-anonymous-id",
+  };
+
+  expect(propertiesForPostHogReplay("$identify", properties)).toBe(properties);
 });

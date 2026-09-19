@@ -1,11 +1,7 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
-import posthog, {
-  type CaptureOptions,
-  type CaptureResult,
-  type Properties,
-} from "posthog-js";
+import posthog, { type CaptureOptions, type CaptureResult } from "posthog-js";
 import { useCallback, useEffect, useRef } from "react";
 
 import {
@@ -25,6 +21,8 @@ import {
 } from "@/lib/campaign-attribution";
 import {
   type IdentityState,
+  identityStorageFromBrowser,
+  propertiesForPostHogReplay,
   syncPostHogIdentity,
 } from "@/lib/posthog-identity";
 
@@ -51,22 +49,6 @@ function syncRegisteredCampaign(): CampaignProperties {
   return campaign;
 }
 
-function replayProperties(event: CaptureResult): Properties {
-  if (event.event === "$identify" || event.event === "$set") {
-    return event.properties;
-  }
-  const properties = { ...event.properties };
-  for (const property of [
-    "distinct_id",
-    "$anon_distinct_id",
-    "$device_id",
-    "$user_id",
-  ]) {
-    delete properties[property];
-  }
-  return properties;
-}
-
 function replayEvent(event: CaptureResult): void {
   const options: CaptureOptions = {
     timestamp: event.timestamp,
@@ -74,7 +56,11 @@ function replayEvent(event: CaptureResult): void {
   };
   if (event.$set) options.$set = event.$set;
   if (event.$set_once) options.$set_once = event.$set_once;
-  posthog.capture(event.event, replayProperties(event), options);
+  posthog.capture(
+    event.event,
+    propertiesForPostHogReplay(event.event, event.properties),
+    options,
+  );
 }
 
 /**
@@ -197,7 +183,7 @@ export function PostHogAnalytics({
     syncPostHogIdentity(
       { isLoaded: identityIsLoaded, userId: identityUserId },
       posthog,
-      window.localStorage,
+      identityStorageFromBrowser(window),
       beforeIdentityReset,
     );
     completeAnalyticsReadiness();
@@ -220,21 +206,10 @@ export function PostHogAnalytics({
     }
     const fallback = window.setTimeout(() => {
       if (identityReady.current) return;
-      syncPostHogIdentity(
-        { isLoaded: true, userId: null },
-        posthog,
-        window.localStorage,
-        beforeIdentityReset,
-      );
       completeAnalyticsReadiness();
     }, 5000);
     return () => window.clearTimeout(fallback);
-  }, [
-    beforeIdentityReset,
-    completeAnalyticsReadiness,
-    identitySyncEnabled,
-    identityIsLoaded,
-  ]);
+  }, [completeAnalyticsReadiness, identitySyncEnabled, identityIsLoaded]);
 
   return null;
 }

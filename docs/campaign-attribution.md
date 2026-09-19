@@ -32,12 +32,11 @@ Challenge-link outcomes:
 
 ```sql
 WITH landings AS (
-    SELECT person_id, min(timestamp) AS landed_at
+    SELECT person_id, timestamp AS landed_at
     FROM events
     WHERE event = '$pageview'
       AND properties.$utm_campaign = 'CAMPAIGN'
       AND properties.$current_url LIKE '%/challenges/%'
-    GROUP BY person_id
 )
 SELECT
     uniq(landings.person_id) AS landed,
@@ -65,12 +64,11 @@ different intent:
 
 ```sql
 WITH landings AS (
-    SELECT person_id, min(timestamp) AS landed_at
+    SELECT person_id, timestamp AS landed_at
     FROM events
     WHERE event = '$pageview'
       AND properties.$utm_campaign = 'CAMPAIGN'
       AND properties.$current_url NOT LIKE '%/challenges/%'
-    GROUP BY person_id
 )
 SELECT
     uniq(landings.person_id) AS landed,
@@ -86,6 +84,11 @@ LEFT JOIN events
        OR isNull(events.properties.latest_utm_campaign)
    )
 ```
+
+Each qualifying landing opens its own 30-day conversion window. The `uniq`
+aggregates keep overlapping windows from double-counting a person while still
+allowing a later repeat landing to qualify conversions after an earlier window
+has closed.
 
 The report and campaign operating artifacts remain the source for campaign
 names and link templates; do not duplicate recipient or message content here.
