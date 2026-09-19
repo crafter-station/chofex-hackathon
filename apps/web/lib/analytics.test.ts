@@ -137,3 +137,29 @@ test("allows identity linking without exposing an excluded URL", () => {
     },
   });
 });
+
+test("removes private initial URLs from identity events on public pages", () => {
+  const identityEvent: {
+    $set_once?: Record<string, unknown>;
+    event?: string;
+    properties?: Record<string, unknown>;
+  } = {
+    $set_once: {
+      $initial_current_url:
+        "https://hacktheandes.com/auth/complete?token=private",
+      $initial_referrer: "https://accounts.example.com/private",
+    },
+    event: "$identify",
+    properties: {
+      $current_url: "https://hacktheandes.com/",
+      distinct_id: "user_test_123",
+    },
+  };
+  expect(postHogEventForPublicAnalytics(identityEvent)).toEqual({
+    $set_once: {},
+    event: "$identify",
+    properties: {
+      distinct_id: "user_test_123",
+    },
+  });
+});

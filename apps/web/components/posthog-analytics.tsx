@@ -2,7 +2,7 @@
 
 import { useAuth } from "@clerk/nextjs";
 import posthog from "posthog-js";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import {
   campaignPropertiesFromUrl,
@@ -50,8 +50,12 @@ export function PostHogAnalytics({
   const identitySyncEnabled = identity !== undefined;
   const identityIsLoaded = identity?.isLoaded ?? false;
   const identityUserId = identity?.userId ?? null;
+  const canInitialize = !identitySyncEnabled || identityIsLoaded;
+  const initialized = useRef(false);
+  const initialPageviewCaptured = useRef(false);
 
   useEffect(() => {
+    if (!canInitialize || initialized.current) return;
     if (!isPostHogConfigured(posthogKey)) {
       if (process.env.NODE_ENV === "development") {
         console.error(
@@ -65,14 +69,27 @@ export function PostHogAnalytics({
 
     posthog.init(posthogKey, {
       api_host: posthogHost,
+      capture_pageview: false,
       defaults: "2025-05-24",
       before_send: postHogEventForPublicAnalytics,
     });
+    initialized.current = true;
     captureCampaignLanding();
-  }, []);
+    if (!identitySyncEnabled) {
+      posthog.capture("$pageview");
+      initialPageviewCaptured.current = true;
+    }
+  }, [canInitialize, identitySyncEnabled]);
 
   useEffect(() => {
-    if (!identitySyncEnabled || !isPostHogConfigured(posthogKey)) return;
+    if (
+      !identitySyncEnabled ||
+      !identityIsLoaded ||
+      !initialized.current ||
+      !isPostHogConfigured(posthogKey)
+    ) {
+      return;
+    }
     const didReset = syncPostHogIdentity(
       { isLoaded: identityIsLoaded, userId: identityUserId },
       posthog,
@@ -83,6 +100,10 @@ export function PostHogAnalytics({
         expiredCampaignAttributionCookie(window.location.protocol === "https:"),
       );
       if (identityUserId) captureCampaignLanding();
+    }
+    if (!initialPageviewCaptured.current) {
+      posthog.capture("$pageview");
+      initialPageviewCaptured.current = true;
     }
   }, [identitySyncEnabled, identityIsLoaded, identityUserId]);
 

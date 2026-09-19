@@ -8,6 +8,7 @@ import {
 const attributionCookieName = "chofex_campaign_attribution";
 const attributionRetentionSeconds = 90 * 24 * 60 * 60;
 const attributionRetentionMilliseconds = attributionRetentionSeconds * 1000;
+const maximumEncodedCampaignValueLength = 200;
 
 type CampaignTouch = {
   readonly at: number;
@@ -21,6 +22,30 @@ type CampaignAttribution = {
 };
 
 export type CampaignAttributionProperties = Record<string, string>;
+
+function cookieSafeCampaign(campaign: CampaignProperties): CampaignProperties {
+  const cookieSafeProperties: Record<string, string> = {};
+  for (const [property, value] of Object.entries(campaign)) {
+    if (!value) continue;
+    let encodedLength = 0;
+    let cookieSafeValue = "";
+    for (const character of value) {
+      let characterLength: number;
+      try {
+        characterLength = encodeURIComponent(character).length;
+      } catch {
+        continue;
+      }
+      if (encodedLength + characterLength > maximumEncodedCampaignValueLength) {
+        break;
+      }
+      encodedLength += characterLength;
+      cookieSafeValue += character;
+    }
+    if (cookieSafeValue) cookieSafeProperties[property] = cookieSafeValue;
+  }
+  return normalizeCampaignProperties(cookieSafeProperties);
+}
 
 function readCookie(
   cookieHeader: string | null | undefined,
@@ -52,7 +77,9 @@ function normalizedTouch(
     return;
   }
 
-  const campaign = normalizeCampaignProperties(candidate.campaign);
+  const campaign = cookieSafeCampaign(
+    normalizeCampaignProperties(candidate.campaign),
+  );
   if (Object.keys(campaign).length === 0) return;
   return { at: candidate.at, campaign };
 }
@@ -87,7 +114,7 @@ function campaignTouchFromUrl(
 ): CampaignTouch | undefined {
   if (!isTrackableUrl(url)) return;
   try {
-    const campaign = campaignPropertiesFromUrl(url);
+    const campaign = cookieSafeCampaign(campaignPropertiesFromUrl(url));
     if (Object.keys(campaign).length === 0) return;
     return { at: now, campaign };
   } catch {

@@ -134,18 +134,19 @@ export function postHogEventForPublicAnalytics<T extends AnalyticsEvent>(
 ): T | null {
   if (!event) return event;
   if (isExtensionNoiseException(event)) return null;
+  if (event.event === "$identify") {
+    const sanitizedEvent: AnalyticsEvent = {
+      ...event,
+      properties: withoutLocationProperties(event.properties),
+    };
+    if (event.$set) {
+      sanitizedEvent.$set = withoutLocationProperties(event.$set);
+    }
+    if (event.$set_once) {
+      sanitizedEvent.$set_once = withoutLocationProperties(event.$set_once);
+    }
+    return sanitizedEvent as T;
+  }
   if (isTrackableUrl(event.properties?.$current_url)) return event;
-  if (event.event !== "$identify") return null;
-
-  const sanitizedEvent: AnalyticsEvent = {
-    ...event,
-    properties: withoutLocationProperties(event.properties),
-  };
-  if (event.$set) {
-    sanitizedEvent.$set = withoutLocationProperties(event.$set);
-  }
-  if (event.$set_once) {
-    sanitizedEvent.$set_once = withoutLocationProperties(event.$set_once);
-  }
-  return sanitizedEvent as T;
+  return null;
 }

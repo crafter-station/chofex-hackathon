@@ -51,9 +51,13 @@ SELECT
     uniqIf(events.person_id, events.event = 'challenge_evaluation_submitted') AS evaluated
 FROM landings
 LEFT JOIN events
-    ON events.person_id = landings.person_id
+   ON events.person_id = landings.person_id
    AND events.timestamp >= landings.landed_at
-   AND events.properties.latest_utm_campaign = 'CAMPAIGN'
+   AND events.timestamp < landings.landed_at + INTERVAL 30 DAY
+   AND (
+       events.properties.latest_utm_campaign = 'CAMPAIGN'
+       OR isNull(events.properties.latest_utm_campaign)
+   )
 ```
 
 Application outcomes remain a separate funnel because those links have a
@@ -74,9 +78,13 @@ SELECT
     uniqIf(events.person_id, events.event = 'application_submitted') AS submitted
 FROM landings
 LEFT JOIN events
-    ON events.person_id = landings.person_id
+   ON events.person_id = landings.person_id
    AND events.timestamp >= landings.landed_at
-   AND events.properties.latest_utm_campaign = 'CAMPAIGN'
+   AND events.timestamp < landings.landed_at + INTERVAL 30 DAY
+   AND (
+       events.properties.latest_utm_campaign = 'CAMPAIGN'
+       OR isNull(events.properties.latest_utm_campaign)
+   )
 ```
 
 The report and campaign operating artifacts remain the source for campaign
