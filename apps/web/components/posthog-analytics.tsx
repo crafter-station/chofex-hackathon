@@ -85,9 +85,8 @@ export function PostHogAnalytics({
     writeBrowserCookie(
       expiredCampaignAttributionCookie(window.location.protocol === "https:"),
     );
-    if (identityReady.current) {
-      attributionSuppressed.current = true;
-    }
+    attributionSuppressed.current = true;
+    queuedEvents.current.length = 0;
   }, []);
 
   const completeAnalyticsReadiness = useCallback(() => {
